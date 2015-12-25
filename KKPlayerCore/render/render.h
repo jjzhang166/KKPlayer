@@ -1,0 +1,26 @@
+#ifndef RENDER_H
+#define RENDER_H
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+class CRender
+{
+public:
+    enum RenderType
+    {
+        GDI_RENDER,
+        D3D_RENDER,
+    };
+    virtual bool init(HWND hView) = 0;
+    virtual void destroy() = 0;
+    virtual void resize(unsigned int w, unsigned int h) = 0;
+    virtual void WinSize(unsigned int w, unsigned int h) = 0;
+	virtual void render(char* buf,int width,int height)=0;
+	//≥ œ÷±≥æ∞Õº∆¨
+	virtual void renderBk(unsigned char* buf,int len)=0;
+	virtual void SetWaitPic(unsigned char* buf,int len)=0;
+	virtual void SetBkImagePic(unsigned char* buf,int len)=0;
+};
+
+#endif
