@@ -740,7 +740,7 @@ void KKPlayer::ReadAV()
 	pVideoInfo->max_frame_duration = (pVideoInfo->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 	pVideoInfo->IsReady=1;	
 	
-	pVideoInfo->m_nLiveType=1;
+	pVideoInfo->m_nLiveType=0;
     strcpy(pVideoInfo->PushURL,"rtmp://192.9.8.239/live/xxxx");
 	if(pVideoInfo->m_nLiveType==1)
 	{
@@ -865,7 +865,7 @@ void KKPlayer::ReadAV()
 		pVideoInfo->bmp=bmp;
 	}
 
-    if(pVideoInfo->m_nLiveType=1)
+    if(pVideoInfo->m_nLiveType==1)
 	{
 		unsigned int addrr=0;
 		_beginthreadex(NULL, NULL, PushStream, (LPVOID)this, 0,&addrr);
