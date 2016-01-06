@@ -9,7 +9,6 @@
 #include "KKPlayer.h"
 #include "KKInternal.h"
 
-
 static AVPacket flush_pkt;
 static int decoder_reorder_pts = -1;
 static int framedrop = -1;
@@ -36,8 +35,8 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 }
 void KKPlayer::CloseMedia()
 {
-	m_CloseLock.Lock();
-   
+    m_CloseLock.Lock();
+    m_pSound->Stop();
 	m_bOpen=false;
 	if(pVideoInfo==NULL) 
 		return;
@@ -46,7 +45,7 @@ void KKPlayer::CloseMedia()
 		pVideoInfo->auddec.decoder_tid.ThreadHandel,pVideoInfo->subdec.decoder_tid.ThreadHandel};
 	pVideoInfo->abort_request=1;
 	::WaitForMultipleObjects(5,wiatHandle,TRUE,INFINITE);
-	m_pSound->CloseAudio();
+	
 
 	//SDL_CloseAudio();
 	//关闭读取线程
@@ -547,7 +546,7 @@ int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePa
     UINT addrr;
 	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
 
-	_beginthreadex(NULL, NULL, PushStream, (LPVOID)this, 0,&addrr);
+	
 	return 0;
 }
 /*********视频刷新线程********/
@@ -576,7 +575,7 @@ int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePa
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
-	
+
 	AVFormatContext *pFormatCtx= avformat_alloc_context();
 	AVDictionary *format_opts=NULL;
 	int err=-1;
@@ -676,6 +675,7 @@ void KKPlayer::ReadAV()
 	
 	}
 
+
 	pVideoInfo->pFormatCtx = pFormatCtx;
 	pVideoInfo->PicGrabType=0;
 	
@@ -740,6 +740,50 @@ void KKPlayer::ReadAV()
 	pVideoInfo->max_frame_duration = (pVideoInfo->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 	pVideoInfo->IsReady=1;	
 	
+	pVideoInfo->m_nLiveType=1;
+    strcpy(pVideoInfo->PushURL,"rtmp://192.9.8.239/live/xxxx");
+	if(pVideoInfo->m_nLiveType==1)
+	{
+		avformat_alloc_output_context2(& pVideoInfo->PushOfmt_ctx, NULL, "flv", pVideoInfo->PushURL); //RTMP  
+		for (int i = 0; i < pVideoInfo->pFormatCtx->nb_streams; i++) 
+		{  
+			//根据输入流创建输出流（Create output AVStream according to input AVStream）  
+			AVStream *in_stream = pVideoInfo->pFormatCtx->streams[i];  
+			AVStream *out_stream = avformat_new_stream( pVideoInfo->PushOfmt_ctx, in_stream->codec->codec);  
+			if (!out_stream) {  
+				printf( "Failed allocating output stream\n");  
+				ret = AVERROR_UNKNOWN;  
+				//	goto end;  
+			}  
+			//复制AVCodecContext的设置（Copy the settings of AVCodecContext）  
+			ret = avcodec_copy_context(out_stream->codec, in_stream->codec);  
+			if (ret < 0) 
+			{  
+				//			printf( "Failed to copy context from input to output stream codec context\n");  
+
+			}  
+			out_stream->codec->codec_tag = 0;  
+			if ( pVideoInfo->PushOfmt_ctx->oformat->flags & AVFMT_GLOBALHEADER)  
+				out_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;  
+		}  
+		//Dump Format------------------  
+		av_dump_format(pVideoInfo->PushOfmt_ctx, 0,  pVideoInfo->PushURL, 1);  
+		//打开输出URL（Open output URL）  
+		if (!( pVideoInfo->PushOfmt_ctx->oformat ->flags & AVFMT_NOFILE))
+		{  
+			ret = avio_open(& pVideoInfo->PushOfmt_ctx->pb,  pVideoInfo->PushURL, AVIO_FLAG_WRITE);  
+			if (ret < 0) {  
+				printf( "Could not open output URL '%s'",  pVideoInfo->PushURL);  
+				//goto end;  
+			}  
+		} 
+		//写文件头（Write file header）  
+		ret = avformat_write_header( pVideoInfo->PushOfmt_ctx, NULL);  
+		if (ret < 0)
+		{  
+			printf( "Error occurred when opening output URL\n");  
+		} 
+	}
 
     pVideoInfo->PicGrabType=0;
 	/****************以下windows 录屏专用************************/
@@ -821,13 +865,12 @@ void KKPlayer::ReadAV()
 		pVideoInfo->bmp=bmp;
 	}
 
-	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb");
-	AVBitStreamFilterContext* aacbsfc =  av_bitstream_filter_init("aac_adtstoasc");
-	//return;
-	/*if(pVideoInfo->realtime)
+    if(pVideoInfo->m_nLiveType=1)
 	{
-		Sleep(5000);
-	}*/
+		unsigned int addrr=0;
+		_beginthreadex(NULL, NULL, PushStream, (LPVOID)this, 0,&addrr);
+	}
+	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb"); 
 	for (;;) 
 	{
 		
@@ -942,6 +985,8 @@ void KKPlayer::ReadAV()
 		//av_new_packet(&cpypkt,pkt->size);
 		av_copy_packet(&cpypkt,pkt);
 		}
+		
+
 		/* check if packet is in play range specified by user, then queue, otherwise discard */
 		stream_start_time = pFormatCtx->streams[pkt->stream_index]->start_time;
 		
@@ -955,6 +1000,21 @@ void KKPlayer::ReadAV()
 			a1 * a2-(double)(start_time != AV_NOPTS_VALUE ? start_time : 0) / 1000000 <= ((double)duration / 1000000);
 		pkt_in_play_range =1;
 
+
+		if(pVideoInfo->m_nLiveType==1)
+		{
+			AVPacket *pRtmpPkt =(AVPacket *)av_malloc(sizeof(AVPacket));
+			av_copy_packet(pRtmpPkt,pkt);
+
+			pRtmpPkt->pts = av_rescale_q_rnd(pRtmpPkt->pts, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->PushOfmt_ctx->streams[pkt->stream_index]->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
+			pRtmpPkt->dts = av_rescale_q_rnd(pRtmpPkt->dts,pFormatCtx->streams[pkt->stream_index]->time_base,  pVideoInfo->PushOfmt_ctx->streams[pkt->stream_index]->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
+			pRtmpPkt->duration = av_rescale_q(pRtmpPkt->duration,pFormatCtx->streams[pkt->stream_index]->time_base,  pVideoInfo->PushOfmt_ctx->streams[pkt->stream_index]->time_base);
+
+			
+			m_PushStreamLock.Lock();
+			m_PushPktQue.push(pRtmpPkt);
+			m_PushStreamLock.Unlock();
+		}
 		//音频
 		if (pkt->stream_index == pVideoInfo->audio_stream && pkt_in_play_range) 
 		{
@@ -964,11 +1024,6 @@ void KKPlayer::ReadAV()
 				cpypkt.pts = av_rescale_q_rnd(cpypkt.pts, pFormatCtx->streams[pkt->stream_index]->time_base,pVideoInfo->out_audios->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
 				cpypkt.dts = av_rescale_q_rnd(cpypkt.dts, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_audios->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
 				cpypkt.duration = av_rescale_q(cpypkt.duration, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_audios->time_base);
-				//cpypkt.pos = -1;
-				/*AVPacket cpypkt;
-				av_new_packet(&cpypkt,pkt->size);
-				av_copy_packet(&cpypkt,pkt);*/
-				//av_bitstream_filter_filter(aacbsfc,pVideoInfo->out_audios->codec, NULL, &cpypkt.data, &cpypkt.size,cpypkt.data, cpypkt.size, 0); 
 				if (av_interleaved_write_frame(pVideoInfo->ofmt_ctx, &cpypkt) < 0)
 				{  
 					assert(0);
@@ -976,19 +1031,15 @@ void KKPlayer::ReadAV()
 				}			
 			}
 		} //视频
-		else if (pkt->stream_index == pVideoInfo->video_stream && pkt_in_play_range
-			&& !(pVideoInfo->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC)) 
+		else if (
+			pkt->stream_index == pVideoInfo->video_stream && pkt_in_play_range
+			&& !(pVideoInfo->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC)
+			) 
 		{
 			/********无内存泄露*******/
 			packet_queue_put(&pVideoInfo->videoq, pkt,pVideoInfo->pflush_pkt);
 			if(pVideoInfo->IsOutFile)//Write 
 			{
-				//av_bitstream_filter_filter(h264bsfc,pVideoInfo->viddec.avctx, NULL,&pkt->data, &pkt->size, pkt->data, pkt->size, 0);
-				/*AVPacket cpypkt;
-				av_new_packet(&cpypkt,pkt->size);
-				av_copy_packet(&cpypkt,pkt);*/
-				//av_bitstream_filter_filter(h264bsfc,pVideoInfo->out_videos->codec, NULL, &cpypkt.data, &cpypkt.size,cpypkt.data, cpypkt.size, 0); 
-				//Convert PTS/DTS  
 				cpypkt.pts = av_rescale_q_rnd(cpypkt.pts, pFormatCtx->streams[pkt->stream_index]->time_base,pVideoInfo->out_videos->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
 				cpypkt.dts = av_rescale_q_rnd(cpypkt.dts, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_videos->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
 				cpypkt.duration = av_rescale_q(cpypkt.duration, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_videos->time_base);
@@ -1058,227 +1109,53 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
 
 unsigned WINAPI KKPlayer::PushStream(LPVOID lpParameter)
 {
-	return 1;
+	//return 1;
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;
 	pPlayer->VideoPushStream();
 	return 0;
 }
-//存储Nal单元数据的buffer大小
-#define BUFFER_SIZE 32768
-//搜寻Nal单元时的一些标志
-#define GOT_A_NAL_CROSS_BUFFER BUFFER_SIZE+1
-#define GOT_A_NAL_INCLUDE_A_BUFFER BUFFER_SIZE+2
-#define NO_MORE_BUFFER_TO_READ BUFFER_SIZE+3
-int ReadFirstNaluFromBuf(NaluUnit &nalu,int nalhead_pos,uint8_t *m_pBuf, int buf_size) 
-{
-	int naltail_pos=nalhead_pos;
-	while(nalhead_pos<buf_size)  
-	{  
-		//search for nal header
-		if(m_pBuf[nalhead_pos++] == 0x00 && 
-			m_pBuf[nalhead_pos++] == 0x00) 
-		{
-			if(m_pBuf[nalhead_pos++] == 0x01)
-				goto gotnal_head;
-			else 
-			{
-				//cuz we have done an i++ before,so we need to roll back now
-				nalhead_pos--;		
-				if(m_pBuf[nalhead_pos++] == 0x00 && 
-					m_pBuf[nalhead_pos++] == 0x01)
-					goto gotnal_head;
-				else
-					continue;
-			}
-		}
-		else 
-			continue;
 
-		//search for nal tail which is also the head of next nal
-gotnal_head:
-		//normal case:the whole nal is in this m_pFileBuf
-		naltail_pos = nalhead_pos;  
-		while (naltail_pos<buf_size)  
-		{  
-			if(m_pBuf[naltail_pos++] == 0x00 && 
-				m_pBuf[naltail_pos++] == 0x00 )
-			{  
-				if(m_pBuf[naltail_pos++] == 0x01)
-				{
-					nalu.size = (naltail_pos-3)-nalhead_pos;
-					break;
-				}
-				else
-				{
-					naltail_pos--;
-					if(m_pBuf[naltail_pos++] == 0x00 &&
-						m_pBuf[naltail_pos++] == 0x01)
-					{	
-						nalu.size = (naltail_pos-4)-nalhead_pos;
-						break;
-					}
-				}
-			}  
-		}
-
-		unsigned char*	m_pBuf_tmp=(unsigned char*)malloc(BUFFER_SIZE);
-		nalu.type = m_pBuf[nalhead_pos]&0x1f; 
-		memcpy(m_pBuf_tmp,m_pBuf+nalhead_pos,nalu.size);
-		nalu.data=m_pBuf_tmp;
-		nalhead_pos=naltail_pos;
-		return TRUE;   		
-	}
-	return false;
-}
-
-int ReadOneNaluFromBuf(NaluUnit &nalu,int nalhead_pos,uint8_t *m_pBuf, int buf_size)  
-{    
-	unsigned char* m_pBuf_tmp_old;	
-	int naltail_pos=nalhead_pos;
-	int ret;
-	int nalustart;//nal的开始标识符是几个00
-
-	unsigned char*	m_pBuf_tmp=(unsigned char*)malloc(BUFFER_SIZE);
-	memset(m_pBuf_tmp,0,BUFFER_SIZE);
-	nalu.size=0;
-	while(1)
-	{
-		if(nalhead_pos==NO_MORE_BUFFER_TO_READ)
-			return FALSE;
-		while(naltail_pos<buf_size)  
-		{  
-			//search for nal tail
-			if(m_pBuf[naltail_pos++] == 0x00 && 
-				m_pBuf[naltail_pos++] == 0x00) 
-			{
-				if(m_pBuf[naltail_pos++] == 0x01)
-				{	
-					nalustart=3;
-					goto gotnal ;
-				}
-				else 
-				{
-					//cuz we have done an i++ before,so we need to roll back now
-					naltail_pos--;		
-					if(m_pBuf[naltail_pos++] == 0x00 && 
-						m_pBuf[naltail_pos++] == 0x01)
-					{
-						nalustart=4;
-						goto gotnal;
-					}
-					else
-						continue;
-				}
-			}
-			else 
-				continue;
-
-			gotnal:	
- 				/**
-				 *special case1:parts of the nal lies in a m_pFileBuf and we have to read from buffer 
-				 *again to get the rest part of this nal
-				 */
-				if(nalhead_pos==GOT_A_NAL_CROSS_BUFFER || nalhead_pos==GOT_A_NAL_INCLUDE_A_BUFFER)
-				{
-					nalu.size = nalu.size+naltail_pos-nalustart;
-					if(nalu.size>BUFFER_SIZE)
-					{
-						m_pBuf_tmp_old=m_pBuf_tmp;	//// save pointer in case realloc fails
-						if((m_pBuf_tmp = (unsigned char*)realloc(m_pBuf_tmp,nalu.size)) ==  NULL )
-						{
-							free( m_pBuf_tmp_old );  // free original block
-							return FALSE;
-						}
-					}
-					memcpy(m_pBuf_tmp+nalu.size+nalustart-naltail_pos,m_pBuf,naltail_pos-nalustart);
-					nalu.data=m_pBuf_tmp;
-					nalhead_pos=naltail_pos;
-					return TRUE;
-				}
-				//normal case:the whole nal is in this m_pFileBuf
-				else 
-				{  
-					nalu.type = m_pBuf[nalhead_pos]&0x1f; 
-					nalu.size=naltail_pos-nalhead_pos-nalustart;
-					if(nalu.type==0x06)
-					{
-						nalhead_pos=naltail_pos;
-						continue;
-					}
-					memcpy(m_pBuf_tmp,m_pBuf+nalhead_pos,nalu.size);
-					nalu.data=m_pBuf_tmp;
-					nalhead_pos=naltail_pos;
-					return TRUE;    
-				} 					
-		}	
-	}
-	return FALSE;  
-} 
-#include "PushStream/sps_decode.h"
+//推流
 void KKPlayer::VideoPushStream()
 {
-	return;
-    Sleep(10000);
-
-	//FILE *fp=fopen("C:\\test.264","ab");
-	unsigned char *dummy=NULL;   //输入的指针  
-	int dummy_len;  
-	AVBitStreamFilterContext* bsfc =  av_bitstream_filter_init("h264_mp4toannexb");    
-	av_bitstream_filter_filter(bsfc, pVideoInfo->viddec.avctx, NULL, &dummy, &dummy_len, NULL, 0, 0);  
-	//fwrite(pVideoInfo->viddec.avctx->extradata,pVideoInfo->viddec.avctx->extradata_size,1,fp); 
-	av_bitstream_filter_close(bsfc);    
-	free(dummy);  
-	unsigned char * buf=(unsigned char *)::malloc(pVideoInfo->viddec.avctx->extradata_size);
-	memcpy(buf,pVideoInfo->viddec.avctx->extradata,pVideoInfo->viddec.avctx->extradata_size);
-	
-
-	NaluUnit naluUnit;  
-	// 读取SPS帧   
-	ReadFirstNaluFromBuf(naluUnit,0,buf,pVideoInfo->viddec.avctx->extradata_size);
-	bool xxxxttt=m_PushRTMPStream.Connect("rtmp://livesvc.jseducloud.com:1935/live/xxxx");
-
-	RTMPMetadata metaData;
-	memset(&metaData,0,sizeof(RTMPMetadata));
-	
-	metaData.nSpsLen = naluUnit.size;  
-	memcpy(metaData.Sps,naluUnit.data,naluUnit.size);
-
-	// 读取PPS帧   
-	ReadOneNaluFromBuf(naluUnit,0,buf,pVideoInfo->viddec.avctx->extradata_size);  
-	metaData.nPpsLen = naluUnit.size; 
-	memcpy(metaData.Pps,naluUnit.data,naluUnit.size);
-
-	// 解码SPS,获取视频图像宽、高信息   
-	int width = 0,height = 0, fps=0;  
-	h264_decode_sps(metaData.Sps,metaData.nSpsLen,width,height,fps);  
-	//metaData.nWidth = width;  
-	//metaData.nHeight = height;  
-	if(fps)
-		metaData.nFrameRate = fps; 
-	else
-		metaData.nFrameRate = 25;
-
-
-	unsigned int tick = 0;  
-	unsigned int tick_gap = 1000/metaData.nFrameRate; 
-	bool OKK=m_PushRTMPStream.SendMetadata(&metaData);
+	int ret=0;
+	int64_t xstart_time=av_gettime();  
 	while(1)
 	{
-		Sleep(2);
-		while(m_PushRtmpQue.size()>0)
-		{
-             m_PushStreamLock.Lock();
-			 VFH264Packet* pp = m_PushRtmpQue.front();
-			 m_PushRtmpQue.pop();
-			 m_PushStreamLock.Unlock();
-			 
-			 bool ol=m_PushRTMPStream.SendH264Packet(pp->data,pp->size,pp->bIsKeyFrame,tick);
-			 tick +=tick_gap;
-			// fwrite(pp->data,pp->size,1,fp);
-			 free(pp->data);
-			 free(pp);
-		}
-		
+		    if(pVideoInfo->abort_request)
+			          break;
+			while(m_PushPktQue.size()>0)
+			{
+
+				m_PushStreamLock.Lock();
+				AVPacket *pkt=m_PushPktQue.front();
+				m_PushPktQue.pop();
+				m_PushStreamLock.Unlock();
+				
+				//Important:Delay
+				{
+					AVRational time_base=pVideoInfo->PushOfmt_ctx->streams[pkt->stream_index]->time_base;
+					AVRational time_base_q={1,AV_TIME_BASE};
+					int64_t pts_time = av_rescale_q(pkt->dts, time_base, time_base_q);
+					int64_t now_time = av_gettime() - xstart_time;
+					if (pts_time > now_time)
+					{
+						av_usleep(pts_time - now_time);
+						if(pVideoInfo->abort_request)
+							break;
+					}
+				}
+			
+
+				ret = av_interleaved_write_frame(pVideoInfo->PushOfmt_ctx, pkt);  
+				if (ret < 0)
+				{  
+					printf( "Error muxing packet\n");  
+					break;  
+				}  
+				av_free_packet(pkt);
+				av_free(pkt);
+			}
 	}
-	
+
 }

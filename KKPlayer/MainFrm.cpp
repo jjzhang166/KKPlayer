@@ -215,8 +215,7 @@ std::basic_string<TCHAR> GetModulePath();
 
 void  CMainFrame::OpenMedia(std::string url,OpenMediaEnum en,std::string FilePath)
 {
-	m_PlayerInstance.InitSound();
-	m_PlayerInstance.SetWindowHwnd(m_hWnd);
+
 	m_PlayerInstance.OpenMedia(url,en,FilePath);
 	m_bOpen=true;
 }
@@ -240,38 +239,16 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	this->EnableWindow(true);
 	::SetTimer(this->m_hWnd,10010,10,NULL);
 
-	m_pRender =new  CRenderD3D();
+	 m_pRender =new  CRenderD3D();
 
-	//m_pRender =CRender::create(CRender::GDI_RENDER);//D3D_RENDER
-	m_pRender->init(this->m_hWnd);
-	//m_PlayerInstance.InitSound();
-	//m_PlayerInstance.SetWindowHwnd(m_hWnd);
-	//m_PlayerInstance.OpenMedia("F:\\ttxx.mp4");
-//	m_PlayerInstance.OpenMedia("rtsp://192.9.8.36/live/ch02_0");
-	//m_PlayerInstance.OpenMedia("rtmp://livesvc.jseducloud.com:1935/live/7f4195b6-f377-73ee-4bc2-216049051a86 live=1");
+	 m_pRender->init(this->m_hWnd);
+
+	 m_PlayerInstance.InitSound();
+	 m_PlayerInstance.SetWindowHwnd(m_hWnd);
+
 	
-	//m_PlayerInstance.OpenMedia("F:\\aaa.FLV");
-	//m_PlayerInstance.OpenMedia("F:\\Media\\¾Å²ãÑýËþHD.rmvb");
-	//m_PlayerInstance.OpenMedia("F:\\Media\\J±ýÏÀBD1280¸ßÇå¹úÓïÖÐÓ¢Ë«×Ö.mkv");
-	//m_PlayerInstance.OpenMedia("E:\\Pro\\ProcLectureRoom\\OutFile\\UpVideo\\PGM[15-09-18-09-25-13].mp4");
-	//("rtsp://211.139.194.251:554/live/2/13E6330A31193128/5iLd2iNl5nQ2s8r8.sdp");
-	//m_PlayerInstance.OpenMedia("rtmp://192.9.8.229:1935/live/rrr live=1");//("E:\\ttxx.mp4");
-	//m_PlayerInstance.OpenMedia("rtsp://218.204.223.237:554/live/1/0547424F573B085C/gsfp90ef4k0a6iap.sdp");
-   // m_PlayerInstance.OpenMedia("rtmp://stream1.fjtv.net/live/xwpd_sd");
-	//m_PlayerInstance.OpenMedia("rtmp://60.55.12.180:1935/live/16156d9087f941bd818dc8390b7bf522 live=1");
-	//m_PlayerInstance.OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-	//m_PlayerInstance.OpenMedia("rtmp://192.9.8.229:1935/live/b450d2f2-7af2-bf80-b71a-471f90465730 live=1");
-	//OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-	//OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-#ifdef QY_GDI
-	//OpenMedia("rtmp://203.69.85.37/livepkgr/hopestream1?adbe-live-event=hopetv live=1");
-	OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-#endif
-	OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-//	OpenMedia("rtmp://www.planeta-online.tv:1936/live/channel_4 live=1");
-	//OpenMedia("F:\\ttxx.mp4");
-	//OpenMedia("F:\\ttxx.mp4");
-	
+	 OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
+
 	
     return 0;
 }
@@ -280,11 +257,6 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 {
 	delete m_BkGidPulsBitmap;
 	m_BkGidPulsBitmap=NULL;
-	// unregister message filtering and idle updates
-	//CMessageLoop* pLoop = _Module.GetMessageLoop();
-	//ATLASSERT(pLoop != NULL);
-	//pLoop->RemoveMessageFilter(this);
-//	pLoop->RemoveIdleHandler(this);
 	if( m_bOpen)
 	{
 		m_bOpen=false;

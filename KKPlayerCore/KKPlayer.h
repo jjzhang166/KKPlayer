@@ -12,8 +12,6 @@
 #include <queue>
 #include <string>
 
-#include "PullStearm/Rtmp/KKReceiveRtmp.h"
-#include "PushStream/rtmp/LibrtmpStreamData.h"
 #include "InterCriSec.h"
 #include "KKVideoInfo.h"
 #ifndef KKPlayer_H_
@@ -29,13 +27,6 @@ enum SeekEnum
 	Down,
 	Left,
 	Right
-};
-struct VFH264Packet
-{
-	unsigned char *data;
-	unsigned int size;
-	bool bIsKeyFrame;
-	unsigned int nTimeStamp;
 };
 class KKPlayer
 {
@@ -94,10 +85,9 @@ private:
 			SKK_ThreadInfo m_VideoRefreshthreadInfo;
 			//等待事件
 			HANDLE m_WaitEvent;
-            CKKRtmp m_RtmpIns;
-      
-			RTMPStream m_PushRTMPStream;
-			std::queue<VFH264Packet*> m_PushRtmpQue;
+
+			//推流数据队列
+			std::queue<AVPacket *> m_PushPktQue;
 			InterCriSec m_PushStreamLock;
 			std::string m_StrFilePath;
 };

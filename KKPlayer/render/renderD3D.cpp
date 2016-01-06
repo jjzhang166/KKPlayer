@@ -11,7 +11,29 @@
 std::basic_string<TCHAR> GetModulePath();
 //#define VFYUY420P
 typedef IDirect3D9* (WINAPI* LPDIRECT3DCREATE9)( UINT );
+typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);  
 
+LPFN_ISWOW64PROCESS fnIsWow64Process;  
+BOOL IsWow64()  
+{  
+	BOOL bIsWow64 = FALSE;  
+
+	//IsWow64Process is not available on all supported versions of Windows.  
+	//Use GetModuleHandle to get a handle to the DLL that contains the function  
+	//and GetProcAddress to get a pointer to the function if available.  
+
+	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(  
+		GetModuleHandle(TEXT("kernel32")),"IsWow64Process");  
+
+	if(NULL != fnIsWow64Process)  
+	{  
+		if (!fnIsWow64Process(GetCurrentProcess(),&bIsWow64))  
+		{  
+			//handle error  
+		}  
+	}  
+	return bIsWow64;  
+}  
 CRenderD3D::CRenderD3D()
     :m_hView(NULL)
     ,m_pD3D(NULL)
@@ -62,48 +84,54 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
 
 bool CRenderD3D::init(HWND hView)
 {
-    m_hView = hView;
+	m_hView = hView;
 
-    HMODULE hModD3D9 = LoadLibraryA("d3d9.dll");
+	HMODULE hModD3D9 = LoadLibraryA("d3d9.dll");
 	if(!hModD3D9)
 	{
 		std::wstring path=GetModulePath();
-		path+=L"\\";
-		path+=L"d3d9.dll";
-        hModD3D9 = LoadLibrary(path.c_str());
+		if(IsWow64())
+			path+=L"\\win7\\d3d9.dll";
+		else
+		{
+			path+=L"\\xp\\d3d9.dll";
+		}
+		hModD3D9 = LoadLibrary(path.c_str());
 	}
-    if (hModD3D9)
-    {
-		
-        LPDIRECT3DCREATE9 pfnDirect3DCreate9 = (LPDIRECT3DCREATE9)GetProcAddress(hModD3D9, "Direct3DCreate9");
+	if (hModD3D9)
+	{
+
+		LPDIRECT3DCREATE9 pfnDirect3DCreate9 = (LPDIRECT3DCREATE9)GetProcAddress(hModD3D9, "Direct3DCreate9");
 		if(pfnDirect3DCreate9==NULL)
 		{
-               ::MessageBox(hView,L"未能加载Direct3DCreate9函数",L"提示",MB_ICONHAND);
+			::MessageBox(hView,L"未能加载Direct3DCreate9函数",L"提示",MB_ICONHAND);
 		}
-        m_pD3D=pfnDirect3DCreate9(D3D_SDK_VERSION);//Direct3DCreate9(D3D_SDK_VERSION);//
+		m_pD3D=pfnDirect3DCreate9(D3D_SDK_VERSION);//Direct3DCreate9(D3D_SDK_VERSION);//
 
-        DWORD BehaviorFlags =D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES;
-        D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(hView);
+		DWORD BehaviorFlags =D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES;
+		D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(hView);
 
 		int ii=m_pD3D->GetAdapterCount();
 		//GetParent()
-        HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetParent(hView), BehaviorFlags, &PresentParams, &m_pDevice);
-        if (FAILED(hr) && hr != D3DERR_DEVICELOST)
-        {
-            BehaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-            hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hView, BehaviorFlags, &PresentParams, &m_pDevice);
-            if (FAILED(hr) && hr != D3DERR_DEVICELOST)
+		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetParent(hView), BehaviorFlags, &PresentParams, &m_pDevice);
+		if (FAILED(hr) && hr != D3DERR_DEVICELOST)
+		{
+			BehaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+			hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hView, BehaviorFlags, &PresentParams, &m_pDevice);
+			if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 			{
 				assert(0);
 			}
-                return false;
-        }
+			::MessageBox(hView,L"d3d创建错误",L"提示",MB_ICONHAND);
+			return false;
+		}
 
-        resize(PresentParams.BackBufferWidth, PresentParams.BackBufferHeight);
+		resize(PresentParams.BackBufferWidth, PresentParams.BackBufferHeight);
 		return true;
-    }
-	::MessageBox(hView,L"未能加载d3dx9.dll，请安装d3d9",L"提示",MB_ICONHAND);
-    return false;
+	}
+
+	::MessageBox(hView,L"未能加载d3d9.dll，请安装d3d9",L"提示",MB_ICONHAND);
+	return false;
 }
 
 void CRenderD3D::destroy()

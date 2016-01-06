@@ -274,7 +274,7 @@ typedef struct SKK_VideoState
 	/****当前帧直接的延迟s****/
 	double delay;
 
-	/**********输出环境*****************/
+	/**********输出环境,单独存储文件*****************/
 	bool IsOutFile; 
 	AVFormatContext *ofmt_ctx;  
 	AVOutputFormat *ofmt;
@@ -282,11 +282,18 @@ typedef struct SKK_VideoState
 	int audioindex_out;  
 	AVStream *out_audios;
 	AVStream *out_videos;
+	
+	/****************推流环境************************/
+    AVFormatContext *PushOfmt_ctx;
+	char PushURL[1024];
+	int m_nLiveType;//0:不退流; 1:rtmp 推流
+
 	/****************以下windows专用************************/
 	struct SwsContext *PicGrab_Img_convert_ctx;
 	HDC Source_Hdc;
 	int DevBpp;
 	HDC Dest_Hdc;
+	
 	/******截屏数据类型*******/
 	int PicGrabType;
 	void *PicGrabBuf;

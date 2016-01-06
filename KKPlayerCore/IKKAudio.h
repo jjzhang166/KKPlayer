@@ -12,13 +12,20 @@ typedef  void (*pfun)(void *UserData,char *buf,int buflen);
 class IKKAudio
 {
   public:
+	      
 	      virtual void SetWindowHAND(int m_hwnd)=0;
 	      virtual void SetUserData(void* UserData)=0;
 	      /********设置音频回到函数*********/
 	      virtual void SetAudioCallBack(pfun fun)=0;
+		  /***********初始化音频设备*********/
 	      virtual void InitAudio()=0;
-          virtual void PlayAudio()=0;	   
+		  /*******读取音频数据********/
+          virtual void ReadAudio()=0;	   
+          virtual void Start()=0;	   
+		  virtual void Stop()=0;	   
+		  /*********关闭**********/
 		  virtual void CloseAudio()=0;	
+		  /*********设置音量************/
 		  virtual void SetVolume(long value)=0;
 		  virtual long GetVolume()=0;
 };

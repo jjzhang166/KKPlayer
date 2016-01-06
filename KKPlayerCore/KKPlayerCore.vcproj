@@ -151,6 +151,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\avc.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\KKInfo.cpp"
 				>
 			</File>
@@ -214,50 +218,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
-		</Filter>
-		<Filter
-			Name="PullStearm"
-			>
-			<Filter
-				Name="rtmp"
-				>
-				<File
-					RelativePath=".\PushStream\rtmp\LibrtmpStreamData.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PushStream\rtmp\LibrtmpStreamData.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PushStream\rtmp\LibrtmpStreamInterface.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PushStream\rtmp\LibrtmpStreamInterface.h"
-					>
-				</File>
-				<File
-					RelativePath=".\PushStream\rtmp\LibtrmpData.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="PushStream"
-			>
-			<Filter
-				Name="rtmp"
-				>
-				<File
-					RelativePath=".\PullStearm\Rtmp\KKReceiveRtmp.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\PullStearm\Rtmp\KKReceiveRtmp.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

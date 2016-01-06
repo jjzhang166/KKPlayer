@@ -681,62 +681,45 @@ void audio_callback(void *userdata, char *stream, int len)
 		return;
 	}
 	int audio_size=0, len1=0;
-
 	//获取现在的时间
 	pVideoInfo->audio_callback_time = av_gettime_relative();
 	//Sleep(1);
-	if(pVideoInfo->audio_write_buf_size<=0)
+	while (len > 0) 
 	{
-LOOP:
-			while (len > 0) 
+		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
+		{
+			audio_size = audio_decode_frame(pVideoInfo);
+			if (audio_size < 0)
 			{
-				if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
-				{
-					audio_size = audio_decode_frame(pVideoInfo);
-					if (audio_size < 0)
-					{
-						//printf("silence_buf\n");
-						/* if error, just output silence */
-						pVideoInfo->audio_buf      = pVideoInfo->silence_buf;
-						pVideoInfo->audio_buf_size = sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
-					} else 
-					{
-						pVideoInfo->audio_buf_size = audio_size;
-					}
-					pVideoInfo->audio_buf_index = 0;
-				}
-				len1 = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
-				if (len1 > len)
-					len1 = len;
-				memcpy(stream, (uint8_t *)pVideoInfo->audio_buf + pVideoInfo->audio_buf_index, len1);
-				len -= len1;
-				stream += len1;
-				pVideoInfo->audio_buf_index += len1;
+				//printf("silence_buf\n");
+				/* if error, just output silence */
+				pVideoInfo->audio_buf      = pVideoInfo->silence_buf;
+				pVideoInfo->audio_buf_size = sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
+			} else 
+			{
+				pVideoInfo->audio_buf_size = audio_size;
 			}
-	}else
-	{
+			pVideoInfo->audio_buf_index = 0;
+		}
 		len1 = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 		if (len1 > len)
 			len1 = len;
-         memcpy(stream, (uint8_t *)pVideoInfo->audio_buf + pVideoInfo->audio_buf_index, len1);
-		 len -= len1;
-		 stream += len1;
-		 pVideoInfo->audio_buf_index += len1;
-		 if(len>0)
-		 {
-            goto LOOP;
-		 }
+		memcpy(stream, (uint8_t *)pVideoInfo->audio_buf + pVideoInfo->audio_buf_index, len1);
+		
+
+		len -= len1;
+		stream += len1;
+		pVideoInfo->audio_buf_index += len1;
 	}
 	pVideoInfo->audio_write_buf_size = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 	if (!isNAN(pVideoInfo->audio_clock)) 
 	{
-       set_clock_at(&pVideoInfo->audclk,     
-		   pVideoInfo->audio_clock - (double)(2 * pVideoInfo->audio_hw_buf_size + pVideoInfo->audio_write_buf_size) / pVideoInfo->audio_tgt.bytes_per_sec, 
-		   pVideoInfo->audio_clock_serial, 
-		   pVideoInfo->audio_callback_time / 1000000.0);
-	   sync_clock_to_slave(&pVideoInfo->extclk, &pVideoInfo->audclk);
+		set_clock_at(&pVideoInfo->audclk,     
+			pVideoInfo->audio_clock - (double)(2 * pVideoInfo->audio_hw_buf_size + pVideoInfo->audio_write_buf_size) / pVideoInfo->audio_tgt.bytes_per_sec, 
+			pVideoInfo->audio_clock_serial, 
+			pVideoInfo->audio_callback_time / 1000000.0);
+		sync_clock_to_slave(&pVideoInfo->extclk, &pVideoInfo->audclk);
 	}
-
 }
 
 
@@ -980,9 +963,13 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	
 	//return 1;
 	SKK_VideoState *pIs=(SKK_VideoState *)lpParameter;
-	while(!pIs->abort_request&&pIs->pKKAudio!=NULL)
+	if(pIs->pKKAudio!=NULL)
 	{
-		pIs->pKKAudio->PlayAudio();
+		pIs->pKKAudio->Start();
+		while(!pIs->abort_request&&pIs->pKKAudio!=NULL)
+		{
+			pIs->pKKAudio->ReadAudio();
+		}
 	}
 	return 1;
 }

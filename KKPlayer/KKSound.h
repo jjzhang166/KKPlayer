@@ -22,10 +22,12 @@ class CKKSound: public IKKAudio
 		   /********设置音频回到函数*********/
 		   void SetAudioCallBack(pfun fun);
 		   //需要在线程中单独调用
-		   void PlayAudio();
+		   void ReadAudio();
 		   void CloseAudio();
            void SetVolume(long value);
 		   long GetVolume();
+		   void Start();   
+		   void Stop();
    private:
 	       DWORD res;
 		   LPVOID buf; 

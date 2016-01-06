@@ -10,12 +10,11 @@
 //typedef unsigned char	Uint8;
 extern "C"
 {
-
-	
 #ifndef __STDC_CONSTANT_MACROS
 #define __STDC_CONSTANT_MACROS
 #endif
 #include "../libx86/ffmpeg/include/libavutil/avstring.h"
+#include "../libx86/ffmpeg/include/libavutil/intreadwrite.h"
 #include "../libx86/ffmpeg/include/libavutil/eval.h"
 #include "../libx86/ffmpeg/include/libavutil/mathematics.h"
 #include "../libx86/ffmpeg/include/libavutil/pixdesc.h"
