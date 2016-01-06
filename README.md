@@ -4,3 +4,4 @@ vs2008编译通过
 项目组成 
          KKPlayerCore  播放器核心代码
 		 KKplayer项目是基于KKPlayerCore写的例子
+相关资源文件已经放在debug目下了，release只需拷贝debug下的dll及相关资源即可
