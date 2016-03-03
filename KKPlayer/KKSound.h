@@ -4,7 +4,7 @@
 #include <mmreg.h>
 #include <dsound.h>
 #include "IKKAudio.h"
-#include "InterCriSec.h"
+#include "KKLock.h"
 
 #ifndef KKSound_H_
 #define KKSound_H_
@@ -42,6 +42,6 @@ class CKKSound: public IKKAudio
 		   /**********用户数据***********/
 		   void* m_UserData;
 		   bool IsClose;
-		   InterCriSec m_Lock;
+		   CKKLock m_Lock;
 };
 #endif

@@ -6,7 +6,7 @@
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date：2015-6-25**********************************************/
 #include "Includeffmpeg.h"
-#include "InterCriSec.h"
+#include "KKLock.h"
 #include "IKKAudio.h"
 #include <queue>
 #ifndef KKVideoInfo_H_
@@ -49,7 +49,7 @@ typedef struct SKK_PacketQueue
 	int abort_request;
 	/*******序列号*********/
 	int serial;
-	InterCriSec *pLock;
+	CKKLock *pLock;
 	//等待事件
 	HANDLE m_WaitEvent;
 } SKK_PacketQueue;
@@ -109,7 +109,7 @@ typedef struct SKK_FrameQueue
 	int keep_last;
 	int rindex_shown;
 
-	InterCriSec *mutex;
+	CKKLock *mutex;
 	//等待事件
 	HANDLE m_WaitEvent;
 	SKK_PacketQueue  *pktq;

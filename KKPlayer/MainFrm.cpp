@@ -248,7 +248,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	
 	 OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-
+	 //OpenMedia("C:\\AVOK.flv");
 	
     return 0;
 }

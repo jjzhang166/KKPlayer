@@ -32,7 +32,7 @@ int quit = 0;
 void packet_queue_init(SKK_PacketQueue  *q) 
 {
 	memset(q, 0, sizeof(SKK_PacketQueue));
-	q->pLock = new InterCriSec();
+	q->pLock = new CKKLock();
 	q->abort_request = 1;
 }
 //包入队列
@@ -295,7 +295,7 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 	int i;
 	memset(f, 0, sizeof(SKK_FrameQueue));
 
-	f->mutex = new InterCriSec();
+	f->mutex = new CKKLock();
 	f->pktq = pktq;
 	f->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
 	f->keep_last = !!keep_last;

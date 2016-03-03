@@ -12,7 +12,7 @@
 #include <queue>
 #include <string>
 
-#include "InterCriSec.h"
+#include "KKLock.h"
 #include "KKVideoInfo.h"
 #ifndef KKPlayer_H_
 #define KKPlayer_H_
@@ -62,7 +62,7 @@ class KKPlayer
 private:
 	        //文件打开后需要做什么
 	        OpenMediaEnum m_OpenMediaEnum;
-	        InterCriSec m_CloseLock;
+	        CKKLock m_CloseLock;
 	        bool m_bOpen;
 	        IKKPlayUI* m_pPlayUI;
 	        void VideoPushStream();
@@ -88,7 +88,7 @@ private:
 
 			//推流数据队列
 			std::queue<AVPacket *> m_PushPktQue;
-			InterCriSec m_PushStreamLock;
+			CKKLock m_PushStreamLock;
 			std::string m_StrFilePath;
 };
 #endif
