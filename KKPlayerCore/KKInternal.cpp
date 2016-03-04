@@ -6,7 +6,6 @@
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date£º2015-6-25**********************************************/
 #include "KKInternal.h"
-#include "KKPlayer.h"
 #include <math.h>
 #include <assert.h>
  //<tgmath.h> 

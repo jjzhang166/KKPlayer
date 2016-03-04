@@ -6,11 +6,13 @@
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date£º2015-6-25**********************************************/
 #pragma once
+#include <queue>
+#include <string>
+
 #include "IKKAudio.h"
 #include "render/render.h"
 #include "IKKPlayUI.h"
-#include <queue>
-#include <string>
+
 
 #include "KKLock.h"
 #include "KKVideoInfo.h"
