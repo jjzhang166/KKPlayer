@@ -5,7 +5,7 @@
 /*******************Author qq: 784200679 ******************/
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date：2015-6-25**********************************************/
-#include "stdafx.h"
+
 #include "KKPlayer.h"
 #include "KKInternal.h"
 
@@ -17,7 +17,14 @@ static int lowres = 0;
 static int64_t sws_flags = SWS_BICUBIC;
 static int av_sync_type =AV_SYNC_AUDIO_MASTER;//AV_SYNC_VIDEO_MASTER;// AV_SYNC_AUDIO_MASTER;
 double rdftspeed = 0.02;
-KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI), m_OpenMediaEnum(OpenMediaEnum::No)
+extern "C"
+{
+	int ff()
+	{
+		return 1;
+	}
+};
+KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI), m_OpenMediaEnum(No)
 {
 //	assert(m_pPlayUI!=NULL);
 	m_DisplayVp=NULL;
@@ -146,8 +153,11 @@ unsigned __stdcall  ReadAV_thread(LPVOID lpParameter)
 	pPlayer->ReadAV();
 	return 1;
 }
-int index=0;
 
+
+
+#ifdef WIN32
+int index=0;
 SYSTEMTIME Time_tToSystemTime(time_t t)
 {
 	tm temptm = *localtime(&t);
@@ -161,6 +171,7 @@ SYSTEMTIME Time_tToSystemTime(time_t t)
 		0};
 	return st;
 }
+#endif
 //视频刷新函数
 void KKPlayer::video_image_refresh(SKK_VideoState *is)
 {
@@ -239,18 +250,7 @@ void KKPlayer::VideoRefresh()
 	}
 }
 
-void KKPlayer::OnDrawImageByDc(HDC memdc)
-{
-	//return;
-	SKK_Frame *vp;
-	if(pVideoInfo->IsReady==0)
-		return;
-	pVideoInfo->pictq.mutex->Lock();
-	/**********获取包位置**********/
-	vp = frame_queue_peek(&pVideoInfo->pictq);
-   VideoDisplay(vp->buffer,vp->width,vp->height,&memdc,pVideoInfo->last_duration,vp->pts,vp->duration,vp->pos,pVideoInfo->delay);
-   pVideoInfo->pictq.mutex->Unlock();
-}
+
 void KKPlayer::RenderImage(CRender *pRender)
 {
 	SKK_Frame *vp;
@@ -311,7 +311,19 @@ void KKPlayer::AdjustDisplay(int w,int h)
 		 pVideoInfo->DisplayHeight=h;
 	 }
 }
-/******显示函数*****/
+#ifdef WIN32
+void KKPlayer::OnDrawImageByDc(HDC memdc)
+{
+	//return;
+	SKK_Frame *vp;
+	if(pVideoInfo->IsReady==0)
+		return;
+	pVideoInfo->pictq.mutex->Lock();
+	/**********获取包位置**********/
+	vp = frame_queue_peek(&pVideoInfo->pictq);
+	VideoDisplay(vp->buffer,vp->width,vp->height,&memdc,pVideoInfo->last_duration,vp->pts,vp->duration,vp->pos,pVideoInfo->delay);
+	pVideoInfo->pictq.mutex->Unlock();
+}
 void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,int64_t pos,double diff)
 {
 	/***这里没有内存泄露***/
@@ -460,6 +472,7 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 		fclose(pf);
 	}
 }
+#endif
 int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePath)
 {
 	m_StrFilePath=FilePath;
@@ -550,7 +563,7 @@ int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePa
 	return 0;
 }
 /*********视频刷新线程********/
- unsigned WINAPI KKPlayer::VideoRefreshthread(LPVOID lpParameter)
+ unsigned __stdcall KKPlayer::VideoRefreshthread(LPVOID lpParameter)
  {
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;
 	 while(1)
@@ -603,7 +616,7 @@ void KKPlayer::ReadAV()
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
 		return; // Couldn't find stream information
 
-	if(this->m_OpenMediaEnum==OpenMediaEnum::Dump)
+	if(this->m_OpenMediaEnum==Dump)
 	{
 			    pVideoInfo->IsOutFile=1;
 				char Outfile[256]="";
@@ -677,7 +690,6 @@ void KKPlayer::ReadAV()
 
 
 	pVideoInfo->pFormatCtx = pFormatCtx;
-	pVideoInfo->PicGrabType=0;
 	
 	int  i, ret=-1;
 	int st_index[AVMEDIA_TYPE_NB]={-1,-1,-1,-1,-1};
@@ -783,86 +795,6 @@ void KKPlayer::ReadAV()
 		{  
 			printf( "Error occurred when opening output URL\n");  
 		} 
-	}
-
-    pVideoInfo->PicGrabType=0;
-	/****************以下windows 录屏专用************************/
-	if(pVideoInfo->PicGrabType==1)
-	{
-		pVideoInfo->fp_out= fopen("C:\\kktest.h264", "wb");  
-		//H264 编码器设定
-		{
-			pVideoInfo->pH264Codec=avcodec_find_encoder(AV_CODEC_ID_H264); 
-			pVideoInfo->pH264CodecCtx=avcodec_alloc_context3(pVideoInfo->pH264Codec);  
-
-			//预先设定一下
-			pVideoInfo->pH264CodecCtx->bit_rate = pVideoInfo->viddec.avctx->bit_rate;
-			pVideoInfo->pH264CodecCtx->width =500;  
-			pVideoInfo->pH264CodecCtx->height = 298;  
-			pVideoInfo->pH264CodecCtx->time_base=pVideoInfo->viddec.avctx->time_base;    
-			pVideoInfo->pH264CodecCtx->gop_size = pVideoInfo->viddec.avctx->gop_size;
-			pVideoInfo->pH264CodecCtx->max_b_frames = pVideoInfo->viddec.avctx->max_b_frames;
-			pVideoInfo->pH264CodecCtx->pix_fmt = AV_PIX_FMT_YUV420P;
-
-			//			if (codec_id == AV_CODEC_ID_H264)  
-			av_opt_set(pVideoInfo->pH264CodecCtx->priv_data, "preset", "slow", 0);  
-
-			if (avcodec_open2(pVideoInfo->pH264CodecCtx, pVideoInfo->pH264Codec, NULL) < 0) {  
-				printf("Could not open codec\n");  
-				assert(0);
-			}  
-		}
-
-
-		pVideoInfo->Source_Hdc=GetDC(NULL);
-		pVideoInfo->DevBpp=GetDeviceCaps(pVideoInfo->Source_Hdc, BITSPIXEL);
-
-		int vertres = GetDeviceCaps(pVideoInfo->Source_Hdc, VERTRES);
-		int desktopvertres = GetDeviceCaps(pVideoInfo->Source_Hdc, DESKTOPVERTRES);
-		pVideoInfo->virtual_rect.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
-		pVideoInfo->virtual_rect.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
-		pVideoInfo->virtual_rect.right = (pVideoInfo->virtual_rect.left + GetSystemMetrics(SM_CXVIRTUALSCREEN)) * desktopvertres / vertres;
-		pVideoInfo->virtual_rect.bottom = (pVideoInfo->virtual_rect.top + GetSystemMetrics(SM_CYVIRTUALSCREEN)) * desktopvertres / vertres;
-
-		pVideoInfo->Dest_Hdc= CreateCompatibleDC(pVideoInfo->Source_Hdc);
-
-		BITMAPINFO bmi;
-		HBITMAP hbmp   = NULL;
-		BITMAP bmp;
-		/* Create a DIB and select it into the dest_hdc */
-		bmi.bmiHeader.biSize          = sizeof(BITMAPINFOHEADER);
-		bmi.bmiHeader.biWidth         = pVideoInfo->virtual_rect.right - pVideoInfo->virtual_rect.left;
-		bmi.bmiHeader.biHeight        = -(pVideoInfo->virtual_rect.bottom - pVideoInfo->virtual_rect.top);
-		bmi.bmiHeader.biPlanes        = 1;
-		bmi.bmiHeader.biBitCount      = pVideoInfo-> DevBpp;
-		bmi.bmiHeader.biCompression   = BI_RGB;
-		bmi.bmiHeader.biSizeImage     = 0;
-		bmi.bmiHeader.biXPelsPerMeter = 0;
-		bmi.bmiHeader.biYPelsPerMeter = 0;
-		bmi.bmiHeader.biClrUsed       = 0;
-		bmi.bmiHeader.biClrImportant  = 0;
-		hbmp = CreateDIBSection(pVideoInfo->Source_Hdc, &bmi, DIB_RGB_COLORS,
-			&pVideoInfo->PicGrabBuf, NULL, 0);
-		if (!hbmp) 
-		{
-
-		}
-
-		if (!SelectObject(pVideoInfo->Dest_Hdc, hbmp)) {
-
-		}
-
-		/* Get info from the bitmap */
-		GetObject(hbmp, sizeof(BITMAP), &bmp);
-
-		pVideoInfo->frame_size  = bmp.bmWidthBytes * bmp.bmHeight * bmp.bmPlanes;
-		pVideoInfo->header_size = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) +
-			(pVideoInfo->DevBpp <= 8 ? (1 << pVideoInfo->DevBpp) : 0) * sizeof(RGBQUAD) /* palette size */;
-
-
-		pVideoInfo->bmi=bmi;
-		pVideoInfo->hbmp=hbmp;
-		pVideoInfo->bmp=bmp;
 	}
 
     if(pVideoInfo->m_nLiveType==1)
@@ -1107,7 +1039,7 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
    stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
 }
 
-unsigned WINAPI KKPlayer::PushStream(LPVOID lpParameter)
+unsigned __stdcall KKPlayer::PushStream(LPVOID lpParameter)
 {
 	//return 1;
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;

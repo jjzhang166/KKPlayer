@@ -8,6 +8,7 @@
 #pragma once
 #include <queue>
 #include <string>
+#include "stdafx.h"
 
 #include "IKKAudio.h"
 #include "render/render.h"
@@ -37,20 +38,24 @@ class KKPlayer
 	        ~KKPlayer(void);
 			void SetWindowHwnd(HWND hwnd);
 			/*********打开媒体************/
-			int OpenMedia(std::string fileName,OpenMediaEnum en=OpenMediaEnum::No,std::string FilePath="C:\\"); 
+			int OpenMedia(std::string fileName,OpenMediaEnum en=No,std::string FilePath="C:\\"); 
 			void CloseMedia(); 
     		void ReadAV();
             int GetCurTime();
-			/*****Gdi*****/
-			void OnDrawImageByDc(HDC memdc);
+			
 			void RenderImage(CRender *pRender);
 			void AdjustDisplay(int w,int h);
-			/******显示函数*****/
-			virtual void VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,long long pos,double diff);
-            //视频刷线程
-			static unsigned WINAPI VideoRefreshthread(LPVOID lpParameter);  
+			
+#ifdef WIN32
+			/*****Gdi*****/
+			void OnDrawImageByDc(HDC memdc);
+			void VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,long long pos,double diff);
+#endif           
+			
+			//视频刷线程
+			static unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);  
 			//推流线程
-			static unsigned WINAPI PushStream(LPVOID lpParameter);  
+			static unsigned __stdcall PushStream(LPVOID lpParameter);  
             
 			//获取屏幕数据
 			//static unsigned WINAPI PicGdiGrab(LPVOID lpParameter);

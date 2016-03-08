@@ -12,7 +12,8 @@
 class CKKLock
 {
 public:
-    CKKLock(DWORD dwSpinCount = 4096);
+	CKKLock();
+    CKKLock(DWORD dwSpinCount);
     ~CKKLock();
     void Lock();
     void Unlock();

@@ -5,6 +5,7 @@
 /*******************Author qq: 784200679 ******************/
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date£º2015-6-25**********************************************/
+//#define __STDC_HOSTED__ 0
 #ifndef Includeffmpeg_H_
 #define Includeffmpeg_H_
 //typedef unsigned char	Uint8;
@@ -13,6 +14,10 @@ extern "C"
 #ifndef __STDC_CONSTANT_MACROS
 #define __STDC_CONSTANT_MACROS
 #endif
+
+#define UINT64_C(x)  (x ## ULL)
+//#include <stdint.h>
+#include "../libx86/ffmpeg/include/libavutil/avutil.h"
 #include "../libx86/ffmpeg/include/libavutil/avstring.h"
 #include "../libx86/ffmpeg/include/libavutil/intreadwrite.h"
 #include "../libx86/ffmpeg/include/libavutil/eval.h"
@@ -37,24 +42,26 @@ extern "C"
 # include "../libx86/ffmpeg/include/libavfilter/buffersink.h"
 # include "../libx86/ffmpeg/include/libavfilter/buffersrc.h"
 #include  "../libx86/ffmpeg/include/libavutil/mathematics.h"
-#ifdef _DEBUG
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avcodec.lib")
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avdevice.lib")
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avfilter.lib")
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avformat.lib")
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avutil.lib")
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\postproc.lib")
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swresample.lib")
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swscale.lib")
-#else
-	#pragma comment (lib,"..\\libx86\\ffmpeg\\vs2008lib\\avcodec-56.lib")
-	#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avdevice-56.lib")
-	#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avfilter-5.lib")
-	#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avformat-56.lib")
-	#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avutil-54.lib")
-	//#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\postproc.lib")
-	#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swresample-1.lib")
-	#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swscale-3.lib")
+#ifdef WIN32
+	#ifdef _DEBUG
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avcodec.lib")
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avdevice.lib")
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avfilter.lib")
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avformat.lib")
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avutil.lib")
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\postproc.lib")
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swresample.lib")
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swscale.lib")
+	#else
+		#pragma comment (lib,"..\\libx86\\ffmpeg\\vs2008lib\\avcodec-56.lib")
+		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avdevice-56.lib")
+		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avfilter-5.lib")
+		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avformat-56.lib")
+		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avutil-54.lib")
+		//#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\postproc.lib")
+		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swresample-1.lib")
+		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swscale-3.lib")
+	#endif
 #endif
 }
 

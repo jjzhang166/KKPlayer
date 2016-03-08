@@ -166,6 +166,10 @@
 				RelativePath=".\KKPlayer.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\platforms.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
@@ -202,6 +206,10 @@
 			</File>
 			<File
 				RelativePath=".\KKVideoInfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\platforms.h"
 				>
 			</File>
 			<File

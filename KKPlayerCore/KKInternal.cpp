@@ -8,21 +8,26 @@
 #include "KKInternal.h"
 #include <math.h>
 #include <assert.h>
+
+#ifndef WIN32
+#include <stl/_string.h>
+#endif
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
+int cxlp=0;
 static int64_t sws_flags = SWS_BICUBIC;
 unsigned __stdcall  Audio_Thread(LPVOID lpParameter);
 unsigned __stdcall  Video_thread(LPVOID lpParameter);
+#ifdef WIN32
 inline long rint(double x) 
 { 
 	if(x >= 0.)
-
 		return (long)(x + 0.5); 
 	else 
 		return (long)(x - 0.5); 
 }
-
+#endif
 
 
 
@@ -772,11 +777,13 @@ static void decoder_init(SKK_Decoder *d, AVCodecContext *avctx, SKK_PacketQueue 
 }
 
 //开始解码
-static void decoder_start(SKK_Decoder *d,unsigned (__stdcall * _StartAddress) (void *),SKK_VideoState* is)
+static void decoder_start(SKK_Decoder *d,unsigned (__stdcall* _StartAddress) (void *),SKK_VideoState* is)
 {
 	d->pQueue->abort_request = 0;
 	packet_queue_put(d->pQueue, is->pflush_pkt,is->pflush_pkt);
+#ifdef WIN32
 	d->decoder_tid.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, _StartAddress, (LPVOID)is, 0,&d->decoder_tid.Addr);
+#endif
 }
 /****刷新队列,更新对列的大小****/
 void frame_queue_push(SKK_FrameQueue *f)
@@ -1135,6 +1142,8 @@ int GetBmpSize(int w,int h)
 	return avpicture_get_size(PIX_FMT_RGB24, w,h);
 }
 struct SwsContext *BMPimg_convert_ctx=NULL;
+
+#ifdef WIN32
 //位图
 void saveBMP(SKK_VideoState *is,AVFrame *pSrcFrame, int width, int height, int index, int bpp=24)
 {
@@ -1204,6 +1213,7 @@ void saveBMP(SKK_VideoState *is,AVFrame *pSrcFrame, int width, int height, int i
 	av_free(pFrameRGB);
 	pFrameRGB=NULL;
 }
+
 
 int iiii=0;
 
@@ -1275,6 +1285,7 @@ icon_error:
         
     }
 }
+#endif
 //图片队列
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
 {  
@@ -1307,7 +1318,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	}
     int w=pFrame->width;
 	int h=pFrame->height;
-	AVPixelFormat ff=AVPixelFormat::AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
+	AVPixelFormat ff=AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
 
 
 	if(vp->buffer!=NULL)
@@ -1364,83 +1375,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		
         if(1)
 		{
-			if(is->PicGrabType==1)
-			{
-		            PixelFormat GradPF=PixelFormat::AV_PIX_FMT_BGR24;
-					if(is->DevBpp==32)
-					{
-						GradPF=PixelFormat::AV_PIX_FMT_BGRA;
-						//索引：(蓝，绿，红，Alpha) B G R A
-					}
-					is->PicGrab_Img_convert_ctx=sws_getCachedContext(is->PicGrab_Img_convert_ctx,
-						is->bmi.bmiHeader.biWidth,  -is->bmi.bmiHeader.biHeight , GradPF,
-						is->DestWidth,              is->DestHeight,                ff,                
-						SWS_FAST_BILINEAR,
-						NULL, NULL, NULL);
-
-					//PicGrab_Img_convert_ctx
-					int file_size = is->header_size + is->frame_size;
-					BITMAPFILEHEADER bfh;
-					//关键：BitBlt()完成抓屏功能
-					if (!BitBlt(is->Dest_Hdc, 0, 0,
-						is->virtual_rect.right - is->virtual_rect.left,
-						is->virtual_rect.bottom - is->virtual_rect.top,
-						is->Source_Hdc,
-						is->virtual_rect.left, is->virtual_rect.top, SRCCOPY | CAPTUREBLT))
-					{
-		                       
-					}
-					paint_mouse_pointer(is);
-					if(0)
-					{
-						/* Copy bits to packet data */
-						//BMP文件头BITMAPFILEHEADER
-						bfh.bfType = 0x4d42; /* "BM" in little-endian */
-						bfh.bfSize = file_size;
-						bfh.bfReserved1 = 0;
-						bfh.bfReserved2 = 0;
-						bfh.bfOffBits = is->header_size;
-
-						AVPacket *pkt;
-						//往AVPacket中拷贝数据
-						//拷贝BITMAPFILEHEADER
-						memcpy(pkt->data, &bfh, sizeof(bfh));
-
-						memcpy(pkt->data, &bfh, sizeof(bfh));
-						memcpy(pkt->data + sizeof(bfh), &is->bmi.bmiHeader, sizeof(is->bmi.bmiHeader));
-
-						if (is->bmi.bmiHeader.biBitCount <= 8)
-							GetDIBColorTable(is->Dest_Hdc, 0, 1 << is->bmi.bmiHeader.biBitCount,
-							(RGBQUAD *) (pkt->data + sizeof(bfh) + sizeof(is->bmi.bmiHeader)));
-
-						memcpy(pkt->data + is->header_size, is->PicGrabBuf, is->frame_size);
-					}
-					
-					{
-						int hhh=-is->bmi.bmiHeader.biHeight;
-						AVPicture SrcPict = { { 0 } };
-						
-						avpicture_fill((AVPicture *)&SrcPict,(uint8_t*)  is->PicGrabBuf,GradPF, is->bmi.bmiHeader.biWidth,hhh);
-						SrcPict.linesize[0]=is->bmi.bmiHeader.biWidth*4;
-
-						AVPicture pict = { { 0 } };
-						int numBytes=avpicture_get_size(ff, w,h);
-						uint8_t * buffer=(uint8_t *)av_malloc(numBytes*sizeof(uint8_t));
-						avpicture_fill((AVPicture *)&pict, buffer,ff,  w, h);
-
-						sws_scale(is->PicGrab_Img_convert_ctx,SrcPict.data, SrcPict.linesize,0,pFrame->height, pict.data, pict.linesize);
-						vp->buffer=buffer;
-					}
-			}
-			
-
             
 			{
-				if(is->PicGrabType==1)
-				{
-                         w=w/4;
-						 h=h/4;
-				}
 				is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 					pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
 					w,              h,                ff,                
@@ -1462,87 +1398,9 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 				sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
 					0,pFrame->height, pict.data, pict.linesize);
 
-				if(is->PicGrabType==1)
-				{
-						char *buf=(char*)vp->buffer+(is->DestHeight-h)*4*is->DestWidth;
-						for(int i=0;i<h;i++)
-						{
-							int ll=(is->DestWidth-w)*4;
-							memcpy(buf+ll,buffer+i*w*4,w*4);
-							buf+=is->DestWidth*4;
-						}
-						av_free(buffer);
-						//H264编码
-						if(1)
-						{
-								AVFrame* pBMPFrame = av_frame_alloc();  
-								if (!pBMPFrame)
-								{  
-									//printf("Could not allocate video frame\n");  
-								}  
-								pBMPFrame->format = AV_PIX_FMT_RGBA;  
-								pBMPFrame->width  = is->DestWidth;  
-								pBMPFrame->height = is->DestHeight;  
-								pBMPFrame->linesize[0]=is->DestWidth*4;
-								int PicnumBytes=avpicture_get_size((AVPixelFormat)pBMPFrame->format, pBMPFrame->width, pBMPFrame->height);
-								int ret = av_image_alloc(pBMPFrame->data, pBMPFrame->linesize,pBMPFrame->width, pBMPFrame->height,  
-									(AVPixelFormat)pBMPFrame->format, 16);  
-								if(ret<0)
-								{
-									assert(0);
-								}
-								memcpy(pBMPFrame->data[0],vp->buffer,PicnumBytes);
-								pBMPFrame->linesize[0]=is->DestWidth*4;
-
-                                is->H264_Img_convert_ctx=sws_getCachedContext(is->H264_Img_convert_ctx,
-								pBMPFrame->width,  pBMPFrame->height , (PixelFormat)(pBMPFrame->format),
-								pBMPFrame->width,  pBMPFrame->height,                AV_PIX_FMT_YUV420P,                
-								SWS_FAST_BILINEAR,
-								NULL, NULL, NULL);
-
-
-								
-
-							    AVFrame* pH264Frame = av_frame_alloc();  
-								if (!pH264Frame)
-								{  
-									//printf("Could not allocate video frame\n");  
-								}  
-								pH264Frame->format = AV_PIX_FMT_YUV420P;  
-								pH264Frame->width  = is->DestWidth;  
-								pH264Frame->height = is->DestHeight;  
-								
-
-                                PicnumBytes=avpicture_get_size((AVPixelFormat)pH264Frame->format, pH264Frame->width, pH264Frame->height);
-								ret = av_image_alloc(pH264Frame->data, pH264Frame->linesize,pH264Frame->width, pH264Frame->height,  
-									(AVPixelFormat)pH264Frame->format, 16);  
-                                
-								
-								sws_scale(is->H264_Img_convert_ctx, pBMPFrame->data, pBMPFrame->linesize,
-									0,pBMPFrame->height, pH264Frame->data, pH264Frame->linesize);
-								av_freep(&pBMPFrame->data[0]);
-								av_frame_free(&pBMPFrame);
-								
-								int got_output;
-								AVPacket H264Pkt;
-								av_init_packet(&H264Pkt);  
-								H264Pkt.data = NULL;    // packet data will be allocated by the encoder  
-								H264Pkt.size = 0; 
-								H264Pkt.pts=pts;
-								ret = avcodec_encode_video2(is->pH264CodecCtx, &H264Pkt, pFrame, &got_output); 
-								if(got_output>0)
-								{
-                                   fwrite(H264Pkt.data, 1, H264Pkt.size, is->fp_out);   
-								   av_free_packet(&H264Pkt);
-								}
-								av_freep(&pH264Frame->data[0]);
-								av_frame_free(&pH264Frame);
-								
-						}
-				}else
-				{
-                    vp->buffer=buffer;
-				}
+				
+                vp->buffer=buffer;
+				
 				
 				
 			}
@@ -1552,47 +1410,6 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	}
    	pPictq->mutex->Unlock();
 	frame_queue_push(&is->pictq);
-
-	if(0)
-	{
-		BITMAPINFOHEADER header;
-		header.biSize = sizeof(BITMAPINFOHEADER);
-
-		header.biWidth = w;
-		header.biHeight = h*(-1);
-		header.biBitCount = 24;
-		header.biCompression = 0;
-		header.biSizeImage = 0;
-		header.biClrImportant = 0;
-		header.biClrUsed = 0;
-		header.biXPelsPerMeter = 0;
-		header.biYPelsPerMeter = 0;
-		header.biPlanes = 1;
-
-
-		//3 构造文件头
-		BITMAPFILEHEADER bmpFileHeader;
-		HANDLE hFile = NULL;
-		DWORD dwTotalWriten = 0;
-		DWORD dwWriten;
-
-		bmpFileHeader.bfType = 0x4d42; //'BM';
-		bmpFileHeader.bfOffBits=sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
-		bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)+ w*h*24/8;
-
-		char buf[256]="";
-		sprintf_s(buf,255,"%sxx%d.bmp","D:/pic/",iiii++);  
-		FILE* pf = fopen(buf, "wb");
-		fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, pf);
-		fwrite(&header, sizeof(BITMAPINFOHEADER), 1, pf);
-
-		
-		//fwrite(vp->buffer, 1, numBytes, pf);
-		fclose(pf);
-		
-
-	}
-	//Sleep(100000);
 	return 0;
    
 }  

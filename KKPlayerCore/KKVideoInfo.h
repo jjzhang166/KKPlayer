@@ -291,9 +291,11 @@ typedef struct SKK_VideoState
 	/****************以下windows专用************************/
 	struct SwsContext *PicGrab_Img_convert_ctx;
 	HDC Source_Hdc;
+	
 	int DevBpp;
 	HDC Dest_Hdc;
 	
+#ifdef WIN32
 	/******截屏数据类型*******/
 	int PicGrabType;
 	void *PicGrabBuf;
@@ -301,9 +303,11 @@ typedef struct SKK_VideoState
 	BITMAPINFO bmi;
 	HBITMAP hbmp;
 	BITMAP bmp;
+#endif
 	int frame_size;
 	int header_size;
     
+
 	/**********测试用编码成h264************/
 	AVCodec *pH264Codec;  
 	AVCodecContext *pH264CodecCtx;  
