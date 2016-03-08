@@ -1,5 +1,5 @@
 include Android_config.mak
-objects=platforms.o KKLock.o KKInternal.o KKPlayer.o
+objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o KKPlayer.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -26,7 +26,11 @@ platforms.o:platforms.cpp stdafx.h
 	$(CXX) -c $(CFLAGS) platforms.cpp
 KKLock.o: KKLock.cpp KKLock.h platforms.h stdafx.h 
 	$(CXX) -c $(CFLAGS) KKLock.cpp 
-KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.h KKinfo.h platforms.h stdafx.h 
+KKMutex.o: KKMutex.cpp KKMutex.h platforms.h stdafx.h 
+	$(CXX) -c $(CFLAGS) KKMutex.cpp 
+KKCond_t.o: KKCond_t.cpp KKCond_t.h	KKMutex.h platforms.h stdafx.h 
+	$(CXX) -c $(CFLAGS) KKCond_t.cpp 
+KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.h platforms.h stdafx.h 
 	$(CXX) -c $(CFLAGS) KKInternal.cpp  
 KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h
 	$(CXX) -c $(CFLAGS) KKPlayer.cpp  

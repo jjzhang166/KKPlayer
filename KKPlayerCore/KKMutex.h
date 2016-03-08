@@ -6,8 +6,8 @@
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date£º2015-6-25**********************************************/
 #include "stdafx.h"
-#ifndef KK_INFO_H_
-#define KK_INFO_H_
+#ifndef KKMutex_H_
+#define KKMutex_H_
 
 class CKKMutex
 {
@@ -16,10 +16,14 @@ class CKKMutex
 			~CKKMutex();
 			void Lock();
 			void UnLock();
+#ifndef WIN32 
+			pthread_mutex_t* operator&();
+#endif
     private:
 #ifdef WIN32
 	        HANDLE m_KKMutex;
 #else
+	
 		    pthread_mutex_t m_KKMutex;
 #endif
 };

@@ -30,10 +30,16 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	m_DisplayVp=NULL;
 	pVideoInfo=NULL;
 	m_bOpen=false;
-	avdevice_register_all();
-    av_register_all();
-	avfilter_register_all();
-	avformat_network_init();
+	static bool registerFF=true;
+	if(registerFF)
+	{
+		avdevice_register_all();
+		av_register_all();
+		avfilter_register_all();
+		avformat_network_init();
+		registerFF=false;
+	}
+	
 	WindowWidth=0;
 	WindowHeight=0;
 	//avio_alloc_context
@@ -47,10 +53,12 @@ void KKPlayer::CloseMedia()
 	m_bOpen=false;
 	if(pVideoInfo==NULL) 
 		return;
-		
+	pVideoInfo->abort_request=1;
+
+#ifdef WIN32
 	HANDLE wiatHandle[5]={m_ReadThreadInfo.ThreadHandel,m_VideoRefreshthreadInfo.ThreadHandel,pVideoInfo->viddec.decoder_tid.ThreadHandel,
 		pVideoInfo->auddec.decoder_tid.ThreadHandel,pVideoInfo->subdec.decoder_tid.ThreadHandel};
-	pVideoInfo->abort_request=1;
+	
 	::WaitForMultipleObjects(5,wiatHandle,TRUE,INFINITE);
 	
 
@@ -71,17 +79,23 @@ void KKPlayer::CloseMedia()
 	
 	::TerminateThread(pVideoInfo->subdec.decoder_tid.ThreadHandel,0);
 	::CloseHandle(pVideoInfo->subdec.decoder_tid.ThreadHandel);
-	
+#else
+	pthread_join(m_ReadThreadInfo.Tid_task,0);
+	pthread_join(m_VideoRefreshthreadInfo.Tid_task,0);
+	pthread_join(pVideoInfo->viddec.decoder_tid.Tid_task,0);
+	pthread_join(pVideoInfo->auddec.decoder_tid.Tid_task,0);
+	pthread_join(pVideoInfo->subdec.decoder_tid.Tid_task,0);
+#endif	
 	
     /*******事件*********/
-	::CloseHandle(pVideoInfo->videoq.m_WaitEvent);
+	delete pVideoInfo->videoq.m_pWaitCond;
 	//音频包
-	::CloseHandle(pVideoInfo->audioq.m_WaitEvent);
+	delete pVideoInfo->audioq.m_pWaitCond;
 	//字幕包
-	::CloseHandle(pVideoInfo->subtitleq.m_WaitEvent);
-	::CloseHandle(pVideoInfo->pictq.m_WaitEvent);
-	::CloseHandle(pVideoInfo->subpq.m_WaitEvent);
-	::CloseHandle(pVideoInfo->sampq.m_WaitEvent);
+	delete pVideoInfo->subtitleq.m_pWaitCond;
+	delete pVideoInfo->pictq.m_pWaitCond;
+	delete pVideoInfo->subpq.m_pWaitCond;
+	delete pVideoInfo->sampq.m_pWaitCond;
 	PacketQueuefree();
 	delete pVideoInfo->videoq.pLock;
 	pVideoInfo->videoq.pLock=NULL;
@@ -223,7 +237,6 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 			}
 			
 		}
-		
 	}
 	is->pictq.mutex->Unlock();
 }
@@ -241,10 +254,8 @@ void KKPlayer::VideoRefresh()
 	{
 	
 	}
-	
 	if (pVideoInfo->video_st) 
 	{
-		/*********/
 		int redisplay = 0;
 		video_image_refresh(pVideoInfo);
 	}
@@ -326,8 +337,6 @@ void KKPlayer::OnDrawImageByDc(HDC memdc)
 }
 void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,int64_t pos,double diff)
 {
-	/***这里没有内存泄露***/
-//	return;
 	HDC dc=*(HDC*)usadata;
 	BITMAPINFOHEADER header;
 	header.biSize = sizeof(BITMAPINFOHEADER);
@@ -343,11 +352,6 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 	header.biYPelsPerMeter = 0;
 	header.biPlanes = 1;
 
-
-	/*HBRUSH 	m_SelectDotHbr=CreateSolidBrush(RGB(255, 0, 0));
-	RECT rt={0,0,100,100};
-	::FillRect(dc,&rt,m_SelectDotHbr);
-	::DeleteObject(m_SelectDotHbr);*/
 	{			
 		//速率
 		char t[256]="";
@@ -478,22 +482,6 @@ int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePa
 	m_StrFilePath=FilePath;
 	this->m_OpenMediaEnum=en;
 	m_bOpen=true;
-	/*m_RtmpIns.SetupURL(fileName.c_str());
-	int ll=m_RtmpIns.RtmpConnect();
-	ll=m_RtmpIns.RtmpConnectStream(0);
-	
-		m_RtmpIns.ReadRtmpStream();*/
-	
-	//初始化SDL
-	//int flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
-	//int flags = SDL_INIT_AUDIO ;//| SDL_INIT_TIMER;
-	//if (SDL_Init (flags)) 
-	//{
-	//	av_log(NULL, AV_LOG_FATAL, "Could not initialize SDL - %s\n", SDL_GetError());
-	//	av_log(NULL, AV_LOG_FATAL, "(Did you set the DISPLAY variable?)\n");
-	//	exit(1);
-	//}
-
 	
 	pVideoInfo = (SKK_VideoState*)av_mallocz(sizeof(SKK_VideoState));
 	memset(pVideoInfo,0,sizeof(SKK_VideoState));
@@ -514,13 +502,13 @@ int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePa
 	//pVideoInfo->pFile=fopen("E:\\output.pcm", "wb");  
 	//初始化队列
 	packet_queue_init(&pVideoInfo->videoq);
-	pVideoInfo->videoq.m_WaitEvent=::CreateEvent(NULL,TRUE,FALSE,NULL);
+	pVideoInfo->videoq.m_pWaitCond=new CKKCond_t();
     //音频包
 	packet_queue_init(&pVideoInfo->audioq);
-	pVideoInfo->audioq.m_WaitEvent=::CreateEvent(NULL,TRUE,FALSE,NULL);
+	pVideoInfo->audioq.m_pWaitCond=new CKKCond_t();
 	//字幕包
 	packet_queue_init(&pVideoInfo->subtitleq);
-	pVideoInfo->subtitleq.m_WaitEvent=::CreateEvent(NULL,TRUE,FALSE,NULL);
+	pVideoInfo->subtitleq.m_pWaitCond=new CKKCond_t();
 
 
 	init_clock(&pVideoInfo->vidclk, &pVideoInfo->videoq.serial);
@@ -539,27 +527,31 @@ int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePa
 	{
 
 	}
-	pVideoInfo->pictq.m_WaitEvent=::CreateEvent(NULL,TRUE,TRUE,NULL);
-
+	pVideoInfo->pictq.m_pWaitCond=new CKKCond_t();
+    pVideoInfo->pictq.m_pWaitCond->SetCond();
 	if (frame_queue_init(&pVideoInfo->subpq, &pVideoInfo->subtitleq, SUBPICTURE_QUEUE_SIZE, 0) < 0)
 	{
 
 	}
-	pVideoInfo->subpq.m_WaitEvent=::CreateEvent(NULL,TRUE,TRUE,NULL);
+	pVideoInfo->subpq.m_pWaitCond=new CKKCond_t();
+	pVideoInfo->pictq.m_pWaitCond->SetCond();
 	if (frame_queue_init(&pVideoInfo->sampq, &pVideoInfo->audioq, SAMPLE_QUEUE_SIZE, 1) < 0)
 	{
 
 	}
-	pVideoInfo->sampq.m_WaitEvent=::CreateEvent(NULL,TRUE,TRUE,NULL);
-
+	pVideoInfo->sampq.m_pWaitCond=new CKKCond_t();
+    pVideoInfo->pictq.m_pWaitCond->SetCond();
 	m_pSound->SetAudioCallBack(audio_callback2);
 	m_pSound->SetUserData(pVideoInfo);
 	pVideoInfo->pKKAudio=m_pSound;
-	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
-    UINT addrr;
-	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
 
-	
+#ifdef WIN32
+	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
+	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
+#else
+	m_ReadThreadInfo.Addr = pthread_create(&m_ReadThreadInfo.Tid_task, NULL, (void* (*)(void*))ReadAV_thread, (LPVOID)this);
+	m_VideoRefreshthreadInfo.Addr = pthread_create(&m_VideoRefreshthreadInfo.Tid_task, NULL, (void* (*)(void*))VideoRefreshthread, (LPVOID)this);
+#endif
 	return 0;
 }
 /*********视频刷新线程********/
@@ -704,7 +696,6 @@ void KKPlayer::ReadAV()
  
 	
 	av_format_inject_global_side_data(pFormatCtx);
-
 	if (start_time != AV_NOPTS_VALUE) 
 	{
 		int64_t timestamp;
@@ -721,7 +712,6 @@ void KKPlayer::ReadAV()
 	}
 
 	pVideoInfo->realtime = is_realtime(pFormatCtx);
-
 	for (i = 0; i < pFormatCtx->nb_streams; i++) 
 	{
 		AVStream *st = pFormatCtx->streams[i];
@@ -866,7 +856,8 @@ void KKPlayer::ReadAV()
 					pVideoInfo->pictq.rindex=0;
 					pVideoInfo->pictq.windex=0;
 					pVideoInfo->pictq.rindex_shown=1;
-                    SetEvent(pVideoInfo->pictq.m_WaitEvent);
+                    
+					pVideoInfo->pictq.m_pWaitCond->SetCond();
 					pVideoInfo->pictq.mutex->Unlock();
 				}
 				if (pVideoInfo->seek_flags & AVSEEK_FLAG_BYTE) 

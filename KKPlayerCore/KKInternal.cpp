@@ -783,6 +783,8 @@ static void decoder_start(SKK_Decoder *d,unsigned (__stdcall* _StartAddress) (vo
 	packet_queue_put(d->pQueue, is->pflush_pkt,is->pflush_pkt);
 #ifdef WIN32
 	d->decoder_tid.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, _StartAddress, (LPVOID)is, 0,&d->decoder_tid.Addr);
+#else
+	d->decoder_tid.Addr = pthread_create(&d->decoder_tid.Tid_task, NULL, (void* (*)(void*))_StartAddress, (LPVOID)is);
 #endif
 }
 /****刷新队列,更新对列的大小****/
@@ -1018,7 +1020,8 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 		!f->pktq->abort_request) 
 	{
 		/*****无信号******/
-		ResetEvent(f->m_WaitEvent);
+		//ResetEvent(f->m_WaitEvent);
+		f->m_pWaitCond->ResetCond();
 	}
 	f->mutex->Unlock();
 
@@ -1070,7 +1073,8 @@ void frame_queue_next(SKK_FrameQueue *f)
 	if(f->size<f->max_size)
 	{
 		//将事件有效
-		::SetEvent(f->m_WaitEvent);
+		//::SetEvent(f->m_WaitEvent);
+		f->m_pWaitCond->SetCond();
 	}
 	f->mutex->Unlock();
 }
@@ -1294,7 +1298,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	SKK_Frame *vp = frame_queue_peek_writable(pPictq);
 	
 	//等待
-	if(::WaitForSingleObject(pPictq->m_WaitEvent, INFINITE))
+	//if(::WaitForSingleObject(pPictq->m_WaitEvent, INFINITE))
+	pPictq->m_pWaitCond->WaitCond(INFINITE);
 	{
        
 	}

@@ -5,7 +5,7 @@
 	   {
           sleep(ms);
        }
-       BOOL ResetEvent(HANDLE hEvent)
+      /* BOOL ResetEvent(HANDLE hEvent)
        {
 	      return TRUE;
        }
@@ -32,14 +32,10 @@
 	   DWORD WaitForMultipleObjects(DWORD nCount,HANDLE *lpHandles,BOOL bWaitAll,DWORD dwMilliseconds)
 	   {
 		    return TRUE;
-	   }
+	   }*/
 	   BOOL GetClientRect(HWND hWnd,RECT *lpRect)
 	   {
             return TRUE;
-	   }
-	   unsigned int _beginthreadex(void * _Security,unsigned _StackSize,unsigned (__stdcall * _StartAddress) (void *),void * _ArgList, unsigned _InitFlag,unsigned * _ThrdAddr)
-	   {
-		   return 0;
 	   }
 	   void assert(int i)
 	   {

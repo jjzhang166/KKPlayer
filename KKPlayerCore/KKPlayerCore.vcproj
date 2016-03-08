@@ -151,11 +151,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\KKCond_t.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\KKInternal.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\KKLock.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\KKMutex.cpp"
 				>
 			</File>
 			<File
@@ -185,11 +193,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\KKCond_t.h"
+				>
+			</File>
+			<File
 				RelativePath=".\KKInternal.h"
 				>
 			</File>
 			<File
 				RelativePath=".\KKLock.h"
+				>
+			</File>
+			<File
+				RelativePath=".\KKMutex.h"
 				>
 			</File>
 			<File

@@ -26,14 +26,14 @@
 
 	void assert(int i);
 	void Sleep(int ms);
-	BOOL ResetEvent(HANDLE hEvent);
+	/*BOOL ResetEvent(HANDLE hEvent);
 	BOOL SetEvent(HANDLE hEvent);
 
 	DWORD WaitForSingleObject(HANDLE hHandle,DWORD dwMilliseconds);
 	DWORD WaitForMultipleObjects(DWORD nCount,HANDLE *lpHandles,BOOL bWaitAll,DWORD dwMilliseconds);
 	HANDLE CreateEvent(int lpEventAttributes,BOOL bManualReset,BOOL bInitialState,void* lpName);
 	BOOL TerminateThread(HANDLE hThread,DWORD dwExitCode);
-	BOOL CloseHandle(HANDLE hObject);
+	BOOL CloseHandle(HANDLE hObject);*/
 	BOOL GetClientRect(HWND hWnd,RECT *lpRect);
 	unsigned int _beginthreadex(void * _Security,unsigned _StackSize,unsigned (__stdcall * _StartAddress) (void *),void * _ArgList, unsigned _InitFlag,unsigned * _ThrdAddr);
 #endif

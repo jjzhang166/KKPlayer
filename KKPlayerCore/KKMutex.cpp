@@ -6,10 +6,9 @@
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date£º2015-6-25**********************************************/
 #include "stdafx.h"
-#include "KKInfo.h"
+#include "KKMutex.h"
 CKKMutex::CKKMutex(void)
 {
-	m_KKMutex=NULL;
 #ifdef WIN32
 	m_KKMutex=::CreateMutex(NULL,FALSE,NULL);
 #else
@@ -33,6 +32,12 @@ void CKKMutex::UnLock()
      pthread_mutex_unlock(&m_KKMutex);
 #endif
 }
+#ifndef WIN32 
+pthread_mutex_t* CKKMutex::operator&()
+{
+	return &m_KKMutex;
+}
+#endif
 CKKMutex::~CKKMutex(void)
 {
 #ifdef WIN32

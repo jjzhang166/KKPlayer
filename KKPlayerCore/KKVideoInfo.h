@@ -7,6 +7,7 @@
 /*************************date：2015-6-25**********************************************/
 #include "Includeffmpeg.h"
 #include "KKLock.h"
+#include "KKCond_t.h"
 #include "IKKAudio.h"
 #include <queue>
 #ifndef KKVideoInfo_H_
@@ -34,7 +35,11 @@ typedef struct SKK_AVPacketList {
 /**********线程信息************/
 typedef struct SKK_ThreadInfo
 {
+#ifdef WIN32
 	HANDLE ThreadHandel;
+#else
+	pthread_t Tid_task;
+#endif
 	UINT Addr;
 } SKK_ThreadInfo;
 
@@ -51,7 +56,7 @@ typedef struct SKK_PacketQueue
 	int serial;
 	CKKLock *pLock;
 	//等待事件
-	HANDLE m_WaitEvent;
+	CKKCond_t* m_pWaitCond;
 } SKK_PacketQueue;
 //音频参数
 typedef struct SKK_AudioParams 
@@ -111,7 +116,7 @@ typedef struct SKK_FrameQueue
 
 	CKKLock *mutex;
 	//等待事件
-	HANDLE m_WaitEvent;
+	CKKCond_t* m_pWaitCond;
 	SKK_PacketQueue  *pktq;
 	
 } SKK_FrameQueue;
