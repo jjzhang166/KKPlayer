@@ -10,7 +10,7 @@
 	typedef void *HANDLE;
 	typedef HANDLE HWND;
 	typedef unsigned long       DWORD;
-    typedef int CRITICAL_SECTION;
+    typedef pthread_rwlock_t CRITICAL_SECTION;
 	typedef unsigned int UINT;
 	typedef int HDC;
     typedef long LONG;

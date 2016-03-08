@@ -247,7 +247,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	 m_PlayerInstance.SetWindowHwnd(m_hWnd);
 
 	
-	 OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
+	 //OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
+	 OpenMedia("F://ttxx.mp4");
 	 //OpenMedia("C:\\AVOK.flv");
 	
     return 0;

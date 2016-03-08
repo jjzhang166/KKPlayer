@@ -12,6 +12,8 @@ CKKMutex::CKKMutex(void)
 	m_KKMutex=NULL;
 #ifdef WIN32
 	m_KKMutex=::CreateMutex(NULL,FALSE,NULL);
+#else
+	pthread_mutex_init(&m_KKMutex, NULL);
 #endif
 }
 
@@ -19,17 +21,23 @@ void CKKMutex::Lock()
 {
 #ifdef WIN32
 	::WaitForSingleObject(m_KKMutex, INFINITE);
+#else
+	pthread_mutex_lock(&m_KKMutex);
 #endif
 }
 void CKKMutex::UnLock()
 {
 #ifdef WIN32
     ::ReleaseMutex(m_KKMutex);
+#else
+     pthread_mutex_unlock(&m_KKMutex);
 #endif
 }
 CKKMutex::~CKKMutex(void)
 {
 #ifdef WIN32
 	::CloseHandle(m_KKMutex);
+#else
+	pthread_mutex_destroy(&m_KKMutex);
 #endif	
 }

@@ -11,6 +11,12 @@
  {
 #ifdef WIN32
 	 ::InitializeCriticalSectionAndSpinCount(&m_crisec,4096);
+#else
+	 int ret=pthread_rwlock_init(&m_crisec,NULL);
+     if(ret)
+	 {
+		 //Err
+	 }
 #endif
  }
 CKKLock::CKKLock(DWORD dwSpinCount)
@@ -21,20 +27,26 @@ CKKLock::CKKLock(DWORD dwSpinCount)
 }
 CKKLock::~CKKLock()
 {
-	#ifdef WIN32
-   ::DeleteCriticalSection(&m_crisec);
+   #ifdef WIN32
+		::DeleteCriticalSection(&m_crisec);
+   #else
+	     pthread_rwlock_destroy(&m_crisec);
    #endif
 }
 void CKKLock::Lock()
 {
 	#ifdef WIN32
-	::EnterCriticalSection(&m_crisec);
+		::EnterCriticalSection(&m_crisec);
+	#else
+	     pthread_rwlock_wrlock(&m_crisec);
 	#endif
 }
 void CKKLock::Unlock()
 {
 	#ifdef WIN32
-	::LeaveCriticalSection(&m_crisec);
+		::LeaveCriticalSection(&m_crisec);
+    #else
+		pthread_rwlock_unlock(&m_crisec);
 	#endif
 }
 BOOL CKKLock::TryLock()
@@ -42,6 +54,10 @@ BOOL CKKLock::TryLock()
 	#ifdef WIN32
 	return ::TryEnterCriticalSection(&m_crisec);
 	#else
-		return TRUE;
+		if(pthread_rwlock_trywrlock(&m_crisec))
+		{
+			return TRUE;
+		}
+		return FALSE;
 	#endif
 }

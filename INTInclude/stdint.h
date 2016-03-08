@@ -3,8 +3,9 @@
 #ifndef _STDINT
 #define _STDINT
 #ifndef RC_INVOKED
+#ifdef WIN32
 #include <crtdefs.h>
-
+#endif
 typedef signed char        int8_t;
 typedef short              int16_t;
 typedef int                int32_t;

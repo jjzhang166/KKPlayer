@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #ifndef Platforms_H_
 	#ifndef WIN32
-		void Sleep(int ms)
-		{
-
-        }
+	   void Sleep(int ms)
+	   {
+          sleep(ms);
+       }
        BOOL ResetEvent(HANDLE hEvent)
        {
 	      return TRUE;

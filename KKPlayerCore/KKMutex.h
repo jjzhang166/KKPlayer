@@ -17,6 +17,10 @@ class CKKMutex
 			void Lock();
 			void UnLock();
     private:
+#ifdef WIN32
 	        HANDLE m_KKMutex;
+#else
+		    pthread_mutex_t m_KKMutex;
+#endif
 };
 #endif
