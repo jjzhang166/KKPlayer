@@ -1,0 +1,40 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    defaultConfig {
+        applicationId "com.ic70.kkplayer.kkplayer"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            moduleName ="JniKKPlayer"
+            cFlags "-I../app/src/main/jni/ffmpeg2.8.6/include"
+            ldLibs "F:/android/KKPlayer/app/libs/armeabi-v7a/libavcodec-56.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavdevice-56.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavfilter-5.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavformat-56.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavutil-54.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libswresample-1.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libswscale-3.so"
+            abiFilters "armeabi-v7a"
+            stl "stlport_static"
+        }
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:design:23.2.0'
+}
