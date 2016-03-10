@@ -8,7 +8,6 @@
 
 #include "KKPlayer.h"
 #include "KKInternal.h"
-
 static AVPacket flush_pkt;
 static int decoder_reorder_pts = -1;
 static int framedrop = -1;
@@ -17,13 +16,6 @@ static int lowres = 0;
 static int64_t sws_flags = SWS_BICUBIC;
 static int av_sync_type =AV_SYNC_AUDIO_MASTER;//AV_SYNC_VIDEO_MASTER;// AV_SYNC_AUDIO_MASTER;
 double rdftspeed = 0.02;
-extern "C"
-{
-	int ff()
-	{
-		return 1;
-	}
-};
 KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI), m_OpenMediaEnum(No)
 {
 //	assert(m_pPlayUI!=NULL);
@@ -477,9 +469,13 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 	}
 }
 #endif
-int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePath)
+int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 {
-	m_StrFilePath=FilePath;
+	int lenstr=strlen(FilePath);
+	m_pStrFilePath=(char*)::malloc(lenstr+1);
+	memset(m_pStrFilePath,0,lenstr+1);
+	strcpy(m_pStrFilePath,FilePath);
+	
 	this->m_OpenMediaEnum=en;
 	m_bOpen=true;
 	
@@ -497,7 +493,7 @@ int KKPlayer::OpenMedia(std::string fileName,OpenMediaEnum en,std::string FilePa
 	av_init_packet(pVideoInfo->pflush_pkt);
 	flush_pkt.data = (uint8_t *)pVideoInfo->pflush_pkt;
 
-	av_strlcpy(pVideoInfo->filename, fileName.c_str(), fileName.length()+1);
+	av_strlcpy(pVideoInfo->filename, fileName, strlen(fileName)+1);
 
 	//pVideoInfo->pFile=fopen("E:\\output.pcm", "wb");  
 	//初始化队列
@@ -597,8 +593,7 @@ void KKPlayer::ReadAV()
         if(m_pPlayUI!=NULL)
 		{
 			Sleep(1000);
-			std::string URL(pVideoInfo->filename);
-			m_pPlayUI->OpenMediaFailure(URL);
+			m_pPlayUI->OpenMediaFailure(pVideoInfo->filename);
 		}
 		return;
 		
@@ -612,7 +607,7 @@ void KKPlayer::ReadAV()
 	{
 			    pVideoInfo->IsOutFile=1;
 				char Outfile[256]="";
-				strcpy(Outfile,m_StrFilePath.c_str());
+				strcpy(Outfile,m_pStrFilePath);
 			
 				//打开输出文件
 				if(pVideoInfo->IsOutFile)
@@ -787,11 +782,11 @@ void KKPlayer::ReadAV()
 		} 
 	}
 
-    if(pVideoInfo->m_nLiveType==1)
+   /* if(pVideoInfo->m_nLiveType==1)
 	{
 		unsigned int addrr=0;
 		_beginthreadex(NULL, NULL, PushStream, (LPVOID)this, 0,&addrr);
-	}
+	}*/
 	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb"); 
 	for (;;) 
 	{

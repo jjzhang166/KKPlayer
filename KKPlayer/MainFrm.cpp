@@ -216,7 +216,7 @@ std::basic_string<TCHAR> GetModulePath();
 void  CMainFrame::OpenMedia(std::string url,OpenMediaEnum en,std::string FilePath)
 {
 
-	m_PlayerInstance.OpenMedia(url,en,FilePath);
+	m_PlayerInstance.OpenMedia((char*)url.c_str(),en,(char*)FilePath.c_str());
 	m_bOpen=true;
 }
 void CMainFrame::SetVolume(long value)
@@ -508,10 +508,10 @@ unsigned char*  CMainFrame::GetBkImage(int &len)
 	len=m_pBkImageLen;
 	return m_pBkImage;
 }
-void CMainFrame::OpenMediaFailure(std::string URL)
+void CMainFrame::OpenMediaFailure(char* strURL)
 {
 	std::string abcd="无法打开路径：";
-	abcd+=URL;
+	abcd+=strURL;
 	::MessageBoxA(m_hWnd,abcd.c_str(),"错误",MB_ICONHAND);
 	::PostMessage(m_hWnd,WM_MediaClose,0,0);
 }

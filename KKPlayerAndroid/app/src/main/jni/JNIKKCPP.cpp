@@ -26,44 +26,39 @@
 #include <string>
 #include <stdlib.h>
 #include <malloc.h>
-
+#include "AndKKPlayerUI.h"
+#include <map>
+CAndKKPlayerUI *G_pKKUI =NULL;
 void* ConvertThread(void *param)
 {
 
 }
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK
-        (JNIEnv *pEv, jobject p)
+/***********初始一个KKUI**********/
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK(JNIEnv *pEv, jobject p)
 {
-    /*std::string aa;
-    pthread_t tid_task;
-    pthread_rwlock_t t;
-    pthread_rwlock_init(&t,NULL);
-    pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
-   
-    int ret_thread = pthread_create(&tid_task, NULL, ConvertThread, NULL);
-
-     int i=0;
-     i++;
-     i=1;
-     avdevice_register_all();
-     av_register_all();
-     avfilter_register_all();
-     avformat_network_init(); */
-    return ret_thread;
+    CAndKKPlayerUI *pKKUI = new CAndKKPlayerUI();
+    G_pKKUI=pKKUI;
+    int Ret=(int)pKKUI;
+    return Ret;
 }
 
-JNIEXPORT jint JNICALL
-Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv *env, jobject instance) {
-    return 1;
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv *env, jobject instance, jint obj)
+{
+    CAndKKPlayerUI *pKKUI = (CAndKKPlayerUI *)obj;
+    return pKKUI->IniGl();
 }
 
+
 JNIEXPORT jint JNICALL
-Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Resizeint(JNIEnv *env, jobject instance, jint gl,
+Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Resizeint(JNIEnv *env, jobject instance, jint obj,
                                                        jint w, jint h) {
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *)obj;
+    return pKKUI->Resizeint(w,h);
+}
 
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNIEnv *env, jobject instance, jint obj) {
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *)obj;
+    pKKUI->renderFrame();
     return 1;
 }
 
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNIEnv *env, jobject instance) {
-    return 1;
-}

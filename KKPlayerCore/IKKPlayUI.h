@@ -5,7 +5,6 @@
 /*******************Author qq: 784200679 ******************/
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date£º2015-6-25**********************************************/
-#include <string>
 #ifndef KKPlayUI_H_
 #define KKPlayUI_H_
 /*******UI½Ó¿Ú********/
@@ -14,7 +13,7 @@ class IKKPlayUI
    public:
 	         virtual unsigned char* GetWaitImage(int &length,int curtime)=0;
 		     virtual unsigned char* GetBkImage(int &length)=0;
-			 virtual void OpenMediaFailure(std::string URL)=0;
+			 virtual void OpenMediaFailure(char* strURL)=0;
    protected:
 	         unsigned char* m_pBkImage;
 			 int m_pBkImageLen;

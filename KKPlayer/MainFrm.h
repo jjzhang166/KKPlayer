@@ -60,7 +60,7 @@ public:
 	virtual void UpdateLayout(BOOL bResizeBars = TRUE);
 	virtual unsigned char* GetWaitImage(int &len,int curtime);
 	virtual unsigned char* GetBkImage(int &len);
-	virtual void OpenMediaFailure(std::string URL);
+	virtual void OpenMediaFailure(char* strURL);
 	int GetCurTime();
 private:
 	CKKSound m_Sound;

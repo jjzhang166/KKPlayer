@@ -13,11 +13,12 @@ public class CJniKKPlayer {
         System.loadLibrary("swscale-3");
         System.loadLibrary("avfilter-5");
         System.loadLibrary("avdevice-56");/**/
+        System.loadLibrary("KKPlayerCore");
         System.loadLibrary("JniKKPlayer");
     }
     public native int IniKK();
-    public native int IniGl();
-    public native int Resizeint(int gl,int w, int h);
-    public native int GlRender();
+    public native int IniGl(int obj);
+    public native int Resizeint(int obj,int w, int h);
+    public native int GlRender(int obj);
 }
 //javah -classpath ..\..\..\build\intermediates\classes\debug com.ic70.kkplayer.kkplayer.CJniKKPlayer

@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
     sourceSets {
@@ -14,12 +15,27 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        ext.FFlib = "this is property1"
+
+
         ndk {
             moduleName ="JniKKPlayer"
-            cFlags "-I../app/src/main/jni/ffmpeg2.8.6/include"
-            ldLibs "F:/android/KKPlayer/app/libs/armeabi-v7a/libavcodec-56.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavdevice-56.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavfilter-5.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavformat-56.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libavutil-54.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libswresample-1.so","F:/android/KKPlayer/app/libs/armeabi-v7a/libswscale-3.so"
-            abiFilters "armeabi-v7a"
+           // cFlags("-I../app/src/main/jni/ffmpeg2.8.6/include -IF:/android/android-sdk-windows/ndk-bundle/sources/cxx-stl/stlport/stlport")
+            cFlags("-I../app/src/main/jni/ffmpeg2.8.6/include")
             stl "stlport_static"
+            abiFilters "armeabi-v7a"
+            ldLibs("log")
+            ldLibs("GLESv2")
+            //ldLibs("F:/android/android-sdk-windows/ndk-bundle/sources/cxx-stl/stlport/libs/armeabi-v7a/libstlport_static.a")
+            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavcodec-56.so")
+            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavdevice-56.so")
+            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavfilter-5.so")
+            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavformat-56.so")
+            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavutil-54.so")
+            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libswresample-1.so")
+            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libswscale-3.so")
+            ldLibs(getProjectDir().getParent()+"/../KKPlayerCore/libKKPlayerCore.so")
+
         }
 
     }
@@ -29,11 +45,14 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        /*debug {
+            jniDebuggable true
+        }*/
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'

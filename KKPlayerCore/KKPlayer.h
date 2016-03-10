@@ -7,7 +7,6 @@
 /*************************date：2015-6-25**********************************************/
 #pragma once
 #include <queue>
-#include <string>
 #include "stdafx.h"
 
 #include "IKKAudio.h"
@@ -38,7 +37,7 @@ class KKPlayer
 	        ~KKPlayer(void);
 			void SetWindowHwnd(HWND hwnd);
 			/*********打开媒体************/
-			int OpenMedia(std::string fileName,OpenMediaEnum en=No,std::string FilePath="C:\\"); 
+			int OpenMedia(char* fileName,OpenMediaEnum en=No,char* FilePath="C:\\"); 
 			void CloseMedia(); 
     		void ReadAV();
             int GetCurTime();
@@ -96,6 +95,6 @@ private:
 			//推流数据队列
 			std::queue<AVPacket *> m_PushPktQue;
 			CKKLock m_PushStreamLock;
-			std::string m_StrFilePath;
+			char* m_pStrFilePath;
 };
 #endif

@@ -35,5 +35,5 @@
 	BOOL TerminateThread(HANDLE hThread,DWORD dwExitCode);
 	BOOL CloseHandle(HANDLE hObject);*/
 	BOOL GetClientRect(HWND hWnd,RECT *lpRect);
-	unsigned int _beginthreadex(void * _Security,unsigned _StackSize,unsigned (__stdcall * _StartAddress) (void *),void * _ArgList, unsigned _InitFlag,unsigned * _ThrdAddr);
+	//unsigned int _beginthreadex(void * _Security,unsigned _StackSize,unsigned (__stdcall * _StartAddress) (void *),void * _ArgList, unsigned _InitFlag,unsigned * _ThrdAddr);
 #endif

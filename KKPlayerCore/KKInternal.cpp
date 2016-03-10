@@ -9,9 +9,6 @@
 #include <math.h>
 #include <assert.h>
 
-#ifndef WIN32
-#include <stl/_string.h>
-#endif
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
@@ -676,6 +673,7 @@ void sdl_audio_callback(void *userdata, char *stream, int len)
 }
 
 /* prepare a new audio buffer */
+/*******此处有bug********/
 void audio_callback(void *userdata, char *stream, int len)
 {
 	SKK_VideoState *pVideoInfo=(SKK_VideoState *)userdata;
@@ -685,6 +683,7 @@ void audio_callback(void *userdata, char *stream, int len)
 		return;
 	}
 	int audio_size=0, len1=0;
+	int slen=len;
 	//获取现在的时间
 	pVideoInfo->audio_callback_time = av_gettime_relative();
 	//Sleep(1);
@@ -706,11 +705,19 @@ void audio_callback(void *userdata, char *stream, int len)
 			pVideoInfo->audio_buf_index = 0;
 		}
 		len1 = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
+
+#ifdef WIN32
+		if(audio_size>0){
+		char abcd[100]="";
+		sprintf(abcd,"\n slen:%d, len：%d,len1:%d",slen,len,len1);
+		::OutputDebugStringA(abcd);
+		}
+#endif
+		
+
 		if (len1 > len)
 			len1 = len;
 		memcpy(stream, (uint8_t *)pVideoInfo->audio_buf + pVideoInfo->audio_buf_index, len1);
-		
-
 		len -= len1;
 		stream += len1;
 		pVideoInfo->audio_buf_index += len1;
@@ -805,8 +812,8 @@ int is_realtime(AVFormatContext *s)
 		)
 		return 1;
 
-	std::string url(s->filename);
-	if( s->pb && !strncmp(s->filename, "rtmp:",5)&&url.find("live=1")>0)
+
+	if( s->pb && !strncmp(s->filename, "rtmp:",5)&&strstr(s->filename,"live=1")>=0)
 	{
 		return 1;
 	}
