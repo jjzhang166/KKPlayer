@@ -4,7 +4,8 @@ objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o KKPlayer.o
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
 #-l$(STLLib)libstlport_static.a \
-# f:/android/android-sdk-windows/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/windows/bin/aarch64-linux-android-readelf.exe -d libKKPayerCore.so
+#cd f:/ProgramTool/OpenPro/KKPlayer/KKPlayerCore
+# f:/android/android-sdk-windows/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/windows/bin/aarch64-linux-android-readelf.exe -d libKKPlayerCore.so
 LDFLAGS =  -shared -std=c++11 -fPIC
 ObjTARGET = libKKPlayerCore.so
 ObjLib = libKKPlayerCore.a
@@ -23,6 +24,7 @@ $(ObjTARGET):$(objects)
 	$(CXX) $(LDFLAGS) -o $(ObjTARGET) $(objects) \
 	$(LDFLAGS) \
 	-L$(BASELib) \
+	-l$(BASELib)/liblog.so \
 	-l$(STLLib)/libstlport_static.a \
 	-l$(FFMPEGLib)libavcodec-56.so \
 	-l$(FFMPEGLib)libavdevice-56.so -l$(FFMPEGLib)libavfilter-5.so \
@@ -45,5 +47,7 @@ KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.
 KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h
 	$(CXX) -c $(CFLAGS) KKPlayer.cpp
 
+install:
+	cp -f $(ObjTARGET) ../KKPlayerAndroid/app/libs/armeabi-v7a
 clean:
 	rm $(ObjTARGET) $(objects) $(ObjLib) crtbegin_dynamic.o crtend_android.o crtend_so.o crtbegin_so.o crtbegin_static.o

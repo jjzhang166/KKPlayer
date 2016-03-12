@@ -13,7 +13,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import com.ic70.kkplayer.kkplayer.CBtnClick;
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity
+{
+
 
     private GLSurfaceView glView;
     @Override
@@ -23,9 +25,10 @@ public class MainActivity extends AppCompatActivity{
 
         setTheme(android.R.style.Theme_Translucent_NoTitleBar);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        glView = new GLSurfaceView(this); // Allocate a GLSurfaceView
+        glView = new  GLES2_0_SurfaceView(this); // Allocate a GLSurfaceView
+
         //glView.setRenderer(new KKGLView(this)); // Use a custom renderer
-        glView.setRenderer(new CKKPlayerView()); // Use a custom renderer
+        glView.setRenderer(new CKKPlayerReader()); // Use a custom renderer
         glView.getAlpha();
         this.setContentView(glView);
 

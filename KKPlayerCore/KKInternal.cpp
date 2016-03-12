@@ -852,18 +852,22 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
     switch(avctx->codec_type)
 	{
         case AVMEDIA_TYPE_AUDIO   : 
+			LOGE("Code:AVMEDIA_TYPE_AUDIO ");
 			                         is->last_audio_stream= stream_index;
 									 break;
         case AVMEDIA_TYPE_SUBTITLE: 
-			                         is->last_subtitle_stream = stream_index;
+			          LOGE("Code:AVMEDIA_TYPE_SUBTITLE");              
+					  is->last_subtitle_stream = stream_index;
 									 break;
         case AVMEDIA_TYPE_VIDEO   : 
+			LOGE("Code:AVMEDIA_TYPE_VIDEO");  
 			                         is->last_video_stream= stream_index;
 									 break;
     }
     
     if (!codec) 
 	{
+		LOGE("Code:-1");  
         return -1;
     }
 
@@ -887,6 +891,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	//打开解码器
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
+		LOGE("avcodec_open2 %d",avctx->codec_type);  
 		//失败
 		assert(0);
 	}
@@ -983,6 +988,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		pIs->pKKAudio->Start();
 		while(!pIs->abort_request&&pIs->pKKAudio!=NULL)
 		{
+			//LOGE("ReadAudio");
 			pIs->pKKAudio->ReadAudio();
 		}
 	}
@@ -1028,6 +1034,7 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 	{
 		/*****无信号******/
 		//ResetEvent(f->m_WaitEvent);
+		LOGE("queue ResetCond");
 		f->m_pWaitCond->ResetCond();
 	}
 	f->mutex->Unlock();
@@ -1081,7 +1088,9 @@ void frame_queue_next(SKK_FrameQueue *f)
 	{
 		//将事件有效
 		//::SetEvent(f->m_WaitEvent);
+		LOGE("SetCond over");
 		f->m_pWaitCond->SetCond();
+		LOGE("SetCond end");
 	}
 	f->mutex->Unlock();
 }
@@ -1300,17 +1309,20 @@ icon_error:
 //图片队列
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
 {  
+
 	SKK_FrameQueue *pPictq=&is->pictq;
 	///***找到一个可用的SKK_Frame***/
 	SKK_Frame *vp = frame_queue_peek_writable(pPictq);
 	
 	//等待
 	//if(::WaitForSingleObject(pPictq->m_WaitEvent, INFINITE))
+	LOGE("queue_picture wait \n");
 	pPictq->m_pWaitCond->WaitCond(INFINITE);
 	{
        
 	}
 	//锁
+	LOGE("queue_picture Lock \n");
 	pPictq->mutex->Lock();
 	vp->sar = pFrame->sample_aspect_ratio;
     vp->duration=duration;
@@ -1331,7 +1343,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
     int w=pFrame->width;
 	int h=pFrame->height;
 	AVPixelFormat ff=AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
-
+	LOGE("WindowWidth:%d,WindowHeight:%d pFrame->width:%d pFrame->height:%d\n",is->DestWidth,is->DestHeight,w,h);
 
 	if(vp->buffer!=NULL)
 	{	
@@ -1421,6 +1433,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		}
 	}
    	pPictq->mutex->Unlock();
+	LOGE("queue_picture UnLock");
 	frame_queue_push(&is->pictq);
 	return 0;
    
@@ -1428,7 +1441,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 //视频线程
 unsigned __stdcall  Video_thread(LPVOID lpParameter)
 {
-	
+	LOGE("Video_thread start");
 	SKK_VideoState *is=(SKK_VideoState*)lpParameter;
 	AVPacket pkt1, *packet = &pkt1;  
 	int len1, got_frame,ret;  
@@ -1443,14 +1456,20 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	for(;;)  
 	{
 		    if(is->abort_request)
-				break;
+			{
+				LOGE("Video_thread break");
+                break;
+			}
+				
 			//获取包
+			LOGE("Get video pkt");
 			if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) < 0)  
 			{  
 			   // means we quit getting packets  
 				Sleep(20);
 				continue;
 			}  
+			LOGE("Get video pkt Ok");
 			pts = 0; 
 
 
@@ -1470,21 +1489,26 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
             AVRational  fun={frame_rate.den, frame_rate.num};
 			duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
 
-		
+		    LOGE("Video_thread got_frame=%d",got_frame);
 			// Did we get a video frame?  
 			if(got_frame)  
 			{  
 				//pts = synchronize_video(is, pFrame, pts);  
 				
+				LOGE("Get pic");
 				if(queue_picture(is, pFrame, pts, duration, av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
 				{  
 					//break;  
 				}  
+				LOGE("Get pic Ok");
 				 av_frame_unref(pFrame);
-			}  
+			}
+			
+			
 			av_free_packet(packet);  
 	}
 	av_frame_free(&pFrame);
+	LOGE("Video_thread Over");
 	return 0;
 }
 

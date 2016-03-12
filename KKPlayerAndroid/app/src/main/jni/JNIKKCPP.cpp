@@ -36,6 +36,7 @@ void* ConvertThread(void *param)
 /***********初始一个KKUI**********/
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK(JNIEnv *pEv, jobject p)
 {
+    
     CAndKKPlayerUI *pKKUI = new CAndKKPlayerUI();
     G_pKKUI=pKKUI;
     int Ret=(int)pKKUI;

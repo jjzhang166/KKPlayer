@@ -50,12 +50,6 @@ class KKPlayer
 			void OnDrawImageByDc(HDC memdc);
 			void VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,long long pos,double diff);
 #endif           
-			
-			//视频刷线程
-			static unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);  
-			//推流线程
-			static unsigned __stdcall PushStream(LPVOID lpParameter);  
-            
 			//获取屏幕数据
 			//static unsigned WINAPI PicGdiGrab(LPVOID lpParameter);
 			void SetVolume(long value);
@@ -65,6 +59,11 @@ class KKPlayer
 			//快进快退
 			void KKSeek( SeekEnum en,int value);
 			void InitSound();
+public:
+			//视频刷线程
+			void VideoRefresh();
+			  //视频信息
+			SKK_VideoState *pVideoInfo;
 private:
 	        //文件打开后需要做什么
 	        OpenMediaEnum m_OpenMediaEnum;
@@ -79,10 +78,7 @@ private:
 			HWND m_hwnd;
 	        void PacketQueuefree();
 		    /*******显示视频**********/
-		    void VideoRefresh();
 		    void video_image_refresh(SKK_VideoState *is);
-		    //视频信息
-		    SKK_VideoState *pVideoInfo;
 			int64_t start_time;
 			
 			//当前时间

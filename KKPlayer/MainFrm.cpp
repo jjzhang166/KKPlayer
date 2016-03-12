@@ -246,10 +246,10 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	 m_PlayerInstance.InitSound();
 	 m_PlayerInstance.SetWindowHwnd(m_hWnd);
 
-	
+	//OpenMedia("rtsp://video.fjtu.com.cn/vs01/flws/flws_01.rm");
 	 //OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-	 OpenMedia("F://ttxx.mp4");
-	 //OpenMedia("C:\\AVOK.flv");
+	// OpenMedia("F://ttxx.mp4");
+	 OpenMedia("F:\\aaa.flv");
 	
     return 0;
 }

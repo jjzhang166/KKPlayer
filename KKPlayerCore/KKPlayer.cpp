@@ -25,6 +25,7 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	static bool registerFF=true;
 	if(registerFF)
 	{
+		
 		avdevice_register_all();
 		av_register_all();
 		avfilter_register_all();
@@ -32,6 +33,16 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 		registerFF=false;
 	}
 	
+	AVInputFormat *ff=av_iformat_next(NULL);
+	LOGE("AVInputFormatList \n");
+	int i=0;
+	while(ff!=NULL)
+	{
+		const char *aa=ff->name;
+		LOGE("%d,%s \n",i++,aa);
+		ff=av_iformat_next(ff);
+	}
+	LOGE("\n");
 	WindowWidth=0;
 	WindowHeight=0;
 	//avio_alloc_context
@@ -245,6 +256,9 @@ void KKPlayer::VideoRefresh()
 	if (pVideoInfo->audio_st) 
 	{
 	
+	}else
+	{
+
 	}
 	if (pVideoInfo->video_st) 
 	{
@@ -257,6 +271,7 @@ void KKPlayer::VideoRefresh()
 void KKPlayer::RenderImage(CRender *pRender)
 {
 	SKK_Frame *vp;
+	
 	if(pVideoInfo==NULL)
 	{
 		int len=0;
@@ -265,6 +280,7 @@ void KKPlayer::RenderImage(CRender *pRender)
 		return;
 	}else 
 	{
+		//LOGE("pVideoInfo->IsReady=%d m_bOpen=%d\n",pVideoInfo->IsReady,m_bOpen);
 		if(pVideoInfo->IsReady==0)
 		{
 			int len=0;
@@ -295,7 +311,11 @@ void KKPlayer::RenderImage(CRender *pRender)
 				//if(vp->width!=WindowWidth&&WindowHeight!=vp->height)
 				//  pRender->resize(vp->width,vp->height);
 				    pRender->render((char*)vp->buffer,vp->width,vp->height);
+					LOGE("WindowWidth=vp->width:%d,WindowHeight=vp->height:%d \n",vp->width,vp->height);
+			}else{
+					//LOGE("no vp");
 			}
+			//LOGE("WindowWidth=vp->width:%d,WindowHeight=vp->height:%d \n",vp->width,vp->height);
 			WindowWidth=vp->width;
 			WindowHeight=vp->height;
 			m_DisplayVp=vp;
@@ -468,7 +488,9 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 		fclose(pf);
 	}
 }
+
 #endif
+unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);  
 int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 {
 	int lenstr=strlen(FilePath);
@@ -485,9 +507,10 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 
 	RECT rt;
 	::GetClientRect(m_hwnd,&rt);
-	pVideoInfo->DisplayWidth=rt.right-rt.left;
-	pVideoInfo->DisplayHeight=rt.bottom-rt.top;
+	pVideoInfo->DisplayWidth=100;//rt.right-rt.left;
+	pVideoInfo->DisplayHeight=100;//rt.bottom-rt.top;
 	
+
 
 	memset(pVideoInfo->pflush_pkt,0,sizeof(AVPacket));
 	av_init_packet(pVideoInfo->pflush_pkt);
@@ -546,13 +569,16 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
 #else
 	m_ReadThreadInfo.Addr = pthread_create(&m_ReadThreadInfo.Tid_task, NULL, (void* (*)(void*))ReadAV_thread, (LPVOID)this);
+	LOGE("m_ReadThreadInfo.Addr =%d\n",m_ReadThreadInfo.Addr);
+	 LOGE("VideoRefreshthread XX");
 	m_VideoRefreshthreadInfo.Addr = pthread_create(&m_VideoRefreshthreadInfo.Tid_task, NULL, (void* (*)(void*))VideoRefreshthread, (LPVOID)this);
 #endif
 	return 0;
 }
 /*********视频刷新线程********/
- unsigned __stdcall KKPlayer::VideoRefreshthread(LPVOID lpParameter)
+ unsigned __stdcall VideoRefreshthread(LPVOID lpParameter)
  {
+	 LOGE("VideoRefreshthread strat");
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;
 	 while(1)
 	 {
@@ -565,6 +591,7 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
             pPlayer->VideoRefresh();
 		}
 	 }
+	 LOGE("VideoRefreshthread over");
 	 return 1;
  }
  int KKPlayer::GetCurTime()
@@ -577,23 +604,67 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 void KKPlayer::ReadAV()
 {
 
+	
+
+
+//int llxx= AVERROR_BSF_NOT_FOUND;
+//llxx= AVERROR_BUG;
+//llxx= AVERROR_BUFFER_TOO_SMALL;
+//llxx= AVERROR_DECODER_NOT_FOUND;
+//llxx= AVERROR_DEMUXER_NOT_FOUND;
+//llxx=  AVERROR_ENCODER_NOT_FOUND;
+//llxx=  AVERROR_EOF;
+//llxx=  AVERROR_EXIT;
+//llxx=  AVERROR_EXTERNAL;
+//llxx=  AVERROR_FILTER_NOT_FOUND;
+//llxx=  AVERROR_INVALIDDATA;
+//llxx=  AVERROR_MUXER_NOT_FOUND;
+//llxx=  AVERROR_OPTION_NOT_FOUND;
+//llxx=  AVERROR_PATCHWELCOME;
+//llxx=  AVERROR_PROTOCOL_NOT_FOUND;
+//
+//llxx= AVERROR_STREAM_NOT_FOUND;
+///**
+// * This is semantically identical to AVERROR_BUG
+// * it has been introduced in Libav after our AVERROR_BUG and with a modified value.
+// */
+//llxx=  AVERROR_BUG2;
+//llxx= AVERROR_UNKNOWN;
+//llxx=  AVERROR_EXPERIMENTAL;
+//llxx=  AVERROR_INPUT_CHANGED;
+//llxx= AVERROR_OUTPUT_CHANGED;
+///* HTTP & RTSP errors */
+//llxx=  AVERROR_HTTP_BAD_REQUEST;
+//llxx=  AVERROR_HTTP_UNAUTHORIZED;
+//llxx=  AVERROR_HTTP_FORBIDDEN;
+//llxx=  AVERROR_HTTP_NOT_FOUND;
+//llxx= AVERROR_HTTP_OTHER_4XX; 
+//llxx=  AVERROR_HTTP_SERVER_ERROR;
+
+	LOGE("ReadAV thread start");
 	AVFormatContext *pFormatCtx= avformat_alloc_context();
 	AVDictionary *format_opts=NULL;
 	int err=-1;
 	pVideoInfo->iformat=NULL;
+	
 	err = avformat_open_input(
 		&pFormatCtx,                    pVideoInfo->filename,
 		pVideoInfo->iformat,    &format_opts);
     AVPacket cpypkt;
 	
+	LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
     //文件打开失败
 	if(err<0)
 	{
+		
 		pVideoInfo->abort_request=1;
         if(m_pPlayUI!=NULL)
 		{
 			Sleep(1000);
 			m_pPlayUI->OpenMediaFailure(pVideoInfo->filename);
+		}else
+		{
+		     LOGE("m_pPlayUI=NULL \n");
 		}
 		return;
 		
@@ -601,78 +672,13 @@ void KKPlayer::ReadAV()
     
 	// Retrieve stream information
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
+	{
+		LOGE("avformat_find_stream_info<0 \n");
 		return; // Couldn't find stream information
-
+    }
 	if(this->m_OpenMediaEnum==Dump)
 	{
-			    pVideoInfo->IsOutFile=1;
-				char Outfile[256]="";
-				strcpy(Outfile,m_pStrFilePath);
-			
-				//打开输出文件
-				if(pVideoInfo->IsOutFile)
-				{
-						av_dump_format(pFormatCtx, 0,  pVideoInfo->filename, 0);
-						int Ret=avformat_alloc_output_context2(&pVideoInfo->ofmt_ctx, NULL, NULL,Outfile); 
-						if (!pVideoInfo->ofmt_ctx)
-						{  
-							assert(0);
-						}
-
-						pVideoInfo->ofmt = pVideoInfo->ofmt_ctx->oformat;  
-						for (int i = 0; i < pFormatCtx->nb_streams; i++)
-						{
-							//根据输入流创建输出流（Create output AVStream according to input AVStream）
-							AVStream *in_stream = pFormatCtx->streams[i];
-							AVStream *out_stream = avformat_new_stream( pVideoInfo->ofmt_ctx, in_stream->codec->codec);
-							if (!out_stream)
-							{
-								assert(0);
-								/*printf( "Failed allocating output stream\n");
-								ret = AVERROR_UNKNOWN;
-								goto end;*/
-							}
-							//复制AVCodecContext的设置（Copy the settings of AVCodecContext）
-							if (avcodec_copy_context(out_stream->codec, in_stream->codec) < 0) 
-							{
-								assert(0);
-								/*printf( "Failed to copy context from input to output stream codec context\n");
-								goto end;*/
-							}
-							out_stream->codec->codec_tag = 0;
-							if ( pVideoInfo->ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER)
-								out_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
-							if(out_stream->codec->codec_type==AVMEDIA_TYPE_AUDIO)
-							{
-							   pVideoInfo->out_audios=out_stream;
-							}else if(out_stream->codec->codec_type==AVMEDIA_TYPE_VIDEO)
-							{
-								 pVideoInfo->out_videos=out_stream;
-							}
-						}
-						//输出一下格式------------------
-						av_dump_format(pVideoInfo->ofmt_ctx, 0, Outfile, 1);
-						//打开输出文件（Open output file）
-						if (!(pVideoInfo->ofmt->flags & AVFMT_NOFILE)) 
-						{
-							int ret = avio_open(&pVideoInfo->ofmt_ctx->pb, Outfile, AVIO_FLAG_WRITE);
-							if (ret < 0) 
-							{
-								assert(0);
-								/*printf( "Could not open output file '%s'", out_filename);
-								goto end;*/
-							}
-						}
-						//写文件头（Write file header）
-						if (avformat_write_header(pVideoInfo->ofmt_ctx, NULL) < 0) 
-						{
-							assert(0);
-							/*printf( "Error occurred when opening output file\n");
-							goto end;*/
-						}
-						
-				}
-	
+			    
 	}
 
 
@@ -713,20 +719,22 @@ void KKPlayer::ReadAV()
 		enum AVMediaType type = st->codec->codec_type;
 		st_index[type] = i;
 	}
-
 	/* open the streams */
 	if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) 
 	{
+		LOGE("AVMEDIA_TYPE_AUDIO");
 		stream_component_open(pVideoInfo, st_index[AVMEDIA_TYPE_AUDIO]);
 	}
 
 	if (st_index[AVMEDIA_TYPE_VIDEO] >= 0) 
 	{
+		LOGE("AVMEDIA_TYPE_VIDEO");
 		ret = stream_component_open(pVideoInfo, st_index[AVMEDIA_TYPE_VIDEO]);
 	}
 
 	if (st_index[AVMEDIA_TYPE_SUBTITLE] >= 0) 
 	{
+		LOGE("AVMEDIA_TYPE_SUBTITLE");
 		stream_component_open(pVideoInfo, st_index[AVMEDIA_TYPE_SUBTITLE]);
 	}
 
@@ -738,55 +746,6 @@ void KKPlayer::ReadAV()
 	pVideoInfo->IsReady=1;	
 	
 	pVideoInfo->m_nLiveType=0;
-    strcpy(pVideoInfo->PushURL,"rtmp://192.9.8.239/live/xxxx");
-	if(pVideoInfo->m_nLiveType==1)
-	{
-		avformat_alloc_output_context2(& pVideoInfo->PushOfmt_ctx, NULL, "flv", pVideoInfo->PushURL); //RTMP  
-		for (int i = 0; i < pVideoInfo->pFormatCtx->nb_streams; i++) 
-		{  
-			//根据输入流创建输出流（Create output AVStream according to input AVStream）  
-			AVStream *in_stream = pVideoInfo->pFormatCtx->streams[i];  
-			AVStream *out_stream = avformat_new_stream( pVideoInfo->PushOfmt_ctx, in_stream->codec->codec);  
-			if (!out_stream) {  
-				printf( "Failed allocating output stream\n");  
-				ret = AVERROR_UNKNOWN;  
-				//	goto end;  
-			}  
-			//复制AVCodecContext的设置（Copy the settings of AVCodecContext）  
-			ret = avcodec_copy_context(out_stream->codec, in_stream->codec);  
-			if (ret < 0) 
-			{  
-				//			printf( "Failed to copy context from input to output stream codec context\n");  
-
-			}  
-			out_stream->codec->codec_tag = 0;  
-			if ( pVideoInfo->PushOfmt_ctx->oformat->flags & AVFMT_GLOBALHEADER)  
-				out_stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;  
-		}  
-		//Dump Format------------------  
-		av_dump_format(pVideoInfo->PushOfmt_ctx, 0,  pVideoInfo->PushURL, 1);  
-		//打开输出URL（Open output URL）  
-		if (!( pVideoInfo->PushOfmt_ctx->oformat ->flags & AVFMT_NOFILE))
-		{  
-			ret = avio_open(& pVideoInfo->PushOfmt_ctx->pb,  pVideoInfo->PushURL, AVIO_FLAG_WRITE);  
-			if (ret < 0) {  
-				printf( "Could not open output URL '%s'",  pVideoInfo->PushURL);  
-				//goto end;  
-			}  
-		} 
-		//写文件头（Write file header）  
-		ret = avformat_write_header( pVideoInfo->PushOfmt_ctx, NULL);  
-		if (ret < 0)
-		{  
-			printf( "Error occurred when opening output URL\n");  
-		} 
-	}
-
-   /* if(pVideoInfo->m_nLiveType==1)
-	{
-		unsigned int addrr=0;
-		_beginthreadex(NULL, NULL, PushStream, (LPVOID)this, 0,&addrr);
-	}*/
 	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb"); 
 	for (;;) 
 	{
@@ -873,6 +832,7 @@ void KKPlayer::ReadAV()
 		{
 			if(pVideoInfo->audioq.size + pVideoInfo->videoq.size + pVideoInfo->subtitleq.size > MAX_QUEUE_SIZE)
 			{
+				 LOGE("catch full");
 				//等待一会
 				Sleep(30);
 			}else
@@ -884,6 +844,7 @@ void KKPlayer::ReadAV()
 		ret = av_read_frame(pFormatCtx, pkt);
 		if (ret < 0) 
 		{
+			  LOGE("readAV ret=%d \n",ret);
 			 if ((ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof) 
 			 {
 				    
@@ -936,6 +897,7 @@ void KKPlayer::ReadAV()
 		//音频
 		if (pkt->stream_index == pVideoInfo->audio_stream && pkt_in_play_range) 
 		{
+			//LOGE("audio_stream");
 			packet_queue_put(&pVideoInfo->audioq, pkt,pVideoInfo->pflush_pkt);
 			if(pVideoInfo->IsOutFile)//Write 
 			{
@@ -954,6 +916,7 @@ void KKPlayer::ReadAV()
 			&& !(pVideoInfo->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC)
 			) 
 		{
+			//LOGE("video pkt");
 			/********无内存泄露*******/
 			packet_queue_put(&pVideoInfo->videoq, pkt,pVideoInfo->pflush_pkt);
 			if(pVideoInfo->IsOutFile)//Write 
@@ -982,6 +945,8 @@ void KKPlayer::ReadAV()
 		    av_free_packet(&cpypkt);
 		}
 	}
+
+	LOGE("readAV Over \n");
 }
 void KKPlayer::PacketQueuefree()
 {
@@ -1025,13 +990,6 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
    stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
 }
 
-unsigned __stdcall KKPlayer::PushStream(LPVOID lpParameter)
-{
-	//return 1;
-     KKPlayer* pPlayer=(KKPlayer*)lpParameter;
-	pPlayer->VideoPushStream();
-	return 0;
-}
 
 //推流
 void KKPlayer::VideoPushStream()

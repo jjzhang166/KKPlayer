@@ -1,4 +1,5 @@
 #ifndef WIN32
+    #include <android/log.h>
     #define NULL 0
 	#define ANDROID_KKPAYER 1
 	#define INFINITE            0xFFFFFFFF  // Infinite timeout
@@ -6,6 +7,8 @@
 	#define TRUE                1
     #define __stdcall __attribute__((__stdcall__))
 
+    #define  LOG_TAG    "libgl2jni"
+    #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 	typedef int                 BOOL;
 	typedef void *HANDLE;
 	typedef HANDLE HWND;

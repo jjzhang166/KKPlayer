@@ -9,6 +9,9 @@
 			#endif
 			#include <process.h>
 			#include <assert.h>
+
+            #define  LOGE(...)  ;
+//(char _Labcd__[256]="%s";sprintf(_Labcd__,__VA_ARGS__);::OutputDebugStringA(_Labcd__))
 	#else
 			#include <pthread.h>
             #include <unistd.h>
