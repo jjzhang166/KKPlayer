@@ -247,9 +247,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	 m_PlayerInstance.SetWindowHwnd(m_hWnd);
 
 	//OpenMedia("rtsp://video.fjtu.com.cn/vs01/flws/flws_01.rm");
-	 //OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
+	OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
 	// OpenMedia("F://ttxx.mp4");
-	 OpenMedia("F:\\aaa.flv");
+	 //OpenMedia("F:\\aaa.flv");
 	
     return 0;
 }
@@ -349,7 +349,7 @@ void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 	::FillRect(memdc,&rt,m_SelectDotHbr);
 	::DeleteObject(m_SelectDotHbr);
 
-	 m_PlayerInstance.OnDrawImageByDc(memdc);
+	 //m_PlayerInstance.OnDrawImageByDc(memdc);
 }
 void CMainFrame::Render()
 {

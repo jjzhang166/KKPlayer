@@ -45,7 +45,7 @@ class KKPlayer
 			void RenderImage(CRender *pRender);
 			void AdjustDisplay(int w,int h);
 			
-#ifdef WIN32
+#ifdef WIN32_KK
 			/*****Gdi*****/
 			void OnDrawImageByDc(HDC memdc);
 			void VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,long long pos,double diff);

@@ -35,12 +35,13 @@ typedef struct SKK_AVPacketList {
 /**********线程信息************/
 typedef struct SKK_ThreadInfo
 {
-#ifdef WIN32
+#ifdef WIN32_KK
 	HANDLE ThreadHandel;
 #else
 	pthread_t Tid_task;
 #endif
-	UINT Addr;
+   UINT Addr;
+   volatile	bool ThOver;
 } SKK_ThreadInfo;
 
 //包队列
@@ -160,7 +161,7 @@ typedef struct SKK_VideoState
 	SKK_ThreadInfo read_tid;
 	AVInputFormat *iformat;
 	/********1 中断 ************/
-	int abort_request;
+	volatile int abort_request;
 	int force_refresh;
 	/**********1暂停***************/
 	int paused;
@@ -300,7 +301,7 @@ typedef struct SKK_VideoState
 	int DevBpp;
 	HDC Dest_Hdc;
 	
-#ifdef WIN32
+#ifdef WIN32_KK
 	/******截屏数据类型*******/
 	int PicGrabType;
 	void *PicGrabBuf;

@@ -6,6 +6,7 @@
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date£º2015-6-25**********************************************/
 //#define __STDC_HOSTED__ 0
+#include "stdafx.h"
 #ifndef Includeffmpeg_H_
 #define Includeffmpeg_H_
 //typedef unsigned char	Uint8;

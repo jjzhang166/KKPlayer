@@ -8,7 +8,7 @@
 #include "KKInternal.h"
 #include <math.h>
 #include <assert.h>
-
+#include <time.h>
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
@@ -16,7 +16,7 @@ int cxlp=0;
 static int64_t sws_flags = SWS_BICUBIC;
 unsigned __stdcall  Audio_Thread(LPVOID lpParameter);
 unsigned __stdcall  Video_thread(LPVOID lpParameter);
-#ifdef WIN32
+#ifdef WIN32_KK
 inline long rint(double x) 
 { 
 	if(x >= 0.)
@@ -80,12 +80,6 @@ int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial)
 
 	for(;;) 
 	{
-		if(quit) 
-		{
-			ret = -1;
-			break;
-		}
-
 		pkt1 = q->first_pkt;
 		if (pkt1) 
 		{
@@ -706,7 +700,7 @@ void audio_callback(void *userdata, char *stream, int len)
 		}
 		len1 = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 
-#ifdef WIN32
+#ifdef WIN32_KK
 		if(audio_size>0){
 		char abcd[100]="";
 		sprintf(abcd,"\n slen:%d, len：%d,len1:%d",slen,len,len1);
@@ -788,7 +782,7 @@ static void decoder_start(SKK_Decoder *d,unsigned (__stdcall* _StartAddress) (vo
 {
 	d->pQueue->abort_request = 0;
 	packet_queue_put(d->pQueue, is->pflush_pkt,is->pflush_pkt);
-#ifdef WIN32
+#ifdef WIN32_KK
 	d->decoder_tid.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, _StartAddress, (LPVOID)is, 0,&d->decoder_tid.Addr);
 #else
 	d->decoder_tid.Addr = pthread_create(&d->decoder_tid.Tid_task, NULL, (void* (*)(void*))_StartAddress, (LPVOID)is);
@@ -852,22 +846,22 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
     switch(avctx->codec_type)
 	{
         case AVMEDIA_TYPE_AUDIO   : 
-			LOGE("Code:AVMEDIA_TYPE_AUDIO ");
+			//LOGE("Code:AVMEDIA_TYPE_AUDIO ");
 			                         is->last_audio_stream= stream_index;
 									 break;
         case AVMEDIA_TYPE_SUBTITLE: 
-			          LOGE("Code:AVMEDIA_TYPE_SUBTITLE");              
+			      //    LOGE("Code:AVMEDIA_TYPE_SUBTITLE");              
 					  is->last_subtitle_stream = stream_index;
 									 break;
         case AVMEDIA_TYPE_VIDEO   : 
-			LOGE("Code:AVMEDIA_TYPE_VIDEO");  
+			//LOGE("Code:AVMEDIA_TYPE_VIDEO");  
 			                         is->last_video_stream= stream_index;
 									 break;
     }
     
     if (!codec) 
 	{
-		LOGE("Code:-1");  
+		//LOGE("Code:-1");  
         return -1;
     }
 
@@ -891,7 +885,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	//打开解码器
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
-		LOGE("avcodec_open2 %d",avctx->codec_type);  
+		//LOGE("avcodec_open2 %d",avctx->codec_type);  
 		//失败
 		assert(0);
 	}
@@ -944,6 +938,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 								is->auddec.start_pts = is->audio_st->start_time;
 								is->auddec.start_pts_tb = is->audio_st->time_base;
 							}
+							is->auddec.decoder_tid.ThOver=false;
 							decoder_start(&is->auddec,&Audio_Thread,is);
                             break;
     case AVMEDIA_TYPE_VIDEO:
@@ -953,6 +948,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 							
 							decoder_init(&is->viddec, avctx, &is->videoq);
 							is->queue_attachments_req = 1;
+							is->viddec.decoder_tid.ThOver=false;
 							decoder_start(&is->viddec,&Video_thread,is);
                             break;
     case AVMEDIA_TYPE_SUBTITLE:
@@ -960,6 +956,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 							is->subtitle_st = ic->streams[stream_index];
 
 							decoder_init(&is->subdec, avctx, &is->subtitleq);
+							is->subdec.decoder_tid.ThOver=true;
 							//decoder_start(&is->subdec);
 							break;
     default:
@@ -992,11 +989,14 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 			pIs->pKKAudio->ReadAudio();
 		}
 	}
+	pIs->auddec.decoder_tid.ThOver=true;
 	return 1;
 }
 //字幕线程
 unsigned __stdcall  Subtitle_thread(LPVOID lpParameter)
 {
+	SKK_VideoState *pIs=(SKK_VideoState *)lpParameter;
+	pIs->auddec.decoder_tid.ThOver=true;
 	return 1;
 }
 
@@ -1029,14 +1029,19 @@ double synchronize_video(SKK_VideoState *is, AVFrame *src_frame, double pts)
 static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 {
 	f->mutex->Lock();
+	bool mm=true;
 	if(f->size >= f->max_size &&
 		!f->pktq->abort_request) 
 	{
 		/*****无信号******/
 		//ResetEvent(f->m_WaitEvent);
-		LOGE("queue ResetCond");
+		//LOGE("queue ResetCond");
 		f->m_pWaitCond->ResetCond();
+		f->mutex->Unlock();
+		mm=false;
+		f->m_pWaitCond->WaitCond(1);
 	}
+	if(mm)
 	f->mutex->Unlock();
 
 	if (f->pktq->abort_request)
@@ -1066,7 +1071,7 @@ void frame_queue_unref_item(SKK_Frame *vp)
 	av_frame_unref(vp->frame);
 	avsubtitle_free(&vp->sub);
 }
-void frame_queue_next(SKK_FrameQueue *f)
+void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
 {
 	/*****是否保存上一次的值******/
 	if (f->keep_last && !f->rindex_shown)
@@ -1080,7 +1085,8 @@ void frame_queue_next(SKK_FrameQueue *f)
 	{
 		f->rindex = 0;
 	}
-	f->mutex->Lock();
+	if(NeedLock)
+	   f->mutex->Lock();
 	f->size--;
 	if(f->size<0)
 		f->size=0;
@@ -1088,10 +1094,11 @@ void frame_queue_next(SKK_FrameQueue *f)
 	{
 		//将事件有效
 		//::SetEvent(f->m_WaitEvent);
-		LOGE("SetCond over");
+		//LOGE("SetCond over");
 		f->m_pWaitCond->SetCond();
-		LOGE("SetCond end");
+		//LOGE("SetCond end");
 	}
+	if(NeedLock)
 	f->mutex->Unlock();
 }
 SKK_Frame *frame_queue_peek_next(SKK_FrameQueue *f)
@@ -1163,7 +1170,7 @@ int GetBmpSize(int w,int h)
 }
 struct SwsContext *BMPimg_convert_ctx=NULL;
 
-#ifdef WIN32
+#ifdef WIN32_KK
 //位图
 void saveBMP(SKK_VideoState *is,AVFrame *pSrcFrame, int width, int height, int index, int bpp=24)
 {
@@ -1306,23 +1313,27 @@ icon_error:
     }
 }
 #endif
-//图片队列
+//图片队列 图片
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
 {  
 
 	SKK_FrameQueue *pPictq=&is->pictq;
+	time_t t_start, t_end;
+	t_start = time(NULL) ;
 	///***找到一个可用的SKK_Frame***/
 	SKK_Frame *vp = frame_queue_peek_writable(pPictq);
+	if(vp==NULL)
+		return -1;
 	
-	//等待
-	//if(::WaitForSingleObject(pPictq->m_WaitEvent, INFINITE))
-	LOGE("queue_picture wait \n");
-	pPictq->m_pWaitCond->WaitCond(INFINITE);
-	{
-       
-	}
+	if(is->abort_request)
+		return -1;
+	t_end = time(NULL) ;
+    /*LOGE("Waittime:%f",difftime(t_end,t_start));
+	char abcd[100]="";
+	sprintf(abcd,"\n XXId：%f",difftime(t_end,t_start));
+	::OutputDebugStringA(abcd);*/
 	//锁
-	LOGE("queue_picture Lock \n");
+	//LOGE("queue_picture Lock \n");
 	pPictq->mutex->Lock();
 	vp->sar = pFrame->sample_aspect_ratio;
     vp->duration=duration;
@@ -1342,8 +1353,12 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	}
     int w=pFrame->width;
 	int h=pFrame->height;
+#ifdef WIN32
 	AVPixelFormat ff=AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
-	LOGE("WindowWidth:%d,WindowHeight:%d pFrame->width:%d pFrame->height:%d\n",is->DestWidth,is->DestHeight,w,h);
+#else
+	AVPixelFormat ff=AV_PIX_FMT_RGBA;
+#endif
+	//LOGE("WindowWidth:%d,WindowHeight:%d pFrame->width:%d pFrame->height:%d\n",is->DestWidth,is->DestHeight,w,h);
 
 	if(vp->buffer!=NULL)
 	{	
@@ -1355,7 +1370,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		/*1280×720   16:9
 			1920×1080  16:9
 			720×480    4:3*/
-//		if(is->DestWidth==0&&is->DestHeight==0)
+		//if(0)
 		{
 			if((pFrame->width==1280&&pFrame->height==720)||(pFrame->width==1920&&pFrame->height==1080))
 			{
@@ -1380,60 +1395,55 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 					is->DestHeight=pFrame->height*ff;
 				}else
 				{
-					is->DestWidth=pFrame->width;
-					is->DestHeight=pFrame->height;
+					is->DestWidth=500;//pFrame->width;
+					is->DestHeight=300;//pFrame->height;
 				}
 			}else
 			{
-				is->DestWidth=500;//pFrame->width;
-				is->DestHeight=298;//pFrame->height;
+				is->DestWidth=is->DisplayWidth;
+				is->DestHeight=is->DisplayHeight;
 			}
-		}
+		}/*else{
+			is->DestWidth=is->DisplayWidth;
+			is->DestHeight=is->DisplayHeight;
+		}*/
 		
 		w=is->DestWidth;
 		h=is->DestHeight;
 	}
 	
-	if(1)
+	
+	//time_t t_start, t_end;
+	t_start = time(NULL) ;
+	
+	
+    if(1)
 	{
-		
-        if(1)
-		{
-            
+			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
+				pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
+				w,              h,                ff,                
+				SWS_FAST_BILINEAR,
+				NULL, NULL, NULL);
+			if (is->img_convert_ctx == NULL) 
 			{
-				is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
-					pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
-					w,              h,                ff,                
-					SWS_FAST_BILINEAR,
-					NULL, NULL, NULL);
-				if (is->img_convert_ctx == NULL) 
-				{
-					fprintf(stderr, "Cannot initialize the conversion context\n");
-					exit(1);
-				}
-
-			    AVPicture pict = { { 0 } };
-				int numBytes=avpicture_get_size(ff, w,h);
-				uint8_t * buffer=(uint8_t *)av_malloc(numBytes*sizeof(uint8_t));
-				avpicture_fill((AVPicture *)&pict, buffer,ff,  w, h);
-
-				
-
-				sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
-					0,pFrame->height, pict.data, pict.linesize);
-
-				
-                vp->buffer=buffer;
-				
-				
-				
+				fprintf(stderr, "Cannot initialize the conversion context\n");
+				exit(1);
 			}
-			vp->width=is->DestWidth;
-			vp->height=is->DestHeight;
-		}
+		    AVPicture pict = { { 0 } };
+			int numBytes=avpicture_get_size(ff, w,h);
+			uint8_t * buffer=(uint8_t *)av_malloc(numBytes*sizeof(uint8_t));
+			avpicture_fill((AVPicture *)&pict, buffer,ff,  w, h);
+			sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
+				0,pFrame->height, pict.data, pict.linesize);
+            vp->buffer=buffer;
+		    vp->width=is->DestWidth;
+		    vp->height=is->DestHeight;
 	}
    	pPictq->mutex->Unlock();
-	LOGE("queue_picture UnLock");
+
+	t_end = time(NULL) ;
+	
+	LOGE("cx time:%f",difftime(t_end,t_start));
 	frame_queue_push(&is->pictq);
 	return 0;
    
@@ -1462,14 +1472,14 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			}
 				
 			//获取包
-			LOGE("Get video pkt");
+			//LOGE("Get video pkt");
 			if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) < 0)  
 			{  
 			   // means we quit getting packets  
 				Sleep(20);
 				continue;
 			}  
-			LOGE("Get video pkt Ok");
+			//LOGE("Get video pkt Ok");
 			pts = 0; 
 
 
@@ -1477,9 +1487,18 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			d->pts=packet->pts;
 			d->dts=packet->dts;
 			d->current_pts_time=av_gettime();
+			
+			time_t t_start, t_end;
+			t_start = time(NULL) ;
+			
+			
 			//视频解码
 			ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
 			
+			t_end = time(NULL) ;
+			LOGE("de time:%f",difftime(t_end,t_start));
+			
+			// 
 			//找到pts
 			if((pts = av_frame_get_best_effort_timestamp(pFrame)) == AV_NOPTS_VALUE) 
 			{
@@ -1489,18 +1508,21 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
             AVRational  fun={frame_rate.den, frame_rate.num};
 			duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
 
-		    LOGE("Video_thread got_frame=%d",got_frame);
+		    //LOGE("Video_thread got_frame=%d",got_frame);
 			// Did we get a video frame?  
 			if(got_frame)  
 			{  
 				//pts = synchronize_video(is, pFrame, pts);  
 				
-				LOGE("Get pic");
+				t_start = time(NULL) ;
+				//LOGE("Get pic");
 				if(queue_picture(is, pFrame, pts, duration, av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
 				{  
 					//break;  
 				}  
-				LOGE("Get pic Ok");
+				t_end = time(NULL) ;
+				LOGE("queue_picture time:%f",difftime(t_end,t_start));
+				//LOGE("Get pic Ok");
 				 av_frame_unref(pFrame);
 			}
 			
@@ -1509,6 +1531,8 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	}
 	av_frame_free(&pFrame);
 	LOGE("Video_thread Over");
+
+	is->viddec.decoder_tid.ThOver=true;
 	return 0;
 }
 

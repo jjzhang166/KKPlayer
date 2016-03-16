@@ -14,10 +14,11 @@ class CKKCond_t
 		   int WaitCond(int ms);
 
     private:
-#ifdef WIN32
+#ifdef WIN32_KK
 		HANDLE m_hWait;
 #else
-		volatile long m_hWait;
+		pthread_cond_t  m_hWait;
+		//volatile long m_hWait;
         CKKMutex m_Mutex;
 #endif
 };

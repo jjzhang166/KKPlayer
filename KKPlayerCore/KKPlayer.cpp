@@ -58,7 +58,7 @@ void KKPlayer::CloseMedia()
 		return;
 	pVideoInfo->abort_request=1;
 
-#ifdef WIN32
+#ifdef WIN32_KK
 	HANDLE wiatHandle[5]={m_ReadThreadInfo.ThreadHandel,m_VideoRefreshthreadInfo.ThreadHandel,pVideoInfo->viddec.decoder_tid.ThreadHandel,
 		pVideoInfo->auddec.decoder_tid.ThreadHandel,pVideoInfo->subdec.decoder_tid.ThreadHandel};
 	
@@ -85,9 +85,22 @@ void KKPlayer::CloseMedia()
 #else
 	pthread_join(m_ReadThreadInfo.Tid_task,0);
 	pthread_join(m_VideoRefreshthreadInfo.Tid_task,0);
-	pthread_join(pVideoInfo->viddec.decoder_tid.Tid_task,0);
-	pthread_join(pVideoInfo->auddec.decoder_tid.Tid_task,0);
-	pthread_join(pVideoInfo->subdec.decoder_tid.Tid_task,0);
+
+	pVideoInfo->pictq.m_pWaitCond->SetCond();
+	pVideoInfo->audioq.m_pWaitCond->SetCond();
+    pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
+	while(1)
+	{
+		if(pVideoInfo->viddec.decoder_tid.ThOver&&pVideoInfo->auddec.decoder_tid.ThOver&&
+			pVideoInfo->subdec.decoder_tid.ThOver)
+		{
+			break;
+		}else
+		{
+			Sleep(1);
+		}
+	}
+	
 #endif	
 	
     /*******事件*********/
@@ -173,7 +186,7 @@ unsigned __stdcall  ReadAV_thread(LPVOID lpParameter)
 
 
 
-#ifdef WIN32
+#ifdef WIN32_KK
 int index=0;
 SYSTEMTIME Time_tToSystemTime(time_t t)
 {
@@ -235,7 +248,7 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 				m_CurTime=vp->pts-start_time;
 				if(DiffCurrent>=is->last_duration+is->delay || DiffCurrent<0.000000 || vp->pts<is->audio_clock )//||is->delay >60
 				{
-					frame_queue_next(&is->pictq);
+					frame_queue_next(&is->pictq,false);
 				}
 			}
 			
@@ -334,7 +347,7 @@ void KKPlayer::AdjustDisplay(int w,int h)
 		 pVideoInfo->DisplayHeight=h;
 	 }
 }
-#ifdef WIN32
+#ifdef WIN32_KK
 void KKPlayer::OnDrawImageByDc(HDC memdc)
 {
 	//return;
@@ -522,12 +535,15 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	//初始化队列
 	packet_queue_init(&pVideoInfo->videoq);
 	pVideoInfo->videoq.m_pWaitCond=new CKKCond_t();
+	//pVideoInfo->videoq.m_pWaitCond->SetCond();
     //音频包
 	packet_queue_init(&pVideoInfo->audioq);
 	pVideoInfo->audioq.m_pWaitCond=new CKKCond_t();
+	//pVideoInfo->audioq.m_pWaitCond->SetCond();
 	//字幕包
 	packet_queue_init(&pVideoInfo->subtitleq);
 	pVideoInfo->subtitleq.m_pWaitCond=new CKKCond_t();
+	//pVideoInfo->subtitleq.m_pWaitCond->SetCond();
 
 
 	init_clock(&pVideoInfo->vidclk, &pVideoInfo->videoq.serial);
@@ -564,7 +580,7 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	m_pSound->SetUserData(pVideoInfo);
 	pVideoInfo->pKKAudio=m_pSound;
 
-#ifdef WIN32
+#ifdef WIN32_KK
 	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
 	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
 #else
@@ -583,12 +599,19 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	 while(1)
 	 {
 		//av_usleep(2000);
-		Sleep(15);
+		Sleep(10);
 		if(pPlayer->pVideoInfo!=NULL)
 		{
 			if(pPlayer->pVideoInfo->abort_request==1)
 				break;
+
+			//time_t t_start, t_end;
+			//t_start = time(NULL) ;
             pPlayer->VideoRefresh();
+			//t_end = time(NULL) ;
+			//char abcd[100]="";
+			//sprintf(abcd,"\n 刷新时间：%f",difftime(t_end,t_start));
+			//::OutputDebugStringA(abcd);
 		}
 	 }
 	 LOGE("VideoRefreshthread over");
@@ -719,6 +742,9 @@ void KKPlayer::ReadAV()
 		enum AVMediaType type = st->codec->codec_type;
 		st_index[type] = i;
 	}
+	pVideoInfo->viddec.decoder_tid.ThOver=true;
+	pVideoInfo->auddec.decoder_tid.ThOver=true;
+	pVideoInfo->subdec.decoder_tid.ThOver=true;
 	/* open the streams */
 	if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) 
 	{

@@ -24,6 +24,6 @@ private:
  
 private:
         //¡ŸΩÁ÷µ
-        CRITICAL_SECTION m_crisec;
+        KKCRITICAL_SECTION m_crisec;
 };
 #endif

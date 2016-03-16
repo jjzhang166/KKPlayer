@@ -43,5 +43,6 @@ class CKKSound: public IKKAudio
 		   void* m_UserData;
 		   bool IsClose;
 		   CKKLock m_Lock;
+		   volatile bool m_Stop;
 };
 #endif

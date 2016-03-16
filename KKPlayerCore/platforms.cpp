@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #ifndef Platforms_H_
-	#ifndef WIN32
-	   void Sleep(int ms)
-	   {
-          sleep(ms);
-       }
+	#ifndef WIN32_KK
+		#ifndef WIN32
+			void Sleep(int ms)
+			{
+				usleep(ms*1000);
+			}
+		#endif
       /* BOOL ResetEvent(HANDLE hEvent)
        {
 	      return TRUE;
@@ -33,13 +35,16 @@
 	   {
 		    return TRUE;
 	   }*/
+#ifndef WIN32
 	   BOOL GetClientRect(HWND hWnd,RECT *lpRect)
 	   {
             return TRUE;
-	   }
+	   } 
 	   void assert(int i)
 	   {
 
 	   }
+#endif
+	  
 #endif
 #endif

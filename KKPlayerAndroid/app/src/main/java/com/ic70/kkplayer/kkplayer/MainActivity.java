@@ -25,8 +25,9 @@ public class MainActivity extends AppCompatActivity
 
         setTheme(android.R.style.Theme_Translucent_NoTitleBar);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        glView = new  GLES2_0_SurfaceView(this); // Allocate a GLSurfaceView
+       // glView = new  GLES2_0_SurfaceView(this); // Allocate a GLSurfaceView
 
+        glView = new  GLSurfaceView(this);
         //glView.setRenderer(new KKGLView(this)); // Use a custom renderer
         glView.setRenderer(new CKKPlayerReader()); // Use a custom renderer
         glView.getAlpha();
