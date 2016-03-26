@@ -26,6 +26,7 @@ android {
             abiFilters "armeabi-v7a"
             ldLibs("log")
             ldLibs("GLESv1_CM")
+            ldLibs("OpenSLES")
             //ldLibs("F:/android/android-sdk-windows/ndk-bundle/sources/cxx-stl/stlport/libs/armeabi-v7a/libstlport_static.a")
             ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavcodec-56.so")
             ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavdevice-56.so")

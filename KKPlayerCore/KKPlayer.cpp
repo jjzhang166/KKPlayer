@@ -34,15 +34,15 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	}
 	
 	AVInputFormat *ff=av_iformat_next(NULL);
-	LOGE("AVInputFormatList \n");
+	//LOGE("AVInputFormatList \n");
 	int i=0;
 	while(ff!=NULL)
 	{
 		const char *aa=ff->name;
-		LOGE("%d,%s \n",i++,aa);
+		//LOGE("%d,%s \n",i++,aa);
 		ff=av_iformat_next(ff);
 	}
-	LOGE("\n");
+	//LOGE("\n");
 	WindowWidth=0;
 	WindowHeight=0;
 	//avio_alloc_context
@@ -324,7 +324,7 @@ void KKPlayer::RenderImage(CRender *pRender)
 				//if(vp->width!=WindowWidth&&WindowHeight!=vp->height)
 				//  pRender->resize(vp->width,vp->height);
 				    pRender->render((char*)vp->buffer,vp->width,vp->height);
-					LOGE("WindowWidth=vp->width:%d,WindowHeight=vp->height:%d \n",vp->width,vp->height);
+					//LOGE("WindowWidth=vp->width:%d,WindowHeight=vp->height:%d \n",vp->width,vp->height);
 			}else{
 					//LOGE("no vp");
 			}

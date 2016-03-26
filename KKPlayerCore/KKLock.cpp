@@ -12,6 +12,7 @@
 #ifdef WIN32_KK
 	 ::InitializeCriticalSectionAndSpinCount(&m_crisec,4096);
 #else
+	
 	 int ret=pthread_rwlock_init(&m_crisec,NULL);
      if(ret)
 	 {

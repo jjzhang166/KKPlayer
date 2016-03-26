@@ -523,14 +523,17 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo)
 								 ) 
 							 {	
 									  swr_free(&pVideoInfo->swr_ctx);
-									  pVideoInfo->swr_ctx =swr_alloc();
+									 /* pVideoInfo->swr_ctx =swr_alloc();
 									  av_opt_set_int(pVideoInfo->swr_ctx, "ich", frame.channels, 0);
 									  av_opt_set_int(pVideoInfo->swr_ctx, "och", pVideoInfo->audio_tgt.channels, 0);
 									  av_opt_set_int(pVideoInfo->swr_ctx, "in_sample_rate",  frame.sample_rate, 0);
 									  av_opt_set_int(pVideoInfo->swr_ctx, "out_sample_rate",  pVideoInfo->audio_tgt.freq, 0);
 									  av_opt_set_sample_fmt(pVideoInfo->swr_ctx, "in_sample_fmt", (AVSampleFormat)frame.format, 0);
-									  av_opt_set_sample_fmt(pVideoInfo->swr_ctx, "out_sample_fmt", pVideoInfo->audio_tgt.fmt, 0);
-								
+									  av_opt_set_sample_fmt(pVideoInfo->swr_ctx, "out_sample_fmt", pVideoInfo->audio_tgt.fmt, 0);*/
+									  pVideoInfo->swr_ctx =swr_alloc_set_opts(NULL,
+										  pVideoInfo->audio_tgt.channel_layout, pVideoInfo->audio_tgt.fmt,pVideoInfo->audio_tgt.freq,
+										  dec_channel_layout,           (AVSampleFormat)frame.format, frame.sample_rate,
+										  0, NULL);
 
 									 if (!pVideoInfo->swr_ctx || swr_init(pVideoInfo->swr_ctx) < 0) 
 									 {
@@ -1443,7 +1446,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 
 	t_end = time(NULL) ;
 	
-	LOGE("cx time:%f",difftime(t_end,t_start));
+	//LOGE("cx time:%f",difftime(t_end,t_start));
 	frame_queue_push(&is->pictq);
 	return 0;
    
@@ -1451,7 +1454,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 //视频线程
 unsigned __stdcall  Video_thread(LPVOID lpParameter)
 {
-	LOGE("Video_thread start");
+	//LOGE("Video_thread start");
 	SKK_VideoState *is=(SKK_VideoState*)lpParameter;
 	AVPacket pkt1, *packet = &pkt1;  
 	int len1, got_frame,ret;  
@@ -1466,8 +1469,8 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	for(;;)  
 	{
 		    if(is->abort_request)
-			{
-				LOGE("Video_thread break");
+			{//
+				//LOGE("Video_thread break");
                 break;
 			}
 				
@@ -1496,7 +1499,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
 			
 			t_end = time(NULL) ;
-			LOGE("de time:%f",difftime(t_end,t_start));
+			//LOGE("de time:%f",difftime(t_end,t_start));
 			
 			// 
 			//找到pts
@@ -1521,7 +1524,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 					//break;  
 				}  
 				t_end = time(NULL) ;
-				LOGE("queue_picture time:%f",difftime(t_end,t_start));
+			//	LOGE("queue_picture time:%f",difftime(t_end,t_start));
 				//LOGE("Get pic Ok");
 				 av_frame_unref(pFrame);
 			}

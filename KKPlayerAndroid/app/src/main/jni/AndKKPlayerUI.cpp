@@ -82,6 +82,7 @@ CAndKKPlayerUI::~CAndKKPlayerUI()
 int CAndKKPlayerUI::IniGl()
 {
     m_player.InitSound();
+    m_player.SetWindowHwnd(0);
     m_player.OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
     //m_player.OpenMedia("/storage/emulated/0/Android/aaa.flv");
     printGLString("Version", GL_VERSION);
