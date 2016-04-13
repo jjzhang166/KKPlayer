@@ -31,42 +31,6 @@ static void checkGlError(const char* op)
         LOGI("after %s() glError (0x%x)\n", op, error);
     }
 }
-
-/*GLuint loadShader(GLenum shaderType, const char* pSource) {
-   //创建着色器
-    //shaderType代表着色器的类型，可以是GL_VERTEX_SHADER（顶点着色器）或GL_FRAGMENT_SHADER（片元着色器）
-    GLuint shader = glCreateShader(shaderType);
-    if (shader) {
-        //指定着色器源代码
-        //source代表要执行的源代码字符串数组，1表示源代码字符串数组的字符串个数是一个，0表示源代码字符串长度数组的个数为0个
-        glShaderSource(shader, 1, &pSource, NULL);
-        //编译着色器
-        glCompileShader(shader);
-        GLint compiled = 0;
-        //检查编译是否成功
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-        if (!compiled) {
-            GLint infoLen = 0;
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-            if (infoLen) {
-                char* buf = (char*) malloc(infoLen);
-                if (buf) {
-                    glGetShaderInfoLog(shader, infoLen, NULL, buf);
-                    LOGE("Could not compile shader %d:\n%s\n",
-                         shaderType, buf);
-                    free(buf);
-                }
-                glDeleteShader(shader);
-                shader = 0;
-            }else{
-                   LOGE("Could not compile shader infoLen=0");
-            }
-        }
-    }else{
-        LOGE("Could not compile shader");
-    }
-    return shader;
-}*/
 CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
 {
     m_pGLHandle=0;
@@ -74,6 +38,9 @@ CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
     m_Screen_Width=0;
     m_Screen_Height=0;
     m_nTextureID=0;
+
+    m_player.InitSound();
+    m_player.SetWindowHwnd(0);
 }
 CAndKKPlayerUI::~CAndKKPlayerUI()
 {
@@ -81,8 +48,7 @@ CAndKKPlayerUI::~CAndKKPlayerUI()
 }
 int CAndKKPlayerUI::IniGl()
 {
-    m_player.InitSound();
-    m_player.SetWindowHwnd(0);
+
     m_player.OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
     //m_player.OpenMedia("/storage/emulated/0/Android/aaa.flv");
     printGLString("Version", GL_VERSION);
@@ -125,7 +91,7 @@ int CAndKKPlayerUI::Resizeint(int w,int h)
     // 重置当前的视口
     glViewport(0, 0,w, h);
     // 选择投影矩阵
-    glMatrixMode(GL_PROJECTION);
+    glMatrixMode(GL_PROJECTION);//对投影矩阵应用随后的矩阵操作.
     // 重置投影矩阵
     glLoadIdentity();
 
@@ -133,44 +99,30 @@ int CAndKKPlayerUI::Resizeint(int w,int h)
     _gluPerspective(45.0f,(GLfloat)w/(GLfloat)h,0.1f,100.0f);
 
     // 选择模型观察矩阵
-    glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);//对模型视景矩阵堆栈应用随后的矩阵操作.
 
     // 重置模型观察矩阵
-    glLoadIdentity();
-    m_player.AdjustDisplay(128,128);
-}
-// 顶点数组
-const GLfloat gVertices[] = {
-        0.0f, 1.0f, 0.0f,   // 上
-        -1.0f,-1.0f, 0.0f,  // 左下
-        1.0f,-1.0f, 0.0f,   // 右下
-};
+    glLoadIdentity();//:将当前的用户坐标系的原点移到了屏幕中心：类似于一个复位操作
 
-const GLfloat gVerticesSquare[] = {
+        m_player.AdjustDisplay(w,h);
+
+
+}
+
+
+const GLfloat gVertices[] = {
         -1.0f, -1.0f, 0.0f, // 左下
         1.0f, -1.0f, 0.0f,  // 右下
         -1.0f, 1.0f, 0.0f,  // 左上
         1.0f, 1.0f, 0.0f    // 右上
 };
 
-// 纹理坐标
-// 纹理坐标原点会因不同系统环境而有所不同。
-// 比如在iOS以及Android上，纹理坐标原点（0, 0）是在左上角
-// 而在OS X上，纹理坐标的原点是在左下角
 const GLfloat gTextureCoord[] = {
-        0.5f,0.0f,
-        0.0f,1.0f,
-        1.0f,1.0f,
-};
-
-const GLfloat gTextureSquareCoord[] = {
         0.0f,1.0f,
         1.0f,1.0f,
         0.0f,0.0f,
         1.0f,0.0f,
 };
-// 旋转角度
-static GLfloat gAngle = 0.0f;
 void CAndKKPlayerUI::renderFrame()
 {
     // 清除屏幕及深度缓存
@@ -180,7 +132,7 @@ void CAndKKPlayerUI::renderFrame()
 
 
 
-    // 重置当前的模型观察矩阵
+    // 重置当前的模型观察矩阵,将当前的用户坐标系的原点移到了屏幕中心
     glLoadIdentity();
     // 启用顶点数组
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -197,29 +149,17 @@ void CAndKKPlayerUI::renderFrame()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);            // 启用纹理坐标数组
 
 
-    // 绘制三角形
-    glTranslatef(0.0f,2.0f,-10.0f);                         // 设置三角形位置
-   // glRotatef(gAngle,0.0f,1.0f,0.0f);                       // 旋转三角形
-    glVertexPointer(3, GL_FLOAT, 0, gVertices);             // 指定顶点数组
-    glTexCoordPointer(2, GL_FLOAT, 0, gTextureCoord);       // 设置纹理坐标
-    glDrawArrays(GL_TRIANGLES, 0, 3);  /**/                     // 绘制三角形
-
     // 绘制正方形
-   /* glTranslatef(0.0f,-4.0f,0.0f);                          // 设置正方形位置
-    glRotatef(-gAngle*2,0.0f,1.0f,0.0f);                    // 旋转正方形
-    glVertexPointer(3, GL_FLOAT, 0, gVerticesSquare);       // 指定顶点数组
-    glTexCoordPointer(2, GL_FLOAT, 0, gTextureSquareCoord); // 设置纹理坐标
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);                  // 绘制正方形
-*/
+      glTranslatef(0.0f,0.0f,-1.0f);                         // 设置三角形位置
+      glVertexPointer(3, GL_FLOAT, 0, gVertices);             // 指定顶点数组
+      glTexCoordPointer(2, GL_FLOAT, 0, gTextureCoord);       // 设置纹理坐标
+      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);                      // 绘制三角形
+
     // 关闭顶点数组
     glDisableClientState(GL_VERTEX_ARRAY);
     // 关闭纹理数组
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisable(GL_TEXTURE_2D);
-
-    // 增加旋转角度
-    gAngle += 2.0f;
-
     return;
 }
 void CAndKKPlayerUI::test()

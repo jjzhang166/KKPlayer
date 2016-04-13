@@ -56,15 +56,52 @@ void KKPlayer::CloseMedia()
 	m_bOpen=false;
 	if(pVideoInfo==NULL) 
 		return;
+
+
+	while(1)
+	{
+		if(
+			m_ReadThreadInfo.ThOver==true&&
+			m_VideoRefreshthreadInfo.ThOver==true
+			)
+		{
+			break;
+		}
+		Sleep(1);
+	}
+
+
 	pVideoInfo->abort_request=1;
+	pVideoInfo->pictq.m_pWaitCond->SetCond();
+	pVideoInfo->audioq.m_pWaitCond->SetCond();
+	pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
+
+	#ifndef WIN32_KK
+			pthread_join(m_ReadThreadInfo.Tid_task,0);
+			pthread_join(m_VideoRefreshthreadInfo.Tid_task,0);
+	#endif	
+
+
+
+	if(pVideoInfo->IsReady!=0)
+	{
+		while(1)
+		{
+			if(
+				pVideoInfo->viddec.decoder_tid.ThOver==true&&
+				pVideoInfo->auddec.decoder_tid.ThOver==true&&
+				pVideoInfo->subdec.decoder_tid.ThOver==true
+				)
+			{
+				break;
+			}
+			Sleep(1);
+		}
+	}
+
+	
 
 #ifdef WIN32_KK
-	HANDLE wiatHandle[5]={m_ReadThreadInfo.ThreadHandel,m_VideoRefreshthreadInfo.ThreadHandel,pVideoInfo->viddec.decoder_tid.ThreadHandel,
-		pVideoInfo->auddec.decoder_tid.ThreadHandel,pVideoInfo->subdec.decoder_tid.ThreadHandel};
-	
-	::WaitForMultipleObjects(5,wiatHandle,TRUE,INFINITE);
-	
-
 	//SDL_CloseAudio();
 	//关闭读取线程
 	::TerminateThread(m_ReadThreadInfo.ThreadHandel,0);
@@ -82,25 +119,6 @@ void KKPlayer::CloseMedia()
 	
 	::TerminateThread(pVideoInfo->subdec.decoder_tid.ThreadHandel,0);
 	::CloseHandle(pVideoInfo->subdec.decoder_tid.ThreadHandel);
-#else
-	pthread_join(m_ReadThreadInfo.Tid_task,0);
-	pthread_join(m_VideoRefreshthreadInfo.Tid_task,0);
-
-	pVideoInfo->pictq.m_pWaitCond->SetCond();
-	pVideoInfo->audioq.m_pWaitCond->SetCond();
-    pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
-	while(1)
-	{
-		if(pVideoInfo->viddec.decoder_tid.ThOver&&pVideoInfo->auddec.decoder_tid.ThOver&&
-			pVideoInfo->subdec.decoder_tid.ThOver)
-		{
-			break;
-		}else
-		{
-			Sleep(1);
-		}
-	}
-	
 #endif	
 	
     /*******事件*********/
@@ -177,10 +195,12 @@ void KKPlayer::InitSound()
 {
    m_pSound->InitAudio();
 }
-unsigned __stdcall  ReadAV_thread(LPVOID lpParameter)
+unsigned __stdcall  KKPlayer::ReadAV_thread(LPVOID lpParameter)
 {
 	KKPlayer *pPlayer=(KKPlayer *  )lpParameter;
+	pPlayer->m_ReadThreadInfo.ThOver=false;
 	pPlayer->ReadAV();
+	pPlayer->m_ReadThreadInfo.ThOver=true;
 	return 1;
 }
 
@@ -503,7 +523,7 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 }
 
 #endif
-unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);  
+//unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);  
 int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 {
 	int lenstr=strlen(FilePath);
@@ -517,6 +537,13 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	pVideoInfo = (SKK_VideoState*)av_mallocz(sizeof(SKK_VideoState));
 	memset(pVideoInfo,0,sizeof(SKK_VideoState));
 	pVideoInfo->pflush_pkt =(AVPacket*)av_mallocz(sizeof(AVPacket));
+
+
+	pVideoInfo->viddec.decoder_tid.ThOver=true;
+	pVideoInfo->auddec.decoder_tid.ThOver=true;
+	pVideoInfo->subdec.decoder_tid.ThOver=true;
+	m_ReadThreadInfo.ThOver=true;
+	m_VideoRefreshthreadInfo.ThOver=true;
 
 	RECT rt;
 	::GetClientRect(m_hwnd,&rt);
@@ -580,10 +607,15 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	m_pSound->SetUserData(pVideoInfo);
 	pVideoInfo->pKKAudio=m_pSound;
 
+	m_ReadThreadInfo.ThOver=false;
+	m_VideoRefreshthreadInfo.ThOver=false;
 #ifdef WIN32_KK
 	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
 	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
 #else
+
+	
+
 	m_ReadThreadInfo.Addr = pthread_create(&m_ReadThreadInfo.Tid_task, NULL, (void* (*)(void*))ReadAV_thread, (LPVOID)this);
 	LOGE("m_ReadThreadInfo.Addr =%d\n",m_ReadThreadInfo.Addr);
 	 LOGE("VideoRefreshthread XX");
@@ -592,12 +624,14 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	return 0;
 }
 /*********视频刷新线程********/
- unsigned __stdcall VideoRefreshthread(LPVOID lpParameter)
+ unsigned __stdcall KKPlayer::VideoRefreshthread(LPVOID lpParameter)
  {
 	 LOGE("VideoRefreshthread strat");
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;
-	 while(1)
+	 pPlayer->m_VideoRefreshthreadInfo.ThOver=false;
+	 while(pPlayer->m_bOpen)
 	 {
+		
 		//av_usleep(2000);
 		Sleep(10);
 		if(pPlayer->pVideoInfo!=NULL)
@@ -614,6 +648,7 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 			//::OutputDebugStringA(abcd);
 		}
 	 }
+	 pPlayer->m_VideoRefreshthreadInfo.ThOver=true;
 	 LOGE("VideoRefreshthread over");
 	 return 1;
  }
@@ -626,43 +661,8 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
-
 	
-
-
-//int llxx= AVERROR_BSF_NOT_FOUND;
-//llxx= AVERROR_BUG;
-//llxx= AVERROR_BUFFER_TOO_SMALL;
-//llxx= AVERROR_DECODER_NOT_FOUND;
-//llxx= AVERROR_DEMUXER_NOT_FOUND;
-//llxx=  AVERROR_ENCODER_NOT_FOUND;
-//llxx=  AVERROR_EOF;
-//llxx=  AVERROR_EXIT;
-//llxx=  AVERROR_EXTERNAL;
-//llxx=  AVERROR_FILTER_NOT_FOUND;
-//llxx=  AVERROR_INVALIDDATA;
-//llxx=  AVERROR_MUXER_NOT_FOUND;
-//llxx=  AVERROR_OPTION_NOT_FOUND;
-//llxx=  AVERROR_PATCHWELCOME;
-//llxx=  AVERROR_PROTOCOL_NOT_FOUND;
-//
-//llxx= AVERROR_STREAM_NOT_FOUND;
-///**
-// * This is semantically identical to AVERROR_BUG
-// * it has been introduced in Libav after our AVERROR_BUG and with a modified value.
-// */
-//llxx=  AVERROR_BUG2;
-//llxx= AVERROR_UNKNOWN;
-//llxx=  AVERROR_EXPERIMENTAL;
-//llxx=  AVERROR_INPUT_CHANGED;
-//llxx= AVERROR_OUTPUT_CHANGED;
-///* HTTP & RTSP errors */
-//llxx=  AVERROR_HTTP_BAD_REQUEST;
-//llxx=  AVERROR_HTTP_UNAUTHORIZED;
-//llxx=  AVERROR_HTTP_FORBIDDEN;
-//llxx=  AVERROR_HTTP_NOT_FOUND;
-//llxx= AVERROR_HTTP_OTHER_4XX; 
-//llxx=  AVERROR_HTTP_SERVER_ERROR;
+	m_ReadThreadInfo.ThOver=false;
 
 	LOGE("ReadAV thread start");
 	AVFormatContext *pFormatCtx= avformat_alloc_context();
@@ -742,9 +742,7 @@ void KKPlayer::ReadAV()
 		enum AVMediaType type = st->codec->codec_type;
 		st_index[type] = i;
 	}
-	pVideoInfo->viddec.decoder_tid.ThOver=true;
-	pVideoInfo->auddec.decoder_tid.ThOver=true;
-	pVideoInfo->subdec.decoder_tid.ThOver=true;
+	
 	/* open the streams */
 	if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) 
 	{
@@ -773,10 +771,10 @@ void KKPlayer::ReadAV()
 	
 	pVideoInfo->m_nLiveType=0;
 	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb"); 
-	for (;;) 
+
+	while(m_bOpen) 
 	{
-		
-		if (pVideoInfo->abort_request)
+		if(pVideoInfo->abort_request)
 		{
 			break;
 		}
@@ -828,8 +826,8 @@ void KKPlayer::ReadAV()
                           /*******这里不释放内存是为了保证图像连续********/						 
 						  if(p->buffer!=NULL)
 						  {
-							 // av_free(p->buffer);
-							 //  p->buffer=NULL;
+							 av_free(p->buffer);
+							 p->buffer=NULL;
 						  }
 					}
                     pVideoInfo->pictq.size=0;
@@ -973,6 +971,8 @@ void KKPlayer::ReadAV()
 	}
 
 	LOGE("readAV Over \n");
+	int ii=0;
+	ii++;
 }
 void KKPlayer::PacketQueuefree()
 {
@@ -1003,6 +1003,7 @@ void KKPlayer::Pause()
 	else
 		pVideoInfo->paused=1;
 }
+//快进
 void KKPlayer::KKSeek( SeekEnum en,int value)
 {
    double incr, pos, frac;

@@ -1398,13 +1398,14 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 					is->DestHeight=pFrame->height*ff;
 				}else
 				{
-					is->DestWidth=500;//pFrame->width;
-					is->DestHeight=300;//pFrame->height;
+					is->DestWidth=pFrame->width;
+					is->DestHeight=pFrame->height;
 				}
 			}else
 			{
-				is->DestWidth=is->DisplayWidth;
-				is->DestHeight=is->DisplayHeight;
+				LOGE("No s");
+				is->DestWidth=pFrame->width;
+				is->DestHeight=pFrame->height;
 			}
 		}/*else{
 			is->DestWidth=is->DisplayWidth;

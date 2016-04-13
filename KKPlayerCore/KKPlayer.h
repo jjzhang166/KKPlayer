@@ -63,7 +63,13 @@ public:
 			//视频刷线程
 			void VideoRefresh();
 			  //视频信息
-			SKK_VideoState *pVideoInfo;
+			SKK_VideoState *pVideoInfo; 
+private:
+	        /*********视频刷新线程********/
+	        static unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);
+	        static unsigned __stdcall  ReadAV_thread(LPVOID lpParameter);
+	        /*******显示视频**********/
+		    void video_image_refresh(SKK_VideoState *is);
 private:
 	        //文件打开后需要做什么
 	        OpenMediaEnum m_OpenMediaEnum;
@@ -77,8 +83,7 @@ private:
 	        IKKAudio* m_pSound;
 			HWND m_hwnd;
 	        void PacketQueuefree();
-		    /*******显示视频**********/
-		    void video_image_refresh(SKK_VideoState *is);
+		   
 			int64_t start_time;
 			
 			//当前时间

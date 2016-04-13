@@ -1,0 +1,27 @@
+package com.ic70.kkplayer.kkplayer;
+
+import android.os.Message;
+
+import java.util.List;
+
+/**
+ * Created by saint on 2016/4/11.
+ */
+public class COs_KKHander extends android.os.Handler
+{
+    public static final  int  LIST_STRING=100;
+    private IKKMessageHandler m_KKMessageHandler;
+    public COs_KKHander(IKKMessageHandler obj)
+    {
+        m_KKMessageHandler=obj;
+    }
+    public void handleMessage(Message msg) {
+        switch (msg.what) {
+            case LIST_STRING:
+                List<String> Partlist =( List<String> )msg.obj;
+
+                break;
+        }
+        super.handleMessage(msg);
+    }
+}

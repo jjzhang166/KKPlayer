@@ -12,7 +12,9 @@ CKKCond_t::CKKCond_t(void)
 
 CKKCond_t::~CKKCond_t(void)
 {
+	#ifndef WIN32_KK
      pthread_cond_destroy(&m_hWait);
+    #endif
 }
 
 int CKKCond_t::ResetCond()
