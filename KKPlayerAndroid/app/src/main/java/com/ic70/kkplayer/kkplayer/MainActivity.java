@@ -12,8 +12,10 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.ic70.kkplayer.kkplayer.CBtnClick;
 
@@ -39,8 +41,6 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
 
         ListView Localmovie_list = (ListView) findViewById(R.id.listView);
 
-        Label
-        Localmovie_list
        /* char a='A';
         int l=(int)a+32;
         a=(char)l;
@@ -52,11 +52,11 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         //glView.setRenderer(new KKGLView(this)); // Use a custom renderer
         glView.setRenderer(new CKKPlayerReader()); // Use a custom renderer
         glView.getAlpha();
-        this.setContentView(glView);*/
+        this.setContentView(glView);
 
 
        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);*/
 
        /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +72,21 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
     }
     public void HandleKKObj(Object obj)
     {
+        Message msg=(Message)obj;
+        switch (msg.what) {
+            case  COs_KKHander.LIST_STRING:
+                List<CKKMoviePath> Partlist =( List<CKKMoviePath> )msg.obj;
+                LoadFileInfo(Partlist);
+                break;
+        }
+    }
+    void LoadFileInfo(List<CKKMoviePath> Partlist)
+    {
+        ListView Localmovie_list = (ListView) findViewById(R.id.listView);
+        Localmovie_list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
+        CKKMListAdapter adapter1=new CKKMListAdapter(this,Partlist);
+        Localmovie_list.setAdapter( adapter1);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

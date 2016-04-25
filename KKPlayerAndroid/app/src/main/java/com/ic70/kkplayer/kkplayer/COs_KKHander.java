@@ -13,15 +13,12 @@ public class COs_KKHander extends android.os.Handler
     private IKKMessageHandler m_KKMessageHandler;
     public COs_KKHander(IKKMessageHandler obj)
     {
+
         m_KKMessageHandler=obj;
     }
-    public void handleMessage(Message msg) {
-        switch (msg.what) {
-            case LIST_STRING:
-                List<String> Partlist =( List<String> )msg.obj;
-
-                break;
-        }
-        super.handleMessage(msg);
+    public void handleMessage(Message msg)
+    {
+        m_KKMessageHandler.HandleKKObj(msg);
+        //super.handleMessage(msg);
     }
 }

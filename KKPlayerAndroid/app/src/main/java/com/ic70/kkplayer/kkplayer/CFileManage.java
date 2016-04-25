@@ -36,12 +36,14 @@ public class CFileManage extends java.lang.Thread
         }
         GetFiles(Path, Extension);
 
-        List<String> Partlist = new ArrayList<String>();
+        List<CKKMoviePath> Partlist = new ArrayList<CKKMoviePath>();
         Message message = new Message();
         int i=0,j=0;
-        while (i<Partlist.size()&&i<100)
+        while (i<lstFile.size()&&i<100)
         {
-            Partlist.add( lstFile.get(0));
+            CKKMoviePath KKpath = new CKKMoviePath();
+            KKpath.MovieName=lstFile.get(0);
+            Partlist.add( KKpath);
             lstFile.remove(0);
             i++;
         }
@@ -57,9 +59,17 @@ public class CFileManage extends java.lang.Thread
         if(files!=null) {
             for (int i = 0; i < files.length; i++) {
                 File f = files[i];
-                if (f.isFile()) {
-                    if (f.getPath().substring(f.getPath().length() - Extension.length()).equals(Extension)) //判断扩展名
-                        lstFile.add(f.getPath());
+                if (f.isFile())
+                {
+                    String name=f.getPath().substring(f.getPath().length() - Extension.length());
+                    if(name!=null)
+                    {
+                       name=name.toLowerCase();
+                        if ( name.equals(Extension)) //判断扩展名
+                            lstFile.add(f.getPath());
+                    }
+
+
                 } else if (f.isDirectory() && f.getPath().indexOf("/.") == -1) //忽略点文件（隐藏文件/文件夹）
                     GetFiles(f.getPath(), Extension);
             }

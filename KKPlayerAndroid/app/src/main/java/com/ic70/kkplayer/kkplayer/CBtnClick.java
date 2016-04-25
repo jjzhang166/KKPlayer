@@ -20,20 +20,20 @@ public class CBtnClick implements View.OnClickListener {
     }
     @Override
     public void onClick(View view){
-        switch(view.getId()) {
+        /*switch(view.getId()) {
             case R.id.BtnJni:
-                                          BtnJNiVoid();break;
-        }
+                BtnJNiVoid();break;
+        }*/
     }
     private void BtnJNiVoid()
     {
-        CJniKKPlayer pp = new CJniKKPlayer();
+       /* CJniKKPlayer pp = new CJniKKPlayer();
         int l=0;
         l++;
         int ret=pp.IniKK();
 
         TextView txt=(TextView)m_AppMain.findViewById(R.id.textView);
-        txt.setText("xxxxx"+Integer.toString(ret));
+        txt.setText("xxxxx"+Integer.toString(ret));*/
     }
     private AppCompatActivity m_AppMain;
 }

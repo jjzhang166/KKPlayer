@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayer", "KKPlayer\KKPlay
 		{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B} = {84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CryptAV", "CryptAV\CryptAV.vcproj", "{60DA4392-E985-43A6-B245-6DAC612A0DB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -51,6 +53,12 @@ Global
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.Release|Win32.Build.0 = Release|Win32
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{60DA4392-E985-43A6-B245-6DAC612A0DB3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{60DA4392-E985-43A6-B245-6DAC612A0DB3}.Debug|Win32.Build.0 = Debug|Win32
+		{60DA4392-E985-43A6-B245-6DAC612A0DB3}.Release|Win32.ActiveCfg = Release|Win32
+		{60DA4392-E985-43A6-B245-6DAC612A0DB3}.Release|Win32.Build.0 = Release|Win32
+		{60DA4392-E985-43A6-B245-6DAC612A0DB3}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{60DA4392-E985-43A6-B245-6DAC612A0DB3}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

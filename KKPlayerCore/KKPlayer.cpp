@@ -8,6 +8,7 @@
 
 #include "KKPlayer.h"
 #include "KKInternal.h"
+#include "crypt-buffer.h"
 static AVPacket flush_pkt;
 static int decoder_reorder_pts = -1;
 static int framedrop = -1;
@@ -100,7 +101,7 @@ void KKPlayer::CloseMedia()
 	}
 
 	
-
+Sleep(100);
 #ifdef WIN32_KK
 	//SDL_CloseAudio();
 	//关闭读取线程
@@ -661,7 +662,8 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
-	
+	//ArryIni();
+	//SetKeys(BIT128, "fsffdsfffddfdfff");
 	m_ReadThreadInfo.ThOver=false;
 
 	LOGE("ReadAV thread start");
@@ -772,6 +774,10 @@ void KKPlayer::ReadAV()
 	pVideoInfo->m_nLiveType=0;
 	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb"); 
 
+
+	AVAES bKey;
+	uint8_t rkey[16] ={ 0x10, 0xa5, 0x88, 0x69, 0xd7, 0x4b, 0xe5, 0xa3,0x74, 0xcf, 0x86, 0x7c, 0xfb, 0x47, 0x38, 0x59 };
+	av_aes_init(&bKey, rkey, 128, 1);
 	while(m_bOpen) 
 	{
 		if(pVideoInfo->abort_request)
@@ -942,6 +948,33 @@ void KKPlayer::ReadAV()
 		{
 			//LOGE("video pkt");
 			/********无内存泄露*******/
+
+			if (pkt->flags && AV_PKT_FLAG_KEY) 
+			{
+				if((pkt->flags & AV_PKT_FLAG_KEY)) 
+				{
+					//av_malloc()
+					//av_free()
+					uint8_t *psrc=NULL;
+					int Recount=pkt->size%16;
+					int count=pkt->size/16;
+					int slen=pkt->size;
+
+					int SrcLen=pkt->size;
+					if(Recount!=0)
+					{
+						SrcLen=pkt->size-Recount;
+					}
+					psrc=(uint8_t *)::malloc(SrcLen);
+					memset(psrc,0,SrcLen);
+
+					memcpy(psrc,pkt->data, SrcLen);
+					av_aes_crypt(&bKey, ( uint8_t *)pkt->data,( uint8_t *)psrc , count, NULL, 1);
+					free(psrc);
+
+				}
+			}
+
 			packet_queue_put(&pVideoInfo->videoq, pkt,pVideoInfo->pflush_pkt);
 			if(pVideoInfo->IsOutFile)//Write 
 			{
