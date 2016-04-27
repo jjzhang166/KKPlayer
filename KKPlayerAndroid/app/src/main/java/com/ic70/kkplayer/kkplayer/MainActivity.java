@@ -12,8 +12,12 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -35,12 +39,21 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //设置动画效果。
+        ImageView infoOperatingIV = (ImageView)findViewById(R.id.RotateImageView);
+        Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.dirtiprotate);
+        LinearInterpolator lin = new LinearInterpolator();
+        operatingAnim.setInterpolator(lin);
+        if (operatingAnim != null) {
+            infoOperatingIV.startAnimation(operatingAnim);
+            infoOperatingIV.bringToFront();
+            infoOperatingIV.setVisibility(View.VISIBLE);
+        }
+        //扫描文件系统
         m_Handler = new COs_KKHander(this);
         m_FileManage = new CFileManage();
         m_FileManage.start(m_Handler);
-
         ListView Localmovie_list = (ListView) findViewById(R.id.listView);
-
        /* char a='A';
         int l=(int)a+32;
         a=(char)l;
@@ -87,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
 
         CKKMListAdapter adapter1=new CKKMListAdapter(this,Partlist);
         Localmovie_list.setAdapter( adapter1);
+        ImageView infoOperatingIV = (ImageView)findViewById(R.id.RotateImageView);
+        if(infoOperatingIV!=null){
+            infoOperatingIV.setVisibility(View.GONE);
+        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
