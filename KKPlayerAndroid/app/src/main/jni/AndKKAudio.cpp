@@ -20,17 +20,21 @@ CAndKKAudio::CAndKKAudio():m_engineObject(NULL),m_engineEngine(NULL),m_outputMix
     m_pNext_buffer=m_pBuf;
     m_nnext_buffer_index=0;
     bytes_per_buffer=1024*4;
+
+    m_bqPlayerPlay=NULL;
+    m_bqPlayerObject=NULL;
+
 }
 CAndKKAudio::~CAndKKAudio()
 {
-
+    ::free(m_pBuf);
+    CloseAudio();
 }
 
 
 // this callback handler is called every time a buffer finishes playing
 void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
 {
-
     CAndKKAudio *pAudio=(CAndKKAudio*)context;
     pAudio->SetCond();
 }
@@ -45,14 +49,8 @@ void CAndKKAudio::SetCond()
 unsigned long GetTickCount()
 {
     struct timespec ts;
-
     clock_gettime(CLOCK_MONOTONIC, &ts);
-
     return (ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
-}
-void CAndKKAudio::ReadBuffSLES()
-{
-
 }
 void CAndKKAudio::SetWindowHAND(int hwnd)
 {
@@ -131,13 +129,6 @@ void CAndKKAudio::SetWindowHAND(int hwnd)
         LOGE("RegisterCallback m_bqPlayerBufferQueue m_bqPlayerBufferQueue error，%d",result);
     }
 
-// enqueue empty buffer to start play
-/*    memset(opaque->buffer, 0, opaque->buffer_capacity);
-    for(int i = 0; i < OPENSLES_BUFFERS; ++i) {
-        ret = (*m_bqPlayerBufferQueue)->Enqueue(opaque->slBufferQueueItf, opaque->buffer + i * opaque->bytes_per_buffer, opaque->bytes_per_buffer);
-        (* m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue, m_pBuf,m_nBufLength);
-    }*/
-
     (void)result;
     // set the player's state to playing
     result = (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
@@ -155,7 +146,7 @@ void CAndKKAudio::SetUserData(void* UserData)
 void CAndKKAudio::SetAudioCallBack(pfun fun)
 {
     m_ReadLock.Lock();
-   m_pFun=fun;
+    m_pFun=fun;
     m_ReadLock.Unlock();
 }
 /***********初始化音频设备*********/
@@ -193,6 +184,7 @@ void CAndKKAudio::InitAudio()
     const SLboolean req1[] = {SL_BOOLEAN_FALSE};
     LOGE("create output mix, with environmental reverb specified as a non-required interface");
     result = (*m_engineEngine)->CreateOutputMix(m_engineEngine, &m_outputMixObject, 1, ids1, req1);
+
     if(SL_RESULT_SUCCESS != result)
     {
         LOGE("CreateOutputMix m_engineEngine error,%d", result);
@@ -202,6 +194,7 @@ void CAndKKAudio::InitAudio()
     // realize the output mix
     LOGE("realize the output mix");
     result = (*m_outputMixObject)->Realize(m_outputMixObject, SL_BOOLEAN_FALSE);
+
     if(SL_RESULT_SUCCESS != result)
     {
         LOGE("Realize m_outputMixObject eror");
@@ -214,7 +207,6 @@ void CAndKKAudio::ReadAudio()
 {
     if(m_pFun!=NULL)
     {
-
         long t_start, t_end;
         t_start =GetTickCount();
         LOGE("ReadAudio");
@@ -259,15 +251,37 @@ void CAndKKAudio::ReadAudio()
 }
 void CAndKKAudio::Start()
 {
-
+   if(m_bqPlayerPlay!=NULL)
+   {
+       SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+   }
 }
 void CAndKKAudio::Stop()
 {
-
+    if(m_bqPlayerPlay!=NULL)
+    {
+        SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);
+    }
 }
 /*********关闭**********/
 void CAndKKAudio::CloseAudio()
 {
+    if(m_bqPlayerPlay!=NULL)
+    {
+        SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);
+        m_bqPlayerPlay=NULL;
+    }
+    if(m_outputMixObject!=NULL)
+    {
+        (*m_outputMixObject)->Destroy(m_outputMixObject);
+        m_outputMixObject==NULL;
+    }
+    if(m_engineObject!=NULL)
+    {
+         (*m_engineObject)->Destroy(m_engineObject);
+        m_engineObject=NULL;
+    }
+
 
 }
 /*********设置音量************/

@@ -19,6 +19,7 @@
 
             </intent-filter>
         </activity>
+        <activity android:name=".CPlayerActivity"></activity>
     </application>
     <!-- RECORD_AUDIO is needed to create an audio recorder -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />

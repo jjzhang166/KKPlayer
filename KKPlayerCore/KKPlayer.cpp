@@ -8,7 +8,6 @@
 
 #include "KKPlayer.h"
 #include "KKInternal.h"
-#include "crypt-buffer.h"
 static AVPacket flush_pkt;
 static int decoder_reorder_pts = -1;
 static int framedrop = -1;
@@ -53,10 +52,18 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 void KKPlayer::CloseMedia()
 {
     m_CloseLock.Lock();
+	if(!m_bOpen)
+	{
+		m_CloseLock.Unlock();
+		return;
+	}
     m_pSound->Stop();
 	m_bOpen=false;
 	if(pVideoInfo==NULL) 
+	{
+		m_CloseLock.Unlock();
 		return;
+	}
 
 
 	while(1)
@@ -180,6 +187,22 @@ Sleep(100);
 	start_time=AV_NOPTS_VALUE;
 	m_CurTime=0;
 	m_CloseLock.Unlock();
+}
+
+MEDIA_INFO KKPlayer::GetMediaInfo()
+{
+	MEDIA_INFO info;
+	memset(&info,0,sizeof(info));
+	m_CloseLock.Lock();
+	if(m_bOpen)
+	{
+		info.Open=m_bOpen;
+	}else
+	{
+          info.Open=false;
+	}
+	m_CloseLock.Unlock();
+	return info;
 }
 KKPlayer::~KKPlayer(void)
 {
@@ -527,13 +550,21 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 //unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);  
 int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 {
+	m_CloseLock.Lock();
+    if(m_bOpen)
+	{
+        m_CloseLock.Unlock();
+		return -1;
+	}
+	m_bOpen=true;
+	m_CloseLock.Unlock();
+
 	int lenstr=strlen(FilePath);
 	m_pStrFilePath=(char*)::malloc(lenstr+1);
 	memset(m_pStrFilePath,0,lenstr+1);
 	strcpy(m_pStrFilePath,FilePath);
 	
 	this->m_OpenMediaEnum=en;
-	m_bOpen=true;
 	
 	pVideoInfo = (SKK_VideoState*)av_mallocz(sizeof(SKK_VideoState));
 	memset(pVideoInfo,0,sizeof(SKK_VideoState));
@@ -662,8 +693,6 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
-	//ArryIni();
-	//SetKeys(BIT128, "fsffdsfffddfdfff");
 	m_ReadThreadInfo.ThOver=false;
 
 	LOGE("ReadAV thread start");
@@ -948,33 +977,6 @@ void KKPlayer::ReadAV()
 		{
 			//LOGE("video pkt");
 			/********无内存泄露*******/
-
-			if (pkt->flags && AV_PKT_FLAG_KEY) 
-			{
-				if((pkt->flags & AV_PKT_FLAG_KEY)) 
-				{
-					//av_malloc()
-					//av_free()
-					uint8_t *psrc=NULL;
-					int Recount=pkt->size%16;
-					int count=pkt->size/16;
-					int slen=pkt->size;
-
-					int SrcLen=pkt->size;
-					if(Recount!=0)
-					{
-						SrcLen=pkt->size-Recount;
-					}
-					psrc=(uint8_t *)::malloc(SrcLen);
-					memset(psrc,0,SrcLen);
-
-					memcpy(psrc,pkt->data, SrcLen);
-					av_aes_crypt(&bKey, ( uint8_t *)pkt->data,( uint8_t *)psrc , count, NULL, 1);
-					free(psrc);
-
-				}
-			}
-
 			packet_queue_put(&pVideoInfo->videoq, pkt,pVideoInfo->pflush_pkt);
 			if(pVideoInfo->IsOutFile)//Write 
 			{

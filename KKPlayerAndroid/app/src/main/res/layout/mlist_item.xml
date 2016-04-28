@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>  
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"  
     android:layout_width="fill_parent"
-    android:layout_height="260px"
-    >
-    <CheckBox
-        android:layout_width="100dp"
-        android:layout_height="200dp" />
-     <ImageView android:id="@+id/simple_item_0"
-        android:layout_width="300dp"
-        android:layout_height="200dp"
-        android:gravity="center"
-         android:layout_alignParentTop="true"
-         android:layout_alignParentLeft="true"
-         android:layout_alignParentStart="true" />
+    android:layout_height="260px">
+    <CheckBox android:id="@+id/CheckBox_0"
+     android:layout_width="100dp"
+     android:layout_height="200dp" />
+    <ImageView android:id="@+id/simple_item_0"
+     android:layout_width="300dp"
+     android:layout_height="200dp"
+     android:gravity="center"
+     android:layout_alignParentTop="true"
+     android:layout_alignParentLeft="true"
+     android:layout_alignParentStart="true" />
     <TextView android:id="@+id/simple_item_1"
-        android:layout_width="wrap_content"
-        android:layout_height="260px"
-        android:gravity="center"
-        android:layout_toRightOf="@id/simple_item_0"
-        />
+     android:layout_width="wrap_content"
+     android:layout_height="260px"
+     android:gravity="center"
+     android:layout_toRightOf="@id/simple_item_0"
+     />
 </RelativeLayout>

@@ -1,16 +1,16 @@
 //
 // Created by saint on 2016/3/10.
 //
-#include "F:/ProgramTool/OpenPro/KKPlayer/KKPlayerCore/IKKAudio.h"
-#include "F:/ProgramTool/OpenPro/KKPlayer/KKPlayerCore/KKLock.h"
-#include "F:/ProgramTool/OpenPro/KKPlayer/KKPlayerCore/KKCond_t.h"
+#include "../../../../../KKPlayerCore/IKKAudio.h"
+#include "../../../../../KKPlayerCore/KKLock.h"
+#include "../../../../../KKPlayerCore/KKCond_t.h"
 #include <android/log.h>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <sys/types.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
-
+//Android 音频实现
 #ifndef KKPLAYERANDROID_ANDKKAUDIO_H
 #define KKPLAYERANDROID_ANDKKAUDIO_H
 class CAndKKAudio: public IKKAudio
@@ -36,7 +36,6 @@ class CAndKKAudio: public IKKAudio
              void SetCond();
     private:
              //static void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
-             void ReadBuffSLES();
              SLObjectItf         m_engineObject;
              SLEngineItf         m_engineEngine;
              SLObjectItf         m_outputMixObject;
@@ -60,8 +59,8 @@ class CAndKKAudio: public IKKAudio
              int        m_nnext_buffer_index;
              size_t      bytes_per_buffer;
 private:
-    CKKLock m_ReadLock;
-    CKKCond_t m_ReadLockCond;
+            CKKLock m_ReadLock;
+            CKKCond_t m_ReadLockCond;
 };
 
 

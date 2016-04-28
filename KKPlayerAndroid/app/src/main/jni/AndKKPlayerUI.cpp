@@ -33,6 +33,8 @@ static void checkGlError(const char* op)
 }
 CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
 {
+    //播放器未启动
+    m_playerState=0;
     m_pGLHandle=0;
     gvPositionHandle=0;
     m_Screen_Width=0;
@@ -44,12 +46,15 @@ CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
 }
 CAndKKPlayerUI::~CAndKKPlayerUI()
 {
-
+    if(m_nTextureID!=0)
+        glDeleteTextures(2,&m_nTextureID);
+    m_player.CloseMedia();
 }
 int CAndKKPlayerUI::IniGl()
 {
-
-    m_player.OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
+    //播放器启动
+    //m_playerState=1;
+    //m_player.OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
     //m_player.OpenMedia("/storage/emulated/0/Android/aaa.flv");
     printGLString("Version", GL_VERSION);
     printGLString("Vendor", GL_VENDOR);
@@ -58,23 +63,27 @@ int CAndKKPlayerUI::IniGl()
 
     // 启用阴影平滑
     glShadeModel(GL_SMOOTH);
-
     // 黑色背景
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
     // 设置深度缓存
     glClearDepthf(1.0f);
 
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
-
     // 所作深度测试的类型
     glDepthFunc(GL_LEQUAL);
 
     // 对透视进行修正
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
     return m_pGLHandle;
+}
+MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
+{
+    return m_player.GetMediaInfo();
+}
+int  CAndKKPlayerUI::OpenMedia(char *str)
+{
+    return m_player.OpenMedia(str);
 }
 // 定义π
 const GLfloat PI = 3.1415f;
@@ -104,9 +113,7 @@ int CAndKKPlayerUI::Resizeint(int w,int h)
     // 重置模型观察矩阵
     glLoadIdentity();//:将当前的用户坐标系的原点移到了屏幕中心：类似于一个复位操作
 
-        m_player.AdjustDisplay(w,h);
-
-
+    m_player.AdjustDisplay(w,h);
 }
 
 
@@ -129,9 +136,6 @@ void CAndKKPlayerUI::renderFrame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // 设置背景颜色为黑色
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-
-
     // 重置当前的模型观察矩阵,将当前的用户坐标系的原点移到了屏幕中心
     glLoadIdentity();
     // 启用顶点数组
@@ -162,10 +166,6 @@ void CAndKKPlayerUI::renderFrame()
     glDisable(GL_TEXTURE_2D);
     return;
 }
-void CAndKKPlayerUI::test()
-{
-
-}
 unsigned char* CAndKKPlayerUI::GetWaitImage(int &length,int curtime)
 {
     return NULL;
@@ -180,10 +180,22 @@ void CAndKKPlayerUI::OpenMediaFailure(char *strURL)
     return;
 }
 
-bool CAndKKPlayerUI::init(HWND hView){}
-void CAndKKPlayerUI::destroy(){}
-void CAndKKPlayerUI::resize(unsigned int w, unsigned int h){}
-void CAndKKPlayerUI::WinSize(unsigned int w, unsigned int h){}
+bool CAndKKPlayerUI::init(HWND hView)
+{
+
+}
+void CAndKKPlayerUI::destroy()
+{
+
+}
+void CAndKKPlayerUI::resize(unsigned int w, unsigned int h)
+{
+
+}
+void CAndKKPlayerUI::WinSize(unsigned int w, unsigned int h)
+{
+
+}
 
 float quadVertex[] = {
         -0.5f, 0.5f, 0.0f, // Position 0

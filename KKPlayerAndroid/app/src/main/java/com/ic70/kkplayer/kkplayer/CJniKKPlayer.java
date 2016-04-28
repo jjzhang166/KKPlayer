@@ -16,9 +16,13 @@ public class CJniKKPlayer {
         System.loadLibrary("KKPlayerCore");
         System.loadLibrary("JniKKPlayer");
     }
+    //初始化一个KKplayer实例
     public native int IniKK();
+    //检查Gl环境
     public native int IniGl(int obj);
+    //尺寸调整
     public native int Resizeint(int obj,int w, int h);
     public native int GlRender(int obj);
+    public native void DelKK();
 }
 //javah -classpath ..\..\..\build\intermediates\classes\debug com.ic70.kkplayer.kkplayer.CJniKKPlayer

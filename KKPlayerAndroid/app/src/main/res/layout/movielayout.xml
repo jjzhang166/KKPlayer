@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/MovieFrameLayout"
+    android:background="#000000">
+    <!--<SurfaceView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/surfaceView" />-->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:fitsSystemWindows="true"
+        android:weightSum="1"
+        android:background="#000000"
+        android:baselineAligned="false"
+        android:layout_gravity="bottom">
+                     <SeekBar
+                         android:layout_width="match_parent"
+                         android:focusable="true"
+                         android:layout_height="40dp"
+                         android:paddingLeft="5dp"
+                         android:paddingRight="5dp"
+                         android:maxHeight="4dp"
+                         android:minHeight="4dp"
+                         android:progressDrawable="@drawable/po_seekbar"
+                         android:thumb="@drawable/seekbar_thumb"/>
+                        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:fitsSystemWindows="true"
+                            android:weightSum="1">
+                                     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                     android:layout_width="78dp"
+                                     android:layout_height="20dp"
+                                     android:fitsSystemWindows="true"
+                                         android:layout_gravity="bottom"
+                                         android:layout_weight="0.09">
+                                         <TextView
+                                          android:layout_width="45dp"
+                                          android:layout_height="30dp"
+                                          android:textAppearance="?android:attr/textAppearanceSmall"
+                                          android:text="00:00:00"
+                                          android:id="@+id/textView"
+                                          android:textSize="24px"
+                                          android:layout_centerVertical="true"
+                                          android:textColor="#ffffff"
+                                          android:layout_gravity="bottom" />
+                                                <TextView
+                                                 android:textSize="24px"
+                                                 android:layout_width="wrap_content"
+                                                 android:layout_height="wrap_content"
+                                                 android:textAppearance="?android:attr/textAppearanceSmall"
+                                                 android:text="/"
+
+                                                 android:id="@+id/textView2"
+                                                 android:layout_alignTop="@+id/textView"
+                                                 android:layout_toEndOf="@+id/textView"
+                                                 android:textColor="#ffffff"
+                                                 android:layout_gravity="bottom"
+                                                 android:layout_toRightOf="@+id/textView" />
+
+                                                 <TextView android:textSize="24px"
+                                                 android:layout_width="wrap_content"
+                                                 android:layout_height="wrap_content"
+                                                 android:textAppearance="?android:attr/textAppearanceSmall"
+                                                 android:text="00:00:00"
+                                                 android:id="@+id/textView3"
+                                                 android:textColor="#ffffff"
+                                                 android:layout_alignTop="@+id/textView2"
+                                                 android:layout_toEndOf="@+id/textView2"
+                                                 android:layout_gravity="bottom"
+                                                 android:layout_toRightOf="@+id/textView2" />
+                                      </RelativeLayout>
+
+                            <ImageButton
+                                android:layout_width="40dp"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/ic_theme_play_arrow"
+                                android:background="@drawable/ic_theme_play_arrow"
+                                android:id="@+id/imageButton" />
+                        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -62,4 +62,8 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNI
     pKKUI->renderFrame();
     return 1;
 }
-
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance)
+{
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *)instance;
+    //pKKUI->
+}

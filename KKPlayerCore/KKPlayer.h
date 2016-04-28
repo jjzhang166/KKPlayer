@@ -30,6 +30,14 @@ enum SeekEnum
 	Left,
 	Right
 };
+//获取播放器信息
+struct MEDIA_INFO 
+{
+	int CurTime;
+	int TotalTime;
+	bool Open;
+	int KKState;
+};
 class KKPlayer
 {
     public:
@@ -59,6 +67,7 @@ class KKPlayer
 			//快进快退
 			void KKSeek( SeekEnum en,int value);
 			void InitSound();
+			MEDIA_INFO GetMediaInfo();
 public:
 			//视频刷线程
 			void VideoRefresh();
