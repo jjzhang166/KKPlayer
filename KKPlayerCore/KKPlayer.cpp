@@ -65,7 +65,6 @@ void KKPlayer::CloseMedia()
 		return;
 	}
 
-
 	while(1)
 	{
 		if(
@@ -571,6 +570,9 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	pVideoInfo->pflush_pkt =(AVPacket*)av_mallocz(sizeof(AVPacket));
 
 
+	LOGE("Movie Path£º\n");
+	LOGE(fileName);
+	LOGE("\n");
 	pVideoInfo->viddec.decoder_tid.ThOver=true;
 	pVideoInfo->auddec.decoder_tid.ThOver=true;
 	pVideoInfo->subdec.decoder_tid.ThOver=true;

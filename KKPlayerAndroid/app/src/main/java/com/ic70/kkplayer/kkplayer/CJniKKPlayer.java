@@ -23,6 +23,7 @@ public class CJniKKPlayer {
     //尺寸调整
     public native int Resizeint(int obj,int w, int h);
     public native int GlRender(int obj);
-    public native void DelKK();
+    public native void DelKK(int obj);
+    public native int KKOpenMedia(String str,int obj);
 }
 //javah -classpath ..\..\..\build\intermediates\classes\debug com.ic70.kkplayer.kkplayer.CJniKKPlayer

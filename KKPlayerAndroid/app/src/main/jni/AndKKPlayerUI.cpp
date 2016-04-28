@@ -83,6 +83,7 @@ MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
 }
 int  CAndKKPlayerUI::OpenMedia(char *str)
 {
+    LOGI(" CAndKKPlayerUI %s\n",str);
     return m_player.OpenMedia(str);
 }
 // 定义π

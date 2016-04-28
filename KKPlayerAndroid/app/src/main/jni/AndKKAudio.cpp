@@ -28,6 +28,7 @@ CAndKKAudio::CAndKKAudio():m_engineObject(NULL),m_engineEngine(NULL),m_outputMix
 CAndKKAudio::~CAndKKAudio()
 {
     ::free(m_pBuf);
+    m_pBuf=NULL;
     CloseAudio();
 }
 

@@ -1,6 +1,7 @@
 package com.ic70.kkplayer.kkplayer;
 
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -21,14 +22,34 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         int ll=0;
         ll++;
     }
+
+    public int OpenMedia(String str)
+    {
+        String ll;
+        ll=m_nKKPlayer+";";
+        Log.v("MoviePath",ll);
+        if(m_nKKPlayer!=0) {
+            return m_JniKKPlayer.KKOpenMedia(str,m_nKKPlayer);
+        }
+        return 2;
+    }
+    public void KKDel()
+    {
+        if(m_nKKPlayer!=0) {
+            m_JniKKPlayer.DelKK(m_nKKPlayer);
+            m_nKKPlayer=0;
+        }
+    }
     @Override
     public void onDrawFrame(GL10 gl)
     {
-        m_JniKKPlayer.GlRender(m_nKKPlayer);
+        if(m_nKKPlayer!=0)
+            m_JniKKPlayer.GlRender(m_nKKPlayer);
     }
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height)
     {
+        if(m_nKKPlayer!=0)
             m_JniKKPlayer.Resizeint(m_nKKPlayer,width,height);
     }
     //当窗口被创建时需要调用 onSurfaceCreate ，我们可以在这里对 OpenGL 做一些初始化工作，例如：

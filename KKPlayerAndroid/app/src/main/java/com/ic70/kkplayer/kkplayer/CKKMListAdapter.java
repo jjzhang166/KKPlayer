@@ -59,13 +59,13 @@ public class CKKMListAdapter extends BaseAdapter
     {
         CheckBox cb=(CheckBox)view;
         Intent intent = new Intent();
-       // intent.putExtra("name","LeiPei");
+        intent.putExtra("MoviePath","rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
         /* 指定intent要启动的类 */
         intent.setClass(context,CPlayerActivity.class);//(context.this, Activity02.class);
         /* 启动一个新的Activity */
         context.startActivity(intent);
         /* 关闭当前的Activity */
-        ((Activity)context).finish();
+       // ((Activity)context).finish();
     }
     class CKKCheckBoxClick implements CompoundButton.OnCheckedChangeListener {
 

@@ -62,8 +62,17 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNI
     pKKUI->renderFrame();
     return 1;
 }
-JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance)
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance,jint obj)
 {
-    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *)instance;
-    //pKKUI->
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    delete pKKUI;
+}
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(JNIEnv *env, jobject instance, jstring str_,jint obj)
+{
+    const char *str = env->GetStringUTFChars(str_, 0);
+
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    int l= pKKUI->OpenMedia((char*)str);
+    env->ReleaseStringUTFChars(str_, str);
+    return l;
 }
