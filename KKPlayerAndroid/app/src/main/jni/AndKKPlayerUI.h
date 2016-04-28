@@ -15,6 +15,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
    public:
             CAndKKPlayerUI();
             ~CAndKKPlayerUI();
+           //OpenGlES 1.0 返回没有实际作用
             int IniGl();
             void renderFrame();
             int Resizeint(int w,int h);

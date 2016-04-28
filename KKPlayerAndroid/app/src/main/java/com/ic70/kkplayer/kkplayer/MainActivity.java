@@ -57,34 +57,6 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         m_FileManage = new CFileManage();
         m_FileManage.start(m_Handler);
         ListView Localmovie_list = (ListView) findViewById(R.id.listView);/**/
-       /* char a='A';
-        int l=(int)a+32;
-        a=(char)l;
-        setTheme(android.R.style.Theme_Translucent_NoTitleBar);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-       // glView = new  GLES2_0_SurfaceView(this); // Allocate a GLSurfaceView
-
-        glView = new  GLSurfaceView(this);
-        //glView.setRenderer(new KKGLView(this)); // Use a custom renderer
-        glView.setRenderer(new CKKPlayerReader()); // Use a custom renderer
-        glView.getAlpha();
-        this.setContentView(glView);
-
-
-       Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);*/
-
-       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
-
-       /*  Button btn=(Button)findViewById(R.id.BtnJni);
-        btn.setOnClickListener(new CBtnClick(this));*/
     }
     public void HandleKKObj(Object obj)
     {

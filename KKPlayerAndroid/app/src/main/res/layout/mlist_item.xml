@@ -1,21 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>  
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"  
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="260px">
+    android:layout_height="200px">
     <CheckBox android:id="@+id/CheckBox_0"
-     android:layout_width="100dp"
-     android:layout_height="200dp" />
+     android:layout_width="30dp"
+     android:layout_height="200px"
+        android:checked="false"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_gravity="top" />
     <ImageView android:id="@+id/simple_item_0"
-     android:layout_width="300dp"
-     android:layout_height="200dp"
+     android:layout_width="300px"
+     android:layout_height="200px"
      android:gravity="center"
      android:layout_alignParentTop="true"
      android:layout_alignParentLeft="true"
      android:layout_alignParentStart="true" />
-    <TextView android:id="@+id/simple_item_1"
+     <TextView android:id="@+id/simple_item_1"
      android:layout_width="wrap_content"
      android:layout_height="260px"
      android:gravity="center"
      android:layout_toRightOf="@id/simple_item_0"
      />
-</RelativeLayout>
+</LinearLayout>
