@@ -986,12 +986,13 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	if(pIs->pKKAudio!=NULL)
 	{
 		pIs->pKKAudio->Start();
-		while(!pIs->abort_request&&pIs->pKKAudio!=NULL)
+		while(!pIs->abort_request && pIs->pKKAudio!=NULL)
 		{
 			//LOGE("ReadAudio");
 			pIs->pKKAudio->ReadAudio();
 		}
 	}
+	LOGE("Audio_Thread over");
 	pIs->auddec.decoder_tid.ThOver=true;
 	return 1;
 }
@@ -1461,7 +1462,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	int len1, got_frame,ret;  
 	AVFrame *pFrame=NULL;  
 	double pts;  
-	double duration;
+	//double duration;
 	//大概的速率
     AVRational frame_rate = av_guess_frame_rate(is->pFormatCtx, is->video_st, NULL);
 
@@ -1510,7 +1511,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			}
 			pts *= av_q2d(is->video_st->time_base);
             AVRational  fun={frame_rate.den, frame_rate.num};
-			duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
+			is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
 
 		    //LOGE("Video_thread got_frame=%d",got_frame);
 			// Did we get a video frame?  
@@ -1520,7 +1521,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 				
 				t_start = time(NULL) ;
 				//LOGE("Get pic");
-				if(queue_picture(is, pFrame, pts, duration, av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
+				if(queue_picture(is, pFrame, pts, is->duration , av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
 				{  
 					//break;  
 				}  

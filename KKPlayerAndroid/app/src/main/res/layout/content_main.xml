@@ -19,10 +19,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:background="#ffffff"
-        android:cacheColorHint="#00ffffff"
-        />
+        android:layout_alignParentEnd="true" />
 
        <!--等待图片-->
        <ImageView

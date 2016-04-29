@@ -9,9 +9,20 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by saint on 2016/3/9.
  */
+
 public class CKKPlayerReader implements GLSurfaceView.Renderer
 {
-
+    CMediaInfo info = new  CMediaInfo();
+    public class CMediaInfo
+    {
+        public int CurTime;
+        public  int TotalTime;
+        public CMediaInfo()
+        {
+            CurTime=0;
+            TotalTime=0;
+        }
+    }
     private CJniKKPlayer m_JniKKPlayer;
     private int m_nKKPlayer=0;
     private int m_nGlHandle=0;
@@ -22,12 +33,21 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         int ll=0;
         ll++;
     }
-
+    public CMediaInfo GetCMediaInfo()
+    {
+        if(m_nKKPlayer!=0) {
+            String infostr= m_JniKKPlayer.GetMediaInfo(m_nKKPlayer);
+            String[]  ll= infostr.split(";");
+            info.CurTime=Integer.parseInt(ll[0]);
+            info.TotalTime=Integer.parseInt(ll[1]);
+        }
+        return  info;
+    }
     public int OpenMedia(String str)
     {
         String ll;
         ll=m_nKKPlayer+";";
-        Log.v("MoviePath",ll);
+        Log.v("MoviePath",str);
         if(m_nKKPlayer!=0) {
             return m_JniKKPlayer.KKOpenMedia(str,m_nKKPlayer);
         }
@@ -35,7 +55,8 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     }
     public void KKDel()
     {
-        if(m_nKKPlayer!=0) {
+        if(m_nKKPlayer!=0)
+        {
             m_JniKKPlayer.DelKK(m_nKKPlayer);
             m_nKKPlayer=0;
         }
@@ -44,7 +65,9 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     public void onDrawFrame(GL10 gl)
     {
         if(m_nKKPlayer!=0)
+        {
             m_JniKKPlayer.GlRender(m_nKKPlayer);
+        }
     }
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height)
@@ -56,9 +79,9 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config)
     {
-        String glv=gl.glGetString(GL10.GL_VERSION);
-        m_nGlHandle= m_JniKKPlayer.IniGl(m_nKKPlayer);
-        int ix=0;
-        ix++;
+        if(m_nKKPlayer!=0) {
+            String glv = gl.glGetString(GL10.GL_VERSION);
+            m_nGlHandle = m_JniKKPlayer.IniGl(m_nKKPlayer);
+        }
     }
 }

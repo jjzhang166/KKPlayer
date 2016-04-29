@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "MainFrm.h"
 #include "render/renderD3D.h"
+#include "render/renderGDI.h"
 #include <ObjIdl.h>
 #include "KKSound.h"
+//#define QY_GDI
 Gdiplus::Bitmap* CoverPic(int destWidth,int destHeight,Gdiplus::Image* srcBmp)
 {
 	Gdiplus::Bitmap* pDestBmp= new Gdiplus::Bitmap(destWidth, destHeight, PixelFormat32bppARGB); //新建缩放后的位图  
@@ -239,8 +241,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	this->EnableWindow(true);
 	::SetTimer(this->m_hWnd,10010,10,NULL);
 
-	 m_pRender =new  CRenderD3D();
 
+	#ifdef QY_GDI
+	         m_pRender =new CRenderGDI(); //new  CRenderD3D();
+    #else
+	         m_pRender =new  CRenderD3D();
+    #endif
 	 m_pRender->init(this->m_hWnd);
 
 	 m_PlayerInstance.InitSound();
@@ -320,20 +326,17 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 
 #ifdef QY_GDI
 		 OnDraw(MemDC,rcWindow);
-#endif
-
+         
+#else
 		 Gdiplus::Graphics graphics(MemDC);
 		 {  
 			 // 使用高质量模式(相对比较耗时)，可以查看msdn，替换为其他mode   
 			 //graphics(SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);  
 			 graphics.DrawImage(m_BkGidPulsBitmap, 0, 0, rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top);  
 		 }  
+#endif
 
-		 ::BitBlt(ps.hdc,0,0,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top,MemDC,0,0,SRCCOPY);
-
-
-
-
+         ::BitBlt(ps.hdc,0,0,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top,MemDC,0,0,SRCCOPY);
 		 ::DeleteObject(bmp);
 		 ::DeleteDC(MemDC);
 		 //  m_PlayerInstance.RenderImage(m_pRender);
@@ -351,7 +354,7 @@ void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 	::FillRect(memdc,&rt,m_SelectDotHbr);
 	::DeleteObject(m_SelectDotHbr);
 
-	 //m_PlayerInstance.OnDrawImageByDc(memdc);
+	 m_PlayerInstance.OnDrawImageByDc(memdc);
 }
 void CMainFrame::Render()
 {

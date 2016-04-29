@@ -5,6 +5,7 @@
     <application
         android:allowBackup="true"
         android:debuggable="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -19,7 +20,8 @@
 
             </intent-filter>
         </activity>
-        <activity android:name=".CPlayerActivity"></activity>
+        <activity android:name=".CPlayerActivity"
+         android:configChanges="orientation|screenSize"></activity>
     </application>
     <!-- RECORD_AUDIO is needed to create an audio recorder -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />

@@ -34,12 +34,12 @@ void* ConvertThread(void *param)
 
 }
 /***********初始一个KKUI**********/
+
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK(JNIEnv *pEv, jobject p)
 {
-    
-    CAndKKPlayerUI *pKKUI = new CAndKKPlayerUI();
-    G_pKKUI=pKKUI;
-    int Ret=(int)pKKUI;
+    if(G_pKKUI==NULL)
+        G_pKKUI = new CAndKKPlayerUI();
+    int Ret=(int)G_pKKUI;
     return Ret;
 }
 
@@ -64,8 +64,11 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNI
 }
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance,jint obj)
 {
+    if(G_pKKUI!=NULL){
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
     delete pKKUI;
+    G_pKKUI=NULL;
+    }
 }
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(JNIEnv *env, jobject instance, jstring str_,jint obj)
 {
@@ -75,4 +78,11 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(
     int l= pKKUI->OpenMedia((char*)str);
     env->ReleaseStringUTFChars(str_, str);
     return l;
+}
+JNIEXPORT jstring JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetMediaInfo(JNIEnv *env, jobject instance, jint obj) {
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    MEDIA_INFO info=pKKUI->GetMediaInfo();
+    char s[256]="";
+    sprintf(s,"%d;%d",info.CurTime,info.TotalTime);
+    return env->NewStringUTF(s);
 }

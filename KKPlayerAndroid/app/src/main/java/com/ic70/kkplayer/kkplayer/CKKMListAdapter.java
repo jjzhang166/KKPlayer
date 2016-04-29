@@ -49,17 +49,20 @@ public class CKKMListAdapter extends BaseAdapter
             convertView=inflater.inflate(R.layout.mlist_item, null);
         }
         CheckBox cb=( CheckBox)convertView.findViewById(R.id.CheckBox_0);
-        cb.setOnCheckedChangeListener(new CKKCheckBoxClick(this));
+        cb.setOnCheckedChangeListener(new CKKCheckBoxClick(this, array.get(position).MovieName));
+
+
         TextView textView1=(TextView)convertView.findViewById(R.id.simple_item_1);
         textView1.setText(array.get(position).MovieName);
         textView1.setTextSize(20);//可以设置
         return convertView;
     }
-    protected void onCheckBoxClick(View view)
+    protected void onCheckBoxClick(View view,String UserData)
     {
         CheckBox cb=(CheckBox)view;
         Intent intent = new Intent();
-        intent.putExtra("MoviePath","rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
+
+        intent.putExtra("MoviePath",  UserData);
         /* 指定intent要启动的类 */
         intent.setClass(context,CPlayerActivity.class);//(context.this, Activity02.class);
         /* 启动一个新的Activity */
@@ -70,13 +73,15 @@ public class CKKMListAdapter extends BaseAdapter
     class CKKCheckBoxClick implements CompoundButton.OnCheckedChangeListener {
 
         CKKMListAdapter m_KKlist;
-        public CKKCheckBoxClick(CKKMListAdapter KKlist) {
+        String m_UserData;
+        public CKKCheckBoxClick(CKKMListAdapter KKlist,String UserData) {
             m_KKlist =KKlist;
+            m_UserData=UserData;
         }
         @Override
         public void onCheckedChanged(CompoundButton var1, boolean var2)
         {
-            m_KKlist.onCheckBoxClick( var1);
+            m_KKlist.onCheckBoxClick( var1, m_UserData);
         }
 
        /* public void onClick(View view) {

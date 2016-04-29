@@ -60,6 +60,7 @@ class CAndKKAudio: public IKKAudio
              size_t      bytes_per_buffer;
 private:
             CKKLock m_ReadLock;
+            int m_AudioClose;
             CKKCond_t m_ReadLockCond;
 };
 

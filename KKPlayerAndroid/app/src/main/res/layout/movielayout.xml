@@ -25,6 +25,7 @@
                          android:paddingRight="5dp"
                          android:maxHeight="4dp"
                          android:minHeight="4dp"
+                         android:id="@+id/MovieSeekbar"
                          android:progressDrawable="@drawable/po_seekbar"
                          android:thumb="@drawable/seekbar_thumb"/>
                         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -33,46 +34,21 @@
                         android:fitsSystemWindows="true"
                             android:weightSum="1">
                                      <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                     android:layout_width="78dp"
+                                     android:layout_width="wrap_content"
                                      android:layout_height="20dp"
                                      android:fitsSystemWindows="true"
                                          android:layout_gravity="bottom"
                                          android:layout_weight="0.09">
                                          <TextView
-                                          android:layout_width="45dp"
+                                          android:layout_width="wrap_content"
                                           android:layout_height="30dp"
                                           android:textAppearance="?android:attr/textAppearanceSmall"
-                                          android:text="00:00:00"
-                                          android:id="@+id/textView"
+                                          android:text="00:00:00/00:00:00"
+                                          android:id="@+id/CurTimetextView"
                                           android:textSize="24px"
                                           android:layout_centerVertical="true"
                                           android:textColor="#ffffff"
                                           android:layout_gravity="bottom" />
-                                                <TextView
-                                                 android:textSize="24px"
-                                                 android:layout_width="wrap_content"
-                                                 android:layout_height="wrap_content"
-                                                 android:textAppearance="?android:attr/textAppearanceSmall"
-                                                 android:text="/"
-
-                                                 android:id="@+id/textView2"
-                                                 android:layout_alignTop="@+id/textView"
-                                                 android:layout_toEndOf="@+id/textView"
-                                                 android:textColor="#ffffff"
-                                                 android:layout_gravity="bottom"
-                                                 android:layout_toRightOf="@+id/textView" />
-
-                                                 <TextView android:textSize="24px"
-                                                 android:layout_width="wrap_content"
-                                                 android:layout_height="wrap_content"
-                                                 android:textAppearance="?android:attr/textAppearanceSmall"
-                                                 android:text="00:00:00"
-                                                 android:id="@+id/textView3"
-                                                 android:textColor="#ffffff"
-                                                 android:layout_alignTop="@+id/textView2"
-                                                 android:layout_toEndOf="@+id/textView2"
-                                                 android:layout_gravity="bottom"
-                                                 android:layout_toRightOf="@+id/textView2" />
                                       </RelativeLayout>
 
                             <ImageButton

@@ -155,6 +155,7 @@ typedef struct SKK_Decoder
 //视频音频信息
 typedef struct SKK_VideoState 
 {
+	double duration;
     //视频已经准备好了
 	int IsReady;
 	//读线程信息
@@ -320,5 +321,6 @@ typedef struct SKK_VideoState
 	std::queue<AVPacket*> pH264Pkt;
 	struct SwsContext *H264_Img_convert_ctx;
 	FILE* fp_out;
+
 } SKK_VideoState;
 #endif

@@ -1,7 +1,7 @@
 #ifndef RENDER_GDI_H
 #define RENDER_GDI_H
 
-#include "render.h"
+#include "../../KKPlayerCore/render/render.h"
 
 class CRenderGDI : public CRender
 {

@@ -74,10 +74,14 @@ void KKPlayer::CloseMedia()
 		{
 			break;
 		}
-		Sleep(1);
+		LOGE("thread Over1 m_ReadThreadInfo%d,m_VideoRefreshthreadInfo%d",m_ReadThreadInfo.ThOver
+			,m_VideoRefreshthreadInfo.ThOver
+			);
+		Sleep(100);
 	}
 
 
+	LOGE("thread Over 1");
 	pVideoInfo->abort_request=1;
 	pVideoInfo->pictq.m_pWaitCond->SetCond();
 	pVideoInfo->audioq.m_pWaitCond->SetCond();
@@ -102,10 +106,15 @@ void KKPlayer::CloseMedia()
 			{
 				break;
 			}
-			Sleep(1);
+			LOGE("thread Over2 viddec%d,auddec%d,subdec%d",pVideoInfo->viddec.decoder_tid.ThOver
+				,pVideoInfo->auddec.decoder_tid.ThOver
+				,pVideoInfo->subdec.decoder_tid.ThOver
+				);
+			Sleep(100);
 		}
 	}
 
+	LOGE("thread Over 2");
 	
 Sleep(100);
 #ifdef WIN32_KK
@@ -186,6 +195,8 @@ Sleep(100);
 	start_time=AV_NOPTS_VALUE;
 	m_CurTime=0;
 	m_CloseLock.Unlock();
+
+	LOGE("thread Over Ok");
 }
 
 MEDIA_INFO KKPlayer::GetMediaInfo()
@@ -196,11 +207,30 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
 	if(m_bOpen)
 	{
 		info.Open=m_bOpen;
+		if(pVideoInfo!=NULL)
+		{
+
+			{
+				
+				info.CurTime=m_CurTime;
+
+			}
+			if(pVideoInfo->pFormatCtx!=NULL)
+			{
+				info.TotalTime=(pVideoInfo->pFormatCtx->duration/1000/1000);
+				
+			}
+           
+		}else{
+           info.CurTime=0;
+		}
+		
 	}else
 	{
           info.Open=false;
 	}
 	m_CloseLock.Unlock();
+	LOGE("MediaInfo:%f,%f \n",info.CurTime,info.TotalTime);
 	return info;
 }
 KKPlayer::~KKPlayer(void)
@@ -692,6 +722,11 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	 return m_CurTime;
  }
 
+ static int decode_interrupt_cb(void *ctx)
+ {
+	 SKK_VideoState *is =(SKK_VideoState *) ctx;
+	 return is->abort_request;
+ }
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
@@ -701,8 +736,20 @@ void KKPlayer::ReadAV()
 	AVFormatContext *pFormatCtx= avformat_alloc_context();
 	AVDictionary *format_opts=NULL;
 	int err=-1;
+	int scan_all_pmts_set = 0;
 	pVideoInfo->iformat=NULL;
 	
+	//av_dict_set(&format_opts, "timeout", "6", 0);
+
+
+	pFormatCtx->interrupt_callback.callback = decode_interrupt_cb;
+	pFormatCtx->interrupt_callback.opaque = pVideoInfo;
+
+	if (!av_dict_get(format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
+		av_dict_set(&format_opts, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
+		scan_all_pmts_set = 1;
+	}
+	//此函数是阻塞的
 	err = avformat_open_input(
 		&pFormatCtx,                    pVideoInfo->filename,
 		pVideoInfo->iformat,    &format_opts);
@@ -726,6 +773,8 @@ void KKPlayer::ReadAV()
 		
 	}
     
+	if (scan_all_pmts_set)
+		av_dict_set(&format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE);
 	// Retrieve stream information
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
 	{
@@ -750,7 +799,8 @@ void KKPlayer::ReadAV()
 	int orig_nb_streams;
 	int64_t pkt_ts;
     int64_t duration= AV_NOPTS_VALUE;
- 
+
+
 	
 	av_format_inject_global_side_data(pFormatCtx);
 	if (start_time != AV_NOPTS_VALUE) 

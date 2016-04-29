@@ -25,5 +25,7 @@ public class CJniKKPlayer {
     public native int GlRender(int obj);
     public native void DelKK(int obj);
     public native int KKOpenMedia(String str,int obj);
+
+    public native String GetMediaInfo(int obj);
 }
 //javah -classpath ..\..\..\build\intermediates\classes\debug com.ic70.kkplayer.kkplayer.CJniKKPlayer

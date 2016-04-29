@@ -24,6 +24,7 @@ CAndKKAudio::CAndKKAudio():m_engineObject(NULL),m_engineEngine(NULL),m_outputMix
     m_bqPlayerPlay=NULL;
     m_bqPlayerObject=NULL;
 
+    m_AudioClose=0;
 }
 CAndKKAudio::~CAndKKAudio()
 {
@@ -41,7 +42,7 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
 }
 void CAndKKAudio::SetCond()
 {
-   m_ReadLock.Lock();
+    m_ReadLock.Lock();
     LOGE("SetCond,%d",m_nnext_buffer_index);
     m_nReadWait= false;
     //m_ReadLockCond.SetCond();
@@ -57,6 +58,9 @@ void CAndKKAudio::SetWindowHAND(int hwnd)
 {
     m_hwnd=hwnd;
     SLresult result;
+    m_ReadLock.Lock();
+    m_AudioClose=0;
+    m_ReadLock.Unlock();
    int lll=1024*4;
     // configure audio source
     SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,4};
@@ -225,7 +229,9 @@ void CAndKKAudio::ReadAudio()
             LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
         }
         }
+        m_ReadLock.Lock();
         m_nReadWait=true;
+        m_ReadLock.Unlock();
         result = (* m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue, m_pNext_buffer,bytes_per_buffer);
 
         //int t=m_nBufLength*10000/1764;
@@ -236,7 +242,7 @@ void CAndKKAudio::ReadAudio()
         LOGE("WaitCond");
         //m_ReadLockCond.WaitCond(1);
         m_ReadLock.Lock();
-        while (m_nReadWait)
+        while (m_nReadWait&&!m_AudioClose)
         {
             m_ReadLock.Unlock();
             usleep(500);
@@ -254,11 +260,18 @@ void CAndKKAudio::Start()
 {
    if(m_bqPlayerPlay!=NULL)
    {
+
+       m_ReadLock.Lock();
+       m_AudioClose=0;
+       m_ReadLock.Unlock();
        SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
    }
 }
 void CAndKKAudio::Stop()
 {
+    m_ReadLock.Lock();
+    m_AudioClose=1;
+    m_ReadLock.Unlock();
     if(m_bqPlayerPlay!=NULL)
     {
         SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);
@@ -267,6 +280,8 @@ void CAndKKAudio::Stop()
 /*********关闭**********/
 void CAndKKAudio::CloseAudio()
 {
+    SetCond();
+    Stop();
     if(m_bqPlayerPlay!=NULL)
     {
         SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);

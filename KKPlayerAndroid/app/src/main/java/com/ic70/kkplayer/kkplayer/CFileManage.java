@@ -25,13 +25,12 @@ public class CFileManage extends java.lang.Thread
     }
     public void run()
     {
-
         String Path="/";
         String Extension="mp4";
-
         String state;
         state = Environment.getExternalStorageState();
-        if(state.equals(Environment.MEDIA_MOUNTED)) {
+        if(state.equals(Environment.MEDIA_MOUNTED))
+        {
             Path = Environment.getExternalStorageDirectory().getAbsolutePath();
         }
         GetFiles(Path, Extension);
@@ -70,7 +69,7 @@ public class CFileManage extends java.lang.Thread
                     }
 
 
-                } else if (f.isDirectory() && f.getPath().indexOf("/.") == -1) //忽略点文件（隐藏文件/文件夹）
+                } else if (f.isDirectory()&&f.getName().toLowerCase()!="data" && f.getPath().indexOf("/.") == -1&& !f.isHidden()) //忽略点文件（隐藏文件/文件夹）
                     GetFiles(f.getPath(), Extension);
             }
         }

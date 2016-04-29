@@ -1,5 +1,6 @@
 package com.ic70.kkplayer.kkplayer;
 
+import android.content.res.Configuration;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,6 +58,14 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         m_FileManage = new CFileManage();
         m_FileManage.start(m_Handler);
         ListView Localmovie_list = (ListView) findViewById(R.id.listView);/**/
+    }
+    public void onConfigurationChanged (Configuration newConfig){
+
+        super.onConfigurationChanged(newConfig);
+        setContentView(R.layout.activity_main);
+        //注意，这里删除了init()，否则又初始化了，状态就丢失
+        //findViews();
+        //setListensers();
     }
     public void HandleKKObj(Object obj)
     {
