@@ -18,10 +18,26 @@
      android:layout_alignParentTop="true"
      android:layout_alignParentLeft="true"
      android:layout_alignParentStart="true" />
-     <TextView android:id="@+id/simple_item_1"
-     android:layout_width="wrap_content"
-     android:layout_height="260px"
-     android:gravity="center"
-     android:layout_toRightOf="@id/simple_item_0"
-     />
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="200px"
+        android:orientation="vertical">
+            <TextView android:id="@+id/simple_item_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24px"
+            android:text="测试"
+            android:gravity="center"
+            android:layout_toRightOf="@id/simple_item_0"
+                android:layout_gravity="center_vertical" />
+          <TextView android:id="@+id/MoviePathText"
+            android:layout_width="wrap_content"
+            android:layout_height="30px"
+            android:textSize="24px"
+            android:text="测试"
+            android:gravity="left|center"
+            android:layout_toRightOf="@id/simple_item_0"
+              android:layout_gravity="bottom" />
+    </FrameLayout>
 </LinearLayout>

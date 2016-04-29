@@ -49,12 +49,16 @@ public class CKKMListAdapter extends BaseAdapter
             convertView=inflater.inflate(R.layout.mlist_item, null);
         }
         CheckBox cb=( CheckBox)convertView.findViewById(R.id.CheckBox_0);
-        cb.setOnCheckedChangeListener(new CKKCheckBoxClick(this, array.get(position).MovieName));
+        cb.setOnCheckedChangeListener(new CKKCheckBoxClick(this, array.get(position).MoviePath));
 
 
         TextView textView1=(TextView)convertView.findViewById(R.id.simple_item_1);
         textView1.setText(array.get(position).MovieName);
         textView1.setTextSize(20);//可以设置
+
+        TextView textView2=(TextView)convertView.findViewById(R.id.MoviePathText);
+        textView2.setText(array.get(position).MoviePath);
+
         return convertView;
     }
     protected void onCheckBoxClick(View view,String UserData)
@@ -83,13 +87,5 @@ public class CKKMListAdapter extends BaseAdapter
         {
             m_KKlist.onCheckBoxClick( var1, m_UserData);
         }
-
-       /* public void onClick(View view) {
-             switch(view.getId())
-             {
-                   case R.id.CheckBox_0:
-                                            m_KKlist.onCheckBoxClick(view);
-             }
-        }*/
     }
  }

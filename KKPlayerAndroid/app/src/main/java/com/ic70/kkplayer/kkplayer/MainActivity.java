@@ -9,6 +9,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,10 +32,24 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements IKKMessageHandler
 {
     private  Handler m_Handler;
+    //视频文件管理
     private CFileManage m_FileManage;
+    boolean m_HandleIni=false;
+    private List<CKKMoviePath> m_lstFile;
+    public MainActivity()
+    {
+        Log.v("MainActivity","初始化" );
+        //扫描文件系统
+        m_FileManage = new CFileManage();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        IniControl();
+        ListView Localmovie_list = (ListView) findViewById(R.id.listView);/**/
+    }
+    void IniControl()
+    {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //toolbar.setLogo(R.drawable.ic_launcher);
@@ -43,6 +59,12 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         toolbar.setSubtitle("本地资源");
         setSupportActionBar(toolbar);
 
+        if(m_lstFile==null&&m_Handler==null)
+        {
+            m_Handler = new COs_KKHander(this);
+            m_FileManage.start(m_Handler);
+            m_HandleIni=true;
+        }
         //设置动画效果。
         ImageView infoOperatingIV = (ImageView)findViewById(R.id.RotateImageView);
         Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.dirtiprotate);
@@ -53,27 +75,23 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
             infoOperatingIV.bringToFront();
             infoOperatingIV.setVisibility(View.VISIBLE);
         }
-        //扫描文件系统
-        m_Handler = new COs_KKHander(this);
-        m_FileManage = new CFileManage();
-        m_FileManage.start(m_Handler);
-        ListView Localmovie_list = (ListView) findViewById(R.id.listView);/**/
     }
     public void onConfigurationChanged (Configuration newConfig){
 
         super.onConfigurationChanged(newConfig);
-        setContentView(R.layout.activity_main);
-        //注意，这里删除了init()，否则又初始化了，状态就丢失
-        //findViews();
-        //setListensers();
+        IniControl();
+        if(m_lstFile!=null)
+        {
+            LoadFileInfo(m_lstFile);
+        }
     }
     public void HandleKKObj(Object obj)
     {
         Message msg=(Message)obj;
         switch (msg.what) {
-            case  COs_KKHander.LIST_STRING:
-                List<CKKMoviePath> Partlist =( List<CKKMoviePath> )msg.obj;
-                LoadFileInfo(Partlist);
+            case  COs_KKHander.LIST_MOVIE_INFO:
+                m_lstFile =( List<CKKMoviePath> )msg.obj;
+                LoadFileInfo(m_lstFile);
                 break;
         }
         //this.finish();
@@ -116,5 +134,11 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        finish();
+        return false;
     }
 }

@@ -7,5 +7,6 @@ package com.ic70.kkplayer.kkplayer;
 public class CKKMoviePath
 {
     public String MovieName;
+    public String MoviePath;
 
 }

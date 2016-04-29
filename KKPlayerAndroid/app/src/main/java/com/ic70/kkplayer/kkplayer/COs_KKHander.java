@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class COs_KKHander extends android.os.Handler
 {
-    public static final  int  LIST_STRING=100;
+    public static final  int  LIST_MOVIE_INFO=100;
     private IKKMessageHandler m_KKMessageHandler;
     public COs_KKHander(IKKMessageHandler obj)
     {

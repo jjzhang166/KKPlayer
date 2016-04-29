@@ -114,8 +114,9 @@ public class CPlayerActivity extends Activity {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             m_KKPlayer.KKDel();
             m_KKPlayer=null;
-            Log.v("MoviePath", "退出 over mmm");
+            Log.v("MoviePath", "Del");
             finish();
+            Log.v("MoviePath", "退出 over mmm");
         }
         return false;
     }

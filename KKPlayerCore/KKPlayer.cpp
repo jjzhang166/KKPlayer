@@ -26,6 +26,10 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	if(registerFF)
 	{
 		
+		std::string strPort="";
+		const char *pp=strPort.c_str();
+		char* const aaa=(char* const)pp;
+
 		avdevice_register_all();
 		av_register_all();
 		avfilter_register_all();
