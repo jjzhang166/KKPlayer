@@ -13,13 +13,13 @@ static const SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT
 CAndKKAudio::CAndKKAudio():m_engineObject(NULL),m_engineEngine(NULL),m_outputMixObject(NULL)
 {
     m_pFun=NULL;
-    m_nBufLength=1024*4*4;
+    m_nBufLength=1024*3*4;
     m_pBuf=::malloc( m_nBufLength);
     memset(m_pBuf,0,m_nBufLength);
 
     m_pNext_buffer=m_pBuf;
     m_nnext_buffer_index=0;
-    bytes_per_buffer=1024*4;
+    bytes_per_buffer=1024*3;
 
     m_bqPlayerPlay=NULL;
     m_bqPlayerObject=NULL;
@@ -43,7 +43,7 @@ void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
 void CAndKKAudio::SetCond()
 {
     m_ReadLock.Lock();
-    LOGE("SetCond,%d",m_nnext_buffer_index);
+   // LOGE("SetCond,%d",m_nnext_buffer_index);
     m_nReadWait= false;
     //m_ReadLockCond.SetCond();
     m_ReadLock.Unlock();
@@ -214,9 +214,9 @@ void CAndKKAudio::ReadAudio()
     {
         long t_start, t_end;
         t_start =GetTickCount();
-        LOGE("ReadAudio");
+      //  LOGE("ReadAudio");
         m_pFun(m_UserData,(char*)m_pNext_buffer,bytes_per_buffer);
-        LOGE("ReadAudioEnd");
+     //   LOGE("ReadAudioEnd");
         //t=m_nBufLength/(采样频率（Hz）*采样位数（bit）*??声道数)
         SLresult result;
         SLuint32 lx=0;
@@ -239,7 +239,7 @@ void CAndKKAudio::ReadAudio()
         {
             LOGE(" m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue error");
         }
-        LOGE("WaitCond");
+        //LOGE("WaitCond");
         //m_ReadLockCond.WaitCond(1);
         m_ReadLock.Lock();
         while (m_nReadWait&&!m_AudioClose)
@@ -250,7 +250,7 @@ void CAndKKAudio::ReadAudio()
         }
         m_ReadLock.Unlock();
         t_end = GetTickCount();
-        LOGE("audio:%d,%d,%d,%d",t_end-t_start,m_nnext_buffer_index,lx,SL_PLAYSTATE_PLAYING);
+        //LOGE("audio:%d,%d,%d,%d",t_end-t_start,m_nnext_buffer_index,lx,SL_PLAYSTATE_PLAYING);
         m_pNext_buffer = m_pBuf + m_nnext_buffer_index * bytes_per_buffer;
         m_nnext_buffer_index = (m_nnext_buffer_index + 1) % 4;
 
@@ -260,7 +260,6 @@ void CAndKKAudio::Start()
 {
    if(m_bqPlayerPlay!=NULL)
    {
-
        m_ReadLock.Lock();
        m_AudioClose=0;
        m_ReadLock.Unlock();

@@ -26,9 +26,9 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	if(registerFF)
 	{
 		
-		std::string strPort="";
+		/*std::string strPort="";
 		const char *pp=strPort.c_str();
-		char* const aaa=(char* const)pp;
+		char* const aaa=(char* const)pp;*/
 
 		avdevice_register_all();
 		av_register_all();
@@ -234,7 +234,7 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
           info.Open=false;
 	}
 	m_CloseLock.Unlock();
-	LOGE("MediaInfo:%f,%f \n",info.CurTime,info.TotalTime);
+	//LOGE("MediaInfo:%f,%f \n",info.CurTime,info.TotalTime);
 	return info;
 }
 KKPlayer::~KKPlayer(void)
@@ -947,7 +947,7 @@ void KKPlayer::ReadAV()
 		{
 			if(pVideoInfo->audioq.size + pVideoInfo->videoq.size + pVideoInfo->subtitleq.size > MAX_QUEUE_SIZE)
 			{
-				 LOGE("catch full");
+				 //LOGE("catch full");
 				//µÈ´ýÒ»»á
 				Sleep(30);
 			}else
@@ -959,7 +959,7 @@ void KKPlayer::ReadAV()
 		ret = av_read_frame(pFormatCtx, pkt);
 		if (ret < 0) 
 		{
-			  LOGE("readAV ret=%d \n",ret);
+			  //LOGE("readAV ret=%d \n",ret);
 			 if ((ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof) 
 			 {
 				    
