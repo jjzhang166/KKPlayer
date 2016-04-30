@@ -1404,9 +1404,13 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 				}
 			}else
 			{
-				LOGE("No s");
-				is->DestWidth=pFrame->width;
-				is->DestHeight=pFrame->height;
+				LOGE("No s,%d:%d",is->DisplayWidth,is->DestHeight);
+				float ff=(float) is->DisplayWidth/pFrame->width;
+				float ff1=(float) is->DestHeight/pFrame->height;
+				is->DestWidth=pFrame->width*ff;
+				is->DestHeight=pFrame->height*ff;
+				/*is->DestWidth=pFrame->width;
+				is->DestHeight=pFrame->height;*/
 			}
 		}/*else{
 			is->DestWidth=is->DisplayWidth;

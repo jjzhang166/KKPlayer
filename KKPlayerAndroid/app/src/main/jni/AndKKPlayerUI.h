@@ -38,6 +38,11 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
             virtual unsigned char* GetBkImage(int &length);
             virtual void OpenMediaFailure(char* strURL);
    private:
+        int m_width;
+        int m_height;
+
+        int m_Picwidth;
+        int m_Picheight;
         /*************浏览器状态***************/
         int m_playerState;
         KKPlayer m_player;

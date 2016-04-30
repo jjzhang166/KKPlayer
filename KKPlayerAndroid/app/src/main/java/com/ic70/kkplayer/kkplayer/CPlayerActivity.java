@@ -111,15 +111,15 @@ public class CPlayerActivity extends Activity {
    class MediaClassBtnClick implements   View.OnClickListener
    {
        CPlayerActivity m_PlayerActivity;
-      public MediaClassBtnClick(CPlayerActivity PlayerActivity)
-      {
+       public MediaClassBtnClick(CPlayerActivity PlayerActivity)
+       {
           m_PlayerActivity=PlayerActivity;
-      }
-      public void onClick(View var1)
-      {
-              ImageButton btn=(ImageButton)var1;
-        //  btn.setImageResource();
-      }
+       }
+       public void onClick(View var1)
+       {
+          ImageButton btn=(ImageButton)var1;
+          btn.setImageResource(R.drawable.play1);
+       }
    }
     public CPlayerActivity()
     {

@@ -102,6 +102,8 @@ static void _gluPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat
 }
 int CAndKKPlayerUI::Resizeint(int w,int h)
 {
+    m_width=w;
+    m_height=h;
     // 重置当前的视口
     glViewport(0, 0,w, h);
     // 选择投影矩阵
@@ -110,7 +112,7 @@ int CAndKKPlayerUI::Resizeint(int w,int h)
     glLoadIdentity();
 
     // 设置视口的大小
-    _gluPerspective(45.0f,(GLfloat)w/(GLfloat)h,0.1f,100.0f);
+   // _gluPerspective(45.0f,(GLfloat)w/(GLfloat)h,-10.0f,100.0f);
 
     // 选择模型观察矩阵
     glMatrixMode(GL_MODELVIEW);//对模型视景矩阵堆栈应用随后的矩阵操作.
@@ -121,7 +123,7 @@ int CAndKKPlayerUI::Resizeint(int w,int h)
     m_player.AdjustDisplay(w,h);
 }
 
-
+//xyz
 const GLfloat gVertices[] = {
         -1.0f, -1.0f, 0.0f, // 左下
         1.0f, -1.0f, 0.0f,  // 右下
@@ -158,9 +160,18 @@ void CAndKKPlayerUI::renderFrame()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);            // 启用纹理坐标数组
 
 
-    // 绘制正方形
+    float w= (float)m_Picwidth /m_width;
+    float h= (float)m_Picheight /m_height;
+    GLfloat gVertices2[] = {
+            -w, -h, 0.0f, // 左下
+            w, -h, 0.0f,  // 右下
+            -w, h, 0.0f,  // 左上
+            w,h, 0.0f    // 右上
+    };
+
+     // 绘制正方形
       glTranslatef(0.0f,0.0f,-1.0f);                         // 设置三角形位置
-      glVertexPointer(3, GL_FLOAT, 0, gVertices);             // 指定顶点数组
+      glVertexPointer(3, GL_FLOAT, 0, gVertices2);             // 指定顶点数组
       glTexCoordPointer(2, GL_FLOAT, 0, gTextureCoord);       // 设置纹理坐标
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);                      // 绘制三角形
 
@@ -207,16 +218,7 @@ void CAndKKPlayerUI::WinSize(unsigned int w, unsigned int h)
 
 }
 
-float quadVertex[] = {
-        -0.5f, 0.5f, 0.0f, // Position 0
-        0, 1.0f, // TexCoord 0
-        -0.5f, -0.5f, 0.0f, // Position 1
-        0, 0, // TexCoord 1
-        0.5f , -0.5f, 0.0f, // Position 2
-        1.0f, 0, // TexCoord 2
-        0.5f, 0.5f, 0.0f, // Position 3
-        1.0f, 1.0f, // TexCoord 3
-};
+
 
 void CAndKKPlayerUI::render(char* buf,int width,int height){
     if(buf!=NULL)
@@ -231,6 +233,8 @@ void CAndKKPlayerUI::render(char* buf,int width,int height){
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,m_nTextureID );
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,buf);
+        m_Picwidth=width;
+        m_Picheight=height;
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }

@@ -32,7 +32,8 @@
                         <TableLayout android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:stretchColumns="0"
-                        android:layout_gravity="left|bottom">
+                        android:layout_gravity="left|bottom"
+                            android:orientation="horizontal">
                                        <TableRow
                                        android:layout_width="match_parent"
                                        android:layout_height="match_parent"
@@ -67,8 +68,6 @@
 
                                        </TableRow>
                       </TableLayout>
-
-
     </LinearLayout>
 
 
