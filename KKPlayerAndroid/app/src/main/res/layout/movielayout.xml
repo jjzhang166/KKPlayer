@@ -14,9 +14,9 @@
         android:layout_height="70dp"
         android:fitsSystemWindows="true"
         android:weightSum="1"
-        android:background="#000000"
         android:baselineAligned="false"
-        android:layout_gravity="bottom">
+        android:layout_gravity="bottom"
+        android:background="#a2050505">
                      <SeekBar
                          android:layout_width="match_parent"
                          android:focusable="true"
@@ -27,36 +27,49 @@
                          android:minHeight="4dp"
                          android:id="@+id/MovieSeekbar"
                          android:progressDrawable="@drawable/po_seekbar"
-                         android:thumb="@drawable/seekbar_thumb"/>
-                        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                        android:layout_width="match_parent"
-                        android:layout_height="30dp"
-                        android:fitsSystemWindows="true"
-                            android:weightSum="1">
-                                     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                     android:layout_width="wrap_content"
-                                     android:layout_height="20dp"
-                                     android:fitsSystemWindows="true"
-                                         android:layout_gravity="bottom"
-                                         android:layout_weight="0.09">
-                                         <TextView
-                                          android:layout_width="wrap_content"
-                                          android:layout_height="30dp"
-                                          android:textAppearance="?android:attr/textAppearanceSmall"
-                                          android:text="00:00:00/00:00:00"
-                                          android:id="@+id/CurTimetextView"
-                                          android:textSize="24px"
-                                          android:layout_centerVertical="true"
-                                          android:textColor="#ffffff"
-                                          android:layout_gravity="bottom" />
-                                      </RelativeLayout>
+                         android:thumb="@drawable/seekbar_thumb" />
 
-                            <ImageButton
-                                android:layout_width="40dp"
-                                android:layout_height="match_parent"
-                                android:src="@drawable/ic_theme_play_arrow"
-                                android:background="@drawable/ic_theme_play_arrow"
-                                android:id="@+id/imageButton" />
-                        </LinearLayout>
+                        <TableLayout android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:stretchColumns="0"
+                        android:layout_gravity="left|bottom">
+                                       <TableRow
+                                       android:layout_width="match_parent"
+                                       android:layout_height="match_parent"
+                                           android:layout_gravity="left">
+
+                                           <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                               android:layout_width="fill_parent"
+                                               android:layout_height="match_parent"
+                                               android:orientation="horizontal"
+                                               android:layout_gravity="left|center_horizontal">
+                                                   <TextView
+                                                   android:layout_width="wrap_content"
+                                                   android:layout_height="match_parent"
+                                                   android:textAppearance="?android:attr/textAppearanceSmall"
+                                                   android:text="00:00:00/00:00:00"
+                                                   android:id="@+id/CurTimetextView"
+                                                   android:textSize="24px"
+                                                   android:textColor="#ffffff"
+                                                   android:layout_gravity="left|bottom"
+                                                   android:gravity="left|bottom" />
+
+                                                   <ImageButton
+                                                   android:layout_gravity="center_horizontal"
+                                                   android:layout_width="40dp"
+                                                   android:layout_height="match_parent"
+                                                   android:src="@drawable/pause1"
+                                                   android:id="@+id/StartButton"
+                                                   android:background="#00ffffff"
+                                                    />
+
+                                           </LinearLayout>
+
+                                       </TableRow>
+                      </TableLayout>
+
+
     </LinearLayout>
+
+
 </FrameLayout>

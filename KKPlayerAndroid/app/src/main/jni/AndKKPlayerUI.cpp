@@ -47,7 +47,11 @@ CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
 CAndKKPlayerUI::~CAndKKPlayerUI()
 {
     if(m_nTextureID!=0)
+    {
         glDeleteTextures(2,&m_nTextureID);
+        m_nTextureID=0;
+    }
+    //m_Audio.CloseAudio();
     m_player.CloseMedia();
 }
 int CAndKKPlayerUI::IniGl()
@@ -184,6 +188,11 @@ void CAndKKPlayerUI::OpenMediaFailure(char *strURL)
 bool CAndKKPlayerUI::init(HWND hView)
 {
 
+}
+int  CAndKKPlayerUI::CloseMedia()
+{
+    m_player.CloseMedia();
+    return 0;
 }
 void CAndKKPlayerUI::destroy()
 {

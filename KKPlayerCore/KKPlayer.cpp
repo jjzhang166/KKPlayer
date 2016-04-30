@@ -68,7 +68,7 @@ void KKPlayer::CloseMedia()
 		m_CloseLock.Unlock();
 		return;
 	}
-
+    pVideoInfo->abort_request=1;
 	while(1)
 	{
 		if(
@@ -86,7 +86,7 @@ void KKPlayer::CloseMedia()
 
 
 	LOGE("thread Over 1");
-	pVideoInfo->abort_request=1;
+	
 	pVideoInfo->pictq.m_pWaitCond->SetCond();
 	pVideoInfo->audioq.m_pWaitCond->SetCond();
 	pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
@@ -945,9 +945,13 @@ void KKPlayer::ReadAV()
 		/******缓存满了*******/
 		while(1)
 		{
+			if(pVideoInfo->abort_request)
+			{
+				return;
+			}
 			if(pVideoInfo->audioq.size + pVideoInfo->videoq.size + pVideoInfo->subtitleq.size > MAX_QUEUE_SIZE)
 			{
-				 //LOGE("catch full");
+				 LOGE("catch full");
 				//等待一会
 				Sleep(30);
 			}else

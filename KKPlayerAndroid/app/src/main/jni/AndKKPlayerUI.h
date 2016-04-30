@@ -19,6 +19,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
             int IniGl();
             void renderFrame();
             int Resizeint(int w,int h);
+            int CloseMedia();
    public:
              bool init(HWND hView);
              void destroy();

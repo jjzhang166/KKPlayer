@@ -64,10 +64,13 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNI
 }
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance,jint obj)
 {
-    if(G_pKKUI!=NULL){
-    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
-    delete pKKUI;
-    G_pKKUI=NULL;
+    if(G_pKKUI!=NULL)
+    {
+
+       CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+       delete pKKUI;
+        G_pKKUI=NULL;
+
     }
 }
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(JNIEnv *env, jobject instance, jstring str_,jint obj)

@@ -57,8 +57,10 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     {
         if(m_nKKPlayer!=0)
         {
-            m_JniKKPlayer.DelKK(m_nKKPlayer);
+            int ll=m_nKKPlayer;
             m_nKKPlayer=0;
+            m_JniKKPlayer.DelKK(ll);
+
         }
     }
     @Override

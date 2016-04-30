@@ -6,7 +6,7 @@
 #include <string.h>
 #include "AndKKAudio.h"
 #include <time.h>
-#define  LOG_TAG    "libOpenLSjni"
+#define  LOG_TAG    "XlibOpenLSjni"
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 static const SLEnvironmentalReverbSettings reverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
@@ -210,6 +210,14 @@ void CAndKKAudio::InitAudio()
 /*******读取音频数据********/
 void CAndKKAudio::ReadAudio()
 {
+    m_ReadLock.Lock();
+    if(m_AudioClose==1)
+    {
+        m_ReadLock.Unlock();
+        return;
+    }
+    //LOGI("ReadAudio\n");
+    m_ReadLock.Unlock();
     if(m_pFun!=NULL)
     {
         long t_start, t_end;
@@ -245,7 +253,8 @@ void CAndKKAudio::ReadAudio()
         while (m_nReadWait&&!m_AudioClose)
         {
             m_ReadLock.Unlock();
-            usleep(500);
+           // LOGE("WaitCond");
+            usleep(1000);
             m_ReadLock.Lock();
         }
         m_ReadLock.Unlock();
@@ -253,7 +262,6 @@ void CAndKKAudio::ReadAudio()
         //LOGE("audio:%d,%d,%d,%d",t_end-t_start,m_nnext_buffer_index,lx,SL_PLAYSTATE_PLAYING);
         m_pNext_buffer = m_pBuf + m_nnext_buffer_index * bytes_per_buffer;
         m_nnext_buffer_index = (m_nnext_buffer_index + 1) % 4;
-
     }
 }
 void CAndKKAudio::Start()
@@ -271,33 +279,36 @@ void CAndKKAudio::Stop()
     m_ReadLock.Lock();
     m_AudioClose=1;
     m_ReadLock.Unlock();
+    SetCond();
     if(m_bqPlayerPlay!=NULL)
     {
+        LOGI("m_bqPlayerPlay\n");
         SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);
     }
 }
 /*********关闭**********/
 void CAndKKAudio::CloseAudio()
 {
-    SetCond();
-    Stop();
+
     if(m_bqPlayerPlay!=NULL)
     {
         SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);
+        LOGI("m_outputMixObject\n");
         m_bqPlayerPlay=NULL;
     }
     if(m_outputMixObject!=NULL)
     {
+        LOGI("m_outputMixObject\n");
         (*m_outputMixObject)->Destroy(m_outputMixObject);
         m_outputMixObject==NULL;
+
     }
     if(m_engineObject!=NULL)
     {
          (*m_engineObject)->Destroy(m_engineObject);
         m_engineObject=NULL;
+        LOGI("m_engineObject\n");
     }
-
-
 }
 /*********设置音量************/
 void CAndKKAudio::SetVolume(long value)

@@ -8,7 +8,9 @@ import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -102,8 +104,23 @@ public class CPlayerActivity extends Activity {
         Bundle bundle = getIntent().getExtras();
         CharSequence MoviePath = bundle.getCharSequence("MoviePath");
         String path = MoviePath.toString();
+        ImageButton Btn=(ImageButton)findViewById(R.id.StartButton);
+        Btn.setOnClickListener( new MediaClassBtnClick(this) );
         m_KKPlayer.OpenMedia(path);
     }
+   class MediaClassBtnClick implements   View.OnClickListener
+   {
+       CPlayerActivity m_PlayerActivity;
+      public MediaClassBtnClick(CPlayerActivity PlayerActivity)
+      {
+          m_PlayerActivity=PlayerActivity;
+      }
+      public void onClick(View var1)
+      {
+              ImageButton btn=(ImageButton)var1;
+        //  btn.setImageResource();
+      }
+   }
     public CPlayerActivity()
     {
          m_KKPlayer = new CKKPlayerReader();

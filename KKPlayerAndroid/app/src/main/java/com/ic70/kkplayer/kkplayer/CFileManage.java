@@ -73,7 +73,12 @@ public class CFileManage extends java.lang.Thread
                     }
                 } else if (f.isDirectory()&&f.getPath().indexOf("/.") == -1&& !f.isHidden()) //忽略点文件（隐藏文件/文件夹）
                 {
-                    //&&f.getName().toLowerCase()!="data" &&
+                        String name=f.getName().toLowerCase();
+
+                        if(name=="tencent"||name=="data"|| (name.contains("com.")&&name.indexOf(".")>1))
+                        {
+                            return;
+                        }
                         GetFiles(f.getPath(), Extension);
                 }
 
