@@ -14,6 +14,7 @@ CAndKKAudio::CAndKKAudio():m_engineObject(NULL),m_engineEngine(NULL),m_outputMix
 {
     m_pFun=NULL;
     m_nBufLength=1024*3*4;
+    //4096
     m_pBuf=::malloc( m_nBufLength);
     memset(m_pBuf,0,m_nBufLength);
 
@@ -254,7 +255,7 @@ void CAndKKAudio::ReadAudio()
         {
             m_ReadLock.Unlock();
            // LOGE("WaitCond");
-            usleep(1000);
+            usleep(400);
             m_ReadLock.Lock();
         }
         m_ReadLock.Unlock();

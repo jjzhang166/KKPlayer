@@ -43,6 +43,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
 
         int m_Picwidth;
         int m_Picheight;
+        bool m_bAdJust;
         /*************浏览器状态***************/
         int m_playerState;
         KKPlayer m_player;

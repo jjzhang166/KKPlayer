@@ -40,7 +40,7 @@ CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
     m_Screen_Width=0;
     m_Screen_Height=0;
     m_nTextureID=0;
-
+    m_bAdJust= false;
     m_player.InitSound();
     m_player.SetWindowHwnd(0);
 }
@@ -121,6 +121,7 @@ int CAndKKPlayerUI::Resizeint(int w,int h)
     glLoadIdentity();//:将当前的用户坐标系的原点移到了屏幕中心：类似于一个复位操作
 
     m_player.AdjustDisplay(w,h);
+    m_bAdJust= false;
 }
 
 //xyz
@@ -136,6 +137,12 @@ const GLfloat gTextureCoord[] = {
         1.0f,1.0f,
         0.0f,0.0f,
         1.0f,0.0f,
+};
+GLfloat gVertices2[] = {
+-1.0f, -1.0f, 0.0f, // 左下
+1.0f, -1.0f, 0.0f,  // 右下
+-1.0f, 1.0f, 0.0f,  // 左上
+1.0f, 1.0f, 0.0f    // 右上
 };
 void CAndKKPlayerUI::renderFrame()
 {
@@ -160,15 +167,29 @@ void CAndKKPlayerUI::renderFrame()
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);            // 启用纹理坐标数组
 
 
-    float w= (float)m_Picwidth /m_width;
-    float h= (float)m_Picheight /m_height;
-    GLfloat gVertices2[] = {
-            -w, -h, 0.0f, // 左下
-            w, -h, 0.0f,  // 右下
-            -w, h, 0.0f,  // 左上
-            w,h, 0.0f    // 右上
-    };
 
+    if(!m_bAdJust)
+    {
+        float lx=(float)m_width/m_Picwidth;
+        float w= (float)m_Picwidth /m_width*lx;
+        float h= (float)m_Picheight /m_height*lx;
+        gVertices2[0]= -w;
+        gVertices2[1]=-h;
+        gVertices2[2]=0.0f; // 左下
+
+        gVertices2[3]=w;
+        gVertices2[4]=-h;
+        gVertices2[5]=0.0f;  // 右下
+
+        gVertices2[6]=-w;
+        gVertices2[7]=h;
+        gVertices2[8]=0.0f;  // 左上
+
+        gVertices2[9]=w;
+        gVertices2[10]=h;
+        gVertices2[11]=0.0f;    // 右上
+        m_bAdJust=true;
+    }
      // 绘制正方形
       glTranslatef(0.0f,0.0f,-1.0f);                         // 设置三角形位置
       glVertexPointer(3, GL_FLOAT, 0, gVertices2);             // 指定顶点数组
