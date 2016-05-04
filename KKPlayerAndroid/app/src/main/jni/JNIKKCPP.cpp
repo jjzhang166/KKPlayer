@@ -93,3 +93,8 @@ JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Pause(JNIEnv
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
     pKKUI->Pause();
 }
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Seek(JNIEnv *env, jobject instance, jint obj, jint value)
+{
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    pKKUI->Seek(value);
+}

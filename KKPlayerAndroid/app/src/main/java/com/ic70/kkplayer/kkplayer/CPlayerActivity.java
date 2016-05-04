@@ -28,7 +28,7 @@ import java.util.TimerTask;
 public class CPlayerActivity extends Activity {
     private GLSurfaceView glView;
     private CKKPlayerReader m_KKPlayer=null;
-    private boolean m_bPlayer=false;
+    private boolean m_bSeekPlayer=false;
     String CurTimeStr = new String();
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {
@@ -47,18 +47,19 @@ public class CPlayerActivity extends Activity {
        PAUSE
    }
     EnumPlayerStata PlayerStata=EnumPlayerStata.Stop;
+    int m_CurTime=0;
     Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             if (msg.what == 1)
             {
-                 if( m_KKPlayer!=null)
+                 if( m_KKPlayer!=null&&!m_bSeekPlayer)
                  {
                      CKKPlayerReader.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
                      SeekBar MovieSeekBar = ( SeekBar) findViewById(R.id.MovieSeekbar);
                      MovieSeekBar.setProgress(info.CurTime);
                      MovieSeekBar.setMax(info.TotalTime);
                      TextView CurTimetextView=(TextView) findViewById(R.id.CurTimetextView);
-
+                     m_CurTime=info.CurTime;
 
                      int h=(info.CurTime/(60*60));
                      int m=(info.CurTime%(60*60))/(60);
@@ -118,12 +119,30 @@ public class CPlayerActivity extends Activity {
         Btn.setOnClickListener(new MediaClassBtnClick(this));
         AdJustControl();
 
+        SeekBar SeekBtn=(SeekBar)findViewById(R.id.MovieSeekbar);
+        SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
         m_KKPlayer.OpenMedia(path);
         PlayerStata=EnumPlayerStata.Play;
     }
     public void onConfigurationChanged (Configuration newConfig){
         super.onConfigurationChanged(newConfig);
         AdJustControl();
+    }
+    public void onStart()
+    {
+        super.onStart();
+        if(PlayerStata==EnumPlayerStata.PAUSE)
+        {
+            FunPalyState();
+        }
+    }
+    public void onStop()
+    {
+        super.onStop();
+        if(PlayerStata==EnumPlayerStata.Play)
+        {
+            FunPalyState();
+        }
     }
     void AdJustControl()
     {
@@ -152,6 +171,36 @@ public class CPlayerActivity extends Activity {
 
         MediaControlLLayOut.setLayoutParams(lp);
     }
+    class MediaSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener
+    {
+        CPlayerActivity m_PlayerActivity;
+        public  MediaSeekBarChangeListener(CPlayerActivity PlayerActivity)
+        {
+            m_PlayerActivity=PlayerActivity;
+        }
+        public void onProgressChanged(SeekBar var1, int var2, boolean var3)
+        {
+
+        }
+        public void onStartTrackingTouch(SeekBar var1)
+        {
+            m_bSeekPlayer=true;
+        }
+        public void onStopTrackingTouch(SeekBar var1)
+        {
+            if(PlayerStata!=EnumPlayerStata.Stop)
+            {
+                if(PlayerStata==EnumPlayerStata.PAUSE)
+                {
+                    FunPalyState();
+                }
+                int ll=var1.getProgress()-m_CurTime;
+                m_KKPlayer.Seek(ll);
+                m_bSeekPlayer=false;
+            }
+
+        }
+    }
    class MediaClassBtnClick implements   View.OnClickListener
    {
        CPlayerActivity m_PlayerActivity;
@@ -161,19 +210,23 @@ public class CPlayerActivity extends Activity {
        }
        public void onClick(View var1)
        {
-          ImageButton btn=(ImageButton)var1;
-           if(PlayerStata==EnumPlayerStata.Play) {
-               btn.setImageResource(R.drawable.play1);
-               PlayerStata=EnumPlayerStata.PAUSE;
-               m_KKPlayer.Pause();
-           }else if(PlayerStata==EnumPlayerStata.PAUSE)
-           {
-               btn.setImageResource(R.drawable.pause1);
-               PlayerStata=EnumPlayerStata.Play;
-               m_KKPlayer.Pause();
-           }
+           FunPalyState();
        }
    }
+    protected void FunPalyState()
+    {
+        ImageButton btn=(ImageButton)findViewById(R.id.StartButton);
+        if(PlayerStata==EnumPlayerStata.Play) {
+            btn.setImageResource(R.drawable.play1);
+            PlayerStata=EnumPlayerStata.PAUSE;
+            m_KKPlayer.Pause();
+        }else if(PlayerStata==EnumPlayerStata.PAUSE)
+        {
+            btn.setImageResource(R.drawable.pause1);
+            PlayerStata=EnumPlayerStata.Play;
+            m_KKPlayer.Pause();
+        }
+    }
     public CPlayerActivity()
     {
         m_KKPlayer = new CKKPlayerReader();

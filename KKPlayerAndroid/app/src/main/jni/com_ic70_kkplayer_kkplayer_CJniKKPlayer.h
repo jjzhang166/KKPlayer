@@ -6,6 +6,8 @@
 #ifndef _Included_com_ic70_kkplayer_kkplayer_CJniKKPlayer
 #define _Included_com_ic70_kkplayer_kkplayer_CJniKKPlayer
 
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,6 +26,7 @@ JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(JNIEnv *env, jobject instance, jstring str_,jint obj);
 JNIEXPORT jstring JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetMediaInfo(JNIEnv *env, jobject instance, jint obj);
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Pause(JNIEnv *env, jobject instance,jint obj);
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Seek(JNIEnv *env, jobject instance, jint obj, jint value);
 #ifdef __cplusplus
 }
 #endif

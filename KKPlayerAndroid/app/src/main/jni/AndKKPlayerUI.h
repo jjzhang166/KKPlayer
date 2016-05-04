@@ -38,6 +38,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
             virtual unsigned char* GetBkImage(int &length);
             virtual void OpenMediaFailure(char* strURL);
             void Pause();
+            void Seek(int value);
    private:
         int m_width;
         int m_height;

@@ -58,6 +58,10 @@ void  CAndKKPlayerUI::Pause()
 {
     m_player.Pause();
 }
+void  CAndKKPlayerUI::Seek(int value)
+{
+    m_player.KKSeek(Left,value);
+}
 int CAndKKPlayerUI::IniGl()
 {
     //播放器启动
