@@ -54,6 +54,10 @@ CAndKKPlayerUI::~CAndKKPlayerUI()
     //m_Audio.CloseAudio();
     m_player.CloseMedia();
 }
+void  CAndKKPlayerUI::Pause()
+{
+    m_player.Pause();
+}
 int CAndKKPlayerUI::IniGl()
 {
     //播放器启动

@@ -33,6 +33,12 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         int ll=0;
         ll++;
     }
+    public void Pause()
+    {
+        if(m_nKKPlayer!=0) {
+            m_JniKKPlayer.Pause(m_nKKPlayer);
+        }
+    }
     public CMediaInfo GetCMediaInfo()
     {
         if(m_nKKPlayer!=0) {

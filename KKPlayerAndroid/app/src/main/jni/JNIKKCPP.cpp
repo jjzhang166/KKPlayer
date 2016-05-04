@@ -89,3 +89,7 @@ JNIEXPORT jstring JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetMediaI
     sprintf(s,"%d;%d",info.CurTime,info.TotalTime);
     return env->NewStringUTF(s);
 }
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Pause(JNIEnv *env, jobject instance, jint obj) {
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    pKKUI->Pause();
+}

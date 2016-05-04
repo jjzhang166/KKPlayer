@@ -1,6 +1,8 @@
 package com.ic70.kkplayer.kkplayer;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,8 +11,10 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -24,7 +28,7 @@ import java.util.TimerTask;
 public class CPlayerActivity extends Activity {
     private GLSurfaceView glView;
     private CKKPlayerReader m_KKPlayer=null;
-
+    private boolean m_bPlayer=false;
     String CurTimeStr = new String();
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {
@@ -36,7 +40,13 @@ public class CPlayerActivity extends Activity {
             handler.sendMessage(message);
         }
     }; /* */
-
+   public  enum  EnumPlayerStata
+   {
+       Stop,
+       Play,
+       PAUSE
+   }
+    EnumPlayerStata PlayerStata=EnumPlayerStata.Stop;
     Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             if (msg.what == 1)
@@ -105,8 +115,42 @@ public class CPlayerActivity extends Activity {
         CharSequence MoviePath = bundle.getCharSequence("MoviePath");
         String path = MoviePath.toString();
         ImageButton Btn=(ImageButton)findViewById(R.id.StartButton);
-        Btn.setOnClickListener( new MediaClassBtnClick(this) );
+        Btn.setOnClickListener(new MediaClassBtnClick(this));
+        AdJustControl();
+
         m_KKPlayer.OpenMedia(path);
+        PlayerStata=EnumPlayerStata.Play;
+    }
+    public void onConfigurationChanged (Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+        AdJustControl();
+    }
+    void AdJustControl()
+    {
+        Configuration mConfiguration = this.getResources().getConfiguration(); //获取设置的配置信息
+        int ori = mConfiguration.orientation ; //获取屏幕方向
+        boolean Sp=false;
+        if(ori == Configuration.ORIENTATION_LANDSCAPE){
+            //横屏
+            Log.v("Screen", "横屏");
+            Sp=true;
+        }
+        WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth()/2-220;
+        int height = wm.getDefaultDisplay().getHeight()/2-220;
+        LinearLayout MediaControlLLayOut=(LinearLayout)findViewById(R.id.MediaControlLLayOut);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(MediaControlLLayOut.getLayoutParams());
+        if(Sp)
+        {
+            Log.v("Screen",height+";" +width);
+            lp.setMargins(width, 0, 0, 0);
+        }else
+        {
+            lp.setMargins(width, 0, 0, 0);
+        }
+
+        MediaControlLLayOut.setLayoutParams(lp);
     }
    class MediaClassBtnClick implements   View.OnClickListener
    {
@@ -118,12 +162,21 @@ public class CPlayerActivity extends Activity {
        public void onClick(View var1)
        {
           ImageButton btn=(ImageButton)var1;
-          btn.setImageResource(R.drawable.play1);
+           if(PlayerStata==EnumPlayerStata.Play) {
+               btn.setImageResource(R.drawable.play1);
+               PlayerStata=EnumPlayerStata.PAUSE;
+               m_KKPlayer.Pause();
+           }else if(PlayerStata==EnumPlayerStata.PAUSE)
+           {
+               btn.setImageResource(R.drawable.pause1);
+               PlayerStata=EnumPlayerStata.Play;
+               m_KKPlayer.Pause();
+           }
        }
    }
     public CPlayerActivity()
     {
-         m_KKPlayer = new CKKPlayerReader();
+        m_KKPlayer = new CKKPlayerReader();
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)

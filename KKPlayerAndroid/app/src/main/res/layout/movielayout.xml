@@ -11,7 +11,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:fitsSystemWindows="true"
         android:weightSum="1"
         android:baselineAligned="false"
@@ -21,53 +21,49 @@
                          android:layout_width="match_parent"
                          android:focusable="true"
                          android:layout_height="40dp"
-                         android:paddingLeft="5dp"
-                         android:paddingRight="5dp"
-                         android:maxHeight="4dp"
-                         android:minHeight="4dp"
+                         android:paddingLeft="2dp"
+                         android:paddingRight="2dp"
+                         android:maxHeight="2dp"
+                         android:minHeight="2dp"
                          android:id="@+id/MovieSeekbar"
                          android:progressDrawable="@drawable/po_seekbar"
                          android:thumb="@drawable/seekbar_thumb" />
 
-                        <TableLayout android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:stretchColumns="0"
-                        android:layout_gravity="left|bottom"
-                            android:orientation="horizontal">
-                                       <TableRow
-                                       android:layout_width="match_parent"
-                                       android:layout_height="match_parent"
-                                           android:layout_gravity="left">
 
                                            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                android:layout_width="fill_parent"
                                                android:layout_height="match_parent"
                                                android:orientation="horizontal"
-                                               android:layout_gravity="left|center_horizontal">
+                                               android:layout_gravity="top|left|center_vertical">
                                                    <TextView
-                                                   android:layout_width="wrap_content"
-                                                   android:layout_height="match_parent"
+                                                   android:layout_width="210px"
+                                                   android:layout_height="40px"
                                                    android:textAppearance="?android:attr/textAppearanceSmall"
                                                    android:text="00:00:00/00:00:00"
                                                    android:id="@+id/CurTimetextView"
                                                    android:textSize="24px"
                                                    android:textColor="#ffffff"
-                                                   android:layout_gravity="left|bottom"
+                                                   android:layout_gravity="left"
                                                    android:gravity="left|bottom" />
 
-                                                   <ImageButton
-                                                   android:layout_gravity="center_horizontal"
-                                                   android:layout_width="40dp"
+                                                   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   android:layout_width="wrap_content"
+                                                   android:id="@+id/MediaControlLLayOut"
                                                    android:layout_height="match_parent"
-                                                   android:src="@drawable/pause1"
-                                                   android:id="@+id/StartButton"
-                                                   android:background="#00ffffff"
-                                                    />
+                                                   android:orientation="horizontal"
 
+                                                       android:layout_marginBottom="0dp"
+                                                       android:layout_marginTop="0dp">
+                                                           <ImageButton
+                                                           android:layout_gravity="center_horizontal"
+                                                           android:layout_width="18dp"
+                                                           android:layout_height="match_parent"
+                                                           android:src="@drawable/pause1"
+                                                           android:id="@+id/StartButton"
+                                                           android:background="#00ffffff"
+                                                           />
+                                                   </LinearLayout>
                                            </LinearLayout>
-
-                                       </TableRow>
-                      </TableLayout>
     </LinearLayout>
 
 

@@ -953,7 +953,7 @@ void KKPlayer::ReadAV()
 			{
 				 LOGE("catch full");
 				//等待一会
-				Sleep(30);
+				Sleep(10);
 			}else
 			{
 				break;
@@ -1093,23 +1093,33 @@ long KKPlayer::GetVolume()
 }
 void KKPlayer::Pause()
 {
-    if(pVideoInfo->paused==1)
-		pVideoInfo->paused=0;
-	else
-		pVideoInfo->paused=1;
+	m_CloseLock.Lock();
+		if(pVideoInfo!=NULL)
+		{
+			if(pVideoInfo->paused==1)
+				pVideoInfo->paused=0;
+			else
+				pVideoInfo->paused=1;
+		}
+	m_CloseLock.Unlock();
 }
 //快进
 void KKPlayer::KKSeek( SeekEnum en,int value)
 {
-   double incr, pos, frac;
-   incr=value;
-   pos = get_master_clock(pVideoInfo);
-   if (isNAN(pos))
-	   pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
-   pos += incr;
-   if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
-	   pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
-   stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
+   m_CloseLock.Lock();
+   if(pVideoInfo!=NULL)
+   {
+	   double incr, pos, frac;
+	   incr=value;
+	   pos = get_master_clock(pVideoInfo);
+	   if (isNAN(pos))
+		   pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
+	   pos += incr;
+	   if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
+		   pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
+	   stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
+   }
+   m_CloseLock.Unlock();
 }
 
 

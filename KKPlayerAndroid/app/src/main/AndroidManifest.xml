@@ -22,7 +22,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".CPlayerActivity"
-         android:configChanges="orientation|screenSize|keyboardHidden"></activity>
+         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            >
+
+        </activity>
     </application>
     <!-- RECORD_AUDIO is needed to create an audio recorder -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
