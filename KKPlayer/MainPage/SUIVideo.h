@@ -12,6 +12,7 @@ namespace SOUI
 		  CSuiVideo(void);
 		  ~CSuiVideo(void);
 		  int OpenMeida(const char *str);
+		  void SetPlayStat(int state);
 	  protected:
 		  CMainFrame m_VideoWnd;
 		  void OnDestroy();
@@ -20,7 +21,7 @@ namespace SOUI
 		  void OnSize(UINT nType, CSize size);
 		  void OnMouseHover(WPARAM wParam, CPoint ptPos);
 		  void OnMouseLeave();
-        
+         
 		  SOUI_MSG_MAP_BEGIN()
 			  MSG_WM_CREATE(OnCreate)
 			  MSG_WM_DESTROY(OnDestroy)

@@ -6,5 +6,5 @@ Android:android studio1.5 编译通过。
          KKPlayerCore  播放器核心代码
 		 KKplayer项目是基于KKPlayerCore写的Windows例子
 		 KKPlayerAndroid项目是基于KKPlayerCore写的android例子
-         Windows相关资源文件已经放在debug目下了，release只需拷贝debug下的dll及相关资源即可。
+         Windows版本：生成的正式文件在release下，调试的在debug下。界面库采用SOUI2
 		 IOS版本正在筹划中

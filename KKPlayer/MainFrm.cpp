@@ -470,7 +470,11 @@ unsigned char*  CMainFrame::GetWaitImage(int &len,int curtime)
 }
 
 
-
+int  CMainFrame::Pause()
+{
+	m_PlayerInstance.Pause();
+	return 0;
+}
  unsigned char* CMainFrame::GetCenterLogoImage(int &len)
  {
          if(m_pCenterLogoImage==NULL)

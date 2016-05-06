@@ -11,6 +11,10 @@ namespace SOUI
 
 	}
 
+	void CSuiVideo::SetPlayStat(int state)
+	{
+        m_VideoWnd.Pause();
+	}
 	void CSuiVideo::OnDestroy()
 	{
           m_VideoWnd.CloseMedia();

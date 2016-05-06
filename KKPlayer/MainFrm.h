@@ -63,6 +63,7 @@ public:
 	virtual unsigned char* GetCenterLogoImage(int &length);
 	virtual void OpenMediaFailure(char* strURL);
 	int GetCurTime();
+	int Pause();
 private:
 	CKKSound m_Sound;
 	    Gdiplus::Bitmap *m_BkGidPulsBitmap;

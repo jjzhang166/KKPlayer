@@ -12,6 +12,8 @@
 		<imglist name="_skin.TittleBg" src="PNG:ID_PNG_BG_GRAY"/>
 		<imglist name="_skin.ButtonBg" src="PNG:ID_PNG_BG_BUTTON"/>
 		<imglist name="_skin.PLAY" src="PNG:ID_PNG_PLAY" states="3" />
+		<imglist name="_skin.Pause" src="PNG:ID_PNG_PAUSE" states="3" />
+		
 		<imglist name="_skin.AUDIO2" src="PNG:ID_PNG_AUDIO2" states="3" />
 		<imglist name="_skin.List_Button" src="PNG:ID_PNG_LIST_BUTTON" states="3" />
 		<imglist name="_skin.VOL_BLOCK" src="PNG:ID_PNG_VOL_BLOCK" states="3" />
