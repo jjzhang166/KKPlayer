@@ -159,7 +159,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);
 
-	int nRet = Run(lpstrCmdLine, nCmdShow);
+	int nRet =  nRet = theApp->Run(dlgMain.m_hWnd);// Run(lpstrCmdLine, nCmdShow);
 
 	Gdiplus::GdiplusShutdown(m_gdiplusToken);
 	_Module.Term();

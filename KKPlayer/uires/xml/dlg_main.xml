@@ -1,17 +1,17 @@
 <SOUI name="mainWindow" title="KKplayer" 
 width="600" height="400"  margin="5,5,5,5"  resizable="1"
-appWnd="1"
+appWnd="1" 
 translucent="0"
 >
 	<root skin="_skin.shadow">
-			<caption pos="0,0,-0,30" margin="0,0,0,0" skin="_skin.Top">
+			<caption pos="0,0,-0,30" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
                   <icon pos="10,8" src="ICON_LOGO:16"/>
                   <text pos="[5,8" colorText="#ffFFFF">KK影音</text>
 				  
-				   <imgbtn name="btn_close" skin="_skin.Win_Close"    pos="-24,0" tip="close" animate="1"/>
-                   <imgbtn name="btn_max" skin="_skin.Win_Max"  pos="-48,0" animate="1" />
-                   <imgbtn name="btn_restore" skin="_skin.Win_Max2"  pos="-48,0" show="0" animate="1" />
-                   <imgbtn name="btn_min" skin="_skin.Win_Min" pos="-72,0" animate="1" />
+				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-24,0" tip="关闭" animate="1"/>
+                   <imgbtn name="btn_max" skin="_skin.Win_Max"  pos="-48,0"  tip="最大化" animate="1" />
+                   <imgbtn name="btn_restore" skin="_skin.Win_Max2"  pos="-48,0" tip="恢复"  show="0" animate="1" />
+                   <imgbtn name="btn_min" skin="_skin.Win_Min" pos="-72,0" tip="最小化" animate="1" />
 			</caption>
 			<SuiVideo margin="3,0,0,0"  pos="0,[0,-0,]-0" name="AVMainWnd" colorBkgnd="#000000">
 			
@@ -31,14 +31,13 @@ translucent="0"
 					  </button><!---->
 					  <sliderbar name="slider_video" thumbSkin="_skin.VOL_BLOCK" 
 					  thumbInRail="0" pos="]-100,15" alpha="200" width="100" value="10" min="0" max="100" />
-					  <imgbtn name="AVFolderBtn" skin="_skin.Folder" 
-					  pos="-60,21" offset="-0.5,-0.5"  tip="打开本地文件"
-					  width="29" height="36" animate="1"></imgbtn>
+					  <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
+					  pos="-60,21" offset="-0.5,-0.5"   colorText="#FFFFFF"
+					  width="29" height="36" animate="1" tip="打开本地文件" />
 					  
-					  <imgbtn  skin="_skin.List_Button" name="AVFileListBtn" 
-					  pos="-30,21"  tips="播放列表"
-					  offset="-0.5,-0.5" focusable="0" width="29" height="36">
-					  </imgbtn>
+					  <imgbtn  skin="_skin.List_Button" name="AVFileListBtn" colorText="#FFFFFF"
+					  pos="-30,21" focusable="0"
+					  offset="-0.5,-0.5" focusable="0" width="29" height="36" tip="播放列表" />
 			</window>  
 	</root>
 </SOUI>
