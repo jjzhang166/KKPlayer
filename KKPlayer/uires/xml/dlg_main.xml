@@ -32,11 +32,11 @@ translucent="0"
 					  <sliderbar name="slider_video" thumbSkin="_skin.VOL_BLOCK" 
 					  thumbInRail="0" pos="]-100,15" alpha="200" width="100" value="10" min="0" max="100" />
 					  <imgbtn name="AVFolderBtn" skin="_skin.Folder" 
-					  pos="-60,21" offset="-0.5,-0.5" focusable="0" tip="打开本地文件"
+					  pos="-60,21" offset="-0.5,-0.5"  tip="打开本地文件"
 					  width="29" height="36" animate="1"></imgbtn>
 					  
 					  <imgbtn  skin="_skin.List_Button" name="AVFileListBtn" 
-					  pos="-30,21"  tip="播放列表"
+					  pos="-30,21"  tips="播放列表"
 					  offset="-0.5,-0.5" focusable="0" width="29" height="36">
 					  </imgbtn>
 			</window>  
