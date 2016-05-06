@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UIDEF>
+  <font face="宋体" size="15"/>
+
+  <string>
+    <title value="360"/>
+    <ver value="1.0"/>
+  </string>
+
+  <skin>
+        <imgframe name="_skin.shadow" src="PNG:ID_PNG_SHADOW"  left="5" top="3" right="5" bottom="7"/>
+		<imglist name="_skin.TittleBg" src="PNG:ID_PNG_BG_GRAY"/>
+		<imglist name="_skin.ButtonBg" src="PNG:ID_PNG_BG_BUTTON"/>
+		<imglist name="_skin.PLAY" src="PNG:ID_PNG_PLAY" states="3" />
+		<imglist name="_skin.AUDIO2" src="PNG:ID_PNG_AUDIO2" states="3" />
+		<imglist name="_skin.List_Button" src="PNG:ID_PNG_LIST_BUTTON" states="3" />
+		<imglist name="_skin.VOL_BLOCK" src="PNG:ID_PNG_VOL_BLOCK" states="3" />
+		
+		
+		<imglist name="_skin.Win_Close" src="PNG:ID_PNG_WIN_CLOSE" states="5" />
+		<imglist name="_skin.Win_Max" src="PNG:ID_PNG_WIN_MAX" states="5" />
+		<imglist name="_skin.Win_Min" src="PNG:ID_PNG_WIN_MIN" states="5" />
+		<imglist name="_skin.Win_Max2" src="PNG:ID_PNG_WIN_MAX_2" states="5" />
+		
+		<imglist name="_skin.Top" src="PNG:ID_PNG_TOP"/>
+		
+		<imglist name="_skin.SeekBack" src="PNG:ID_PNG_BACK" states="5" />
+		<imglist name="_skin.SeekForward" src="PNG:ID_PNG_FORWARD" states="5" />
+		<imglist name="_skin.Pro_Block" src="PNG:ID_PNG_PRO_BLOCK" states="5" />
+		
+		<imgframe name="_skin.Pro_Mask" src="PNG:ID_PNG_PRO_MASK" />
+		<imgframe name="_skin.Pro_Bg" src="PNG:ID_PNG_PRO_MASK" />
+		<imgframe name="_skin.Pro_Play" src="PNG:ID_PNG_PRO_PLAY"/>
+		
+		<imglist name="_skin.Folder" src="PNG:ID_PNG_FOLDER"  states="5"/>
+		<!--<imgframe name="_skin.SBKgnd" src="PNG:SYS_PROG_BKGND" margin-x="5"/>
+        <imgframe name="_skin.SBKbar" src="PNG:SYS_PROG_BAR" margin-x="3"/>-->
+		
+  </skin>
+
+  <style>
+    <class name="normalbtn" font="" colorText="#385e8b" colorTextDisable="#91a7c0" textMode="0x25" cursor="hand" margin-x="0"/>
+  </style>
+
+  <objattr>
+  </objattr>
+</UIDEF>

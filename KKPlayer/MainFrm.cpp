@@ -215,11 +215,16 @@ BOOL CMainFrame::OnIdle()
 	(((y) + (1L << 15)) >> 16))
 std::basic_string<TCHAR> GetModulePath();
 
-void  CMainFrame::OpenMedia(std::string url,OpenMediaEnum en,std::string FilePath)
+int  CMainFrame::OpenMedia(std::string url,OpenMediaEnum en,std::string FilePath)
 {
 
-	m_PlayerInstance.OpenMedia((char*)url.c_str(),en,(char*)FilePath.c_str());
-	m_bOpen=true;
+	RECT rt;
+	::GetClientRect(m_hWnd,&rt);
+	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
+	int  ret=m_PlayerInstance.OpenMedia((char*)url.c_str(),en,(char*)FilePath.c_str());
+	if(ret==0)
+	  m_bOpen=true;
+	return ret;
 }
 void CMainFrame::SetVolume(long value)
 {
@@ -229,14 +234,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 {
 
 	m_pRender=NULL;
-	long ll2=1L<<11;
-	long xxx=2*ll2;
-	long x2=xxx>>12;
-	// register object for message filtering and idle updates
-	CMessageLoop* pLoop = _Module.GetMessageLoop();
-	ATLASSERT(pLoop != NULL);
-	//pLoop->AddMessageFilter(this);
-	//pLoop->AddIdleHandler(this);
+	
 	this->SetFocus();
 	this->EnableWindow(true);
 	::SetTimer(this->m_hWnd,10010,10,NULL);
@@ -252,13 +250,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	 m_PlayerInstance.InitSound();
 	 m_PlayerInstance.SetWindowHwnd(m_hWnd);
 
-	//OpenMedia("rtsp://video.fjtu.com.cn/vs01/flws/flws_01.rm");
 	//OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
-	OpenMedia("F://ttxx.mp4");
-	 //OpenMedia("F://Pro//Cosplay-testvideoienc.mp4");
-	// OpenMedia("F://Pro//jinganghuluwa.mp4");
-	 //OpenMedia("F:\\aaa.flv");
-	//OpenMedia("C:\\Test.flv");
     return 0;
 }
 
@@ -302,13 +294,6 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 		 ::DeleteObject(bmp);
 		 ::DeleteDC(MemDC);
 
-		 
-		
-
-
-
-
-		
 		 //  m_PlayerInstance.RenderImage(m_pRender);
 		 ::EndPaint(m_hWnd, &ps);
 	 }else
@@ -326,14 +311,13 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 
 #ifdef QY_GDI
 		 OnDraw(MemDC,rcWindow);
-         
-#else
-		 Gdiplus::Graphics graphics(MemDC);
+//#else
+		/* Gdiplus::Graphics graphics(MemDC);
 		 {  
 			 // 使用高质量模式(相对比较耗时)，可以查看msdn，替换为其他mode   
 			 //graphics(SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);  
 			 graphics.DrawImage(m_BkGidPulsBitmap, 0, 0, rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top);  
-		 }  
+		 }  */
 #endif
 
          ::BitBlt(ps.hdc,0,0,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top,MemDC,0,0,SRCCOPY);

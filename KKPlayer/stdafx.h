@@ -5,7 +5,8 @@
 
 #pragma once
 
-
+#ifndef stdafx_H_
+#define stdafx_H_
 #include <atlbase.h>
 #include <atlapp.h>
 
@@ -29,5 +30,16 @@ extern CAppModule _Module;
 #include <process.h>
 #include <Windows.h>
 #include <assert.h>
+#endif
+
+//soui包含文件
+#include <souistd.h>
+#include <core/SHostDialog.h>
+#include <control/SMessageBox.h>
+#include <control/souictrls.h>
+#include <com-cfg.h>
+#include <unknown/obj-ref-impl.hpp>
+#include <unknown/obj-ref-i.h>
+#include <interface/SResProvider-i.h>
 #include "resource.h"
 // TODO: 在此处引用程序需要的其他头文件

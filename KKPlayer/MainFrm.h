@@ -80,7 +80,7 @@ private:
 public:
 		WTL::CString m_TabName;
 public:
-	    void OpenMedia(std::string url,OpenMediaEnum en=OpenMediaEnum::No,std::string FilePath="c:\\xx.mp4");
+	    int OpenMedia(std::string url,OpenMediaEnum en=OpenMediaEnum::No,std::string FilePath="c:\\xx.mp4");
 	    void CloseMedia();
 		LRESULT OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 		{

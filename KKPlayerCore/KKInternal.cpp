@@ -1375,7 +1375,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			1920×1080  16:9
 			720×480    4:3*/
 		//if(0)
-#ifndef Android_Plat
+#ifdef Android_PlatXXX
 			if((pFrame->width==1280&&pFrame->height==720)||(pFrame->width==1920&&pFrame->height==1080))
 			{
 				//显示区域小鱼目标宽度

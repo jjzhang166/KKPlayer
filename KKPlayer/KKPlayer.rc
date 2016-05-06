@@ -138,6 +138,11 @@ END
 #endif
 /////////////////////////////////////////////////////////////////////////////
 
+#if defined(KK_RESOURCE_DLL)
+LANGUAGE 4, 2
+#pragma code_page(936)
+#include "res\KK_res.rc2"
+#endif
 
 
 #ifndef APSTUDIO_INVOKED

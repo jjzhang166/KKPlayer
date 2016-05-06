@@ -7,6 +7,8 @@
 #include "MainFrm.h"
 #include <GdiPlus.h>
 #include <Gdiplusinit.h>
+#include "MainPage/MainDlg.h"
+#include "MainPage/SUIVideo.h"
 #pragma comment (lib,"Gdiplus.lib")
 CAppModule _Module;
 std::basic_string<TCHAR> g_strModuleFileName;
@@ -66,18 +68,18 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-	CMainFrame GWndMain;
-	std::string strErr;
-//WS_CHILD |WS_VISIBLE| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
-	RECT rt={0,100,200,300};
-	if(GWndMain.CreateEx(G_Parent,NULL, WS_OVERLAPPEDWINDOW| WS_CLIPSIBLINGS|WS_CLIPCHILDREN) == NULL)
-	{
-		ATLTRACE(_T("Main window creation failed!\n"));
-		return 0;
-	}
-    pWnd=&GWndMain;
-	
-	    GWndMain.ShowWindow(nCmdShow);
+//	CMainFrame GWndMain;
+//	std::string strErr;
+////WS_CHILD |WS_VISIBLE| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
+//	RECT rt={0,100,200,300};
+//	if(GWndMain.CreateEx(G_Parent,NULL, WS_OVERLAPPEDWINDOW| WS_CLIPSIBLINGS|WS_CLIPCHILDREN) == NULL)
+//	{
+//		ATLTRACE(_T("Main window creation failed!\n"));
+//		return 0;
+//	}
+//    pWnd=&GWndMain;
+//	
+//	    GWndMain.ShowWindow(nCmdShow);
     
 	int nRet = theLoop.Run();
     _Module.RemoveMessageLoop();
@@ -85,18 +87,19 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	return nRet;
 }
 
+#ifdef _DEBUG
+#define SYS_NAMED_RESOURCE _T("soui-sys-resourced.dll")
+#else
+#define SYS_NAMED_RESOURCE _T("soui-sys-resource.dll")
+#endif
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 	HRESULT hRes = ::CoInitialize(NULL);
     G_Parent =(HWND)_wtoi(lpstrCmdLine);
 	wchar_t abcd[100]=L"";
 	wsprintf(abcd,L"%d",G_Parent);
-	//MessageBox(NULL,abcd,L"XX",0);
-// If you are running on NT 4.0 or higher you can use the following call instead to 
-// make the EXE free threaded. This means that calls come in on a random RPC thread.
-//	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
-
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(NULL, 0, 0, 0L);
 
@@ -111,7 +114,51 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	Gdiplus::GdiplusStartupInput StartupInput; 
 	ULONG_PTR m_gdiplusToken;
 	GdiplusStartup(&m_gdiplusToken,&StartupInput,NULL); 
+
+
+	using namespace SOUI;
+	SComMgr * pComMgr = new SComMgr;
+
+	SOUI::CAutoRefPtr<SOUI::IImgDecoderFactory> pImgDecoderFactory;
+	CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
+	pComMgr->CreateRender_GDI((IObjRef**)&pRenderFactory);
+	pComMgr->CreateImgDecoder((IObjRef**)&pImgDecoderFactory);
+	pRenderFactory->SetImgDecoderFactory(pImgDecoderFactory);
 	
+	SApplication *theApp=new SApplication(pRenderFactory,hInstance);
+    theApp->RegisterWndFactory(TplSWindowFactory<CSuiVideo>());
+
+	CAutoRefPtr<ITranslatorMgr> trans;
+	pComMgr->CreateTranslator((IObjRef**)&trans);
+	if(trans)
+	{
+	
+	}
+
+
+	CAutoRefPtr<IResProvider>   pResProvider;
+	CreateResProvider(RES_PE,(IObjRef**)&pResProvider);
+	BOOL ret=pResProvider->Init((WPARAM)hInstance,0);
+
+
+	theApp->AddResProvider(pResProvider);
+
+	//加载系统资源
+	HMODULE hSysResource=LoadLibrary(SYS_NAMED_RESOURCE);
+	if(hSysResource)
+	{
+		CAutoRefPtr<IResProvider> sysSesProvider;
+		CreateResProvider(RES_PE,(IObjRef**)&sysSesProvider);
+		sysSesProvider->Init((WPARAM)hSysResource,0);
+		theApp->LoadSystemNamedResource(sysSesProvider);
+	}
+
+	CMainDlg dlgMain;  
+	dlgMain.Create(GetActiveWindow(),0,0,0,0);
+	//dlgMain.SendMessage(WM_INITDIALOG);
+	dlgMain.CenterWindow(dlgMain.m_hWnd);
+	dlgMain.ShowWindow(SW_SHOWNORMAL);
+
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 
 	Gdiplus::GdiplusShutdown(m_gdiplusToken);

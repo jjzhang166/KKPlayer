@@ -1,0 +1,31 @@
+.\OutPut\Pro.axf: Error: L6218E: Undefined symbol vPortFree (referred from event_groups.o).
+
+IMPORT xPortPendSVHandler IMPORT xPortSysTickHandler IMPORT vPortSVCHandler
+
+xTaskCreate( vLED_12_Task,(signed portCHAR *)"LED12",configMINIMAL_STACK_SIZE,NULL,tskIDLE_PRIORITY+1,NULL);
+static void vLED_12_Task( void *pvParameters );
+vTaskDelay(500/portTICK_RATE_MS);
+
+"F:/小学/三英下B.iso"
+
+rundll32.exe setupapi,InstallHinfSection BazisVirtualCDBus_Device.NT.Services 132 C:\WinCDEmu\BazisVirtualCDBus.inf
+rundll32.exe setupapi,InstallHinfSection Section BazisVirtualCDBus.inf,dev_Service_Inst
+rundll32.exe setupapi,InstallHinfSection dev_Service_Inst 132 C:\WinCDEmu\BazisVirtualCDBus.inf
+
+
+rundll32.exe newdev.dll,ClientSideInstall \\.\BazisPortableCDBus.{4d36e97b-e325-11ce-bfc1-08002be10318}
+cd F:/ProgramTool/OpenPro/KKPlayer/KKPlayerCore
+
+342276504
+sudo apt-get install glibc-doc
+sudo apt-get install manpages-posix-dev
+
+sudo apt-get install mysql-server
+apt-get isntall mysql-client
+sudo apt-get install libmysqlclient-dev
+
+mysql -u root -p 
+
+F:/android/android-sdk-windows/ndk-bundle/toolchains/arm-linux-androideabi-4.8/prebuilt/windows/bin/arm-linux-androideabi-readelf.exe libdvbcsa.so
+
+ uiresbuilder -p uires -i uires\uires.idx -r res\KK_res.rc2 //-h .\uires\resource.h

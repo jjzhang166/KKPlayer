@@ -511,8 +511,8 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 		   resize( Wei,hei);
 
 		   HRESULT  hr = m_pDevice->CreateTexture(
-			   Wei,
-			   hei,
+			   w,
+			   h,
 			   1,
 			   D3DUSAGE_DYNAMIC,
 			   D3DFMT_X8R8G8B8,
@@ -565,37 +565,47 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 			 
 			  unsigned char* dst = (unsigned char*)rect.pBits; 
 			  unsigned char* src = (unsigned char*)pBuf; 
-			  memset(dst,0,rect.Pitch*m_h);
+			  memset(dst,255,rect.Pitch*h);
 			  if(pBuf!=NULL)
 			  {
 				  int row=w*4;
-				  int lx=0;
-				  int ly=0;
-				  int hhh=m_h;
-				  if( rect.Pitch>row)
+			      for(int i = 0; i < h; ++i) 
 				  {
-					  lx= (rect.Pitch-row)/4;
-					 if(lx<52)
-						  lx=0;
-				  }
-
-
-				  if(m_h>h)
-				  {
-					  ly=(m_h-h)/4;
-					  hhh=h; 
-					  if(ly>0)
-					  {
-						  dst += (rect.Pitch*ly);
-					  }/**/
-				  }
-				  for(int i = 0; i < hhh; ++i) 
-				  {
-					  memcpy(dst+lx, src,row);
-					  src += row;
-					  dst += rect.Pitch;
-				  }
+				    memcpy(dst, src,row);
+				    src += row;
+				    dst += rect.Pitch;
+				   }
 			  }
+			  //if(pBuf!=NULL)
+			  //{
+				 // int row=w*4;
+				 // int lx=0;
+				 // int ly=0;
+				 // int hhh=m_h;
+				 // if( rect.Pitch>row)
+				 // {
+					//  lx= (rect.Pitch-row)/4;
+					// if(lx<52)
+					//	  lx=0;
+				 // }
+
+
+				 // if(m_h>h)
+				 // {
+					//  ly=(m_h-h)/4;
+					//  hhh=h; 
+					//  if(ly>0)
+					//  {
+					//	  dst += (rect.Pitch*ly);
+					//  }/**/
+				 // }
+				 // for(int i = 0; i < hhh; ++i) 
+				 // {
+					//  memcpy(dst+lx, src,row);
+					//  src += row;
+					//  dst += rect.Pitch;
+				 // }
+			  //}
 			m_pDxTexture->UnlockRect(0);
 		  }
 		  

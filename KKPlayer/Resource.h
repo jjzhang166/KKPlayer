@@ -19,6 +19,7 @@
 #endif
 // 新对象的下一组默认值
 //
+#define KK_RESOURCE_DLL 1
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 
