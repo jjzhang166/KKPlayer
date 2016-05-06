@@ -28,5 +28,8 @@
 	   <file name="ID_PNG_PRO_PLAY" path="image\pro_play.png"/>
 	   
 	   <file name="ID_PNG_FOLDER" path="image\folder.png"/>
+	   
+	   <file name="ID_PNG_VolBg" path="image\VolBg.png"/>
+	   <file name="ID_PNG_VolPre" path="image\Vol_Pre.png"/>
 	</png>
 </resource>

@@ -1,6 +1,6 @@
 <SOUI name="mainWindow" title="KKplayer" 
 width="600" height="400"  margin="5,5,5,5"  resizable="1"
-appWnd="1" 
+appWnd="1" minsize="460,350"
 translucent="0"
 >
 	<root skin="_skin.shadow">
@@ -25,18 +25,24 @@ translucent="0"
 				   <imgbtn name="L2" skin="_skin.SeekForward" pos="-18,0" width="18" height="10" animate="1" />
 			</window>
 			<window pos="0,-50,-0,-0"  margin="0,0,0,0" name="ButtonToolbar" skin="_skin.ButtonBg">
-                      <imgbtn  skin="_skin.PLAY" name="AVPlayBtn" pos="|0, |0" offset="-0.5,-0.5"  focusable="0" width="37" height="37"></imgbtn>
-					  <button  skin="_skin.AUDIO2" name="btn_audio" pos="]-10,21"
+			          <text font="size:10" margin="10,20,0,0" width="120" colorText="#ffFFFF">00:00:00/00:00:00</text>
+                      <imgbtn  skin="_skin.PLAY" name="AVPlayBtn" pos="|0, |0" 
+					  tip="开始播放或者暂停"
+					  offset="-0.5,-0.5"  focusable="0" width="37" height="37"/>
+					  <button  skin="_skin.AUDIO2" name="btn_audio" 
+					  pos="]-10,26"
 					  offset="-0.5,-0.5" focusable="0" width="22" height="22">
 					  </button><!---->
-					  <sliderbar name="slider_video" thumbSkin="_skin.VOL_BLOCK" 
-					  thumbInRail="0" pos="]-100,15" alpha="200" width="100" value="10" min="0" max="100" />
+					  <sliderbar name="slider_video" thumbSkin="_skin.VOL_BLOCK" bkgndSkin="_skin.Vol_Bg"
+					  posskin="_skin.Vol_Pre"
+					  thumbInRail="0" pos="]-100,19" alpha="200" width="100" height="15" value="10" min="0" max="100" />
+					  
 					  <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
-					  pos="-60,21" offset="-0.5,-0.5"   colorText="#FFFFFF"
+					  pos="-60,26" offset="-0.5,-0.5"   colorText="#FFFFFF"
 					  width="29" height="36" animate="1" tip="打开本地文件" />
 					  
 					  <imgbtn  skin="_skin.List_Button" name="AVFileListBtn" colorText="#FFFFFF"
-					  pos="-30,21" focusable="0"
+					  pos="-30,26" focusable="0"
 					  offset="-0.5,-0.5" focusable="0" width="29" height="36" tip="播放列表" />
 			</window>  
 	</root>

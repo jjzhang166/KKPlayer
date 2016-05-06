@@ -43,7 +43,8 @@ namespace SOUI
 			{
 				RECT rt;
 				this->GetWindowRect(&rt);
-				:: SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left+3,rt.top,size.cx,size.cy,SWP_NOZORDER);
+
+				:: SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left+3,rt.top,size.cx-3,size.cy,SWP_NOZORDER);
 			}
 	}
 	void CSuiVideo::OnMouseHover(WPARAM wParam, CPoint ptPos)
