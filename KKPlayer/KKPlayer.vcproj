@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="D3dx9.lib ..\Debug\libx86\KKPlayerCore.lib ..\Debug\libx86\zlibstat.lib ..\Debug\libx86\librtmp.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib"
+				AdditionalDependencies="D3dx9.lib ..\Debug\libx86\KKPlayerCore.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -116,7 +116,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\libx86\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include"
+				AdditionalIncludeDirectories="..\libx86\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="D3dx9.lib ..\Release\libx86\KKPlayerCore.lib ..\Release\libx86\zlibstat.lib ..\Release\libx86\librtmp.lib"
+				AdditionalDependencies="D3dx9.lib ..\Release\libx86\KKPlayerCore.lib ..\WinUI\lib\Release\soui.lib ..\WinUI\lib\Release\utilities.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
