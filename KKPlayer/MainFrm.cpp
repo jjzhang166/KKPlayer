@@ -55,7 +55,7 @@ std::basic_string<char> GetModulePathA()
 }
 
 
-CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL)
+CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCenterLogoImage(NULL)
 {
 	std::string basePath=GetModulePathA();
 	m_BkGidPulsBitmap=NULL;
@@ -470,6 +470,33 @@ unsigned char*  CMainFrame::GetWaitImage(int &len,int curtime)
 }
 
 
+
+ unsigned char* CMainFrame::GetCenterLogoImage(int &len)
+ {
+         if(m_pCenterLogoImage==NULL)
+		 {
+			 std::string basePath=GetModulePathA();
+			 FILE*fp=NULL;
+			 std::string PicPath=basePath;
+			 PicPath+="\\Skin\\mediaCtrl_Img.png";
+			 fp=fopen(PicPath.c_str(),"rb");
+			 if (!fp)
+			 {
+				 return NULL;
+			 }
+			 fseek(fp,0,SEEK_END); //定位到文件末 
+			 len = ftell(fp); 
+
+			 m_pCenterLogoImage = (unsigned char*)::malloc(len);
+			 memset(m_pCenterLogoImage,0,len);
+			 fseek(fp,0,SEEK_SET);
+			 size_t tt=fread(m_pCenterLogoImage,1,len,fp);
+			 fclose(fp);
+			m_pCenterLogoImageLen=len;
+			len=m_pCenterLogoImageLen;
+		 }
+		 return m_pCenterLogoImage;
+ }
 unsigned char*  CMainFrame::GetBkImage(int &len)
 {
 	

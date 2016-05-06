@@ -18,6 +18,7 @@ public:
     bool UpdateTexture(char *pBuf,int w,int h);
     void render(char *pBuf,int width,int height);
 	void renderBk(unsigned char* buf,int len);
+	void LoadCenterLogo(unsigned char* buf,int len);
 	void SetWaitPic(unsigned char* buf,int len);
 	void SetBkImagePic(unsigned char* buf,int len);
 private:
@@ -29,6 +30,7 @@ private:
     IDirect3DTexture9* m_pDxTexture;
 	IDirect3DTexture9* Fontexture;
 	IDirect3DTexture9* m_PBkTexture;
+	IDirect3DTexture9* m_CenterLogoTexture;
 	IDirect3DTexture9* m_pWaitPicTexture;
 	IDirect3DSurface9 *m_pDirect3DSurfaceRender; 
     unsigned int m_w;
@@ -47,6 +49,7 @@ private:
     Vertex m_Vertex[4];
 	Vertex m_FontVertex[4];
 	Vertex m_WaitVertex[4];
+	Vertex m_CenterLogVertex[4];
 
 };
 

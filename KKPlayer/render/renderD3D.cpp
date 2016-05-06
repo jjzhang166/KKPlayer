@@ -43,6 +43,7 @@ CRenderD3D::CRenderD3D()
 	,Fontexture(NULL)
 	,m_PBkTexture(NULL)
 	,m_pWaitPicTexture(NULL)
+	,m_CenterLogoTexture(NULL)
 {
 }
 
@@ -51,7 +52,7 @@ CRenderD3D::~CRenderD3D()
 	
 	SAFE_RELEASE(m_pWaitPicTexture);
 	SAFE_RELEASE(m_pDirect3DSurfaceRender); 
-
+    SAFE_RELEASE(m_CenterLogoTexture);
 	SAFE_RELEASE(m_pDxTexture);
 	SAFE_RELEASE(m_PBkTexture);
     SAFE_RELEASE(m_pDevice);
@@ -237,6 +238,40 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 		 m_WaitVertex[3].w = 1.f;
 		 m_WaitVertex[3].u = 1.f;
 		 m_WaitVertex[3].v = 1.f;
+	}
+	{
+		
+		w=97;
+		h=72;
+		int yx=m_w/2-w/2;
+		int yy=m_h/2-h/2;
+		m_CenterLogVertex[0].x =yx -0.5f;  //A     A(leftTop)->B(rightTop)->C(leftBu)->D->(rightBu)
+		m_CenterLogVertex[0].y =yy -0.5f;
+		m_CenterLogVertex[0].z = 0.0f;
+		m_CenterLogVertex[0].w = 1.f;
+		m_CenterLogVertex[0].u = 0.f;
+		m_CenterLogVertex[0].v = 0.f;
+
+		m_CenterLogVertex[1].x = yx+w - 0.5f;  //B
+		m_CenterLogVertex[1].y = yy-0.5f;
+		m_CenterLogVertex[1].z = 0.0f;
+		m_CenterLogVertex[1].w = 1.f;
+		m_CenterLogVertex[1].u = 1.f;
+		m_CenterLogVertex[1].v = 0.f;
+
+		m_CenterLogVertex[2].x =yx -0.5f;   //C
+		m_CenterLogVertex[2].y =yy+h - 0.5f;
+		m_CenterLogVertex[2].z = 0.0f;
+		m_CenterLogVertex[2].w = 1.f;
+		m_CenterLogVertex[2].u = 0.f;
+		m_CenterLogVertex[2].v = 1.f;
+
+		m_CenterLogVertex[3].x =yx+ w - 0.5f; //D
+		m_CenterLogVertex[3].y =yy+ h - 0.5f;
+		m_CenterLogVertex[3].z = 0.f;
+		m_CenterLogVertex[3].w = 1.f;
+		m_CenterLogVertex[3].u = 1.f;
+		m_CenterLogVertex[3].v = 1.f;
 	}
 	WinSize(w,h);
 }
@@ -433,45 +468,11 @@ void CRenderD3D::CreateFonet()
 	}
 
 
-	//// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
-	//if ( FAILED( D3DXCreateTextureFromFile(this->m_pDevice,L"F:\\Pro\\ProcLectureRoom\\OutFile\\skin\\video\\icon-ewm-link.png", &Fontexture)))
-	//{
-	//	return;// S_FALSE;
-	//}
-	
-	//char buf[256]="";
-	//sprintf_s(buf,255,"%sxx%d.bmp","D:/pic/",0);  
-	//FILE* pf = fopen(buf, "wb");
-	//fwrite(buffer,blength,1, pf);
-	//fclose(pf);
 
 	delete[] buffer;
 	DeleteObject(hFont);
 	DeleteObject( hBitmap);
 	DeleteDC( hDc);
-
-	//HRESULT  hr = m_pDevice->CreateTexture(
-	//	200,
-	//	100,
-	//	1,
-	//	D3DUSAGE_DYNAMIC,
-	//	D3DFMT_A8R8G8B8,
-	//	D3DPOOL_DEFAULT,
-	//	&Fontexture,
-	//	NULL);/**/
-
-	// D3DLOCKED_RECT rect;
-	// Fontexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
-	// unsigned char* src = (unsigned char*)lpBuffer ; 
-	// unsigned char* dst = (unsigned char*)rect.pBits; 
-	// int row=200*4;
-	// for(int i = 0; i <100; ++i) 
-	// {
-	//	memcpy(dst, src,row);
-	//	src += row;
-	//	dst += rect.Pitch;
-	// }
-	// Fontexture->UnlockRect(0);/**/
 }
 int GetBmpSize(int w,int h);
 bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
@@ -560,7 +561,6 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 			
 		  } 
 #else
-		  {  
 			  m_pDxTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
 			 
 			  unsigned char* dst = (unsigned char*)rect.pBits; 
@@ -576,39 +576,7 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 				    dst += rect.Pitch;
 				   }
 			  }
-			  //if(pBuf!=NULL)
-			  //{
-				 // int row=w*4;
-				 // int lx=0;
-				 // int ly=0;
-				 // int hhh=m_h;
-				 // if( rect.Pitch>row)
-				 // {
-					//  lx= (rect.Pitch-row)/4;
-					// if(lx<52)
-					//	  lx=0;
-				 // }
-
-
-				 // if(m_h>h)
-				 // {
-					//  ly=(m_h-h)/4;
-					//  hhh=h; 
-					//  if(ly>0)
-					//  {
-					//	  dst += (rect.Pitch*ly);
-					//  }/**/
-				 // }
-				 // for(int i = 0; i < hhh; ++i) 
-				 // {
-					//  memcpy(dst+lx, src,row);
-					//  src += row;
-					//  dst += rect.Pitch;
-				 // }
-			  //}
-			m_pDxTexture->UnlockRect(0);
-		  }
-		  
+			m_pDxTexture->UnlockRect(0);		  
 #endif
 	  }
       
@@ -642,8 +610,32 @@ void CRenderD3D::renderBk(unsigned char* buf,int len)
 		m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));
 
+
+		 
+		if(m_CenterLogoTexture!=NULL)
+		{
+				 m_pDevice->SetTexture(0,  m_CenterLogoTexture);
+				 m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+				 m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+				 m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+				 m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+				 m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2,  m_CenterLogVertex, sizeof(Vertex));/**/
+		}
+
 		m_pDevice->EndScene();
 		m_pDevice->Present(NULL, NULL, NULL, NULL);
+	}
+}
+void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
+{
+	if(m_CenterLogoTexture==NULL)
+	{
+		// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
+		if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, & m_CenterLogoTexture)))
+		{
+			//assert(0);
+			return;// S_FALSE;
+		}
 	}
 }
 void CRenderD3D::SetBkImagePic(unsigned char* buf,int len)

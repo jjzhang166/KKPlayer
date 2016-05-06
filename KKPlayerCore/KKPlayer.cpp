@@ -362,11 +362,15 @@ void KKPlayer::RenderImage(CRender *pRender)
 {
 	SKK_Frame *vp;
 	
+	
 	if(pVideoInfo==NULL)
 	{
 		int len=0;
-		unsigned char* pBkImage=m_pPlayUI->GetBkImage(len);
-        pRender->renderBk(pBkImage,len);
+		unsigned char* pBkImage=m_pPlayUI->GetCenterLogoImage(len);
+		pRender->LoadCenterLogo(pBkImage,len);
+
+		pBkImage=m_pPlayUI->GetBkImage(len);
+		pRender->renderBk(pBkImage,len);
 		return;
 	}else 
 	{

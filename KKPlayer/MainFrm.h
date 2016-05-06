@@ -60,6 +60,7 @@ public:
 	virtual void UpdateLayout(BOOL bResizeBars = TRUE);
 	virtual unsigned char* GetWaitImage(int &len,int curtime);
 	virtual unsigned char* GetBkImage(int &len);
+	virtual unsigned char* GetCenterLogoImage(int &length);
 	virtual void OpenMediaFailure(char* strURL);
 	int GetCurTime();
 private:
@@ -73,6 +74,8 @@ private:
 		KKPlayer m_PlayerInstance;
 		/*********Ä¬ÈÏ±³¾°Í¼Æ¬**********/
 		unsigned char* m_pBkImage;
+
+		unsigned char* m_pCenterLogoImage;
 
 		std::vector<SWaitPicInfo*> m_WaitPicList;
 		SWaitPicInfo* m_CurWaitPic;
