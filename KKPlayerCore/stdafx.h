@@ -1,8 +1,10 @@
 //NoNeedWindows_H不需要windows头文件
 //#define WIN32_KK //使用windows 线程
-
-//#define Android_Plat
+#ifdef WIN32
 #define WIN32_KK
+#else
+#define Android_Plat
+#endif
 #ifndef stdafx_H_KK_
 #define stdafx_H_KK_
 	#ifdef WIN32_KK

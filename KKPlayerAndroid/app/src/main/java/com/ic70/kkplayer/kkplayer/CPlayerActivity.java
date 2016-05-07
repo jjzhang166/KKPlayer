@@ -29,6 +29,7 @@ public class CPlayerActivity extends Activity {
     private GLSurfaceView glView;
     private CKKPlayerReader m_KKPlayer=null;
     private boolean m_bSeekPlayer=false;
+
     String CurTimeStr = new String();
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {
@@ -48,15 +49,19 @@ public class CPlayerActivity extends Activity {
    }
     EnumPlayerStata PlayerStata=EnumPlayerStata.Stop;
     int m_CurTime=0;
-    Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
+    Handler handler = new Handler()
+    {
+        public void handleMessage(Message msg)
+        {
             if (msg.what == 1)
             {
                  if( m_KKPlayer!=null&&!m_bSeekPlayer)
                  {
                      CKKPlayerReader.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
                      SeekBar MovieSeekBar = ( SeekBar) findViewById(R.id.MovieSeekbar);
-                     MovieSeekBar.setProgress(info.CurTime);
+                     if(info.CurTime>m_CurTime&&info.CurTime-m_CurTime<20) {
+                         MovieSeekBar.setProgress(info.CurTime);
+                     }
                      MovieSeekBar.setMax(info.TotalTime);
                      TextView CurTimetextView=(TextView) findViewById(R.id.CurTimetextView);
                      m_CurTime=info.CurTime;
@@ -122,6 +127,7 @@ public class CPlayerActivity extends Activity {
         SeekBar SeekBtn=(SeekBar)findViewById(R.id.MovieSeekbar);
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
         m_KKPlayer.OpenMedia(path);
+        m_CurTime=0;
         PlayerStata=EnumPlayerStata.Play;
     }
     public void onConfigurationChanged (Configuration newConfig){
@@ -195,6 +201,7 @@ public class CPlayerActivity extends Activity {
                     FunPalyState();
                 }
                 int ll=var1.getProgress()-m_CurTime;
+                m_CurTime+=ll;
                 m_KKPlayer.Seek(ll);
                 m_bSeekPlayer=false;
             }
@@ -234,9 +241,14 @@ public class CPlayerActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            m_KKPlayer.KKDel();
+        if (keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            PlayerStata=EnumPlayerStata.Stop;
+            timer.cancel();
+            CKKPlayerReader KKPlayer= m_KKPlayer;
             m_KKPlayer=null;
+            KKPlayer.KKDel();
+            KKPlayer=null;
             Log.v("MoviePath", "Del");
             finish();
             Log.v("MoviePath", "退出 over mmm");
