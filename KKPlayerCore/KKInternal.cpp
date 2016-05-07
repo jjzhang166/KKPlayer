@@ -722,7 +722,7 @@ void audio_callback(void *userdata, char *stream, int len)
 		if(Issilence)
 		{
 			pVideoInfo->audio_buf_index += pVideoInfo->audio_buf_size;
-			Issilence=false;
+			//Issilence=false;
 		}
 		else
 		  pVideoInfo->audio_buf_index += len1;
