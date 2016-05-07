@@ -155,7 +155,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	CMainDlg dlgMain;  
 	dlgMain.Create(GetActiveWindow(),0,0,0,0);
-	//dlgMain.SendMessage(WM_INITDIALOG);
+	dlgMain.SendMessage(WM_INITDIALOG);
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);
 

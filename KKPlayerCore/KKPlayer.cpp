@@ -322,8 +322,8 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 				{
                   start_time=vp->pts;
 				}
-				m_CurTime=vp->pts-start_time;
-				if(DiffCurrent>=is->last_duration+is->delay || DiffCurrent<0.000000 || vp->pts<is->audio_clock )//||is->delay >60
+				m_CurTime=vp->pts;-start_time;
+				if(DiffCurrent>=is->last_duration+is->delay || DiffCurrent<0.000000 || vp->pts<is->audio_clock||is->delay >20 )//
 				{
 					frame_queue_next(&is->pictq,false);
 				}
@@ -891,8 +891,8 @@ void KKPlayer::ReadAV()
 		if (pVideoInfo->seek_req&&!pVideoInfo->realtime)
 		{
 			int64_t seek_target = pVideoInfo->seek_pos;
-			int64_t seek_min    = pVideoInfo->seek_rel > 0 ? seek_target - pVideoInfo->seek_rel + 2: INT64_MIN;
-			int64_t seek_max    = pVideoInfo->seek_rel < 0 ? seek_target - pVideoInfo->seek_rel - 2: INT64_MAX;
+			int64_t seek_min    =pVideoInfo->seek_pos-10 * AV_TIME_BASE; //pVideoInfo->seek_rel > 0 ? seek_target - pVideoInfo->seek_rel + 2: INT64_MIN;
+			int64_t seek_max    =pVideoInfo->seek_pos+10 * AV_TIME_BASE; //pVideoInfo->seek_rel < 0 ? seek_target - pVideoInfo->seek_rel - 2: INT64_MAX;
 			ret = avformat_seek_file(pVideoInfo->pFormatCtx, -1, seek_min, seek_target, seek_max, pVideoInfo->seek_flags);
 			if (ret < 0) 
 			{
@@ -1113,6 +1113,7 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
    m_CloseLock.Lock();
    if(pVideoInfo!=NULL)
    {
+	   m_CurTime=value;
 	   double incr, pos, frac;
 	   incr=value;
 	   pos = get_master_clock(pVideoInfo);
@@ -1126,6 +1127,26 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
    m_CloseLock.Unlock();
 }
 
+void KKPlayer::AVSeek(int value)
+{
+	m_CloseLock.Lock();
+	
+	if(pVideoInfo!=NULL)
+	{
+		m_CurTime=value;
+		double incr, pos, frac;
+		
+		pos = get_master_clock(pVideoInfo);
+		if (isNAN(pos))
+			pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
+		incr=value-pos;
+		pos += incr;
+		if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
+			pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
+		stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
+	}
+	m_CloseLock.Unlock();
+}
 
 //ÍÆÁ÷
 void KKPlayer::VideoPushStream()

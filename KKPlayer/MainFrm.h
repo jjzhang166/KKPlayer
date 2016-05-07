@@ -51,7 +51,7 @@ public:
 			MESSAGE_HANDLER(WM_MediaClose,OnMediaClose);
 	END_MSG_MAP()
 
-	void SetVolume(long value);
+	
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -84,6 +84,9 @@ private:
 public:
 		WTL::CString m_TabName;
 public:
+	    MEDIA_INFO GetMediaInfo();
+		void SetVolume(long value);
+		void AvSeek(int value);
 	    int OpenMedia(std::string url,OpenMediaEnum en=OpenMediaEnum::No,std::string FilePath="c:\\xx.mp4");
 	    void CloseMedia();
 		LRESULT OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)

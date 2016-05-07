@@ -17,15 +17,15 @@ translucent="0"
 			
 			</SuiVideo>
 			
-			<window pos="0,]-10,-0,]-0" margin="0,0,0,0" name="SeekWin" skin="_skin.TittleBg">
+			<window pos="0,]-10,-0,]-0" margin="0,0,0,0" name="SeekWin" colorBkgnd="#000000">
 			       <imgbtn name="L2" skin="_skin.SeekBack" width="18" height="10" animate="1" />
-				   <sliderbar name="slider_video_Seek" thumbSkin="_skin.Pro_Block" 
-				   bkgndSkin="_skin.Pro_Bg" posskin="_skin.Pro_Play"
-				   thumbInRail="0" pos="[0,0,]0,-0"  value="10" min="0" max="1000" />
+				   <sliderbar name="slider_video_Seek" thumbSkin="_skin.Pro_SeekThBt" 
+				   bkgndSkin="_skin.Pro_Bg" posskin="_skin.Pro_Play" 
+				   thumbInRail="0" pos="[0,0,]0,-0"  value="0" min="0" max="1000" />
 				   <imgbtn name="L2" skin="_skin.SeekForward" pos="-18,0" width="18" height="10" animate="1" />
 			</window>
 			<window pos="0,-50,-0,-0"  margin="0,0,0,0" name="ButtonToolbar" skin="_skin.ButtonBg">
-			          <text font="size:10" margin="10,20,0,0" width="120" colorText="#ffFFFF">00:00:00/00:00:00</text>
+			          <text font="size:10" name="AV_CurTimeTxt" margin="10,20,0,0" width="120" colorText="#ffFFFF">00:00:00/00:00:00</text>
                       <imgbtn  skin="_skin.PLAY" name="AVPlayBtn" pos="|0, |0" 
 					  tip="开始播放或者暂停"
 					  offset="-0.5,-0.5"  focusable="0" width="37" height="37"/>
@@ -33,9 +33,9 @@ translucent="0"
 					  pos="]-10,26"
 					  offset="-0.5,-0.5" focusable="0" width="22" height="22">
 					  </button><!---->
-					  <sliderbar name="slider_video" thumbSkin="_skin.VOL_BLOCK" bkgndSkin="_skin.Vol_Bg"
+					  <sliderbar name="AvAudio" thumbSkin="_skin.VOL_BLOCK" bkgndSkin="_skin.Vol_Bg"
 					  posskin="_skin.Vol_Pre"
-					  thumbInRail="0" pos="]-100,19" alpha="200" width="100" height="15" value="10" min="0" max="100" />
+					  thumbInRail="0" pos="]-100,19" alpha="200" width="100" height="15" value="1000" min="0" max="1000" />
 					  
 					  <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
 					  pos="-60,26" offset="-0.5,-0.5"   colorText="#FFFFFF"

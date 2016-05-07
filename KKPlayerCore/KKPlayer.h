@@ -64,8 +64,10 @@ class KKPlayer
 			long GetVolume();
 			//暂停
 			void Pause();
-			//快进快退
+			//快进快退，相对
 			void KKSeek( SeekEnum en,int value);
+			//单位时间秒
+			void AVSeek(int value);
 			void InitSound();
 			MEDIA_INFO GetMediaInfo();
 public:

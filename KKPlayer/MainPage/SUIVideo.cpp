@@ -30,7 +30,20 @@ namespace SOUI
 			
 				return 0;
 		}/**/
+		
         return ll;
+	}
+	 void CSuiVideo::SetVolume(long value)
+	 {
+           m_VideoWnd.SetVolume(value);
+	 }
+	 void CSuiVideo::AvSeek(int value)
+	 {
+          m_VideoWnd.AvSeek(value);
+	 }
+	MEDIA_INFO   CSuiVideo::GetMeadiaInfo()
+	{
+       return     m_VideoWnd.GetMediaInfo();
 	}
 	void CSuiVideo::OnPaint(IRenderTarget *pRT)
 	{

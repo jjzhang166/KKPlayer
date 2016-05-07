@@ -684,6 +684,7 @@ void audio_callback(void *userdata, char *stream, int len)
 	//获取现在的时间
 	pVideoInfo->audio_callback_time = av_gettime_relative();
 	//Sleep(1);
+	bool Issilence=false;
 	while (len > 0) 
 	{
 		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
@@ -695,6 +696,7 @@ void audio_callback(void *userdata, char *stream, int len)
 				/* if error, just output silence */
 				pVideoInfo->audio_buf      = pVideoInfo->silence_buf;
 				pVideoInfo->audio_buf_size = sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
+				Issilence=true;
 			} else 
 			{
 				pVideoInfo->audio_buf_size = audio_size;
@@ -717,7 +719,13 @@ void audio_callback(void *userdata, char *stream, int len)
 		memcpy(stream, (uint8_t *)pVideoInfo->audio_buf + pVideoInfo->audio_buf_index, len1);
 		len -= len1;
 		stream += len1;
-		pVideoInfo->audio_buf_index += len1;
+		if(Issilence)
+		{
+			pVideoInfo->audio_buf_index += pVideoInfo->audio_buf_size;
+			Issilence=false;
+		}
+		else
+		  pVideoInfo->audio_buf_index += len1;
 	}
 	pVideoInfo->audio_write_buf_size = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 	if (!isNAN(pVideoInfo->audio_clock)) 

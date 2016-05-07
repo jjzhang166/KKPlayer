@@ -43,6 +43,7 @@ const std::basic_string<char>& XGetModuleFilenameA()
 	}
 	return g_strModuleFileNameA;
 }
+
 std::basic_string<char> GetModulePathA()
 {
 	std::basic_string<char> strModuleFileName = XGetModuleFilenameA();
@@ -193,8 +194,18 @@ void CMainFrame::UpdateLayout(BOOL bResizeBars)
 {
    	   
 }
-
-
+void  CMainFrame::AvSeek(int value)
+{
+	m_PlayerInstance.AVSeek(value);
+}
+void CMainFrame::SetVolume(long value)
+{
+	m_PlayerInstance.SetVolume(value);
+}
+MEDIA_INFO  CMainFrame::GetMediaInfo()
+{
+   return 	m_PlayerInstance.GetMediaInfo();
+}
 int CMainFrame::GetCurTime()
 {
 	return m_PlayerInstance.GetCurTime();
@@ -226,10 +237,7 @@ int  CMainFrame::OpenMedia(std::string url,OpenMediaEnum en,std::string FilePath
 	  m_bOpen=true;
 	return ret;
 }
-void CMainFrame::SetVolume(long value)
-{
-    m_PlayerInstance.SetVolume(value);
-}
+
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 

@@ -1,6 +1,8 @@
 #include "../stdafx.h"
 #include <core/swnd.h>
 #include "../MainFrm.h"
+#include "../../KKPlayerCore/IKKPlayUI.h"
+#include <string>
 #ifndef SUIVIDEO_H_
 #define SUIVIDEO_H_
 namespace SOUI
@@ -13,6 +15,9 @@ namespace SOUI
 		  ~CSuiVideo(void);
 		  int OpenMeida(const char *str);
 		  void SetPlayStat(int state);
+		  MEDIA_INFO GetMeadiaInfo();
+		  void SetVolume(long value);
+		  void AvSeek(int value);
 	  protected:
 		  CMainFrame m_VideoWnd;
 		  void OnDestroy();
@@ -23,6 +28,7 @@ namespace SOUI
 		  void OnMouseLeave();
          
 		  SOUI_MSG_MAP_BEGIN()
+			 
 			  MSG_WM_CREATE(OnCreate)
 			  MSG_WM_DESTROY(OnDestroy)
 			  MSG_WM_PAINT_EX(OnPaint)
