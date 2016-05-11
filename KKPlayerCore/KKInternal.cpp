@@ -10,6 +10,9 @@
 #include <assert.h>
 #include <time.h>
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
@@ -455,9 +458,9 @@ void audio_callback(void *userdata, char *stream, int len)
 	//Sleep(1);
 	bool Issilence=false;
 
-	char abcd[100]="";
-		sprintf(abcd,"\n START 上次剩余%d", pVideoInfo->audio_buf_size-pVideoInfo->audio_buf_index);
-	::OutputDebugStringA(abcd);
+	/*char abcd[100]="";
+	sprintf(abcd,"\n START 上次剩余%d", pVideoInfo->audio_buf_size-pVideoInfo->audio_buf_index);
+	::OutputDebugStringA(abcd);*/
 	while (len > 0) 
 	{
 		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
@@ -469,14 +472,14 @@ void audio_callback(void *userdata, char *stream, int len)
 			
 			if (audio_size < 0)
 			{
-				::OutputDebugStringA("silence");
+				//::OutputDebugStringA("silence");
 				pVideoInfo->audio_buf      = pVideoInfo->silence_buf;
 				pVideoInfo->audio_buf_size =512;// sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
 				Issilence=true;
 			} else 
 			{
 				
-				::OutputDebugStringA("data \n");
+				//::OutputDebugStringA("data \n");
 				pVideoInfo->audio_buf_size = audio_size;
 			}
 			pVideoInfo->audio_buf_index = 0;
@@ -1479,13 +1482,13 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 		aresample_swr_opts[strlen(aresample_swr_opts)-1] = '\0';
 	av_opt_set(is->AudioGraph, "aresample_swr_opts", aresample_swr_opts, 0);
 
-	ret = _snprintf(asrc_args, sizeof(asrc_args),
+	ret = snprintf(asrc_args, sizeof(asrc_args),
 		"sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d",
 		is->audio_filter_src.freq, av_get_sample_fmt_name(is->audio_filter_src.fmt),
 		is->audio_filter_src.channels,
 		1, is->audio_filter_src.freq);
 	if (is->audio_filter_src.channel_layout)
-		_snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
+		snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
 		":channel_layout=0x%d",  is->audio_filter_src.channel_layout);/**/
 
 	ret = avfilter_graph_create_filter(&filt_asrc,
@@ -1574,11 +1577,6 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	if (!frame)
 		return AVERROR(ENOMEM);
 
-	char *p=AV_STRINGIFY(VOLUME_VAL);
-	/*if ((ret = configure_audio_filters(is, "volume=0.9",1)) < 0)
-	{
-		assert(0);
-	}*/
 	
 	int64_t dec_channel_layout;
 	int reconfigure;

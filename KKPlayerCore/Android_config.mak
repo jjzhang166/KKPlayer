@@ -1,10 +1,12 @@
 ifndef KKPlayer_CONFIG_MAK
 FFMPEG_CONFIG_MAK=1
+#此处需要修改
 NDK_PATH=f:/android/android-sdk-windows/ndk-bundle
 ARM_LINUX_ANDROIDE_API=arm-linux-androideabi-4.9
 PLATFORMS=android-9
+#此处需要修改
 FFMPEGLib=f:/ProgramTool/OpenPro/KKPlayer/libarm/ffmpeg2.8.6/lib/
-BASELib=f:/android/android-sdk-windows/ndk-bundle/platforms/android-9/arch-arm/usr/lib
+BASELib=$(NDK_PATH)/platforms/android-9/arch-arm/usr/lib
 STLLib=$(NDK_PATH)/sources/cxx-stl/stlport/libs/armeabi/
 CFLAGS = -I$(NDK_PATH)\platforms\$(PLATFORMS)\arch-arm\usr\include -I$(NDK_PATH)/sources/cxx-stl/stlport/stlport -If:/ProgramTool/OpenPro/KKPlayer/libx86/ffmpeg/include
 #LDFLAGS = -L$(FFMPEGLib) -nostdlib
