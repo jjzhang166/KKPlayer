@@ -551,6 +551,7 @@ void TDStretch::calcSeqParameters()
 
     // Update seek window lengths
     seekWindowLength = (sampleRate * sequenceMs) / 1000;
+	seekWindowLength=512;
     if (seekWindowLength < 2 * overlapLength) 
     {
         seekWindowLength = 2 * overlapLength;
@@ -579,6 +580,7 @@ void TDStretch::setTempo(double newTempo)
     // process another batch of samples
     //sampleReq = max(intskip + overlapLength, seekWindowLength) + seekLength / 2;
     sampleReq = max(intskip + overlapLength, seekWindowLength) + seekLength;
+	//sampleReq=1024;
 }
 
 

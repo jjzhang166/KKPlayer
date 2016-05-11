@@ -161,6 +161,11 @@ void set_clock_at(SKK_Clock *c, double pts, int serial, double time)
 {
 	c->pts = pts;
 	c->last_updated = time;
+	if(c->clockType==3)
+	{   
+            int i=0;
+			i++;
+	}
 	c->pts_drift = c->pts - time;
 	c->serial = serial;
 }

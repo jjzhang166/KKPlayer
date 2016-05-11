@@ -322,7 +322,7 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 				{
                   start_time=vp->pts;
 				}
-				m_CurTime=vp->pts;-start_time;
+				m_CurTime=vp->pts;
 				if(DiffCurrent>=is->last_duration+is->delay || DiffCurrent<0.000000 || vp->pts<is->audio_clock||is->delay >20 )//
 				{
 					frame_queue_next(&is->pictq,false);
@@ -553,9 +553,13 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 		  ::DrawTextA(dc,t,strlen(t),&rt2,DT_CENTER);
 		}
 	}
+	RECT rt;
+	::GetClientRect(m_hwnd,&rt);
+	int www=rt.right-rt.left;
+	int hhh=rt.bottom-rt.top;
 	//¿½±´Í¼Ïñ
 	StretchDIBits(dc, 0,   0, 
-		w,   h, 
+		www,   hhh, 
 		0,   0, 
 		w,   h, 
 		buf, (BITMAPINFO*)&header,
@@ -646,6 +650,7 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 
 
 	init_clock(&pVideoInfo->vidclk, &pVideoInfo->videoq.serial);
+	pVideoInfo->vidclk.clockType=3;
 	init_clock(&pVideoInfo->audclk, &pVideoInfo->audioq.serial);
 	init_clock(&pVideoInfo->extclk, &pVideoInfo->extclk.serial);
 

@@ -75,6 +75,11 @@ public:
 		
 		//free(m_pixels);
     }
+
+	virtual void LoadCenterLogo(unsigned char* buf,int len)
+	{
+
+	}
 	virtual void renderBk(unsigned char* buf,int len)
 	{
 

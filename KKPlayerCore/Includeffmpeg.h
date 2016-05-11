@@ -9,6 +9,9 @@
 #include "stdafx.h"
 #ifndef Includeffmpeg_H_
 #define Includeffmpeg_H_
+#ifdef  WIN32
+#include <float.h>
+#endif
 //typedef unsigned char	Uint8;
 extern "C"
 {
@@ -87,6 +90,16 @@ extern "C"
 	#endif
 #endif
 }
+
+//F:\ProgramTool\OpenPro\KKPlayer\Debug\libx86
+#include "../soundtouch/include/SoundTouch.h"
+#ifdef WIN32
+	#ifdef _DEBUG
+		#pragma comment (lib,"..\\Debug\\libx86\\SoundTouch.lib")
+    #else
+        #pragma comment (lib,"..\\release\\libx86\\SoundTouch.lib")
+	#endif
+#endif
 
 #define MAX_QUEUE_SIZE (1024 * 1024 * 8)  //1048576*8   8M
 #define MIN_FRAMES 5

@@ -78,6 +78,7 @@ typedef struct SKK_Clock
 	double speed;
 	int serial;           /* clock is based on a packet with this serial */
 	int paused;
+	int clockType;
 	int *queue_serial;    /* pointer to the current packet queue serial, used for obsolete clock detection */
 } SKK_Clock;
 
