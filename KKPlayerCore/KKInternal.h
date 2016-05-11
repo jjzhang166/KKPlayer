@@ -33,9 +33,9 @@ int get_master_sync_type(SKK_VideoState *is);
 int frame_queue_nb_remaining(SKK_FrameQueue *f);
 SKK_Frame *frame_queue_peek_last(SKK_FrameQueue *f);
 SKK_Frame *frame_queue_peek(SKK_FrameQueue *f);
+SKK_Frame *frame_queue_peek_readable(SKK_FrameQueue *f);
 void frame_queue_unref_item(SKK_Frame *vp);
 void frame_queue_next(SKK_FrameQueue *f,bool NeedLock);
 double vp_duration(SKK_VideoState *is, SKK_Frame *vp, SKK_Frame *nextvp);
 /****ÒôÆµ»Øµ÷º¯Êý*****/
 void audio_callback(void *userdata, char *stream, int len);
-void audio_callback2(void *userdata, char *stream, int len);

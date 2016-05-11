@@ -23,6 +23,7 @@ extern "C"
 //#include <stdint.h>
 #include "../libx86/ffmpeg/include/libavutil/avutil.h"
 #include "../libx86/ffmpeg/include/libavutil/avstring.h"
+#include "../libx86/ffmpeg/include/libavutil/mem.h"
 #include "../libx86/ffmpeg/include/libavutil/intreadwrite.h"
 #include "../libx86/ffmpeg/include/libavutil/eval.h"
 #include "../libx86/ffmpeg/include/libavutil/mathematics.h"
@@ -91,15 +92,6 @@ extern "C"
 #endif
 }
 
-//F:\ProgramTool\OpenPro\KKPlayer\Debug\libx86
-#include "../soundtouch/include/SoundTouch.h"
-#ifdef WIN32
-	#ifdef _DEBUG
-		#pragma comment (lib,"..\\Debug\\libx86\\SoundTouch.lib")
-    #else
-        #pragma comment (lib,"..\\release\\libx86\\SoundTouch.lib")
-	#endif
-#endif
 
 #define MAX_QUEUE_SIZE (1024 * 1024 * 8)  //1048576*8   8M
 #define MIN_FRAMES 5

@@ -78,7 +78,6 @@ typedef struct SKK_Clock
 	double speed;
 	int serial;           /* clock is based on a packet with this serial */
 	int paused;
-	int clockType;
 	int *queue_serial;    /* pointer to the current packet queue serial, used for obsolete clock detection */
 } SKK_Clock;
 
@@ -133,10 +132,12 @@ enum EKK_AV_SYNC
 //解码
 typedef struct SKK_Decoder 
 {
+	//与队列中的serial对应
 	int pkt_serial;
 	int finished;
 	int packet_pending;	
 	
+	int Isflush;
 	AVCodecContext *avctx;	
 	/**线程信息**/
 	SKK_ThreadInfo decoder_tid;
@@ -202,6 +203,7 @@ typedef struct SKK_VideoState
 	int av_sync_type;
 
 	double audio_clock;
+	double Baseaudio_clock;
 	int audio_clock_serial;
 	/*********音频时间**************/
 	int64_t audio_callback_time;
@@ -212,8 +214,14 @@ typedef struct SKK_VideoState
 	IKKAudio *pKKAudio;
 
     /****音频过滤***/
-	AVFilterGraph *graph;
-	AVFilterContext *src, *sink;
+	AVFilterGraph *AudioGraph;
+	AVFilterContext *InAudioSrc, *OutAudioSink;
+    SKK_AudioParams audio_filter_src;
+	
+	//倍速
+    int AVRate;//0 不加速 1 0.5 倍 2 2陪
+	AVFilterGraph *AudioVolGraph;
+	AVFilterContext *AudioVolSrc, *AudioVolSink;
 	/***************************/
 	//原音频流
 	AVStream *audio_st;

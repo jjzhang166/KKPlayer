@@ -9,6 +9,7 @@
 #include <math.h>
 #include <assert.h>
 #include <time.h>
+
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
@@ -50,7 +51,7 @@ int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt)
 		return -1;
 	pkt1->pkt = *pkt;
 	pkt1->next = NULL;
-	if (pkt != flush_pkt)
+	if (pkt == flush_pkt)
 		q->serial++;
 	pkt1->serial = q->serial;
 
@@ -161,23 +162,14 @@ void set_clock_at(SKK_Clock *c, double pts, int serial, double time)
 {
 	c->pts = pts;
 	c->last_updated = time;
-	if(c->clockType==3)
-	{   
-            int i=0;
-			i++;
-	}
 	c->pts_drift = c->pts - time;
 	c->serial = serial;
 }
 
 void set_clock(SKK_Clock *c, double pts, int serial)
 {
-	if(c->serial!=serial)
-	{
 		double time = av_gettime_relative() / 1000000.0;
 		set_clock_at(c, pts, serial, time);
-	}
-	
 }
 
 void set_clock_speed(SKK_Clock *c, double speed)
@@ -298,386 +290,158 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 	f->mutex = new CKKLock();
 	f->pktq = pktq;
 	f->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
-	f->keep_last = !!keep_last;
+	f->keep_last = keep_last;
 	for (i = 0; i < f->max_size; i++)
 		if (!(f->queue[i].frame = av_frame_alloc()))
 			return AVERROR(ENOMEM);
 	return 0;
 }
 
-//音量调节
-#define VOLUME_VAL 1//0.90
-static int init_filter_graph(AVFilterGraph **graph, AVFilterContext **src,
-                             AVFilterContext **sink,int sample_rate,int nb_channels ,int channel_layout,AVSampleFormat sample_fmt)
-{
-    AVFilterGraph *filter_graph;
-    AVFilterContext *abuffer_ctx;
-    AVFilter        *abuffer;
-    AVFilterContext *volume_ctx;
-    AVFilter        *volume;
-    AVFilterContext *aformat_ctx;
-    AVFilter        *aformat;
-    AVFilterContext *abuffersink_ctx;
-    AVFilter        *abuffersink;
-
-    AVDictionary *options_dict = NULL;
-    uint8_t options_str[1024];
-    uint8_t ch_layout[64];
-
-    int err;
-
-    /* Create a new filtergraph, which will contain all the filters. */
-    filter_graph = avfilter_graph_alloc();
-    if (!filter_graph) {
-        fprintf(stderr, "Unable to create filter graph.\n");
-        return AVERROR(ENOMEM);
-    }
-
-    /* Create the abuffer filter;
-     * it will be used for feeding the data into the graph. */
-    abuffer = avfilter_get_by_name("abuffer");
-    if (!abuffer) {
-        fprintf(stderr, "Could not find the abuffer filter.\n");
-        return AVERROR_FILTER_NOT_FOUND;
-    }
-
-    abuffer_ctx = avfilter_graph_alloc_filter(filter_graph, abuffer, "src");
-    if (!abuffer_ctx) {
-        fprintf(stderr, "Could not allocate the abuffer instance.\n");
-        return AVERROR(ENOMEM);
-    }
-
-	 AVRational avr={ 1, 44100 };
-    /* Set the filter options through the AVOptions API. */
-    av_get_channel_layout_string((char*)ch_layout, sizeof(ch_layout), 0, channel_layout);
-    av_opt_set    (abuffer_ctx, "channel_layout",(char*)ch_layout,                            AV_OPT_SEARCH_CHILDREN);
-    av_opt_set    (abuffer_ctx, "sample_fmt",     av_get_sample_fmt_name(sample_fmt), AV_OPT_SEARCH_CHILDREN);
-    av_opt_set_q  (abuffer_ctx, "time_base",    avr ,  AV_OPT_SEARCH_CHILDREN);
-    av_opt_set_int(abuffer_ctx, "sample_rate",    sample_rate,                     AV_OPT_SEARCH_CHILDREN);
-
-    /* Now initialize the filter; we pass NULL options, since we have already
-     * set all the options above. */
-    err = avfilter_init_str(abuffer_ctx, NULL);
-    if (err < 0) {
-        fprintf(stderr, "Could not initialize the abuffer filter.\n");
-        return err;
-    }
-
-    /* Create volume filter. */
-    volume = avfilter_get_by_name("volume");
-    if (!volume) {
-        fprintf(stderr, "Could not find the volume filter.\n");
-        return AVERROR_FILTER_NOT_FOUND;
-    }
-
-    volume_ctx = avfilter_graph_alloc_filter(filter_graph, volume, "volume");
-    if (!volume_ctx) {
-        fprintf(stderr, "Could not allocate the volume instance.\n");
-        return AVERROR(ENOMEM);
-    }
-
-    /* A different way of passing the options is as key/value pairs in a
-     * dictionary. */
-    av_dict_set(&options_dict, "volume", AV_STRINGIFY(VOLUME_VAL), 0);
-    err = avfilter_init_dict(volume_ctx, &options_dict);
-    av_dict_free(&options_dict);
-    if (err < 0) {
-        fprintf(stderr, "Could not initialize the volume filter.\n");
-        return err;
-    }
-
-    /* Create the aformat filter;
-     * it ensures that the output is of the format we want. */
-    aformat = avfilter_get_by_name("aformat");
-    if (!aformat) {
-        fprintf(stderr, "Could not find the aformat filter.\n");
-        return AVERROR_FILTER_NOT_FOUND;
-    }
-
-    aformat_ctx = avfilter_graph_alloc_filter(filter_graph, aformat, "aformat");
-    if (!aformat_ctx) {
-        fprintf(stderr, "Could not allocate the aformat instance.\n");
-        return AVERROR(ENOMEM);
-    }
-
-    /* A third way of passing the options is in a string of the form//
-     * key1=value1:key2=value2.... */
-    sprintf((char*)options_str, 
-             "sample_fmts=%s:sample_rates=%d:channel_layouts=0x%d",
-             av_get_sample_fmt_name(AV_SAMPLE_FMT_S16), 44100,
-            2);// (uint64_t)AV_CH_LAYOUT_STEREO);
-    err = avfilter_init_str(aformat_ctx,(char*) options_str);
-    if (err < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Could not initialize the aformat filter.\n");
-        return err;
-    }
-
-    /* Finally create the abuffersink filter;
-     * it will be used to get the filtered data out of the graph. */
-    abuffersink = avfilter_get_by_name("abuffersink");
-    if (!abuffersink) {
-        fprintf(stderr, "Could not find the abuffersink filter.\n");
-        return AVERROR_FILTER_NOT_FOUND;
-    }
-
-    abuffersink_ctx = avfilter_graph_alloc_filter(filter_graph, abuffersink, "sink");
-    if (!abuffersink_ctx) {
-        fprintf(stderr, "Could not allocate the abuffersink instance.\n");
-        return AVERROR(ENOMEM);
-    }
-
-    /* This filter takes no options. */
-    err = avfilter_init_str(abuffersink_ctx, NULL);
-    if (err < 0) {
-        fprintf(stderr, "Could not initialize the abuffersink instance.\n");
-        return err;
-    }
-
-    /* Connect the filters;
-     * in this simple case the filters just form a linear chain. */
-    err = avfilter_link(abuffer_ctx, 0, volume_ctx, 0);
-    if (err >= 0)
-        err = avfilter_link(volume_ctx, 0, aformat_ctx, 0);
-    if (err >= 0)
-        err = avfilter_link(aformat_ctx, 0, abuffersink_ctx, 0);
-    if (err < 0) {
-        fprintf(stderr, "Error connecting filters\n");
-        return err;
-    }
-
-    /* Configure the graph. */
-    err = avfilter_graph_config(filter_graph, NULL);
-    if (err < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Error configuring the filter graph\n");
-        return err;
-    }
-
-    *graph = filter_graph;
-    *src   = abuffer_ctx;
-    *sink  = abuffersink_ctx;
-
-    return 0;
-}
-//解码音频
-int audio_decode_frame( SKK_VideoState *pVideoInfo) 
-{  
+//音频填充回调
+int audio_fill_frame( SKK_VideoState *pVideoInfo) 
+{ 
     int n=0;
 	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
-	AVPacket pkt;
-	memset(&pkt,0,sizeof(pkt));
+	SKK_VideoState *is=pVideoInfo;
     int audio_pkt_size = 0;
-	AVFrame frame;
-	memset(&frame,0,sizeof(frame));
+	
     int64_t dec_channel_layout;
 	int len1, resampled_data_size, data_size = 0;
     int wanted_nb_samples;
 
-	for(;;) 
-	{
-		while(audio_pkt_size > 0) 
-		{
-			//AV_BUFFERSRC_FLAG_KEEP_REF
-			int got_frame = 0;//av_frame_free
-			len1 = avcodec_decode_audio4(aCodecCtx, &frame, &got_frame, &pkt);
-			if(len1 < 0) 
-			{
-				/* if error, skip frame */
-				audio_pkt_size = 0;
-				break;
-			}
-			audio_pkt_size -= len1;
-			if(audio_pkt_size>0)
-			{
-				assert(0);
-			}
-			data_size=0;
-			if(got_frame) 
-			{
-					
-				if(0)
-				{/* Send the frame to the input of the filtergraph. */
-							int err = av_buffersrc_add_frame(pVideoInfo->src, &frame);
-							if (err < 0) 
-							{
-								av_frame_unref(&frame);
-								return -1;
-							}
- /* Get all the filtered output that is available. */
-							err = av_buffersink_get_frame(pVideoInfo->sink, &frame);
-							if(err<0)
-							{
-								av_frame_unref(&frame);
-								return -1;
-							}
+	AVFrame *frame=NULL;
+	SKK_Frame *af;
+	
+	is->sampq.mutex->Lock();
+	
 
-			     }
-							data_size = av_samples_get_buffer_size(NULL, aCodecCtx->channels,frame.nb_samples,(AVSampleFormat)frame.format,1);
+	if(frame_queue_nb_remaining(&is->sampq) == 0) 
+	{
+		is->sampq.mutex->Unlock();
+		return -1;
+	}
+	
+	af = frame_queue_peek(&is->sampq);
+		
+	
+	
+	frame=af->frame;
+
+	//音频转化
+	data_size = av_samples_get_buffer_size(NULL, aCodecCtx->channels,frame->nb_samples,(AVSampleFormat)frame->format,1);
 							dec_channel_layout =
-								(frame.channel_layout && av_frame_get_channels(&frame) == av_get_channel_layout_nb_channels(frame.channel_layout)) ?
-								 frame.channel_layout : av_get_default_channel_layout(av_frame_get_channels(&frame));
-							AVSampleFormat bc=(AVSampleFormat)frame.format;
-							
-							wanted_nb_samples = synchronize_audio(pVideoInfo, frame.nb_samples);
-							
+								(frame->channel_layout && av_frame_get_channels(frame) == av_get_channel_layout_nb_channels(frame->channel_layout)) ?
+								 frame->channel_layout : av_get_default_channel_layout(av_frame_get_channels(frame));
+	AVSampleFormat bc=(AVSampleFormat)frame->format;
+    wanted_nb_samples = synchronize_audio(pVideoInfo, frame->nb_samples);
+	if (
+		 frame->format        != pVideoInfo->audio_src.fmt            ||
+		 dec_channel_layout       != pVideoInfo->audio_src.channel_layout ||
+		 frame->sample_rate   != pVideoInfo->audio_src.freq           ||
+		 (wanted_nb_samples       != frame->nb_samples && !pVideoInfo->swr_ctx)
+		 ) 
+	 {	
+			  swr_free(&pVideoInfo->swr_ctx);
+			  pVideoInfo->swr_ctx =swr_alloc_set_opts(NULL,
+				  pVideoInfo->audio_tgt.channel_layout, pVideoInfo->audio_tgt.fmt,pVideoInfo->audio_tgt.freq,
+				  dec_channel_layout,           (AVSampleFormat)frame->format, frame->sample_rate,
+				  0, NULL);
 
-							 if (
-								 frame.format        != pVideoInfo->audio_src.fmt            ||
-								 dec_channel_layout       != pVideoInfo->audio_src.channel_layout ||
-								 frame.sample_rate   != pVideoInfo->audio_src.freq           ||
-								 (wanted_nb_samples       != frame.nb_samples && !pVideoInfo->swr_ctx)
-								 ) 
-							 {	
-									  swr_free(&pVideoInfo->swr_ctx);
-									 /* pVideoInfo->swr_ctx =swr_alloc();
-									  av_opt_set_int(pVideoInfo->swr_ctx, "ich", frame.channels, 0);
-									  av_opt_set_int(pVideoInfo->swr_ctx, "och", pVideoInfo->audio_tgt.channels, 0);
-									  av_opt_set_int(pVideoInfo->swr_ctx, "in_sample_rate",  frame.sample_rate, 0);
-									  av_opt_set_int(pVideoInfo->swr_ctx, "out_sample_rate",  pVideoInfo->audio_tgt.freq, 0);
-									  av_opt_set_sample_fmt(pVideoInfo->swr_ctx, "in_sample_fmt", (AVSampleFormat)frame.format, 0);
-									  av_opt_set_sample_fmt(pVideoInfo->swr_ctx, "out_sample_fmt", pVideoInfo->audio_tgt.fmt, 0);*/
-									  pVideoInfo->swr_ctx =swr_alloc_set_opts(NULL,
-										  pVideoInfo->audio_tgt.channel_layout, pVideoInfo->audio_tgt.fmt,pVideoInfo->audio_tgt.freq,
-										  dec_channel_layout,           (AVSampleFormat)frame.format, frame.sample_rate,
-										  0, NULL);
-
-									 if (!pVideoInfo->swr_ctx || swr_init(pVideoInfo->swr_ctx) < 0) 
-									 {
-										 swr_free(&pVideoInfo->swr_ctx);
-										 return -1;
-									 }
-									 pVideoInfo->audio_src.channel_layout = dec_channel_layout;
-									 pVideoInfo->audio_src.channels       = av_frame_get_channels(&frame);
-									 pVideoInfo->audio_src.freq =frame.sample_rate;
-									 pVideoInfo->audio_src.fmt = (AVSampleFormat)frame.format;
-							 }
+			 if (!pVideoInfo->swr_ctx || swr_init(pVideoInfo->swr_ctx) < 0) 
+			 {
+				 swr_free(&pVideoInfo->swr_ctx);
+				 pVideoInfo->swr_ctx=NULL;
+			 }
+			 pVideoInfo->audio_src.channel_layout = dec_channel_layout;
+			 pVideoInfo->audio_src.channels       = av_frame_get_channels(frame);
+			 pVideoInfo->audio_src.freq =frame->sample_rate;
+			 pVideoInfo->audio_src.fmt = (AVSampleFormat)frame->format;
+	 }
 
 
-							 if (pVideoInfo->swr_ctx) 
-							 {
-								 //数据指针  &frame.data[0];//
-								 const uint8_t **inextended_data = (const uint8_t **)frame.extended_data;
-								 
-								 int out_count = (int64_t)wanted_nb_samples * pVideoInfo->audio_tgt.freq / frame.sample_rate + 256;
-								 //输出大小
-								 int out_size  = av_samples_get_buffer_size(NULL, pVideoInfo->audio_tgt.channels, out_count, pVideoInfo->audio_tgt.fmt, 0);
-								 int len2;
-								 if (out_size < 0) 
-								 {
-									// av_log(NULL, AV_LOG_ERROR, "av_samples_get_buffer_size() failed\n");
-									 return -1;
-								 }
-								 if (wanted_nb_samples != frame.nb_samples) 
-								 {
-									 if (swr_set_compensation(pVideoInfo->swr_ctx, (wanted_nb_samples - frame.nb_samples) * pVideoInfo->audio_tgt.freq / frame.sample_rate,
-										 wanted_nb_samples * pVideoInfo->audio_tgt.freq / frame.sample_rate) < 0) 
-									 {
-											// av_log(NULL, AV_LOG_ERROR, "swr_set_compensation() failed\n");
-											 return -1;
-									 }
-								 }
-								
-								
-								 //分配内存
-								 av_fast_malloc(&pVideoInfo->audio_buf1, &pVideoInfo->audio_buf_size, out_size);
-								
-								 if (!pVideoInfo->audio_buf1)
-								 {
-									 return AVERROR(ENOMEM);
-								 }
-								 memset(pVideoInfo->audio_buf1,0,out_size);
+	 if (pVideoInfo->swr_ctx) 
+	 {
+		 //数据指针  &frame.data[0];//
+		 const uint8_t **inextended_data = (const uint8_t **)frame->extended_data;
+		 
+		 int out_count = (int64_t)wanted_nb_samples * pVideoInfo->audio_tgt.freq / frame->sample_rate + 256;
+		 //输出大小
+		 int out_size  = av_samples_get_buffer_size(NULL, pVideoInfo->audio_tgt.channels, out_count, pVideoInfo->audio_tgt.fmt, 0);
+		 int len2;
+		 if (out_size < 0) 
+		 {
+			// av_log(NULL, AV_LOG_ERROR, "av_samples_get_buffer_size() failed\n");
+			 return -1;
+		 }
+		 if (wanted_nb_samples != frame->nb_samples) 
+		 {
+			 if (swr_set_compensation(pVideoInfo->swr_ctx, (wanted_nb_samples - frame->nb_samples) * pVideoInfo->audio_tgt.freq / frame->sample_rate,
+				 wanted_nb_samples * pVideoInfo->audio_tgt.freq / frame->sample_rate) < 0) 
+			 {
+					assert(0);
+			 }
+		 }
+		
+		
+		 //分配内存
+		 av_fast_malloc(&pVideoInfo->audio_buf1, &pVideoInfo->audio_buf_size, out_size);
+		
+		 if (!pVideoInfo->audio_buf1)
+		 {
+			 return AVERROR(ENOMEM);
+		 }
+		 memset(pVideoInfo->audio_buf1,0,out_size);
 
-								 //输出地址
-								 uint8_t **OutData = &pVideoInfo->audio_buf1;
+		 //输出地址
+		 uint8_t **OutData = &pVideoInfo->audio_buf1;
 
-								int ll=out_size / pVideoInfo->audio_tgt.channels  / av_get_bytes_per_sample(pVideoInfo->audio_tgt.fmt);
-								 //音频转化
-								 len2 = swr_convert(
-									                  pVideoInfo->swr_ctx, 
-													  OutData,               out_count, 
-									                  inextended_data, frame.nb_samples);
-								 if (len2 < 0) 
-								 {
-									 //av_log(NULL, AV_LOG_ERROR, "swr_convert() failed\n");
-									 return -1;
-								 }
-								 if (len2 >= out_count) 
-								 {
-									 //av_log(NULL, AV_LOG_WARNING, "audio buffer is probably too small\n");
-									 if (swr_init(pVideoInfo->swr_ctx) < 0)
-										 swr_free(&pVideoInfo->swr_ctx);
-								 }
-								 pVideoInfo->audio_buf = pVideoInfo->audio_buf1;
+		int ll=out_size / pVideoInfo->audio_tgt.channels  / av_get_bytes_per_sample(pVideoInfo->audio_tgt.fmt);
+		 //音频转化
+		 len2 = swr_convert(
+			                  pVideoInfo->swr_ctx, 
+							  OutData,               out_count, 
+			                  inextended_data, frame->nb_samples);
+		 
+		 if (len2 >= out_count) 
+		 {
+			 //av_log(NULL, AV_LOG_WARNING, "audio buffer is probably too small\n");
+			 if (swr_init(pVideoInfo->swr_ctx) < 0)
+				 swr_free(&pVideoInfo->swr_ctx);
+		 }
 
-								 resampled_data_size = len2 *pVideoInfo->audio_tgt.channels * av_get_bytes_per_sample(pVideoInfo->audio_tgt.fmt);							
-							 }else 
-							 {
-								 resampled_data_size = data_size;
-								 memcpy(pVideoInfo->audio_buf1,frame.data[0],data_size);
-								 pVideoInfo->audio_buf = pVideoInfo->audio_buf1;
-							 }
-							  av_frame_unref(&frame);
+		
+		 pVideoInfo->audio_buf =(uint8_t *)pVideoInfo->audio_buf1;
+		 resampled_data_size = len2 *pVideoInfo->audio_tgt.channels * av_get_bytes_per_sample(pVideoInfo->audio_tgt.fmt);
+		 data_size=resampled_data_size;
 
-			}
-			if(data_size <= 0) 
-			{
-				/* No data yet, get more frames */
-				continue;
-			}
-			n = 2 * pVideoInfo->auddec.avctx->channels;
-			pVideoInfo->audio_clock += (double)data_size /(double)(n * pVideoInfo->auddec.avctx->sample_rate);
+	 }else if(data_size>=0)
+	 {
+		 resampled_data_size = data_size;
+		 //分配内存
+		 av_fast_malloc(&pVideoInfo->audio_buf1, &pVideoInfo->audio_buf_size, data_size);
+		
+		 pVideoInfo->audio_buf = pVideoInfo->audio_buf1;
+	 }
 
-			if(pkt.data)
-			{
-				av_free_packet(&pkt);
-				pkt.data=NULL;
-			}
-			return resampled_data_size;
-		}
-		if(pkt.data)
-		{
-			av_free_packet(&pkt);
-		}
-        av_frame_unref(&frame);
-		if(quit) 
-		{
-			return -1;
-		}
+	 if (!isNAN(af->pts))
+	 {
+		/* n = 2 * pVideoInfo->auddec.avctx->channels;
+		 pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);*/
+	     is->audio_clock = af->pts + (double) af->frame->nb_samples / af->frame->sample_rate;
+	 }
+	 else
+		 is->audio_clock = NAN;
 
-		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) < 0) 
-		{
-			return -1;
-		}
-		audio_pkt_size = pkt.size;
-
-		/*if (!isNAN(frame.pts))
-			  pVideoInfo->audio_clock = pkt.pts + (double) frame.nb_samples / frame.sample_rate;
-		else*/
-		if(pkt.pts != AV_NOPTS_VALUE) 
-              pVideoInfo->audio_clock = av_q2d(pVideoInfo->audio_st->time_base)*pkt.pts;
-
-		if ((av_gettime_relative() - pVideoInfo->audio_callback_time) > 1000000LL * pVideoInfo->audio_hw_buf_size / pVideoInfo->audio_tgt.bytes_per_sec / 2)
-		    return -1;	
-	}
+	frame_queue_next(&is->sampq,false);
+	is->sampq.mutex->Unlock();
+	return data_size;
 }
-void audio_callback2(void *userdata, char *stream, int len)
-{
-    //return;  
-   audio_callback(userdata, stream,len);
-}
-void sdl_audio_callback(void *userdata, char *stream, int len)
-{
-	//audio_callback(userdata, stream,len);
-	//return;
-    while(1)
-	{
-	   Sleep(10000);
-	}
-}
+
 
 /* prepare a new audio buffer */
-/*******此处有bug********/
 void audio_callback(void *userdata, char *stream, int len)
 {
+	//return;
 	SKK_VideoState *pVideoInfo=(SKK_VideoState *)userdata;
 	memset(stream,0,len);
 	if (pVideoInfo->paused)
@@ -690,47 +454,57 @@ void audio_callback(void *userdata, char *stream, int len)
 	pVideoInfo->audio_callback_time = av_gettime_relative();
 	//Sleep(1);
 	bool Issilence=false;
+
+	char abcd[100]="";
+		sprintf(abcd,"\n START 上次剩余%d", pVideoInfo->audio_buf_size-pVideoInfo->audio_buf_index);
+	::OutputDebugStringA(abcd);
 	while (len > 0) 
 	{
 		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
 		{
-			audio_size = audio_decode_frame(pVideoInfo);
+			while(!audio_size)
+			{
+                audio_size = audio_fill_frame(pVideoInfo);
+			}
+			
 			if (audio_size < 0)
 			{
-				//printf("silence_buf\n");
-				/* if error, just output silence */
+				::OutputDebugStringA("silence");
 				pVideoInfo->audio_buf      = pVideoInfo->silence_buf;
-				pVideoInfo->audio_buf_size = sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
+				pVideoInfo->audio_buf_size =512;// sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
 				Issilence=true;
 			} else 
 			{
+				
+				::OutputDebugStringA("data \n");
 				pVideoInfo->audio_buf_size = audio_size;
 			}
 			pVideoInfo->audio_buf_index = 0;
 		}
 		len1 = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 
-#ifdef WIN32_KK
-		if(audio_size>0){
-		char abcd[100]="";
-		sprintf(abcd,"\n slen:%d, len：%d,len1:%d",slen,len,len1);
-		::OutputDebugStringA(abcd);
-		}
-#endif
-		
-
 		if (len1 > len)
 			len1 = len;
+
 		memcpy(stream, (uint8_t *)pVideoInfo->audio_buf + pVideoInfo->audio_buf_index, len1);
 		len -= len1;
 		stream += len1;
 		if(Issilence)
 		{
 			pVideoInfo->audio_buf_index += pVideoInfo->audio_buf_size;
-			//Issilence=false;
 		}
 		else
 		  pVideoInfo->audio_buf_index += len1;
+
+
+#ifdef WIN32_KK
+		sprintf(abcd,"\n 拷贝len：%d,目标:%d",len1,pVideoInfo->audio_buf_size );
+		::OutputDebugStringA(abcd);
+
+		sprintf(abcd,"\n 缓存:%d,剩余缓存%d",slen,len);
+		::OutputDebugStringA(abcd);
+#endif
+	
 	}
 	pVideoInfo->audio_write_buf_size = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 	if (!isNAN(pVideoInfo->audio_clock)) 
@@ -919,13 +693,6 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 							sample_rate    = avctx->sample_rate;
 							nb_channels    = avctx->channels;
 							channel_layout = avctx->channel_layout;
-							
-							/* Set up the filtergraph. */
-							ret = init_filter_graph(&is->graph, &is->src, &is->sink,sample_rate, nb_channels ,channel_layout ,avctx->sample_fmt);
-							if (ret < 0) 
-							{
-								//fprintf(stderr, "Unable to init filter graph:");
-							}
 							/* prepare audio output */
 							if ((ret = audio_open2(is, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) < 0)
 							{
@@ -990,25 +757,7 @@ fail:
 
 
 
-//音频解码线程
-unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
-{
-	
-	//return 1;
-	SKK_VideoState *pIs=(SKK_VideoState *)lpParameter;
-	if(pIs->pKKAudio!=NULL)
-	{
-		pIs->pKKAudio->Start();
-		while(!pIs->abort_request && pIs->pKKAudio!=NULL)
-		{
-			//LOGE("ReadAudio");
-			pIs->pKKAudio->ReadAudio();
-		}
-	}
-	LOGE("Audio_Thread over");
-	pIs->auddec.decoder_tid.ThOver=true;
-	return 1;
-}
+
 //字幕线程
 unsigned __stdcall  Subtitle_thread(LPVOID lpParameter)
 {
@@ -1066,6 +815,28 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 
 	return &f->queue[f->windex];
 }
+
+SKK_Frame *frame_queue_peek_readable(SKK_FrameQueue *f)
+{
+	f->mutex->Lock();
+	bool mm=true;
+	if(f->size >= f->max_size &&
+		!f->pktq->abort_request) 
+	{
+		f->m_pWaitCond->ResetCond();
+		f->mutex->Unlock();
+		mm=false;
+		f->m_pWaitCond->WaitCond(1);
+	}
+	if(mm)
+		f->mutex->Unlock();
+
+	if (f->pktq->abort_request)
+		return NULL;
+
+	return &f->queue[(f->rindex + f->rindex_shown) % f->max_size];
+}
+
 /********可写入的位置*******/
 SKK_Frame *frame_queue_peek(SKK_FrameQueue *f)
 {
@@ -1127,7 +898,7 @@ SKK_Frame *frame_queue_peek_next(SKK_FrameQueue *f)
 
 double vp_duration(SKK_VideoState *is, SKK_Frame *vp, SKK_Frame *nextvp) 
 {
-	if (vp->serial != nextvp->serial) 
+	if (vp->serial == nextvp->serial) 
 	{
 		double duration = nextvp->pts - vp->pts;
 		if (isNAN(duration) || duration <= 0 || duration > is->max_frame_duration)
@@ -1161,7 +932,11 @@ double compute_target_delay(double delay, SKK_VideoState *is)
 		double b=get_master_clock(is);
         diff =  a- b;
         if(diff<0)
-			return diff;
+		{
+			int i=0;
+			i++;
+			//return diff;/**/
+		}
         /* skip or repeat frame. We take into account the
            delay to compute the threshold. I still don't know
            if it is the best guess */
@@ -1357,6 +1132,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	vp->pos=pos;
 	vp->serial=serial;
 	vp->pts=pts;
+
 	if( !vp->buffer || 
 		vp->width != pFrame->width ||
 		vp->height != pFrame->height) 
@@ -1460,6 +1236,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
             vp->buffer=buffer;
 		    vp->width=is->DestWidth;
 		    vp->height=is->DestHeight;
+			
 	}
    	pPictq->mutex->Unlock();
 
@@ -1488,66 +1265,78 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	for(;;)  
 	{
 		    if(is->abort_request)
-			{//
+			{
 				//LOGE("Video_thread break");
                 break;
-			}
-				
+			}	
 			//获取包
 			//LOGE("Get video pkt");
 			if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) < 0)  
 			{  
 			   // means we quit getting packets  
-				Sleep(20);
+				Sleep(2);
 				continue;
 			}  
-			//LOGE("Get video pkt Ok");
-			pts = 0; 
-
+		
 
 			SKK_Decoder* d=&is->viddec;
 			d->pts=packet->pts;
 			d->dts=packet->dts;
 			d->current_pts_time=av_gettime();
-			
-			time_t t_start, t_end;
-			t_start = time(NULL) ;
-			
-			
-			//视频解码
-			ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
-			
-			t_end = time(NULL) ;
-			//LOGE("de time:%f",difftime(t_end,t_start));
-			
-			// 
-			//找到pts
-			if((pts = av_frame_get_best_effort_timestamp(pFrame)) == AV_NOPTS_VALUE) 
+			if (packet->data != is->pflush_pkt->data&&is->videoq.serial==is->viddec.pkt_serial) 
 			{
-				pts = 0;
-			}
-			pts *= av_q2d(is->video_st->time_base);
-            AVRational  fun={frame_rate.den, frame_rate.num};
-			is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
+					//LOGE("Get video pkt Ok");
+					pts = 0; 
+					
+					time_t t_start, t_end;
+					t_start = time(NULL) ;
+					
+					//视频解码
+					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
+					t_end = time(NULL) ;
+					//LOGE("de time:%f",difftime(t_end,t_start));
+					
+					// 
+					//找到pts
+					if((pts = av_frame_get_best_effort_timestamp(pFrame)) == AV_NOPTS_VALUE) 
+					{
+						pts = 0;
+					}
+					if(is->AVRate==0)
+					{
+						pts*=2;
+					}/**/
+					pts *= av_q2d(is->video_st->time_base);
 
-		    //LOGE("Video_thread got_frame=%d",got_frame);
-			// Did we get a video frame?  
-			if(got_frame)  
-			{  
-				//pts = synchronize_video(is, pFrame, pts);  
-				
-				t_start = time(NULL) ;
-				//LOGE("Get pic");
-				if(queue_picture(is, pFrame, pts, is->duration , av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
-				{  
-					//break;  
-				}  
-				t_end = time(NULL) ;
-			//	LOGE("queue_picture time:%f",difftime(t_end,t_start));
-				//LOGE("Get pic Ok");
-				 av_frame_unref(pFrame);
+					
+
+					AVRational  fun={frame_rate.den, frame_rate.num};
+					is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
+
+					//LOGE("Video_thread got_frame=%d",got_frame);
+					// Did we get a video frame?  
+					if(got_frame)  
+					{  
+						//pts = synchronize_video(is, pFrame, pts);  
+						
+						t_start = time(NULL) ;
+						//LOGE("Get pic");
+						if(queue_picture(is, pFrame, pts, is->duration , av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
+						{  
+							//break;  
+						}  
+						t_end = time(NULL) ;
+					//	LOGE("queue_picture time:%f",difftime(t_end,t_start));
+						//LOGE("Get pic Ok");
+						 av_frame_unref(pFrame);
+					}
+			}else
+			{
+				avcodec_flush_buffers(d->avctx);
+				d->finished = 0;
+				d->next_pts = d->start_pts;
+				d->next_pts_tb = d->start_pts_tb;
 			}
-			
 			
 			av_free_packet(packet);  
 	}
@@ -1558,6 +1347,352 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	return 0;
 }
 
+
+//解码音频
+int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame) 
+{  
+    int n=0;
+	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
+	AVPacket pkt;
+	memset(&pkt,0,sizeof(pkt));
+    int audio_pkt_size = 0;
+	
+    int64_t dec_channel_layout;
+	int len1, resampled_data_size, data_size = 0;
+    int wanted_nb_samples;
+
+	
+		
+    int got_frame = 0;
+	do
+	{
+		//从队列获取数据
+		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) < 0) 
+		{
+			Sleep(1);
+		}else
+		{
+
+			if (pkt.data == pVideoInfo->pflush_pkt->data)
+			{
+				avcodec_flush_buffers(pVideoInfo->auddec.avctx);
+				pVideoInfo->auddec.Isflush=1;
+				pVideoInfo->auddec.finished = 0;
+				
+			}else{
+				audio_pkt_size=pkt.size;
+		        len1 = avcodec_decode_audio4(aCodecCtx, frame, &got_frame, &pkt);
+				if(got_frame>0)
+				{
+						
+				}
+				frame->pts = pkt.pts;
+			}	
+		}
+		
+	}while(!got_frame&&pVideoInfo->audioq.serial==pVideoInfo->auddec.pkt_serial);
+	if(pkt.data)
+	{
+		av_free_packet(&pkt);
+		pkt.data=NULL;
+	}
+	
+	return got_frame;
+}
+
+static int configure_filtergraph(AVFilterGraph *graph, const char *filtergraph,
+								 AVFilterContext *source_ctx, AVFilterContext *sink_ctx)
+{
+	int ret, i;
+	int nb_filters = graph->nb_filters;
+	AVFilterInOut *outputs = NULL, *inputs = NULL;
+
+	if (filtergraph) {
+		outputs = avfilter_inout_alloc();
+		inputs  = avfilter_inout_alloc();
+		if (!outputs || !inputs) {
+			ret = AVERROR(ENOMEM);
+			goto fail;
+		}
+
+		outputs->name       = av_strdup("in");
+		outputs->filter_ctx = source_ctx;
+		outputs->pad_idx    = 0;
+		outputs->next       = NULL;
+
+		inputs->name        = av_strdup("out");
+		inputs->filter_ctx  = sink_ctx;
+		inputs->pad_idx     = 0;
+		inputs->next        = NULL;
+
+		if ((ret = avfilter_graph_parse_ptr(graph, filtergraph, &inputs, &outputs, NULL)) < 0)
+			goto fail;
+	} else {
+		if ((ret = avfilter_link(source_ctx, 0, sink_ctx, 0)) < 0)
+			goto fail;
+	}
+
+	/* Reorder the filters to ensure that inputs of the custom filters are merged first */
+	for (i = 0; i < graph->nb_filters - nb_filters; i++)
+		FFSWAP(AVFilterContext*, graph->filters[i], graph->filters[i + nb_filters]);
+
+	ret = avfilter_graph_config(graph, NULL);
+fail:
+	avfilter_inout_free(&outputs);
+	avfilter_inout_free(&inputs);
+	return ret;
+}
+
+static void ffp_show_dict(const char *tag, AVDictionary *dict)
+{
+	AVDictionaryEntry *t = NULL;
+
+	while ((t = av_dict_get(dict, "", t, AV_DICT_IGNORE_SUFFIX))) 
+	{
+		
+	}
+}
+static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int force_output_format)
+{
+	static  enum AVSampleFormat sample_fmts[] = { AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE };
+	int sample_rates[2] = { 0, -1 };
+	int64_t channel_layouts[2] = { 0, -1 };
+	int channels[2] = { 0, -1 };
+	AVFilterContext *filt_asrc = NULL, *filt_asink = NULL;
+	char aresample_swr_opts[512] = "";
+	AVDictionaryEntry *e = NULL;
+	char asrc_args[256];
+	memset(asrc_args,0,256);
+	int ret;
+
+	avfilter_graph_free(&is->AudioGraph);
+
+	if (!(is->AudioGraph= avfilter_graph_alloc()))
+		return AVERROR(ENOMEM);
+
+
+	AVDictionary *swr_opts=NULL;
+    ffp_show_dict("swr-opts   ", swr_opts);
+	while ((e = av_dict_get(swr_opts, "", e, AV_DICT_IGNORE_SUFFIX)))
+		av_strlcatf(aresample_swr_opts, sizeof(aresample_swr_opts), "%s=%s:", e->key, e->value);/**/
+	if (strlen(aresample_swr_opts))
+		aresample_swr_opts[strlen(aresample_swr_opts)-1] = '\0';
+	av_opt_set(is->AudioGraph, "aresample_swr_opts", aresample_swr_opts, 0);
+
+	ret = _snprintf(asrc_args, sizeof(asrc_args),
+		"sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d",
+		is->audio_filter_src.freq, av_get_sample_fmt_name(is->audio_filter_src.fmt),
+		is->audio_filter_src.channels,
+		1, is->audio_filter_src.freq);
+	if (is->audio_filter_src.channel_layout)
+		_snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
+		":channel_layout=0x%d",  is->audio_filter_src.channel_layout);/**/
+
+	ret = avfilter_graph_create_filter(&filt_asrc,
+		avfilter_get_by_name("abuffer"), "ffplay_abuffer",
+		asrc_args, NULL, is->AudioGraph);
+	if (ret < 0)
+		goto end;
+
+
+	ret = avfilter_graph_create_filter(&filt_asink,
+		avfilter_get_by_name("abuffersink"), "ffplay_abuffersink",
+		NULL, NULL, is->AudioGraph);
+	if (ret < 0)
+		goto end;
+
+	if ((ret = av_opt_set_int_list(filt_asink, "sample_fmts", sample_fmts,  AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0)
+		goto end;
+	if ((ret = av_opt_set_int(filt_asink, "all_channel_counts", 1, AV_OPT_SEARCH_CHILDREN)) < 0)
+		goto end;
+
+	if (force_output_format) {
+		channel_layouts[0] = is->audio_filter_src.channel_layout;
+		channels       [0] = is->audio_filter_src.channels;
+		sample_rates   [0] = is->audio_filter_src.freq;
+		sample_fmts[0]=is->audio_filter_src.fmt;
+		if ((ret = av_opt_set_int(filt_asink, "all_channel_counts", 0, AV_OPT_SEARCH_CHILDREN)) < 0)
+			goto end;
+		if ((ret = av_opt_set_int_list(filt_asink, "channel_layouts", channel_layouts,  -1, AV_OPT_SEARCH_CHILDREN)) < 0)
+			goto end;
+		if ((ret = av_opt_set_int_list(filt_asink, "channel_counts" , channels       ,  -1, AV_OPT_SEARCH_CHILDREN)) < 0)
+			goto end;
+		if ((ret = av_opt_set_int_list(filt_asink, "sample_rates"   , sample_rates   ,  -1, AV_OPT_SEARCH_CHILDREN)) < 0)
+			goto end;
+		if ((ret = av_opt_set_int_list(filt_asink, "sample_fmts", sample_fmts,  AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0)
+			goto end;
+	}
+
+
+	if ((ret = configure_filtergraph(is->AudioGraph, afilters, filt_asrc, filt_asink)) < 0)
+		goto end;
+
+	is->InAudioSrc  = filt_asrc;
+	is->OutAudioSink = filt_asink;
+
+end:
+	if (ret < 0)
+		avfilter_graph_free(&is->AudioGraph);
+	return ret;
+}
+
+static inline
+int64_t get_valid_channel_layout(int64_t channel_layout, int channels)
+{
+	if (channel_layout && av_get_channel_layout_nb_channels(channel_layout) == channels)
+		return channel_layout;
+	else
+		return 0;
+}
+static inline int cmp_audio_fmts(enum AVSampleFormat fmt1, int64_t channel_count1,
+				   enum AVSampleFormat fmt2, int64_t channel_count2)
+{
+	/* If channel count == 1, planar and non-planar formats are the same */
+	if (channel_count1 == 1 && channel_count2 == 1)
+	return av_get_packed_sample_fmt(fmt1) != av_get_packed_sample_fmt(fmt2);
+	else
+		return channel_count1 != channel_count2 || fmt1 != fmt2;
+}
+//音频解码线程
+unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
+{
+	//return 1;
+	SKK_VideoState *is=(SKK_VideoState*)lpParameter;
+	AVFrame *frame = av_frame_alloc();
+	
+	SKK_FrameQueue *sampq=&is-> sampq;
+	time_t t_start, t_end;
+	t_start = time(NULL) ;
+	///***找到一个可用的SKK_Frame***/
+	SKK_Frame *af = NULL;
+
+	int got_frame = 0;
+	AVRational tb;
+	int ret = 0;
+    int last_serial = -1;
+
+	if (!frame)
+		return AVERROR(ENOMEM);
+
+	char *p=AV_STRINGIFY(VOLUME_VAL);
+	/*if ((ret = configure_audio_filters(is, "volume=0.9",1)) < 0)
+	{
+		assert(0);
+	}*/
+	
+	int64_t dec_channel_layout;
+	int reconfigure;
+	//解码操作
+	do {
+		if ((got_frame = audio_decode_frame(is, frame)) < 0)
+			goto the_end;
+
+		if (got_frame)
+		{
+			tb.num=1;
+			tb.den=frame->sample_rate;
+			
+           int64_t srcpts =  frame->pts * av_q2d(tb);
+
+		  
+		   if(is->auddec.Isflush==1)
+		   {
+			   is->Baseaudio_clock= srcpts+srcpts;//vp->pts;//// (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
+			   if(isNAN(is->Baseaudio_clock))
+				   is->Baseaudio_clock =0;
+			   is->auddec.Isflush=0;
+		   }
+
+			dec_channel_layout = get_valid_channel_layout(frame->channel_layout, av_frame_get_channels(frame));
+			reconfigure = cmp_audio_fmts(is->audio_filter_src.fmt, is->audio_filter_src.channels,
+				(AVSampleFormat)frame->format, av_frame_get_channels(frame))    ||
+				is->audio_filter_src.channel_layout != dec_channel_layout ||
+				is->audio_filter_src.freq           != frame->sample_rate||
+				is->auddec.pkt_serial               != last_serial;
+
+				if (reconfigure) 
+				{
+
+					char buf1[1024], buf2[1024];
+					av_get_channel_layout_string(buf1, sizeof(buf1), -1, is->audio_filter_src.channel_layout);
+					av_get_channel_layout_string(buf2, sizeof(buf2), -1, dec_channel_layout);
+				/*	av_log(NULL, AV_LOG_DEBUG,
+						"Audio frame changed from rate:%d ch:%d fmt:%s layout:%s serial:%d to rate:%d ch:%d fmt:%s layout:%s serial:%d\n",
+						is->audio_filter_src.freq, is->audio_filter_src.channels, av_get_sample_fmt_name(is->audio_filter_src.fmt), buf1, last_serial,
+						frame->sample_rate, av_frame_get_channels(frame), av_get_sample_fmt_name(frame->format), buf2, is->auddec.pkt_serial);*/
+
+					is->audio_filter_src.fmt            = (AVSampleFormat)frame->format;
+					is->audio_filter_src.channels       = av_frame_get_channels(frame);
+					is->audio_filter_src.channel_layout = dec_channel_layout;
+					is->audio_filter_src.freq           = frame->sample_rate;
+					last_serial                         = is->auddec.pkt_serial;
+                     //"volume=0.9,atempo=0.5"
+					if ((ret = configure_audio_filters(is, "volume=0.9,atempo=0.5", 1)) < 0)
+						goto the_end;
+				
+				}
+
+			if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
+			{
+				continue;
+			}
+
+			while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0) 
+			{
+				tb = is->OutAudioSink->inputs[0]->time_base;
+				if (!(af = frame_queue_peek_writable(&is->sampq)))
+				{
+				  assert(0);
+				}
+                
+				is->sampq.mutex->Lock();
+				af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb)+is->Baseaudio_clock;
+				af->pos = av_frame_get_pkt_pos(frame);
+				af->serial = is->auddec.pkt_serial;
+				
+				AVRational avr={frame->nb_samples, frame->sample_rate};
+				af->duration = av_q2d(avr);
+
+				AVSampleFormat ff=(AVSampleFormat)frame->format;
+				av_frame_move_ref(af->frame, frame);
+				is->sampq.mutex->Unlock();
+				frame_queue_push(&is->sampq);
+				
+			}
+
+			/*af = frame_queue_peek_writable(&is->sampq);
+			if (af ==NULL)
+			{
+				assert(0);
+				goto the_end;
+			}
+            is->sampq.mutex->Lock();
+			if(af->buffer!=NULL)
+			{	
+				av_free(af->buffer);
+				af->buffer=NULL;
+			}
+			af->pts = av_q2d(is->audio_st->time_base)*frame->pts;
+			af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
+			if(af->pts<0)
+				af->pts=-af->pts;
+			af->pos = av_frame_get_pkt_pos(frame);
+			af->serial = is->auddec.pkt_serial;
+
+			AVRational avr={frame->nb_samples, frame->sample_rate};
+			af->duration = av_q2d(avr);
+			av_frame_move_ref(af->frame,frame);
+			is->sampq.mutex->Unlock();
+
+			frame_queue_push(sampq);*/
+			
+		}
+	} while (ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF);
+the_end:
+	av_frame_free(&frame);
+	is->auddec.decoder_tid.ThOver=true;
+	return ret;
+}
 /* seek in the stream */
 void stream_seek(SKK_VideoState *is, int64_t pos, int64_t rel, int seek_by_bytes)
 {

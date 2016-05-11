@@ -78,10 +78,14 @@ public:
 private:
 	        /*********视频刷新线程********/
 	        static unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);
+			//音频回调线程
+			static unsigned __stdcall Audio_Thread(LPVOID lpParameter);
+			//文件读取线程
 	        static unsigned __stdcall  ReadAV_thread(LPVOID lpParameter);
 	        /*******显示视频**********/
 		    void video_image_refresh(SKK_VideoState *is);
 private:
+	        void ReadAudioCall();
 	        //文件打开后需要做什么
 	        OpenMediaEnum m_OpenMediaEnum;
 	        CKKLock m_CloseLock;
@@ -99,8 +103,12 @@ private:
 			
 			//当前时间
 			int m_CurTime;
+			//视频读取线程
 			SKK_ThreadInfo m_ReadThreadInfo;
+			//视频刷新线程
 			SKK_ThreadInfo m_VideoRefreshthreadInfo;
+            //音频数据回调线程
+			SKK_ThreadInfo m_AudioCallthreadInfo;
 			//等待事件
 			HANDLE m_WaitEvent;
 

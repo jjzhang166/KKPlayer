@@ -5,8 +5,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayerCore", "KKPlayerCor
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "librtmp", "librtmp\librtmp.vcproj", "{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundTouch", "soundtouch\source\SoundTouch\SoundTouch.vcproj", "{68A5DD20-7057-448B-8FE0-B6AC8D205509}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibstat", "zlib\contrib\vstudio\vc9\zlibstat.vcproj", "{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayer", "KKPlayer\KKPlayer.vcproj", "{B82462F3-0004-4E0E-BB50-F0DBBB168F61}"
@@ -35,12 +33,6 @@ Global
 		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.Release|Win32.Build.0 = Release|Win32
 		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
-		{68A5DD20-7057-448B-8FE0-B6AC8D205509}.Debug|Win32.ActiveCfg = Debug|Win32
-		{68A5DD20-7057-448B-8FE0-B6AC8D205509}.Debug|Win32.Build.0 = Debug|Win32
-		{68A5DD20-7057-448B-8FE0-B6AC8D205509}.Release|Win32.ActiveCfg = Release|Win32
-		{68A5DD20-7057-448B-8FE0-B6AC8D205509}.Release|Win32.Build.0 = Release|Win32
-		{68A5DD20-7057-448B-8FE0-B6AC8D205509}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
-		{68A5DD20-7057-448B-8FE0-B6AC8D205509}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug|Win32.ActiveCfg = Debug|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug|Win32.Build.0 = Debug|Win32
 		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|Win32.ActiveCfg = Release|Win32
