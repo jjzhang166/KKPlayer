@@ -95,8 +95,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin\"
-			IntermediateDirectory="..\..\obj\release\skia\"
+			OutputDirectory="..\Release\libx86\"
+			IntermediateDirectory="..\Release\libx86\skia\obj\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -128,7 +128,7 @@
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,_CRT_SECURE_NO_WARNINGS,SK_IGNORE_ETC1_SUPPORT,SK_CPU_SSE_LEVEL=31,NDEBUG"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="true"
 				RuntimeTypeInfo="false"
 				AssemblerListingLocation="..\..\obj\release\skia\"

@@ -87,16 +87,19 @@ void KKPlayer::CloseMedia()
 
 	LOGE("thread Over 1");
 	
-	pVideoInfo->pictq.m_pWaitCond->SetCond();
-	pVideoInfo->audioq.m_pWaitCond->SetCond();
-	pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
-
+	
 	#ifndef WIN32_KK
 			pthread_join(m_ReadThreadInfo.Tid_task,0);
 			pthread_join(m_VideoRefreshthreadInfo.Tid_task,0);
 	#endif	
 
+	pVideoInfo->videoq.m_pWaitCond->SetCond();
+	pVideoInfo->audioq.m_pWaitCond->SetCond();
+	pVideoInfo->subtitleq.m_pWaitCond->SetCond();
 
+	pVideoInfo->pictq.m_pWaitCond->SetCond();
+	pVideoInfo->sampq.m_pWaitCond->SetCond();
+	pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
 
 	if(pVideoInfo->IsReady!=0)
 	{
@@ -115,6 +118,8 @@ void KKPlayer::CloseMedia()
 				,pVideoInfo->subdec.decoder_tid.ThOver
 				);
 			Sleep(100);
+
+
 		}
 	}
 
@@ -142,15 +147,19 @@ Sleep(100);
 #endif	
 	
     /*******事件*********/
+	//视频包
 	delete pVideoInfo->videoq.m_pWaitCond;
 	//音频包
 	delete pVideoInfo->audioq.m_pWaitCond;
 	//字幕包
 	delete pVideoInfo->subtitleq.m_pWaitCond;
+
 	delete pVideoInfo->pictq.m_pWaitCond;
 	delete pVideoInfo->subpq.m_pWaitCond;
 	delete pVideoInfo->sampq.m_pWaitCond;
+
 	PacketQueuefree();
+
 	delete pVideoInfo->videoq.pLock;
 	pVideoInfo->videoq.pLock=NULL;
 	delete pVideoInfo->subtitleq.pLock;
@@ -1130,6 +1139,7 @@ void KKPlayer::ReadAV()
 	int ii=0;
 	ii++;
 }
+//释放队列数据
 void KKPlayer::PacketQueuefree()
 {
    if(pVideoInfo!=NULL)

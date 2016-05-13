@@ -646,6 +646,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 	}
 	m_pLeftPicTexture->UnlockRect(0);	
 	}
+	return 1;
 }
 bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 {

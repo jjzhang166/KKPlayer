@@ -458,11 +458,11 @@ void audio_callback(void *userdata, char *stream, int len)
 	//Sleep(1);
 	bool Issilence=false;
 
-	#ifdef WIN32_KK
+	/*#ifdef WIN32_KK
 	char abcd[100]="";
 	sprintf(abcd,"\n START 上次剩余%d", pVideoInfo->audio_buf_size-pVideoInfo->audio_buf_index);
-	::OutputDebugStringA(abcd);/**/
-#endif
+	::OutputDebugStringA(abcd);
+#endif*/
 	while (len > 0) 
 	{
 		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
@@ -502,13 +502,13 @@ void audio_callback(void *userdata, char *stream, int len)
 		  pVideoInfo->audio_buf_index += len1;
 
 
-#ifdef WIN32_KK
-		sprintf(abcd,"\n 拷贝len：%d,目标:%d",len1,pVideoInfo->audio_buf_size );
-		::OutputDebugStringA(abcd);
-
-		sprintf(abcd,"\n 缓存:%d,剩余缓存%d",slen,len);
-		::OutputDebugStringA(abcd);
-#endif
+//#ifdef WIN32_KK
+//		sprintf(abcd,"\n 拷贝len：%d,目标:%d",len1,pVideoInfo->audio_buf_size );
+//		::OutputDebugStringA(abcd);
+//
+//		sprintf(abcd,"\n 缓存:%d,剩余缓存%d",slen,len);
+//		::OutputDebugStringA(abcd);
+//#endif
 	
 	}
 	pVideoInfo->audio_write_buf_size = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
@@ -767,7 +767,7 @@ fail:
 unsigned __stdcall  Subtitle_thread(LPVOID lpParameter)
 {
 	SKK_VideoState *pIs=(SKK_VideoState *)lpParameter;
-	pIs->auddec.decoder_tid.ThOver=true;
+	pIs->subdec.decoder_tid.ThOver=true;
 	return 1;
 }
 
@@ -1584,8 +1584,10 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	int reconfigure;
 	//解码操作
 	do {
+		//::OutputDebugStringA("解码\n");
 		if ((got_frame = audio_decode_frame(is, frame)) < 0)
 			goto the_end;
+//       ::OutputDebugStringA("解码结束\n");
 
 		if (got_frame)
 		{
@@ -1640,11 +1642,16 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 			while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0) 
 			{
 				tb = is->OutAudioSink->inputs[0]->time_base;
+
+				 ::OutputDebugStringA("11 \n");
+
 				if (!(af = frame_queue_peek_writable(&is->sampq)))
 				{
 				  assert(0);
 				}
                 
+				::OutputDebugStringA("12 \n");
+
 				is->sampq.mutex->Lock();
 				af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb)+is->Baseaudio_clock;
 				af->pos = av_frame_get_pkt_pos(frame);
@@ -1663,7 +1670,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 			
 			
 		}
-	} while (ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF);
+	} while ((ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)&&!is->abort_request);
 the_end:
 	av_frame_free(&frame);
 	is->auddec.decoder_tid.ThOver=true;
