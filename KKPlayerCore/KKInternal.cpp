@@ -458,9 +458,11 @@ void audio_callback(void *userdata, char *stream, int len)
 	//Sleep(1);
 	bool Issilence=false;
 
-	/*char abcd[100]="";
+	#ifdef WIN32_KK
+	char abcd[100]="";
 	sprintf(abcd,"\n START ÉÏ´ÎÊ£Óà%d", pVideoInfo->audio_buf_size-pVideoInfo->audio_buf_index);
-	::OutputDebugStringA(abcd);*/
+	::OutputDebugStringA(abcd);/**/
+#endif
 	while (len > 0) 
 	{
 		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
@@ -1658,31 +1660,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				
 			}
 
-			/*af = frame_queue_peek_writable(&is->sampq);
-			if (af ==NULL)
-			{
-				assert(0);
-				goto the_end;
-			}
-            is->sampq.mutex->Lock();
-			if(af->buffer!=NULL)
-			{	
-				av_free(af->buffer);
-				af->buffer=NULL;
-			}
-			af->pts = av_q2d(is->audio_st->time_base)*frame->pts;
-			af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
-			if(af->pts<0)
-				af->pts=-af->pts;
-			af->pos = av_frame_get_pkt_pos(frame);
-			af->serial = is->auddec.pkt_serial;
-
-			AVRational avr={frame->nb_samples, frame->sample_rate};
-			af->duration = av_q2d(avr);
-			av_frame_move_ref(af->frame,frame);
-			is->sampq.mutex->Unlock();
-
-			frame_queue_push(sampq);*/
+			
 			
 		}
 	} while (ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF);

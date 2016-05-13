@@ -13,6 +13,17 @@ std::basic_string<TCHAR> GetModulePath();
 typedef IDirect3D9* (WINAPI* LPDIRECT3DCREATE9)( UINT );
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);  
 
+
+#include <core\SkCanvas.h>
+#include <core\SkBitmap.h>
+#include <core\SkTypeface.h>
+
+#ifdef _DEBUG
+     #pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
+#else
+    #pragma comment (lib,"..\\Release\\libx86\\skia.lib")
+#endif
+
 LPFN_ISWOW64PROCESS fnIsWow64Process;  
 BOOL IsWow64()  
 {  
@@ -44,6 +55,7 @@ CRenderD3D::CRenderD3D()
 	,m_PBkTexture(NULL)
 	,m_pWaitPicTexture(NULL)
 	,m_CenterLogoTexture(NULL)
+	,m_pLeftPicTexture(NULL)
 {
 }
 
@@ -58,7 +70,29 @@ CRenderD3D::~CRenderD3D()
     SAFE_RELEASE(m_pDevice);
     SAFE_RELEASE(m_pD3D);
 }
+void CRenderD3D::DrawFontInfo()
+{
+	
+}
 
+LPCSTR GetUTF8String(LPCWSTR str)
+{
+	int iLen = ::WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
+
+	if (iLen > 1)
+	{
+		char *pBuf = new char[iLen];
+		::WideCharToMultiByte(CP_UTF8, 0, str, -1, pBuf, iLen, NULL, NULL);
+		return pBuf;
+	}
+
+	return NULL;
+}
+void DrawFontSkia()
+{
+	
+	
+}
 D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
 {
     D3DPRESENT_PARAMETERS PresentParams;
@@ -127,6 +161,20 @@ bool CRenderD3D::init(HWND hView)
 			return false;
 		}
 
+		//LOGFONT lf;
+		//ZeroMemory(&lf, sizeof(LOGFONT));
+		//lf.lfHeight = 25; // in logical units
+		//lf.lfWidth = 12; // in logical units
+		//lf.lfWeight = 500; // boldness, range 0(light) - 1000(bold)
+		//lf.lfItalic = false;
+		//lf.lfUnderline = false;
+		//lf.lfStrikeOut = false;
+		//lf.lfCharSet = DEFAULT_CHARSET;
+		//wcscpy(lf.lfFaceName, L"Times New Roman"); // font style
+
+		//m_pfont=NULL;
+		//D3DXCreateFontIndirect(m_pDevice,&lf,&m_pfont);
+
 		resize(PresentParams.BackBufferWidth, PresentParams.BackBufferHeight);
 		return true;
 	}
@@ -142,8 +190,37 @@ void CRenderD3D::destroy()
 
 void CRenderD3D::resize(unsigned int w, unsigned int h)
 {
-	m_w=w;
+    m_w=w;
 	m_h=h;
+   {	  
+		m_LeftPicVertex[0].x = -0.5f;
+	    m_LeftPicVertex[0].y = -0.5f;
+	    m_LeftPicVertex[0].z = 0.f;
+	    m_LeftPicVertex[0].w = 1.f;
+	    m_LeftPicVertex[0].u = 0.f;
+	    m_LeftPicVertex[0].v = 0.f;
+
+	    m_LeftPicVertex[1].x = 200 - 0.5f;
+	    m_LeftPicVertex[1].y = -0.5f;
+	    m_LeftPicVertex[1].z = 0.f;
+	    m_LeftPicVertex[1].w = 1.f;
+	    m_LeftPicVertex[1].u = 1.f;
+	    m_LeftPicVertex[1].v = 0.f;
+
+	    m_LeftPicVertex[2].x = -0.5f;
+	    m_LeftPicVertex[2].y = 200 - 0.5f;
+	    m_LeftPicVertex[2].z = 0.f;
+	    m_LeftPicVertex[2].w = 1.f;
+	    m_LeftPicVertex[2].u = 0.f;
+	    m_LeftPicVertex[2].v = 1.f;
+
+	    m_LeftPicVertex[3].x = 200 - 0.5f;
+	    m_LeftPicVertex[3].y = 200 - 0.5f;
+	    m_LeftPicVertex[3].z = 0.f;
+	    m_LeftPicVertex[3].w = 1.f;
+	    m_LeftPicVertex[3].u = 1.f;
+	    m_LeftPicVertex[3].v = 1.f;
+   }
    {
 		m_Vertex[0].x = -0.5f;
 		m_Vertex[0].y = -0.5f;
@@ -278,10 +355,12 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 
 void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
+	//
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_pDevice->Reset(&PresentParams);
 
 	SAFE_RELEASE(m_pDxTexture);
+	SAFE_RELEASE(m_pLeftPicTexture);
   //  SAFE_RELEASE(m_pDirect3DSurfaceRender);
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
@@ -328,6 +407,18 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));
+
+				if(m_pLeftPicTexture!=NULL)
+				{
+					m_pDevice->SetTexture(0, m_pLeftPicTexture);
+					m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+					m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+					m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+					m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+					m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2,  m_LeftPicVertex, sizeof(Vertex));/**/
+				}
+				
+
 			}
 			if(pBuf==NULL)
 			{
@@ -344,6 +435,8 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2,  m_WaitVertex, sizeof(Vertex));/**/
+
+				
 			}
 			
 			
@@ -475,8 +568,88 @@ void CRenderD3D::CreateFonet()
 	DeleteDC( hDc);
 }
 int GetBmpSize(int w,int h);
+//提示
+bool CRenderD3D::UpdateLeftPicTexture()
+{
+//	return true;
+	if (m_pLeftPicTexture == NULL)
+	{
+		RECT rect2;
+		GetClientRect(m_hView, &rect2);
+		UINT hei=rect2.bottom - rect2.top;
+		UINT Wei=rect2.right - rect2.left;
+		
+
+		HRESULT  hr = m_pDevice->CreateTexture(
+			200,
+			200,
+			2,
+			D3DUSAGE_DYNAMIC,
+			D3DFMT_A8R8G8B8,
+			D3DPOOL_DEFAULT,
+			&m_pLeftPicTexture,
+			NULL);/**/
+		if (FAILED(hr))
+			return false;
+	
+	D3DLOCKED_RECT rect;//1009*488
+	m_pLeftPicTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
+
+	
+	unsigned char* dst = (unsigned char*)rect.pBits;   
+	memset(dst,0,rect.Pitch*200);
+    if(1)
+	{
+		LPCSTR strFont = GetUTF8String(L"宋体");
+		SkTypeface *font = SkTypeface::CreateFromName(strFont, SkTypeface::kNormal);
+
+		SkBitmap Skbit;
+		Skbit.setInfo(SkImageInfo::Make(200,200,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
+		Skbit.allocPixels();
+        char* XBuf= (char*)Skbit.getPixels();
+		memset(XBuf,0,200*200*4);
+
+		SkCanvas canvas(Skbit);
+		SkPaint  paint; 
+
+
+		//设置文字编码
+		paint.setTextEncoding(SkPaint::TextEncoding::kUTF16_TextEncoding);
+		paint.setTextAlign(SkPaint::Align::kLeft_Align);
+
+		SkRect r; 
+		paint.setARGB(255, 255, 0, 0); /**/
+		r.set(25, 25, 200, 145); 
+		// canvas.drawRect(r, paint); 
+
+
+		SkRect dst2 = r;
+		paint.setTextSize(15);
+		canvas.drawText(L"报警点位置图", wcslen(L"报警点位置图")*sizeof(WCHAR), dst2.fLeft, dst2.fTop + 10, paint);
+
+		
+
+		dst = (unsigned char*)rect.pBits; 
+		int yxx=0;
+		int row=Skbit.rowBytes();
+		for(int i = 0; i < 200; ++i) 
+		{
+			memcpy(dst,XBuf+yxx ,row);
+			/*for(int j=0;j<200;j+=4)
+			{
+                  *(dst+j)=*(dst+j+3);
+			}*/
+			yxx+=row;
+			dst += rect.Pitch;
+		}
+
+	}
+	m_pLeftPicTexture->UnlockRect(0);	
+	}
+}
 bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 {
+	
 #ifdef VFYUY420P	
    if (m_pDirect3DSurfaceRender == NULL)
     {
@@ -509,7 +682,9 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 		   GetClientRect(m_hView, &rect2);
 		   UINT hei=rect2.bottom - rect2.top;
 		   UINT Wei=rect2.right - rect2.left;
-		   resize( Wei,hei);
+		   if(m_w!=Wei&&hei!=m_h){
+		     resize( Wei,hei);
+		   }
 
 		   HRESULT  hr = m_pDevice->CreateTexture(
 			   w,
@@ -523,7 +698,6 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 		   if (FAILED(hr))
 			   return false;
 		   CreateFonet();
-		  
 	   }
 	}
 #endif
@@ -576,10 +750,55 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 				    dst += rect.Pitch;
 				   }
 			  }
+
+			  if(0)
+			  {
+				  LPCSTR strFont = GetUTF8String(L"宋体");
+				  SkTypeface *font = SkTypeface::CreateFromName(strFont, SkTypeface::kNormal);
+
+
+
+
+				  SkBitmap Skbit;
+				  Skbit.setInfo(SkImageInfo::Make(200,200,SkColorType::kN32_SkColorType,SkAlphaType::kPremul_SkAlphaType));
+				  Skbit.allocPixels();
+
+				  SkCanvas canvas(Skbit);
+
+				  SkPaint  paint; 
+
+
+				  //设置文字编码
+				  paint.setTextEncoding(SkPaint::TextEncoding::kUTF16_TextEncoding);
+				  paint.setTextAlign(SkPaint::Align::kLeft_Align);
+
+				  SkRect r; 
+				  paint.setARGB(255, 255, 0, 0); 
+				  r.set(25, 25, 200, 145); 
+				 // canvas.drawRect(r, paint); 
+
+
+				  SkRect dst2 = r;
+				  paint.setTextSize(15);
+				  canvas.drawText(L"报警点位置图", wcslen(L"报警点位置图")*sizeof(WCHAR), dst2.fLeft, dst2.fTop + 10, paint);
+
+				  char* XBuf= (char*)Skbit.getPixels();
+
+				  dst = (unsigned char*)rect.pBits; 
+				  int yxx=0;
+				  int row=Skbit.rowBytes();
+				  for(int i = 0; i < 200; ++i) 
+				  {
+                       memcpy(dst,XBuf+yxx ,row);
+                       yxx+=row;
+					   dst += rect.Pitch;
+				  }
+			  }
 			m_pDxTexture->UnlockRect(0);		  
 #endif
 	  }
       
+	UpdateLeftPicTexture();
 //D3DXCreateTextureFromFile
 	
     return true;

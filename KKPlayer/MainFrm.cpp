@@ -4,7 +4,7 @@
 #include "render/renderGDI.h"
 #include <ObjIdl.h>
 #include "KKSound.h"
-#define QY_GDI
+//#define QY_GDI
 Gdiplus::Bitmap* CoverPic(int destWidth,int destHeight,Gdiplus::Image* srcBmp)
 {
 	Gdiplus::Bitmap* pDestBmp= new Gdiplus::Bitmap(destWidth, destHeight, PixelFormat32bppARGB); //新建缩放后的位图  

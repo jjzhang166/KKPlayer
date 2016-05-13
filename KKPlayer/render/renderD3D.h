@@ -3,7 +3,7 @@
 
 #include "../../KKPlayerCore/render/render.h"
 #include <d3d9.h>
-
+#include <d3dx9.h>
 class CRenderD3D : public CRender
 {
 public:
@@ -21,10 +21,15 @@ public:
 	void LoadCenterLogo(unsigned char* buf,int len);
 	void SetWaitPic(unsigned char* buf,int len);
 	void SetBkImagePic(unsigned char* buf,int len);
+	void DrawFontInfo();
 private:
+
+	bool UpdateLeftPicTexture();
 	//void  source_hdc = GetDC(hwnd);
 	void CreateFonet();
     HWND m_hView;
+	//Ã· æ◊÷ÃÂ
+
     IDirect3D9* m_pD3D;
     IDirect3DDevice9* m_pDevice;
     IDirect3DTexture9* m_pDxTexture;
@@ -32,7 +37,11 @@ private:
 	IDirect3DTexture9* m_PBkTexture;
 	IDirect3DTexture9* m_CenterLogoTexture;
 	IDirect3DTexture9* m_pWaitPicTexture;
-	IDirect3DSurface9 *m_pDirect3DSurfaceRender; 
+	IDirect3DTexture9* m_pLeftPicTexture;
+	//YUV
+	IDirect3DSurface9 *m_pDirect3DSurfaceRender;
+
+//	m_CenterLogoTexture
     unsigned int m_w;
 	unsigned int m_h;
     struct Vertex
@@ -50,6 +59,8 @@ private:
 	Vertex m_FontVertex[4];
 	Vertex m_WaitVertex[4];
 	Vertex m_CenterLogVertex[4];
+
+	Vertex m_LeftPicVertex[4];
 
 };
 
