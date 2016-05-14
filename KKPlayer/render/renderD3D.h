@@ -2,6 +2,7 @@
 #define RENDER_D3D_H
 
 #include "../../KKPlayerCore/render/render.h"
+#include <string>
 #include <d3d9.h>
 #include <d3dx9.h>
 class CRenderD3D : public CRender
@@ -22,8 +23,10 @@ public:
 	void SetWaitPic(unsigned char* buf,int len);
 	void SetBkImagePic(unsigned char* buf,int len);
 	void DrawFontInfo();
-private:
 
+	void SetLeftPicStr(wchar_t *str);
+	std::wstring m_LeftStr;
+private:
 	bool UpdateLeftPicTexture();
 	//void  source_hdc = GetDC(hwnd);
 	void CreateFonet();

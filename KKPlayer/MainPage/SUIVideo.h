@@ -18,6 +18,10 @@ namespace SOUI
 		  MEDIA_INFO GetMeadiaInfo();
 		  void SetVolume(long value);
 		  void AvSeek(int value);
+		  int PktSerial();
+
+		   void OnDecelerate();
+		   void OnAccelerate();
 	  protected:
 		  CMainFrame m_VideoWnd;
 		  void OnDestroy();

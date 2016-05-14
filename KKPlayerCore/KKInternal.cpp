@@ -10,9 +10,7 @@
 #include <assert.h>
 #include <time.h>
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
@@ -313,20 +311,21 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
     int wanted_nb_samples;
 
 	AVFrame *frame=NULL;
-	SKK_Frame *af;
+	SKK_Frame *af=NULL;
 	
 	is->sampq.mutex->Lock();
 	
-
-	if(frame_queue_nb_remaining(&is->sampq) == 0) 
-	{
-		is->sampq.mutex->Unlock();
-		return -1;
-	}
-	
-	af = frame_queue_peek(&is->sampq);
-		
-	
+   do 
+   {
+	   if(af!=NULL&&af->serial!=is->auddec.pkt_serial)
+           frame_queue_next(&is->sampq,false);
+	   if(frame_queue_nb_remaining(&is->sampq) <= 0) 
+	   {
+		   is->sampq.mutex->Unlock();
+		   return -1;
+	   }
+	   af = frame_queue_peek(&is->sampq);
+   } while (af->serial!=is->auddec.pkt_serial&&!is->abort_request);
 	
 	frame=af->frame;
 
@@ -808,8 +807,8 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 		//ResetEvent(f->m_WaitEvent);
 		//LOGE("queue ResetCond");
 		f->m_pWaitCond->ResetCond();
-		f->mutex->Unlock();
 		mm=false;
+		f->mutex->Unlock();
 		f->m_pWaitCond->WaitCond(1);
 	}
 	if(mm)
@@ -1137,7 +1136,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	vp->pos=pos;
 	vp->serial=serial;
 	vp->pts=pts;
-
+vp->frame->pts=pFrame->pts;
 	if( !vp->buffer || 
 		vp->width != pFrame->width ||
 		vp->height != pFrame->height) 
@@ -1217,7 +1216,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	
 	
 	//time_t t_start, t_end;
-	t_start = time(NULL) ;
+	//t_start = time(NULL) ;
 	
 	
     if(1)
@@ -1245,7 +1244,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	}
    	pPictq->mutex->Unlock();
 
-	t_end = time(NULL) ;
+	//t_end = time(NULL) ;
 	
 	//LOGE("cx time:%f",difftime(t_end,t_start));
 	frame_queue_push(&is->pictq);
@@ -1307,9 +1306,11 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 					{
 						pts = 0;
 					}
-					if(is->AVRate==0)
+
+					pFrame->pts=pts*av_q2d(is->video_st->time_base);
+					if(is->AVRate!=100)
 					{
-						pts*=2;
+						pts=pts/((float)is->AVRate/100);
 					}/**/
 					pts *= av_q2d(is->video_st->time_base);
 
@@ -1372,7 +1373,7 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 	do
 	{
 		//从队列获取数据
-		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) < 0) 
+		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0) 
 		{
 			Sleep(1);
 		}else
@@ -1470,8 +1471,13 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 	memset(asrc_args,0,256);
 	int ret;
 
+	avfilter_free(is->InAudioSrc);
+	is->InAudioSrc=NULL;
+	avfilter_free(is->OutAudioSink);
+	is->OutAudioSink=NULL;
 	avfilter_graph_free(&is->AudioGraph);
 
+	is->AudioGraph=NULL;
 	if (!(is->AudioGraph= avfilter_graph_alloc()))
 		return AVERROR(ENOMEM);
 
@@ -1537,7 +1543,11 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 
 end:
 	if (ret < 0)
+	{
+		avfilter_free(is->InAudioSrc);
+		avfilter_free(is->OutAudioSink);
 		avfilter_graph_free(&is->AudioGraph);
+	}
 	return ret;
 }
 
@@ -1587,7 +1597,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		//::OutputDebugStringA("解码\n");
 		if ((got_frame = audio_decode_frame(is, frame)) < 0)
 			goto the_end;
-//       ::OutputDebugStringA("解码结束\n");
+       //::OutputDebugStringA("解码结束\n");
 
 		if (got_frame)
 		{
@@ -1599,7 +1609,15 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		  
 		   if(is->auddec.Isflush==1)
 		   {
-			   is->Baseaudio_clock= srcpts+srcpts;//vp->pts;//// (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
+			   if(is->AVRate!=100)
+			   {
+				   double aa=(double)is->AVRate/100;
+				   is->Baseaudio_clock= srcpts/aa;
+			   }else
+			   {
+                   is->Baseaudio_clock= 0;
+			   }
+			   //vp->pts;//// (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
 			   if(isNAN(is->Baseaudio_clock))
 				   is->Baseaudio_clock =0;
 			   is->auddec.Isflush=0;
@@ -1612,6 +1630,14 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				is->audio_filter_src.freq           != frame->sample_rate||
 				is->auddec.pkt_serial               != last_serial;
 
+			if(is->LastAVRate!=is->AVRate)
+			{
+				is->LastAVRate=is->AVRate;
+			     if(is->AVRate!=100)
+				 {
+                    reconfigure =true;
+				 }
+			}
 				if (reconfigure) 
 				{
 
@@ -1628,8 +1654,11 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					is->audio_filter_src.channel_layout = dec_channel_layout;
 					is->audio_filter_src.freq           = frame->sample_rate;
 					last_serial                         = is->auddec.pkt_serial;
-                     //"volume=0.9,atempo=0.5"
-					if ((ret = configure_audio_filters(is, "volume=0.9,atempo=0.5", 1)) < 0)
+                    char abcd[256];
+					strcpy(abcd,"volume=0.9");
+					if(is->AVRate!=100)
+					strcat(abcd,is->Atempo);
+					if ((ret = configure_audio_filters(is, abcd, 1)) < 0)
 						goto the_end;
 				
 				}
@@ -1639,18 +1668,20 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				continue;
 			}
 
-			while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0) 
+			//::OutputDebugStringA("xxx\n");
+			while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0&&!is->abort_request) 
 			{
+				
 				tb = is->OutAudioSink->inputs[0]->time_base;
 
-				 ::OutputDebugStringA("11 \n");
-
+				// ::OutputDebugStringA("11 \n");
+                //::OutputDebugStringA("xxx2\n");
 				if (!(af = frame_queue_peek_writable(&is->sampq)))
 				{
 				  assert(0);
 				}
-                
-				::OutputDebugStringA("12 \n");
+                //::OutputDebugStringA("xxx3\n");
+				//::OutputDebugStringA("12 \n");
 
 				is->sampq.mutex->Lock();
 				af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb)+is->Baseaudio_clock;
@@ -1664,7 +1695,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				av_frame_move_ref(af->frame, frame);
 				is->sampq.mutex->Unlock();
 				frame_queue_push(&is->sampq);
-				
+				//::OutputDebugStringA("xxx4\n");
 			}
 
 			

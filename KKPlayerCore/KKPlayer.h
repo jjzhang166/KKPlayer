@@ -35,6 +35,7 @@ struct MEDIA_INFO
 {
 	int CurTime;
 	int TotalTime;
+	int serial;
 	bool Open;
 	int KKState;
 };
@@ -52,7 +53,9 @@ class KKPlayer
 			
 			void RenderImage(CRender *pRender);
 			void AdjustDisplay(int w,int h);
-			
+			void OnDecelerate();
+			void OnAccelerate();
+			int GetAVRate();
 #ifdef WIN32_KK
 			/*****Gdi*****/
 			void OnDrawImageByDc(HDC memdc);
@@ -70,12 +73,14 @@ class KKPlayer
 			void AVSeek(int value);
 			void InitSound();
 			MEDIA_INFO GetMediaInfo();
+			int PktSerial();
 public:
-			//视频刷线程
+			
+private:
+	        //视频刷线程
 			void VideoRefresh();
 			  //视频信息
 			SKK_VideoState *pVideoInfo; 
-private:
 	        /*********视频刷新线程********/
 	        static unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);
 			//音频回调线程
@@ -85,19 +90,24 @@ private:
 	        /*******显示视频**********/
 		    void video_image_refresh(SKK_VideoState *is);
 private:
+
+	        void Avflush(int64_t seek_target); 
+			void VideoPushStream();
 	        void ReadAudioCall();
+			void PacketQueuefree();
 	        //文件打开后需要做什么
 	        OpenMediaEnum m_OpenMediaEnum;
 	        CKKLock m_CloseLock;
 	        bool m_bOpen;
 	        IKKPlayUI* m_pPlayUI;
-	        void VideoPushStream();
+	       
+			volatile int m_PktSerial;
 	        int WindowWidth;
 			int WindowHeight;
 	        SKK_Frame *m_DisplayVp;
 	        IKKAudio* m_pSound;
 			HWND m_hwnd;
-	        void PacketQueuefree();
+	        
 		   
 			int64_t start_time;
 			

@@ -16,7 +16,7 @@
 #define SAMPLE_ARRAY_SIZE (8 * 65536)
 #define KK_AUDIO_MIN_BUFFER_SIZE 512
 #define VIDEO_PICTURE_QUEUE_SIZE 3
-#define SUBPICTURE_QUEUE_SIZE 16
+#define SUBPICTURE_QUEUE_SIZE 9
 #define SAMPLE_QUEUE_SIZE 9
 #define FRAME_QUEUE_SIZE  FFMAX(SAMPLE_QUEUE_SIZE, FFMAX(VIDEO_PICTURE_QUEUE_SIZE, SUBPICTURE_QUEUE_SIZE))
 #define INT64_MAX 0x7fffffffffffffffLL 
@@ -217,9 +217,10 @@ typedef struct SKK_VideoState
 	AVFilterGraph *AudioGraph;
 	AVFilterContext *InAudioSrc, *OutAudioSink;
     SKK_AudioParams audio_filter_src;
-	
+	char Atempo[50];
 	//倍速
-    int AVRate;//0 不加速 1 0.5 倍 2 2陪
+    int AVRate;//100正常速率
+	int LastAVRate;//100正常速率
 	AVFilterGraph *AudioVolGraph;
 	AVFilterContext *AudioVolSrc, *AudioVolSink;
 	/***************************/
@@ -332,4 +333,7 @@ typedef struct SKK_VideoState
 	FILE* fp_out;
 
 } SKK_VideoState;
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 #endif

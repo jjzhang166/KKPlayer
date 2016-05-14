@@ -60,6 +60,10 @@ namespace SOUI
 				:: SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left+3,rt.top,size.cx-3,size.cy,SWP_NOZORDER);
 			}
 	}
+	int CSuiVideo::PktSerial()
+	{
+       return m_VideoWnd.PktSerial();
+	}
 	void CSuiVideo::OnMouseHover(WPARAM wParam, CPoint ptPos)
 	{
 
@@ -80,5 +84,13 @@ namespace SOUI
 			
 		 }
 		  return 0;
+	 }
+	 void CSuiVideo::OnDecelerate()
+	 {
+          m_VideoWnd.OnDecelerate();
+	 }
+	 void CSuiVideo::OnAccelerate()
+	 {
+         m_VideoWnd.OnAccelerate();
 	 }
 }

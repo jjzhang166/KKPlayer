@@ -568,6 +568,13 @@ void CRenderD3D::CreateFonet()
 	DeleteDC( hDc);
 }
 int GetBmpSize(int w,int h);
+
+void CRenderD3D::SetLeftPicStr(wchar_t *str)
+{
+	m_LeftStr=L"放播速度：";
+    m_LeftStr+=str;
+	SAFE_RELEASE(m_pLeftPicTexture);
+}
 //提示
 bool CRenderD3D::UpdateLeftPicTexture()
 {
@@ -625,7 +632,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 
 		SkRect dst2 = r;
 		paint.setTextSize(15);
-		canvas.drawText(L"报警点位置图", wcslen(L"报警点位置图")*sizeof(WCHAR), dst2.fLeft, dst2.fTop + 10, paint);
+		canvas.drawText(m_LeftStr.c_str(), m_LeftStr.length()*sizeof(WCHAR), dst2.fLeft, dst2.fTop , paint);
 
 		
 

@@ -64,6 +64,9 @@ public:
 	virtual void OpenMediaFailure(char* strURL);
 	int GetCurTime();
 	int Pause();
+	int PktSerial();
+	void OnDecelerate();
+	void OnAccelerate();
 private:
 	CKKSound m_Sound;
 	    Gdiplus::Bitmap *m_BkGidPulsBitmap;

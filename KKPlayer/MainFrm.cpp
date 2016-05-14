@@ -408,8 +408,33 @@ LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 }
 void CMainFrame::CloseMedia()
 {
- m_bOpen=false;
+  m_bOpen=false;
    m_PlayerInstance.CloseMedia();
+}
+int CMainFrame::PktSerial()
+{
+  return m_PlayerInstance.PktSerial();
+}
+void  CMainFrame::OnDecelerate()
+{
+   m_PlayerInstance.OnDecelerate();
+
+    int Rate=m_PlayerInstance.GetAVRate();
+    CRenderD3D *pRender=( CRenderD3D *)m_pRender;
+	wchar_t abcd[256]=L"";
+	float aa=(float)Rate/100;
+	swprintf(abcd,L"%.1f±¶",aa);
+    pRender->SetLeftPicStr(abcd);
+}
+void  CMainFrame::OnAccelerate()
+{
+   m_PlayerInstance.OnAccelerate();
+   int Rate=m_PlayerInstance.GetAVRate();
+   CRenderD3D *pRender=( CRenderD3D *)m_pRender;
+   wchar_t abcd[256]=L"";
+   float aa=(float)Rate/100;
+   swprintf(abcd,L"%.1f±¶",aa);
+   pRender->SetLeftPicStr(abcd);
 }
 LRESULT  CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
@@ -425,7 +450,7 @@ LRESULT  CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 
 	return 1;
 }
-LRESULT   CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+LRESULT  CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	long ll=0;
 	switch(wParam)
