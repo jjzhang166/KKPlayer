@@ -30,6 +30,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              void renderBk(unsigned char* buf,int len);
              void SetWaitPic(unsigned char* buf,int len);
              void SetBkImagePic(unsigned char* buf,int len);
+             unsigned char* GetCenterLogoImage(int &length);
              MEDIA_INFO GetMediaInfo();
              int OpenMedia(char *str);
     /***********UI调用***********/
@@ -37,6 +38,8 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
             virtual unsigned char* GetWaitImage(int &length,int curtime);
             virtual unsigned char* GetBkImage(int &length);
             virtual void OpenMediaFailure(char* strURL);
+            void LoadCenterLogo(unsigned char* buf,int len);
+
             void Pause();
             void Seek(int value);
    private:

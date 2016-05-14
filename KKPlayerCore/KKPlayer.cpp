@@ -705,13 +705,14 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 
 	}
 	pVideoInfo->subpq.m_pWaitCond=new CKKCond_t();
-	pVideoInfo->pictq.m_pWaitCond->SetCond();
+	pVideoInfo->subpq.m_pWaitCond->SetCond();
 	if (frame_queue_init(&pVideoInfo->sampq, &pVideoInfo->audioq, SAMPLE_QUEUE_SIZE, 1) < 0)
 	{
 
 	}
 	pVideoInfo->sampq.m_pWaitCond=new CKKCond_t();
-    pVideoInfo->pictq.m_pWaitCond->SetCond();
+    pVideoInfo->sampq.m_pWaitCond->SetCond();
+
 	m_pSound->SetAudioCallBack(audio_callback);
 	m_pSound->SetUserData(pVideoInfo);
 	pVideoInfo->pKKAudio=m_pSound;
@@ -719,6 +720,11 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	m_ReadThreadInfo.ThOver=false;
 	m_VideoRefreshthreadInfo.ThOver=false;
 	m_AudioCallthreadInfo.ThOver=false;
+
+
+	pVideoInfo->InAudioSrc=NULL;
+	pVideoInfo->OutAudioSink=NULL;
+	pVideoInfo->AudioGraph=NULL;
 #ifdef WIN32_KK
 	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
 	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
@@ -737,23 +743,25 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 }
 void KKPlayer::OnDecelerate()
 {
+	int64_t seek_target =0;
+	bool okk=false;
     m_CloseLock.Lock();
 	if(pVideoInfo!=NULL&&pVideoInfo->AVRate>50)
 	{
 		pVideoInfo->AVRate-=10;
 		float aa=(float)pVideoInfo->AVRate/100;
 		snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),",atempo=%f",aa); 
-		int64_t seek_target = m_CurTime;
-		AVSeek(seek_target);
-
+		seek_target= m_CurTime;
+		
+        okk=true;
 	}
-
-	
-
 	m_CloseLock.Unlock();
+	AVSeek(seek_target);
 }
 void KKPlayer::OnAccelerate()
 {
+	int64_t seek_target=0;
+	bool okk=false;
 	m_CloseLock.Lock();
 	if(pVideoInfo!=NULL&&pVideoInfo->AVRate<200)
 	{
@@ -761,10 +769,13 @@ void KKPlayer::OnAccelerate()
 		float aa=(float)pVideoInfo->AVRate/100;
 		  snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),",atempo=%.2f",aa);
 
-		  int64_t seek_target = m_CurTime;
-		 AVSeek(seek_target);
+		seek_target = m_CurTime;
+		okk=true;
 	}
 	m_CloseLock.Unlock();
+
+	if(okk)
+	 AVSeek(seek_target);
 }
 int KKPlayer::GetAVRate()
 {
@@ -1029,7 +1040,7 @@ void KKPlayer::ReadAV()
 			}
 			if(pVideoInfo->audioq.size + pVideoInfo->videoq.size + pVideoInfo->subtitleq.size > MAX_QUEUE_SIZE)
 			{
-				 LOGE("catch full");
+				// LOGE("catch full");
 				//µÈ´ýÒ»»á
 				Sleep(10);
 			}else

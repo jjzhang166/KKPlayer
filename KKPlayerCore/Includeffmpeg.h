@@ -85,7 +85,7 @@ extern "C"
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avfilter-5.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avformat-56.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avutil-54.lib")
-		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\postproc.lib")
+		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\postproc-53.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swresample-1.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swscale-3.lib")
 	#endif
@@ -93,7 +93,7 @@ extern "C"
 }
 
 
-#define MAX_QUEUE_SIZE (1024 * 1024)  //1048576*8  * 8  8M
+#define MAX_QUEUE_SIZE (1024 * 1024*8)  //1048576*8  * 8  8M
 #define MIN_FRAMES 5
 
 /* Minimum SDL audio buffer size, in samples. */

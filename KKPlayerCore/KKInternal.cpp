@@ -322,6 +322,7 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 	   if(frame_queue_nb_remaining(&is->sampq) <= 0) 
 	   {
 		   is->sampq.mutex->Unlock();
+		  // LOGE(" No Audio");
 		   return -1;
 	   }
 	   af = frame_queue_peek(&is->sampq);
@@ -1476,34 +1477,43 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 	avfilter_free(is->OutAudioSink);
 	is->OutAudioSink=NULL;
 	avfilter_graph_free(&is->AudioGraph);
-
 	is->AudioGraph=NULL;
 	if (!(is->AudioGraph= avfilter_graph_alloc()))
 		return AVERROR(ENOMEM);
 
 
+	LOGE("filter 1");
 	AVDictionary *swr_opts=NULL;
     ffp_show_dict("swr-opts   ", swr_opts);
-	while ((e = av_dict_get(swr_opts, "", e, AV_DICT_IGNORE_SUFFIX)))
-		av_strlcatf(aresample_swr_opts, sizeof(aresample_swr_opts), "%s=%s:", e->key, e->value);/**/
+	//while ((e = av_dict_get(swr_opts, "", e, AV_DICT_IGNORE_SUFFIX)))
+	//	av_strlcatf(aresample_swr_opts, sizeof(aresample_swr_opts), "%s=%s:", e->key, e->value);/**/
 	if (strlen(aresample_swr_opts))
 		aresample_swr_opts[strlen(aresample_swr_opts)-1] = '\0';
 	av_opt_set(is->AudioGraph, "aresample_swr_opts", aresample_swr_opts, 0);
 
+	
 	ret = snprintf(asrc_args, sizeof(asrc_args),
 		"sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d",
 		is->audio_filter_src.freq, av_get_sample_fmt_name(is->audio_filter_src.fmt),
 		is->audio_filter_src.channels,
 		1, is->audio_filter_src.freq);
+	
 	if (is->audio_filter_src.channel_layout)
+#ifdef WIN32
 		snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
 		":channel_layout=0x%d",  is->audio_filter_src.channel_layout);/**/
+#else
+	snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
+		":channel_layout=0x%lld",  is->audio_filter_src.channel_layout);/**/
+#endif
 
+	
 	ret = avfilter_graph_create_filter(&filt_asrc,
 		avfilter_get_by_name("abuffer"), "ffplay_abuffer",
 		asrc_args, NULL, is->AudioGraph);
 	if (ret < 0)
 		goto end;
+
 
 
 	ret = avfilter_graph_create_filter(&filt_asink,
@@ -1512,6 +1522,7 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 	if (ret < 0)
 		goto end;
 
+	
 	if ((ret = av_opt_set_int_list(filt_asink, "sample_fmts", sample_fmts,  AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0)
 		goto end;
 	if ((ret = av_opt_set_int(filt_asink, "all_channel_counts", 1, AV_OPT_SEARCH_CHILDREN)) < 0)
@@ -1571,6 +1582,8 @@ static inline int cmp_audio_fmts(enum AVSampleFormat fmt1, int64_t channel_count
 //音频解码线程
 unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 {
+	LOGE("Audio_Thread Ok");
+
 	//return 1;
 	SKK_VideoState *is=(SKK_VideoState*)lpParameter;
 	AVFrame *frame = av_frame_alloc();
@@ -1594,11 +1607,10 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	int reconfigure;
 	//解码操作
 	do {
-		//::OutputDebugStringA("解码\n");
+		
 		if ((got_frame = audio_decode_frame(is, frame)) < 0)
 			goto the_end;
-       //::OutputDebugStringA("解码结束\n");
-
+    
 		if (got_frame)
 		{
 			tb.num=1;
@@ -1638,6 +1650,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
                     reconfigure =true;
 				 }
 			}
+		
 				if (reconfigure) 
 				{
 
@@ -1658,20 +1671,27 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					strcpy(abcd,"volume=0.9");
 					if(is->AVRate!=100)
 					strcat(abcd,is->Atempo);
+
 					if ((ret = configure_audio_filters(is, abcd, 1)) < 0)
+					{
+						
 						goto the_end;
+					}
 				
 				}
 
+		
 			if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
 			{
 				continue;
 			}
 
+			
 			//::OutputDebugStringA("xxx\n");
 			while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0&&!is->abort_request) 
 			{
 				
+			
 				tb = is->OutAudioSink->inputs[0]->time_base;
 
 				// ::OutputDebugStringA("11 \n");
@@ -1704,6 +1724,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	} while ((ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)&&!is->abort_request);
 the_end:
 	av_frame_free(&frame);
+	
 	is->auddec.decoder_tid.ThOver=true;
 	return ret;
 }

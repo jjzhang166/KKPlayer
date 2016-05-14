@@ -6,6 +6,7 @@ package com.ic70.kkplayer.kkplayer;
 public class CJniKKPlayer {
     static{
         System.loadLibrary("z");
+       // System.loadLibrary("dvbcsa");
         System.loadLibrary("avutil-54");
         System.loadLibrary("swresample-1");
         System.loadLibrary("avcodec-56");

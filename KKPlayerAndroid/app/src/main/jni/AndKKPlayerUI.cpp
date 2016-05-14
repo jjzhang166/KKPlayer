@@ -215,6 +215,14 @@ unsigned char* CAndKKPlayerUI::GetWaitImage(int &length,int curtime)
 {
     return NULL;
 }
+unsigned char*  CAndKKPlayerUI::GetCenterLogoImage(int &length)
+{
+    return NULL;
+}
+void CAndKKPlayerUI::LoadCenterLogo(unsigned char* buf,int len)
+{
+
+}
 unsigned char* CAndKKPlayerUI::GetBkImage(int &length)
 {
     return NULL;

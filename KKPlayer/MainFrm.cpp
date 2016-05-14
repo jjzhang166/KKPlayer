@@ -346,7 +346,9 @@ void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 	::FillRect(memdc,&rt,m_SelectDotHbr);
 	::DeleteObject(m_SelectDotHbr);
 
+	#ifdef WIN32_KK
 	 m_PlayerInstance.OnDrawImageByDc(memdc);
+#endif
 }
 void CMainFrame::Render()
 {
