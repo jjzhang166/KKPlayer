@@ -18,6 +18,7 @@ static int av_sync_type =AV_SYNC_AUDIO_MASTER;//AV_SYNC_EXTERNAL_CLOCK;//AV_SYNC
 double rdftspeed = 0.02;
 KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI), m_OpenMediaEnum(No)
 {
+	m_pAVInfomanage=CAVInfoManage::GetInance();
 //	assert(m_pPlayUI!=NULL);
 	m_DisplayVp=NULL;
 	pVideoInfo=NULL;
@@ -25,7 +26,8 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	static bool registerFF=true;
 	if(registerFF)
 	{
-		
+		 
+		LOGE("len:%d",strlen("ฮารว"));
 		/*std::string strPort="";
 		const char *pp=strPort.c_str();
 		char* const aaa=(char* const)pp;*/
@@ -278,7 +280,11 @@ unsigned __stdcall  KKPlayer::ReadAV_thread(LPVOID lpParameter)
 }
 
 
-
+void KKPlayer::SetDbPath(char *strPath)
+{
+	m_pAVInfomanage->SetPath(strPath);
+	m_pAVInfomanage->InitDb();
+}
 #ifdef WIN32_KK
 int index=0;
 SYSTEMTIME Time_tToSystemTime(time_t t)

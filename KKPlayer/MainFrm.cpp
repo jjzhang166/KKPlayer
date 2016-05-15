@@ -4,6 +4,8 @@
 #include "render/renderGDI.h"
 #include <ObjIdl.h>
 #include "KKSound.h"
+#include "Tool/cchinesecode.h"
+#include "Tool/CFileMgr.h"
 //#define QY_GDI
 Gdiplus::Bitmap* CoverPic(int destWidth,int destHeight,Gdiplus::Image* srcBmp)
 {
@@ -55,7 +57,7 @@ std::basic_string<char> GetModulePathA()
 	return "";
 }
 
-
+std::basic_string<TCHAR> GetModulePath();
 CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCenterLogoImage(NULL)
 {
 	std::string basePath=GetModulePathA();
@@ -188,6 +190,16 @@ CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCen
 		fclose(fp);
 	}
 	m_CurWaitPic=NULL;
+	
+	std::wstring Propath=GetModulePath();
+	Propath+=L"\\Db";
+	CFileMgr mgr;
+	mgr.CreateDirectory(Propath.c_str());
+	Propath+=L"\\mv";
+	std::string pp;
+	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);
+	
+	m_PlayerInstance.SetDbPath((char *)pp.c_str());
 	
 }
 void CMainFrame::UpdateLayout(BOOL bResizeBars)

@@ -302,6 +302,14 @@
 				RelativePath=".\Tool\cchinesecode.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Tool\CFileMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Tool\CFileMgr.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

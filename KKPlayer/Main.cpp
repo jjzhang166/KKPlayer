@@ -153,6 +153,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		theApp->LoadSystemNamedResource(sysSesProvider);
 	}
 
+	std::wstring path=GetModulePath();
 	CMainDlg dlgMain;  
 	dlgMain.Create(GetActiveWindow(),0,0,0,0);
 	dlgMain.SendMessage(WM_INITDIALOG);

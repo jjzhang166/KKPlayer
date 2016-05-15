@@ -1,5 +1,5 @@
 include Android_config.mak
-objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o KKPlayer.o
+objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -33,7 +33,9 @@ $(ObjTARGET):$(objects)
 	-l$(FFMPEGLib)libswresample-1.so \
 	-l$(FFMPEGLib)libswscale-3.so;
 	$(AR) rcs $(ObjLib) $(objects) 
-	
+
+sqlite3.o: sqlite/sqlite3ext.h sqlite/sqlite3.h sqlite/sqlite3.c
+	$(CC) -c $(CFLAGS) sqlite/sqlite3.c
 platforms.o:platforms.cpp stdafx.h
 	$(CXX) -c $(CFLAGS) platforms.cpp
 KKLock.o: KKLock.cpp KKLock.h platforms.h stdafx.h 
@@ -44,7 +46,11 @@ KKCond_t.o: KKCond_t.cpp KKCond_t.h	KKMutex.h platforms.h stdafx.h
 	$(CXX) -c $(CFLAGS) KKCond_t.cpp
 KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.h platforms.h stdafx.h 
 	$(CXX) -c $(CFLAGS) KKInternal.cpp
-KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h
+SqliteOp.o: sqlite/sqlite3.h SqlOp/SqliteOp.h SqlOp/SqliteOp.cpp
+	$(CXX) -c $(CFLAGS) SqlOp/SqliteOp.cpp
+AVInfomanage.o:	SqlOp/SqliteOp.h SqlOp/AVInfomanage.h SqlOp/AVInfomanage.cpp
+	$(CXX) -c $(CFLAGS) SqlOp/AVInfomanage.cpp
+KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h SqlOp/AVInfomanage.h
 	$(CXX) -c $(CFLAGS) KKPlayer.cpp
 
 install:

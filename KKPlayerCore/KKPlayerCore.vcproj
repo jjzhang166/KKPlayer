@@ -235,6 +235,42 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<Filter
+			Name="sqlite"
+			>
+			<File
+				RelativePath=".\sqlite\sqlite3.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sqlite\sqlite3.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sqlite\sqlite3ext.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="SqlOp"
+			>
+			<File
+				RelativePath=".\SqlOp\AVInfomanage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SqlOp\AVInfomanage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SqlOp\SqliteOp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SqlOp\SqliteOp.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
 			>

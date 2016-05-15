@@ -16,6 +16,7 @@
 
 #include "KKLock.h"
 #include "KKVideoInfo.h"
+#include "SqlOp/AVInfomanage.h"
 #ifndef KKPlayer_H_
 #define KKPlayer_H_
 enum OpenMediaEnum
@@ -73,9 +74,9 @@ class KKPlayer
 			void AVSeek(int value);
 			void InitSound();
 			MEDIA_INFO GetMediaInfo();
-			int PktSerial();
-public:
-			
+			int PktSerial();	
+			//UTF-8
+			void SetDbPath(char *strPath);
 private:
 	        //视频刷线程
 			void VideoRefresh();
@@ -95,6 +96,8 @@ private:
 			void VideoPushStream();
 	        void ReadAudioCall();
 			void PacketQueuefree();
+
+			CAVInfoManage* m_pAVInfomanage;
 	        //文件打开后需要做什么
 	        OpenMediaEnum m_OpenMediaEnum;
 	        CKKLock m_CloseLock;

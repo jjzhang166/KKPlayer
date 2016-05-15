@@ -12,6 +12,13 @@ public:
 	  static std::string GBK_ToUTF8(const std::string& strGBK);
 	  static  unsigned int UTF8StrToUnicode( const char* UTF8String, unsigned int UTF8StringLength, wchar_t* OutUnicodeString, unsigned int UnicodeStringBufferSize );
 
+	  static void UnicodeToUTF8(wchar_t *src, std::string& result)  
+	  {  
+		  int n = WideCharToMultiByte( CP_UTF8, 0, src, -1, 0, 0, 0, 0 );  
+		  result.resize(n);  
+		  ::WideCharToMultiByte( CP_UTF8, 0, src, -1, (char*)result.c_str(), result.length(), 0, 0 );  
+	  }  
+
 	  static void wcharTochar(const wchar_t *wchar, char *chr, int length)  
       {  
            WideCharToMultiByte( CP_ACP, 0, wchar, -1,  
