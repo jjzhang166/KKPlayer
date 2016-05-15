@@ -87,18 +87,19 @@ typedef struct SKK_Frame
 {
 	AVFrame *frame;
 	AVSubtitle sub;
+	//序列号--刷新时更新。
 	int serial;
+	int PktNumber;/*****包序号，递增*****/
 	double pts;           /* presentation timestamp for the frame */
-	double duration;      /* estimated duration of the frame 持续的时间*/ 
+	double duration;      /* estimated duration of the frame 这一帧持续的时间*/ 
 	int64_t pos;          /* byte position of the frame in the input file */
 	/***********位图数据*************/
 	void *buffer;
-	/***是否分贝***/
+	/***是否分配内存对frame***/
 	int allocated;
-	int reallocate;
+	//int reallocate;
 	int width;
 	int height;
-	AVRational sar;
 } SKK_Frame;
 
 //帧队列(解码后的数据为帧)
@@ -157,6 +158,8 @@ typedef struct SKK_Decoder
 //视频音频信息
 typedef struct SKK_VideoState 
 {
+	/********包序号递增*********/
+	int PktNumber;
 	double duration;
     //视频已经准备好了
 	int IsReady;

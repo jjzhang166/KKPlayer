@@ -427,7 +427,7 @@ void KKPlayer::RenderImage(CRender *pRender)
 			
 			/**********获取包位置**********/
 			vp = frame_queue_peek(&pVideoInfo->pictq);
-			if(vp!=m_DisplayVp&&m_DisplayVp!=NULL)
+			if(vp->PktNumber!=m_DisplayVp)
 			{
 				//if(vp->width!=WindowWidth&&WindowHeight!=vp->height)
 				//  pRender->resize(vp->width,vp->height);
@@ -439,7 +439,7 @@ void KKPlayer::RenderImage(CRender *pRender)
 			//LOGE("WindowWidth=vp->width:%d,WindowHeight=vp->height:%d \n",vp->width,vp->height);
 			WindowWidth=vp->width;
 			WindowHeight=vp->height;
-			m_DisplayVp=vp;
+			m_DisplayVp=vp->PktNumber;
 			pVideoInfo->pictq.mutex->Unlock();
 			m_CloseLock.Unlock();
 		}
@@ -739,6 +739,7 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	m_VideoRefreshthreadInfo.Addr = pthread_create(&m_VideoRefreshthreadInfo.Tid_task, NULL, (void* (*)(void*))VideoRefreshthread, (LPVOID)this);
 	m_AudioCallthreadInfo.Addr =pthread_create(&m_AudioCallthreadInfo.Tid_task, NULL, (void* (*)(void*))Audio_Thread, (LPVOID)this);
 #endif
+
 	return 0;
 }
 void KKPlayer::OnDecelerate()

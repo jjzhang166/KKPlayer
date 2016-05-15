@@ -104,7 +104,8 @@ private:
 			volatile int m_PktSerial;
 	        int WindowWidth;
 			int WindowHeight;
-	        SKK_Frame *m_DisplayVp;
+			//上一次显示的帧的序号
+	        int m_DisplayVp;
 	        IKKAudio* m_pSound;
 			HWND m_hwnd;
 	        
@@ -126,5 +127,6 @@ private:
 			std::queue<AVPacket *> m_PushPktQue;
 			CKKLock m_PushStreamLock;
 			char* m_pStrFilePath;
+			
 };
 #endif

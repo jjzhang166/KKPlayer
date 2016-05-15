@@ -1132,18 +1132,18 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	//锁
 	//LOGE("queue_picture Lock \n");
 	pPictq->mutex->Lock();
-	vp->sar = pFrame->sample_aspect_ratio;
+	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
     vp->duration=duration;
 	vp->pos=pos;
 	vp->serial=serial;
 	vp->pts=pts;
-vp->frame->pts=pFrame->pts;
+	vp->PktNumber=is->PktNumber++;
+    vp->frame->pts=pFrame->pts;
 	if( !vp->buffer || 
 		vp->width != pFrame->width ||
 		vp->height != pFrame->height) 
 	{
 			vp->allocated = 0;
-			vp->reallocate=0;
 			vp->width = is->viddec.avctx->width;
 			vp->height = is->viddec.avctx->height;
 			vp->allocated = 1;
@@ -1376,7 +1376,7 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 		//从队列获取数据
 		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0) 
 		{
-			Sleep(1);
+			Sleep(2);
 		}else
 		{
 
@@ -1683,6 +1683,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		
 			if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
 			{
+				Sleep(2);
 				continue;
 			}
 
@@ -1717,10 +1718,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				frame_queue_push(&is->sampq);
 				//::OutputDebugStringA("xxx4\n");
 			}
-
-			
-			
 		}
+		Sleep(1);
 	} while ((ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)&&!is->abort_request);
 the_end:
 	av_frame_free(&frame);
