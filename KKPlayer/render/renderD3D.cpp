@@ -62,11 +62,7 @@ CRenderD3D::CRenderD3D()
 CRenderD3D::~CRenderD3D()
 {
 	
-	SAFE_RELEASE(m_pWaitPicTexture);
-	SAFE_RELEASE(m_pDirect3DSurfaceRender); 
-    SAFE_RELEASE(m_CenterLogoTexture);
-	SAFE_RELEASE(m_pDxTexture);
-	SAFE_RELEASE(m_PBkTexture);
+	ResetTexture();
     SAFE_RELEASE(m_pDevice);
     SAFE_RELEASE(m_pD3D);
 }
@@ -448,18 +444,29 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 	
 }
 
+
+void CRenderD3D::ResetTexture()
+{
+	SAFE_RELEASE(m_pDxTexture);
+	SAFE_RELEASE(Fontexture);
+	SAFE_RELEASE(m_PBkTexture);
+	SAFE_RELEASE(m_CenterLogoTexture);
+	SAFE_RELEASE(m_pWaitPicTexture);
+	SAFE_RELEASE(m_pLeftPicTexture);
+	SAFE_RELEASE(m_pDirect3DSurfaceRender);
+}
 bool CRenderD3D::LostDeviceRestore()
 {
     HRESULT hr = m_pDevice->TestCooperativeLevel();
     if (hr == D3DERR_DEVICELOST)
     {
-        SAFE_RELEASE(m_pDxTexture);
+       ResetTexture();
         return false;
     }
 
     if (hr == D3DERR_DEVICENOTRESET)
     {
-        SAFE_RELEASE(m_pDxTexture);
+        ResetTexture();
         D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
         hr = m_pDevice->Reset(&PresentParams);
         if (FAILED(hr))

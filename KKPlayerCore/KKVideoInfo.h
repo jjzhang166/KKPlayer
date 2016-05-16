@@ -279,8 +279,7 @@ typedef struct SKK_VideoState
     /*****文件名******/
 	char filename[1024];
 	int DestWidth, DestHeight, xleft, ytop;
-	//显示区域宽度，高度
-	int DisplayWidth,DisplayHeight;
+	
 	int step;
 
 	

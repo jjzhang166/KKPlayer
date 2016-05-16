@@ -27,6 +27,7 @@ public:
 	void SetLeftPicStr(wchar_t *str);
 	std::wstring m_LeftStr;
 private:
+	void ResetTexture();
 	bool UpdateLeftPicTexture();
 	//void  source_hdc = GetDC(hwnd);
 	void CreateFonet();

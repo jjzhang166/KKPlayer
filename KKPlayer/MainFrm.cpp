@@ -376,29 +376,8 @@ LRESULT  CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/,
 	 if(m_pRender!=NULL)
 	 {
           m_pRender->resize(w,h);
-		  if(w>200)
-          m_PlayerInstance.AdjustDisplay(w,h);
+		
 	 }
-	 delete m_BkGidPulsBitmap;
-
-	 {
-		 int len=0;
-		 unsigned char *pBkImage=GetBkImage(len);
-		 HGLOBAL hMem = GlobalAlloc(GMEM_FIXED, len);
-		 BYTE* pmem = (BYTE*)GlobalLock(hMem);
-		 memcpy(pmem,pBkImage,len);
-
-		 GlobalUnlock(hMem); 
-
-		 IStream* pstm; 
-		 CreateStreamOnHGlobal(hMem, FALSE, &pstm);
-		 Gdiplus::Image *pImage = Gdiplus::Image::FromStream(pstm);
-		 pstm->Release();
-		 DeleteObject(hMem);
-         m_BkGidPulsBitmap= CoverPic(w,h,pImage);
-		 delete pImage;
-	 }
-
 	
 	 return 1;
 }

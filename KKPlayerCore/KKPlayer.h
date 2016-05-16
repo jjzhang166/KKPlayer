@@ -53,7 +53,7 @@ class KKPlayer
             int GetCurTime();
 			
 			void RenderImage(CRender *pRender);
-			void AdjustDisplay(int w,int h);
+			
 			void OnDecelerate();
 			void OnAccelerate();
 			int GetAVRate();

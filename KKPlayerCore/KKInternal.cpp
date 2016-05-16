@@ -1165,52 +1165,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	}
 	if( pFrame->width>0&&pFrame->height>0)
 	{
-		/*1280×720   16:9
-			1920×1080  16:9
-			720×480    4:3*/
-		//if(0)
-#ifdef Android_PlatXXX
-			if((pFrame->width==1280&&pFrame->height==720)||(pFrame->width==1920&&pFrame->height==1080))
-			{
-				//显示区域小鱼目标宽度
-				if(is->DisplayWidth<pFrame->width)
-				{
-					float ff= (float)is->DisplayWidth/pFrame->width;
-					is->DestWidth=pFrame->width*ff;
-					is->DestHeight=pFrame->height*ff;
-				}else
-				{
-                   is->DestWidth=pFrame->width;
-                   is->DestHeight=pFrame->height;
-				}
-			}else if(pFrame->width<=720&&pFrame->height<=480)
-			{
-				//显示区域小鱼目标宽度
-				if(is->DisplayWidth<pFrame->width)
-				{
-					float ff=(float) is->DisplayWidth/pFrame->width;
-					is->DestWidth=pFrame->width*ff;
-					is->DestHeight=pFrame->height*ff;
-				}else
-				{
-					is->DestWidth=pFrame->width;
-					is->DestHeight=pFrame->height;
-				}
-			}else
-			{
-				/*LOGE("No s,%d:%d",is->DisplayWidth,is->DestHeight);
-				float ff=(float) is->DisplayWidth/pFrame->width;
-				float ff1=(float) is->DestHeight/pFrame->height;*/
-				/*is->DestWidth=pFrame->width*ff;
-				is->DestHeight=pFrame->height*ff;*/
-				is->DestWidth=pFrame->width;
-				is->DestHeight=pFrame->height;
-			}
-#else
 		is->DestWidth=pFrame->width;
 		is->DestHeight=pFrame->height;
-#endif
-		
 		w=is->DestWidth;
 		h=is->DestHeight;
 	}

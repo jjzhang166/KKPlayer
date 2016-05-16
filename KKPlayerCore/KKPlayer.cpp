@@ -453,14 +453,6 @@ void KKPlayer::RenderImage(CRender *pRender)
 	
 }
 
-void KKPlayer::AdjustDisplay(int w,int h)
-{
-     if(pVideoInfo!=NULL)
-	 {
-		 pVideoInfo->DisplayWidth=w;
-		 pVideoInfo->DisplayHeight=h;
-	 }
-}
 #ifdef WIN32_KK
 void KKPlayer::OnDrawImageByDc(HDC memdc)
 {
@@ -662,8 +654,7 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 
 	RECT rt;
 	::GetClientRect(m_hwnd,&rt);
-	pVideoInfo->DisplayWidth=100;//rt.right-rt.left;
-	pVideoInfo->DisplayHeight=100;//rt.bottom-rt.top;
+	
 	
 
 

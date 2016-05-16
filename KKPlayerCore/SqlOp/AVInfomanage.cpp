@@ -32,4 +32,6 @@ void CAVInfoManage::InitDb()
   CSqliteOp *pDbOp =(CSqliteOp *)m_pDbOp;
   pDbOp->OpenDB(m_strDb,&pDb);
   m_pDb=pDb;
+
+ 
 }
