@@ -1330,7 +1330,7 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 	do
 	{
 		//从队列获取数据
-		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0) 
+		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0&&!pVideoInfo->abort_request) 
 		{
 			Sleep(2);
 		}else if(pVideoInfo->abort_request)
