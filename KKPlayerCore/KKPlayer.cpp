@@ -8,6 +8,7 @@
 
 #include "KKPlayer.h"
 #include "KKInternal.h"
+#include "MD5/md5.h"
 static AVPacket flush_pkt;
 static int decoder_reorder_pts = -1;
 static int framedrop = -1;
@@ -57,8 +58,13 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	//	hwaccel=av_hwaccel_next(hwaccel);
 	//}
 
+	char buf[1024]="";
+	MD5File("F://ttxx.mp4", buf);
 	
-	//LOGE("\n");
+
+
+	
+	LOGE("\n");
 	WindowWidth=0;
 	WindowHeight=0;
 	//avio_alloc_context

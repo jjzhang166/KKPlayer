@@ -1,5 +1,5 @@
 include Android_config.mak
-objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o
+objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o md5.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -34,6 +34,8 @@ $(ObjTARGET):$(objects)
 	-l$(FFMPEGLib)libswscale-3.so;
 	$(AR) rcs $(ObjLib) $(objects) 
 
+md5.o: MD5/md5.c MD5/md5.h
+	$(CC) -c $(CFLAGS) MD5/md5.c
 sqlite3.o: sqlite/sqlite3ext.h sqlite/sqlite3.h sqlite/sqlite3.c
 	$(CC) -c $(CFLAGS) sqlite/sqlite3.c
 platforms.o:platforms.cpp stdafx.h
