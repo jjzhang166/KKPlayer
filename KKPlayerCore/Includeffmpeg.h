@@ -39,6 +39,7 @@ extern "C"
 #include "../libx86/ffmpeg/include/libswscale/swscale.h"
 #include "../libx86/ffmpeg/include/libavutil/opt.h"
 #include "../libx86/ffmpeg/include/libavcodec/avfft.h"
+#include "../libx86/ffmpeg/include/libavcodec/avcodec.h"
 #include "../libx86/ffmpeg/include/libswresample/swresample.h"
 #include "../libx86/ffmpeg/include/libavfilter/avfilter.h"
 

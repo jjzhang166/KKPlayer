@@ -1333,8 +1333,10 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0) 
 		{
 			Sleep(2);
-		}else
+		}else if(pVideoInfo->abort_request)
 		{
+			break;
+		}else{
 
 			if (pkt.data == pVideoInfo->pflush_pkt->data)
 			{

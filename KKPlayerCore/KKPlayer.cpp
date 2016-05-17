@@ -40,14 +40,24 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	}
 	
 	AVInputFormat *ff=av_iformat_next(NULL);
-	//LOGE("AVInputFormatList \n");
-	int i=0;
-	while(ff!=NULL)
-	{
-		const char *aa=ff->name;
-		//LOGE("%d,%s \n",i++,aa);
-		ff=av_iformat_next(ff);
-	}
+
+	//AVCodec *codec=av_codec_next(NULL);
+	//AVHWAccel *hwaccel=av_hwaccel_next(NULL);
+	////LOGE("AVInputFormatList \n");
+	//int i=0;
+	//while(hwaccel!=NULL)
+	//{
+	//	const char *aa=hwaccel->name;
+	//	::OutputDebugStringA("\n");
+	//	::OutputDebugStringA(aa);
+	//	::OutputDebugStringA("---");
+	//	// aa=hwaccel->
+	//	//::OutputDebugStringA(aa);
+	//	//LOGE("%d,%s \n",i++,aa);
+	//	hwaccel=av_hwaccel_next(hwaccel);
+	//}
+
+	
 	//LOGE("\n");
 	WindowWidth=0;
 	WindowHeight=0;
@@ -1008,11 +1018,11 @@ void KKPlayer::ReadAV()
 		if (pVideoInfo->seek_req&&!pVideoInfo->realtime)
 		{
 			int64_t seek_target = pVideoInfo->seek_pos;
-			//int64_t seek_min    =pVideoInfo->seek_rel > 0 ? seek_target - pVideoInfo->seek_rel + 2: INT64_MIN;//pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
-			//int64_t seek_max    =pVideoInfo->seek_rel < 0 ? seek_target - pVideoInfo->seek_rel - 2: INT64_MAX;//=pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
+			int64_t seek_min    =pVideoInfo->seek_rel > 0 ? seek_target - pVideoInfo->seek_rel + 2: INT64_MIN;//pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
+			int64_t seek_max    =pVideoInfo->seek_rel < 0 ? seek_target - pVideoInfo->seek_rel - 2: INT64_MAX;//=pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
 
-			int64_t seek_min    =pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
-			int64_t seek_max    =pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
+			//int64_t seek_min    =pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
+			//int64_t seek_max    =pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
 			ret = avformat_seek_file(pVideoInfo->pFormatCtx, -1, seek_min, seek_target, seek_max, pVideoInfo->seek_flags);
 			if (ret < 0) 
 			{
@@ -1055,11 +1065,11 @@ void KKPlayer::ReadAV()
 			 {
 				    
                     pVideoInfo->eof=1;
-					break;
 			 }
-			if (pFormatCtx->pb && pFormatCtx->pb->error)
+
+			 if (pFormatCtx->pb && pFormatCtx->pb->error)
 				break;
-			Sleep(1);
+			Sleep(10);
 			continue;
 		} else 
 		{

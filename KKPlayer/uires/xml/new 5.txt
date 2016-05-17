@@ -16,16 +16,15 @@ rundll32.exe setupapi,InstallHinfSection dev_Service_Inst 132 C:\WinCDEmu\BazisV
 rundll32.exe newdev.dll,ClientSideInstall \\.\BazisPortableCDBus.{4d36e97b-e325-11ce-bfc1-08002be10318}
 cd F:/ProgramTool/OpenPro/KKPlayer/KKPlayerCore
 
-342276504
-sudo apt-get install glibc-doc
-sudo apt-get install manpages-posix-dev
-
-sudo apt-get install mysql-server
-apt-get isntall mysql-client
-sudo apt-get install libmysqlclient-dev
-
-mysql -u root -p 
-
-F:/android/android-sdk-windows/ndk-bundle/toolchains/arm-linux-androideabi-4.8/prebuilt/windows/bin/arm-linux-androideabi-readelf.exe libdvbcsa.so
-
- uiresbuilder -p uires -i uires\uires.idx -r res\KK_res.rc2 //-h .\uires\resource.h
+我不陪公司玩云课堂了，理由：
+1.即使公司云课堂做好了，成功推出。我也只是涨点工资，然后做着维护的工作，
+或者做流媒体开发。然而我没有看到公司投资云课堂决心，公司只是走一步看一步。
+2.如果云课堂没做好，公司可能就要缩减这个部门的人员，我了可能就要面临找工资或者去其它部门做事，
+即使不去，也只能做维护了。
+3.我也不想再继续做界面的开发了，没趣，辛辛苦苦的做界面，老板说改就要改，没趣。
+4.移动场的兴起对桌面pc软件打压很厉害，做桌面端累死累活，还不如去做移动端或者转门
+去学习莫一领域的技能。
+5.做这公司的云课堂真的压力大，我不想有这么大的压力。这个项目做不好，我这我就要直接
+偏离自己所规划的轨道了。
+6.人都有自己的想法，要最自己努力去实现自己的想法，不要因为工作，后者现实的残酷，
+而忘记了自己的初心。
