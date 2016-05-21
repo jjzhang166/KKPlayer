@@ -50,7 +50,7 @@ KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.
 	$(CXX) -c $(CFLAGS) KKInternal.cpp
 SqliteOp.o: sqlite/sqlite3.h SqlOp/SqliteOp.h SqlOp/SqliteOp.cpp
 	$(CXX) -c $(CFLAGS) SqlOp/SqliteOp.cpp
-AVInfomanage.o:	SqlOp/SqliteOp.h SqlOp/AVInfomanage.h SqlOp/AVInfomanage.cpp
+AVInfomanage.o:	KKVideoInfo.h SqlOp/SqliteOp.h SqlOp/AVInfomanage.h SqlOp/AVInfomanage.cpp
 	$(CXX) -c $(CFLAGS) SqlOp/AVInfomanage.cpp
 KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h SqlOp/AVInfomanage.h
 	$(CXX) -c $(CFLAGS) KKPlayer.cpp

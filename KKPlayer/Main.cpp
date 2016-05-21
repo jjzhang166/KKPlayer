@@ -12,6 +12,7 @@
 #pragma comment (lib,"Gdiplus.lib")
 CAppModule _Module;
 std::basic_string<TCHAR> g_strModuleFileName;
+SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
 const std::basic_string<TCHAR>& XGetModuleFilename()
 {
 	
@@ -120,8 +121,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	SComMgr * pComMgr = new SComMgr;
 
 	SOUI::CAutoRefPtr<SOUI::IImgDecoderFactory> pImgDecoderFactory;
-	CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
+	
 	pComMgr->CreateRender_GDI((IObjRef**)&pRenderFactory);
+    
+	
 	pComMgr->CreateImgDecoder((IObjRef**)&pImgDecoderFactory);
 	pRenderFactory->SetImgDecoderFactory(pImgDecoderFactory);
 	
@@ -156,7 +159,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	std::wstring path=GetModulePath();
 	CMainDlg dlgMain;  
 	dlgMain.Create(GetActiveWindow(),0,0,0,0);
-	dlgMain.SendMessage(WM_INITDIALOG);
+	dlgMain.GetNative()->SendMessage(WM_INITDIALOG);
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);
 

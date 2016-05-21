@@ -38,6 +38,12 @@
 		<imglist name="_skin.Folder" src="PNG:ID_PNG_FOLDER"  states="5"/>
 		<imgframe name="_skin.Vol_Bg" src="PNG:ID_PNG_VolBg"/>
 		<imgframe name="_skin.Vol_Pre" src="PNG:ID_PNG_VolPre" margin-x="3"/>
+		
+	
+	    <scrollbar name="_skin.Scrollbar" src="PNG:ID_PNG_SCROLLBAR" margin="3" hasgripper="0"/>
+		
+		 <imgframe name="_skin.AV.split.vert" src="PNG:ID_PNG_SP" top="20" bottom="10"/>
+		
 		<!--<imgframe name="_skin.SBKgnd" src="PNG:SYS_PROG_BKGND" margin-x="5"/>
         <imgframe name="_skin.SBKbar" src="PNG:SYS_PROG_BAR" margin-x="3"/>-->
 		

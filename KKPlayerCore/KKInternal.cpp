@@ -1190,7 +1190,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			}
 		    AVPicture pict = { { 0 } };
 			int numBytes=avpicture_get_size(ff, w,h);
-			uint8_t * buffer=(uint8_t *)av_malloc(numBytes*sizeof(uint8_t));
+			vp->buflen=numBytes*sizeof(uint8_t);
+			uint8_t * buffer=(uint8_t *)av_malloc(vp->buflen);
 			avpicture_fill((AVPicture *)&pict, buffer,ff,  w, h);
 			sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
 				0,pFrame->height, pict.data, pict.linesize);

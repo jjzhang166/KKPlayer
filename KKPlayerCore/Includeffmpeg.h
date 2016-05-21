@@ -34,23 +34,31 @@ extern "C"
 #include "../libx86/ffmpeg/include/libavutil/samplefmt.h"
 #include "../libx86/ffmpeg/include/libavutil/avassert.h"
 #include "../libx86/ffmpeg/include/libavutil/time.h"
-#include "../libx86/ffmpeg/include/libavformat/avformat.h"
-#include "../libx86/ffmpeg/include/libavdevice/avdevice.h"
-#include "../libx86/ffmpeg/include/libswscale/swscale.h"
-#include "../libx86/ffmpeg/include/libavutil/opt.h"
-#include "../libx86/ffmpeg/include/libavcodec/avfft.h"
-#include "../libx86/ffmpeg/include/libavcodec/avcodec.h"
-#include "../libx86/ffmpeg/include/libswresample/swresample.h"
-#include "../libx86/ffmpeg/include/libavfilter/avfilter.h"
-
-# include "../libx86/ffmpeg/include/libavfilter/avcodec.h"
-# include "../libx86/ffmpeg/include/libavfilter/avfilter.h"
-# include "../libx86/ffmpeg/include/libavfilter/buffersink.h"
-# include "../libx86/ffmpeg/include/libavfilter/buffersrc.h"
-#include  "../libx86/ffmpeg/include/libavutil/mathematics.h"
+#include "../libx86/ffmpeg/include/libavutil/base64.h"
+#include "../libx86/ffmpeg/include/libavutil/mathematics.h"
 #include "../libx86/ffmpeg/include/libavutil/aes.h"
 #include "../libx86/ffmpeg/include/libavutil/lfg.h"
 #include "../libx86/ffmpeg/include/libavutil/log.h"
+#include "../libx86/ffmpeg/include/libavutil/opt.h"
+
+
+#include "../libx86/ffmpeg/include/libavformat/avformat.h"
+
+#include "../libx86/ffmpeg/include/libavdevice/avdevice.h"
+
+#include "../libx86/ffmpeg/include/libswscale/swscale.h"
+
+#include "../libx86/ffmpeg/include/libavcodec/avfft.h"
+#include "../libx86/ffmpeg/include/libavcodec/avcodec.h"
+
+#include "../libx86/ffmpeg/include/libswresample/swresample.h"
+
+#include "../libx86/ffmpeg/include/libavfilter/avfilter.h"
+#include "../libx86/ffmpeg/include/libavfilter/avcodec.h"
+#include "../libx86/ffmpeg/include/libavfilter/avfilter.h"
+#include "../libx86/ffmpeg/include/libavfilter/buffersink.h"
+#include "../libx86/ffmpeg/include/libavfilter/buffersrc.h"
+
 
 
 

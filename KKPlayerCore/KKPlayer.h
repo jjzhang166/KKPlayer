@@ -77,6 +77,9 @@ class KKPlayer
 			int PktSerial();	
 			//UTF-8
 			void SetDbPath(char *strPath);
+
+			//获取放播的历史信息
+			void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 private:
 	        //视频刷线程
 			void VideoRefresh();
@@ -97,9 +100,10 @@ private:
 	        void ReadAudioCall();
 			void PacketQueuefree();
 
-			CAVInfoManage* m_pAVInfomanage;
+			
 	        //文件打开后需要做什么
 	        OpenMediaEnum m_OpenMediaEnum;
+			CAVInfoManage* m_pAVInfomanage;
 	        CKKLock m_CloseLock;
 	        bool m_bOpen;
 	        IKKPlayUI* m_pPlayUI;

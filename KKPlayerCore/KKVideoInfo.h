@@ -95,6 +95,8 @@ typedef struct SKK_Frame
 	int64_t pos;          /* byte position of the frame in the input file */
 	/***********位图数据*************/
 	void *buffer;
+	int buflen;
+
 	/***是否分配内存对frame***/
 	int allocated;
 	//int reallocate;
@@ -335,7 +337,4 @@ typedef struct SKK_VideoState
 	FILE* fp_out;
 
 } SKK_VideoState;
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
 #endif

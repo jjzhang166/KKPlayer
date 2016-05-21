@@ -33,5 +33,9 @@
 	   <file name="ID_PNG_VolPre" path="image\Vol_Pre.png"/>
 	   
 	   <file name="ID_PNG_SeekThBt" path="image\Th_BT.png"/>
+	   
+	   <file name="ID_PNG_SCROLLBAR" path="image\cmn.scrollbar.png"/>
+	   <file name="ID_PNG_SP" path="image\sp.png"/>
+	   
 	</png>
 </resource>

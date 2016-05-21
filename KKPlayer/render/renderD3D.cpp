@@ -52,7 +52,6 @@ CRenderD3D::CRenderD3D()
 	,m_pDxTexture(NULL)
 	,m_pDirect3DSurfaceRender(NULL)
 	,Fontexture(NULL)
-	,m_PBkTexture(NULL)
 	,m_pWaitPicTexture(NULL)
 	,m_CenterLogoTexture(NULL)
 	,m_pLeftPicTexture(NULL)
@@ -355,8 +354,7 @@ void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_pDevice->Reset(&PresentParams);
 
-	SAFE_RELEASE(m_pDxTexture);
-	SAFE_RELEASE(m_pLeftPicTexture);
+	ResetTexture();
   //  SAFE_RELEASE(m_pDirect3DSurfaceRender);
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
@@ -415,24 +413,16 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 				}
 				
 
-			}
-			if(pBuf==NULL)
+			}else if(pBuf==NULL)
 			{
-				m_pDevice->SetTexture(0, m_PBkTexture);
-				m_pDevice->SetFVF(Vertex::FVF);
-				m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));
-
 				m_pDevice->SetTexture(0,  m_pWaitPicTexture);
+				m_pDevice->SetFVF(Vertex::FVF);
 				m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 				m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2,  m_WaitVertex, sizeof(Vertex));/**/
-
-				
+	
 			}
 			
 			
@@ -449,8 +439,7 @@ void CRenderD3D::ResetTexture()
 {
 	SAFE_RELEASE(m_pDxTexture);
 	SAFE_RELEASE(Fontexture);
-	SAFE_RELEASE(m_PBkTexture);
-	SAFE_RELEASE(m_CenterLogoTexture);
+	//SAFE_RELEASE(m_CenterLogoTexture);
 	SAFE_RELEASE(m_pWaitPicTexture);
 	SAFE_RELEASE(m_pLeftPicTexture);
 	SAFE_RELEASE(m_pDirect3DSurfaceRender);
@@ -824,31 +813,15 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 
 void CRenderD3D::renderBk(unsigned char* buf,int len)
 {
-	if(m_PBkTexture==NULL)
-	{
-		// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
-		if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_PBkTexture)))
-		{
-			//assert(0);
-			return;// S_FALSE;
-		}
-	}
-
-	m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(128, 128, 64), 1.0f, 0);
+	
+	m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0,0), 1.0f, 0);
 	if( SUCCEEDED(m_pDevice->BeginScene()) )
 	{
-		m_pDevice->SetTexture(0, m_PBkTexture);
-		m_pDevice->SetFVF(Vertex::FVF);
-		m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));
-
-
-		 
+		
 		if(m_CenterLogoTexture!=NULL)
 		{
 				 m_pDevice->SetTexture(0,  m_CenterLogoTexture);
+				 m_pDevice->SetFVF(Vertex::FVF);
 				 m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 				 m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 				 m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -867,21 +840,6 @@ void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 		// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
 		if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, & m_CenterLogoTexture)))
 		{
-			//assert(0);
-			return;// S_FALSE;
-		}
-	}
-}
-void CRenderD3D::SetBkImagePic(unsigned char* buf,int len)
-{
-	if(m_PBkTexture==NULL)
-	{
-		// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
-		if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_PBkTexture)))
-		{
-			int i=0;
-			i++;
-			i=0;
 			//assert(0);
 			return;// S_FALSE;
 		}

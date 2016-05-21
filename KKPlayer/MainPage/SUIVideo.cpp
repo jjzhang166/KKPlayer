@@ -10,7 +10,11 @@ namespace SOUI
 	{
 
 	}
-
+	//获取放播的历史信息
+	void CSuiVideo::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
+	{
+         m_VideoWnd.GetAVHistoryInfo(slQue);
+	}
 	void CSuiVideo::SetPlayStat(int state)
 	{
         m_VideoWnd.Pause();

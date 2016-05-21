@@ -283,6 +283,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Base64"
+			>
+			<File
+				RelativePath=".\Base64\Base64.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
 			>

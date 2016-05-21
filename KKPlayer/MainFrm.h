@@ -67,6 +67,7 @@ public:
 	int PktSerial();
 	void OnDecelerate();
 	void OnAccelerate();
+	void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 private:
 	CKKSound m_Sound;
 	    Gdiplus::Bitmap *m_BkGidPulsBitmap;

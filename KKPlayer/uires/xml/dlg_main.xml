@@ -1,6 +1,6 @@
 <SOUI name="mainWindow" title="KKplayer" 
 width="600" height="400"  margin="5,5,5,5"  resizable="1"
-appWnd="1" minsize="460,350"
+appWnd="1" minsize="560,350"
 translucent="0"
 >
 	<root skin="_skin.shadow">
@@ -13,9 +13,32 @@ translucent="0"
                    <imgbtn name="btn_restore" skin="_skin.Win_Max2"  pos="-48,0" tip="恢复"  show="0" animate="1" />
                    <imgbtn name="btn_min" skin="_skin.Win_Min" pos="-72,0" tip="最小化" animate="1" />
 			</caption>
-			<SuiVideo margin="3,0,0,0"  pos="0,[0,-0,]-0" name="AVMainWnd" colorBkgnd="#000000">
+			<!------视频区域------->
+			<!--<SuiVideo margin="3,0,0,0" pos="0,[0,-0,]-0" name="AVMainWnd" colorBkgnd="#000000"></SuiVideo>-->
+			<splitrow name="split_row" pos="0,[0,-0,]-0">
+			     <pane minSize="400" priority="1">
+                         <splitcol name="split_col"  sepSkin="_skin.AV.split.vert" pos="0,0,-0,-0" sepSize="3">
+                                 <pane idealSize="300" margin="0,0,0,0" minSize="360" priority="0" clipClient="1">
+			                         <SuiVideo margin="3,0,0,0" pos="0,0,]-0,-0" name="AVMainWnd" colorBkgnd="#000000"></SuiVideo>
+                                 </pane>
+                                 <pane idealSize="200" margin="0,0,0,0" minSize="200" priority="1" clipClient="1">
+                                     <listview hotTrack="1" pos="0,0,-2,-0" sbSkin="_skin.Scrollbar" name="AV_list" dividerSize="3" wantTab="1">
+			                                     <template itemHeight="80" colorHover="#cccccc" colorSelected="#0000ff">
+                                                         <window name="col1" clipClient="1">
+                                                                     <img name="AV_img" pos="2,2,@100,-2"/>
+												                     <window  pos="[5,16" >
+                                                                           <text align="left" name="AV_name" colorText="#ffFFFF" pos="0,0,-0,20" >火狐浏览器</text>
+														                   <text align="left" name="AV_CurTime"  font="adding:-5" colorText="#ffFFFF" pos="0,[2,-0,[16" >00:00:00</text>
+												                           <text align="left" name="AV_Time"  font="adding:-5" colorText="#ffFFFF" pos="0,[2,-0,[16" >00:00:00</text>
+												                     </window>
+                                                         </window>
+							                     </template>
+                                     </listview><!----->
+                                 </pane>
+                         </splitcol>
+				 </pane>
+             </splitrow>
 			
-			</SuiVideo>
 			
 			<window pos="0,]-10,-0,]-0" margin="0,0,0,0" name="SeekWin" colorBkgnd="#000000">
 			       <imgbtn name="BtnDecelerate" skin="_skin.SeekBack" width="18" height="10"  tip="减速放播" animate="1" />
@@ -24,6 +47,7 @@ translucent="0"
 				   thumbInRail="0" pos="[0,0,]0,-0"  value="0" min="0" max="1000" />
 				   <imgbtn name="BtnAccelerate"  tip="加速放播" skin="_skin.SeekForward" pos="-18,0" width="18" height="10" animate="1" />
 			</window>
+			
 			<window pos="0,-50,-0,-0"  margin="0,0,0,0" name="ButtonToolbar" skin="_skin.ButtonBg">
 			          <text font="size:10" name="AV_CurTimeTxt" margin="10,20,0,0" width="120" colorText="#ffFFFF">00:00:00/00:00:00</text>
                       <imgbtn  skin="_skin.PLAY" name="AVPlayBtn" pos="|0, |0" 

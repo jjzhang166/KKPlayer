@@ -21,4 +21,8 @@
 	#else
             #include "platforms.h"
 	#endif
+
+	#ifdef WIN32
+	#define snprintf _snprintf
+	#endif
 #endif

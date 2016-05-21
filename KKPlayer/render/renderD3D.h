@@ -21,7 +21,7 @@ public:
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
 	void SetWaitPic(unsigned char* buf,int len);
-	void SetBkImagePic(unsigned char* buf,int len);
+	
 	void DrawFontInfo();
 
 	void SetLeftPicStr(wchar_t *str);
@@ -38,7 +38,7 @@ private:
     IDirect3DDevice9* m_pDevice;
     IDirect3DTexture9* m_pDxTexture;
 	IDirect3DTexture9* Fontexture;
-	IDirect3DTexture9* m_PBkTexture;
+
 	IDirect3DTexture9* m_CenterLogoTexture;
 	IDirect3DTexture9* m_pWaitPicTexture;
 	IDirect3DTexture9* m_pLeftPicTexture;

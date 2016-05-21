@@ -59,7 +59,7 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	//}
 
 	char buf[1024]="";
-	MD5File("F://ttxx.mp4", buf);
+	//MD5File("F://ttxx.mp4", buf);
 	
 
 
@@ -70,6 +70,8 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	//avio_alloc_context
 	start_time=AV_NOPTS_VALUE;
 	m_CurTime=0;
+
+	
 }
 void KKPlayer::CloseMedia()
 {
@@ -271,9 +273,17 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
 	//LOGE("MediaInfo:%f,%f \n",info.CurTime,info.TotalTime);
 	return info;
 }
+//获取放播的历史信息
+void KKPlayer::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
+{
+   if( m_pAVInfomanage!=NULL)
+   {
+	    m_pAVInfomanage->GetAVHistoryInfo(slQue);
+   }
+}
 KKPlayer::~KKPlayer(void)
 {
-    
+    delete m_pAVInfomanage;
 }
 
 void KKPlayer::SetWindowHwnd(HWND hwnd)
@@ -300,6 +310,7 @@ void KKPlayer::SetDbPath(char *strPath)
 {
 	m_pAVInfomanage->SetPath(strPath);
 	m_pAVInfomanage->InitDb();
+	//m_pAVInfomanage->GetAVHistoryInfo();
 }
 #ifdef WIN32_KK
 int index=0;
@@ -356,6 +367,9 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 		double DiffCurrent=(is->frame_timer -is->vidclk.last_updated);
 		if (vp->buffer)
 		{
+			int total=(pVideoInfo->pFormatCtx->duration/1000/1000);
+
+			
             if(!isNAN(vp->pts))
 			{
 				update_video_pts(is, vp->pts, vp->pos, vp->serial);
@@ -370,6 +384,11 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 					(vp->pts<is->audio_clock||is->audio_clock<=0.00) ||is->delay >10||vp->pts-is->audio_clock>2
 					||vp->serial!=is->viddec.pkt_serial)
 				{
+					if(vp->PktNumber%20==0)
+					{
+                      m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,vp->width,vp->height);
+					}
+					
 					frame_queue_next(&is->pictq,false);
 				}
 			}
@@ -431,8 +450,6 @@ void KKPlayer::RenderImage(CRender *pRender)
 			if(pBkImage!=NULL)
 			{
                  pRender->SetWaitPic(pBkImage,len);
-				 pBkImage=m_pPlayUI->GetBkImage(len);
-				 pRender->SetBkImagePic(pBkImage,len);
 				 pRender->render(NULL,0,0);
 			}
 			

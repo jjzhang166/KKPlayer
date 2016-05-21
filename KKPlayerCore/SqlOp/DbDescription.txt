@@ -1,0 +1,6 @@
+AVinfoMap:文件信息表明
+FilePath  txt:文件路径
+FileMd5   txt:文件md5值（暂时没有）
+Img       TEXT：图像数据，按照base64编码
+lstTime   int：上传观看时间
+TotalTime int：时长

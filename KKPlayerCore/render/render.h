@@ -17,7 +17,6 @@ public:
 	//≥ œ÷±≥æ∞Õº∆¨
 	virtual void renderBk(unsigned char* buf,int len)=0;
 	virtual void SetWaitPic(unsigned char* buf,int len)=0;
-	virtual void SetBkImagePic(unsigned char* buf,int len)=0;
 
 	virtual void LoadCenterLogo(unsigned char* buf,int len)=0;
 };

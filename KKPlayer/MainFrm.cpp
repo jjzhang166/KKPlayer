@@ -376,7 +376,6 @@ LRESULT  CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/,
 	 if(m_pRender!=NULL)
 	 {
           m_pRender->resize(w,h);
-		
 	 }
 	
 	 return 1;
@@ -428,6 +427,10 @@ void  CMainFrame::OnAccelerate()
    float aa=(float)Rate/100;
    swprintf(abcd,L"%.1f±¶",aa);
    pRender->SetLeftPicStr(abcd);
+}
+void CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
+{
+	m_PlayerInstance.GetAVHistoryInfo(slQue);
 }
 LRESULT  CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
