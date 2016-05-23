@@ -2,7 +2,9 @@
 #include "../KKVideoInfo.h"
 #include <vector>
 #ifdef WIN32
-#define AV_COLOR "BGRA"
+   #define AV_COLOR "BGRA"
+#else
+#define AV_COLOR "RGBA"
 #endif
 #ifndef AVInfomanage_H_
 #define AVInfomanage_H_
@@ -14,6 +16,8 @@ typedef struct _AV_Hos_Info
 	 int bufLen;
 	 int width;
 	 int height;
+	 int CurTime;
+	 int TotalTime;
 }AV_Hos_Info;
 
 typedef struct _SQL_LITE

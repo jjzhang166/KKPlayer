@@ -13,7 +13,7 @@ namespace SOUI
 	  public:
 		  CSuiVideo(void);
 		  ~CSuiVideo(void);
-		  int OpenMeida(const char *str);
+		  int OpenMedia(const char *str);
 		  void SetPlayStat(int state);
 		  MEDIA_INFO GetMeadiaInfo();
 		  void SetVolume(long value);

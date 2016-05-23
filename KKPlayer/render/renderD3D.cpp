@@ -389,7 +389,7 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 		}
 		
     #else
-	    m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(128, 128, 64), 1.0f, 0);
+	    m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		if( SUCCEEDED(m_pDevice->BeginScene()) )
 		{
 			if(pBuf!=NULL)

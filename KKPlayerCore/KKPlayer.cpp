@@ -379,8 +379,8 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 				}
 				m_CurTime=vp->frame->pts;
 				
-				
-				if((DiffCurrent>=is->last_duration+is->delay || DiffCurrent<=0.000000)&& vp->pts<is->audio_clock || 
+				float ll= vp->pts-is->audio_clock;
+				if((DiffCurrent>=is->last_duration+is->delay || DiffCurrent<=0.000000)&& ll<=0.000000 || 
 					(vp->pts<is->audio_clock||is->audio_clock<=0.00) ||is->delay >10||vp->pts-is->audio_clock>2
 					||vp->serial!=is->viddec.pkt_serial)
 				{

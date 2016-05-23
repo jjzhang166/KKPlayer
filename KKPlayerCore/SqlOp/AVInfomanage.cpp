@@ -121,8 +121,8 @@ void  CAVInfoManage::UpDataAVinfo(_SQL_LITE *sl)
 	snprintf(strsql,512,sl->strSql,w,h);
 
 	pimg_convert_ctx = sws_getCachedContext(pimg_convert_ctx,
-		sl->width,sl->height , PixelFormat::AV_PIX_FMT_BGRA,
-		w,             h,     PixelFormat::AV_PIX_FMT_BGRA,                
+		sl->width,sl->height ,AV_PIX_FMT_BGRA,
+		w,             h,     AV_PIX_FMT_BGRA,                
 		SWS_FAST_BILINEAR,
 		NULL, NULL, NULL);
 	if (pimg_convert_ctx == NULL) 
@@ -131,16 +131,16 @@ void  CAVInfoManage::UpDataAVinfo(_SQL_LITE *sl)
 	}
 
 	AVPicture Srcpict = { { 0 } };
-	int SrcNumBytes=avpicture_get_size(PixelFormat::AV_PIX_FMT_BGRA, sl->width,sl->height);
-	avpicture_fill((AVPicture *)&Srcpict, sl->pBuffer,PixelFormat::AV_PIX_FMT_BGRA,  sl->width,sl->height);
+	int SrcNumBytes=avpicture_get_size(AV_PIX_FMT_BGRA, sl->width,sl->height);
+	avpicture_fill((AVPicture *)&Srcpict, sl->pBuffer,AV_PIX_FMT_BGRA,  sl->width,sl->height);
 
 
 	AVPicture Destpict = { { 0 } };
-	int DestNumBytes=avpicture_get_size(PixelFormat::AV_PIX_FMT_BGRA, w,h);
+	int DestNumBytes=avpicture_get_size(AV_PIX_FMT_BGRA, w,h);
 
 	if(m_Destbuffer==NULL)
 	    m_Destbuffer=(uint8_t *)::malloc(DestNumBytes);
-	avpicture_fill((AVPicture *)&Destpict, m_Destbuffer,PixelFormat::AV_PIX_FMT_BGRA,  w, h);
+	avpicture_fill((AVPicture *)&Destpict, m_Destbuffer,AV_PIX_FMT_BGRA,  w, h);
 
 
 	sws_scale(pimg_convert_ctx, Srcpict.data, Srcpict.linesize,
@@ -201,6 +201,10 @@ void CAVInfoManage::SelectImgs(std::vector<_AV_Hos_Info *> &slQue)
 
         sl->width=sqlite3_column_int(pStmt,3);
 		sl->height=sqlite3_column_int(pStmt,4);
+
+		sl->CurTime=sqlite3_column_int(pStmt,5);
+		sl->TotalTime=sqlite3_column_int(pStmt,6);
+
 		slQue.push_back(sl);
 
 	}

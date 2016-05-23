@@ -76,7 +76,7 @@ namespace SOUI
 	{
 
 	}
-	 int CSuiVideo::OpenMeida(const char *str)
+	 int CSuiVideo::OpenMedia(const char *str)
 	 {
          int ret= m_VideoWnd.OpenMedia(str);
 		 if(ret==-1)

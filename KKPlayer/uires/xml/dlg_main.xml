@@ -26,10 +26,10 @@ translucent="0"
 			                                     <template itemHeight="80" colorHover="#cccccc" colorSelected="#0000ff">
                                                          <window name="col1" clipClient="1">
                                                                      <img name="AV_img" pos="2,2,@100,-2"/>
-												                     <window  pos="[5,16" >
-                                                                           <text align="left" name="AV_name" colorText="#ffFFFF" pos="0,0,-0,20" >火狐浏览器</text>
+												                     <window  pos="[5,5" >
+                                                                           <text align="left" name="AV_name" font="adding:-4" colorText="#ffFFFF" pos="0,0,-0,20" >火狐浏览器</text>
 														                   <text align="left" name="AV_CurTime"  font="adding:-5" colorText="#ffFFFF" pos="0,[2,-0,[16" >00:00:00</text>
-												                           <text align="left" name="AV_Time"  font="adding:-5" colorText="#ffFFFF" pos="0,[2,-0,[16" >00:00:00</text>
+												                           <text align="left" name="AV_Time"  font="adding:-5" colorText="#ffFFFF" pos="0,[13,-0,[29" >00:00:00</text>
 												                     </window>
                                                          </window>
 							                     </template>
