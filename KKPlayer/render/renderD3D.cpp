@@ -24,6 +24,7 @@ typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
     #pragma comment (lib,"..\\Release\\libx86\\skia.lib")
 #endif
 
+//#define VFYUY420P
 LPFN_ISWOW64PROCESS fnIsWow64Process;  
 BOOL IsWow64()  
 {  
@@ -55,6 +56,7 @@ CRenderD3D::CRenderD3D()
 	,m_pWaitPicTexture(NULL)
 	,m_CenterLogoTexture(NULL)
 	,m_pLeftPicTexture(NULL)
+	,m_pYUVAVTexture(NULL)
 {
 }
 
@@ -93,10 +95,11 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
     D3DPRESENT_PARAMETERS PresentParams;
     ZeroMemory(&PresentParams, sizeof(PresentParams));
 
-    PresentParams.BackBufferWidth = 0;
-    PresentParams.BackBufferHeight = 0;
-    PresentParams.BackBufferFormat = D3DFMT_X8R8G8B8;
-    PresentParams.BackBufferCount = 1;
+    //PresentParams.BackBufferWidth = 0;
+    //PresentParams.BackBufferHeight = 0;
+    PresentParams.BackBufferFormat =D3DFMT_UNKNOWN;// D3DFMT_X8R8G8B8;
+
+    //PresentParams.BackBufferCount = 1;
     PresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
     PresentParams.MultiSampleQuality = 0;
     PresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
@@ -138,12 +141,14 @@ bool CRenderD3D::init(HWND hView)
 		}
 		m_pD3D=pfnDirect3DCreate9(D3D_SDK_VERSION);//Direct3DCreate9(D3D_SDK_VERSION);//
 
-		DWORD BehaviorFlags =D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES;
+		DWORD BehaviorFlags =D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | 
+			D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES;
 		D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(hView);
 
 		int ii=m_pD3D->GetAdapterCount();
 		//GetParent()
-		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetParent(hView), BehaviorFlags, &PresentParams, &m_pDevice);
+		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetParent(hView), 
+			BehaviorFlags, &PresentParams, &m_pDevice);
 		if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 		{
 			BehaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_SOFTWARE_VERTEXPROCESSING;
@@ -155,22 +160,7 @@ bool CRenderD3D::init(HWND hView)
 			::MessageBox(hView,L"d3d创建错误",L"提示",MB_ICONHAND);
 			return false;
 		}
-
-		//LOGFONT lf;
-		//ZeroMemory(&lf, sizeof(LOGFONT));
-		//lf.lfHeight = 25; // in logical units
-		//lf.lfWidth = 12; // in logical units
-		//lf.lfWeight = 500; // boldness, range 0(light) - 1000(bold)
-		//lf.lfItalic = false;
-		//lf.lfUnderline = false;
-		//lf.lfStrikeOut = false;
-		//lf.lfCharSet = DEFAULT_CHARSET;
-		//wcscpy(lf.lfFaceName, L"Times New Roman"); // font style
-
-		//m_pfont=NULL;
-		//D3DXCreateFontIndirect(m_pDevice,&lf,&m_pfont);
-
-		resize(PresentParams.BackBufferWidth, PresentParams.BackBufferHeight);
+		
 		return true;
 	}
 
@@ -351,14 +341,17 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
 	//
+	ResetTexture();
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_pDevice->Reset(&PresentParams);
 
-	ResetTexture();
+	
   //  SAFE_RELEASE(m_pDirect3DSurfaceRender);
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 {
+	if (!LostDeviceRestore())
+		return;
 	// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
 	SAFE_RELEASE(m_pWaitPicTexture);
 	if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_pWaitPicTexture)))
@@ -369,39 +362,38 @@ void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 }
 void CRenderD3D::render(char *pBuf,int width,int height)
 {
-	#ifndef VFYUY420P
+
     if (!LostDeviceRestore())
         return;
-    #endif
-
-	#ifdef VFYUY420P
-	    m_pDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0,0,0), 1.0f, 0 ); 
-
-		if(SUCCEEDED(m_pDevice->BeginScene()))
-		{
-			IDirect3DSurface9 * pBackBuffer = NULL;  
-			RECT m_rtViewport; 
-            GetClientRect(m_hView,&m_rtViewport);  
-			m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
-			m_pDevice->StretchRect(m_pDirect3DSurfaceRender,NULL,pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
-			m_pDevice->EndScene();  
-			m_pDevice->Present( NULL, NULL, NULL, NULL );  
-		}
-		
-    #else
+ 
 	    m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		if( SUCCEEDED(m_pDevice->BeginScene()) )
 		{
 			if(pBuf!=NULL)
 			{
                 UpdateTexture(pBuf,width,height);	
+
+#ifdef VFYUY420P
+			
+				IDirect3DSurface9 * pBackBuffer = NULL;  
+				RECT m_rtViewport; 
+				GetClientRect(m_hView,&m_rtViewport);  
+				m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
+				m_pDevice->StretchRect(m_pDirect3DSurfaceRender,NULL,pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
+				/*m_pDevice->SetTexture(0, 	m_pYUVAVTexture);
+				m_pDevice->SetFVF(Vertex::FVF);
+				m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));*/
+#else
 				m_pDevice->SetTexture(0, m_pDxTexture);
 				m_pDevice->SetFVF(Vertex::FVF);
 				m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));
-
+#endif
 				if(m_pLeftPicTexture!=NULL)
 				{
 					m_pDevice->SetTexture(0, m_pLeftPicTexture);
@@ -429,20 +421,20 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 			m_pDevice->EndScene();
 			m_pDevice->Present(NULL, NULL, NULL, NULL);
 		}
-    #endif
-   
-	
 }
 
 
 void CRenderD3D::ResetTexture()
 {
+	SAFE_RELEASE(m_pDirect3DSurfaceRender);
 	SAFE_RELEASE(m_pDxTexture);
 	SAFE_RELEASE(Fontexture);
 	//SAFE_RELEASE(m_CenterLogoTexture);
+    SAFE_RELEASE(m_pYUVAVTexture);
+
 	SAFE_RELEASE(m_pWaitPicTexture);
 	SAFE_RELEASE(m_pLeftPicTexture);
-	SAFE_RELEASE(m_pDirect3DSurfaceRender);
+	
 }
 bool CRenderD3D::LostDeviceRestore()
 {
@@ -458,110 +450,50 @@ bool CRenderD3D::LostDeviceRestore()
         ResetTexture();
         D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
         hr = m_pDevice->Reset(&PresentParams);
-        if (FAILED(hr))
-            return false;
-    }
+       
+  
+
+	int i=0;
+
+	if (hr ==  D3DERR_NOTFOUND ){
+i=0;
+	}
+	if (hr ==  D3DERR_MOREDATA  ){
+i=0;
+	}
+	if (hr ==  D3DERR_DEVICELOST ){
+i=0;
+	}
+	if (hr ==  D3DERR_DEVICENOTRESET){
+i=0;
+	}
+	if (hr ==  D3DERR_NOTAVAILABLE   ){
+i=0;
+	}
+	if (hr ==  D3DERR_OUTOFVIDEOMEMORY){
+i=0;
+	}
+	if (hr ==  D3DERR_INVALIDDEVICE    ){
+i=0;
+	}
+if (hr ==  D3DERR_INVALIDCALL       ){
+i=0;
+}
+if (hr ==  D3DERR_DRIVERINVALIDCALL  ){
+i=0;
+}
+if (hr ==  D3DERR_WASSTILLDRAWING     ){
+i=0;
+}
+if (hr ==  D3DOK_NOAUTOGEN   ){
+i=0;
+}
+
+ if (FAILED(hr))
+            return false;/**/
+  }
 
     return true;
-}
-void CRenderD3D::CreateFonet()
-{
-	HDC hDc = ::CreateCompatibleDC( NULL);                    // 通过当前桌面创建设备内容HDC
-	SetTextColor( hDc, RGB( 255,255,255));                          // 设置背景颜色和文字的颜色
-//	SetBkColor( hDc, 0xff000000);
-	
-	SetBkMode( hDc,TRANSPARENT);
-	SetMapMode( hDc, MM_TEXT);
-
-	DWORD* pBitmapBits;                                                        //  创建一个位图
-	BITMAPINFO bitmapInfo;
-	ZeroMemory( &bitmapInfo.bmiHeader, sizeof(BITMAPINFOHEADER));
-	bitmapInfo.bmiHeader.biSize  = sizeof(BITMAPINFOHEADER);
-	bitmapInfo.bmiHeader.biWidth = 200;
-	bitmapInfo.bmiHeader.biHeight = 100;
-	bitmapInfo.bmiHeader.biPlanes = 1;
-	bitmapInfo.bmiHeader.biCompression = BI_RGB;
-	bitmapInfo.bmiHeader.biBitCount = 32;
-
-	HBITMAP hBitmap = CreateDIBSection( hDc, &bitmapInfo,  DIB_RGB_COLORS, (VOID**)&pBitmapBits, NULL, 0);
-
-	{
-		int dwSize=200*100*4;
-		char *lpBuffer =(char *) pBitmapBits;
-		memset(lpBuffer,0,dwSize);/**/
-	}
-	
-	SelectObject( hDc, hBitmap);                            // 将位图与HDC关联，这样文字时间上就保存在hBitmap里面了
-
-
-
-	LOGFONT lf;
-	ZeroMemory( &lf, sizeof(LOGFONT));
-	lf.lfHeight = 72;
-	lf.lfWidth = 0;
-
-	HFONT   hFont   =   CreateFontIndirect(&lf);              // 创建大小为72的字体
-
-	SelectObject(hDc, hFont);
-	TextOutA( hDc,0,0,"在这里写字", strlen("在这里写字"));
-
-	BITMAP bmp;
-	GetObject( hBitmap, sizeof(BITMAP), &bmp);
-	BYTE* buffer;   
-	int  blength;                                  //　整个hBitMap文件字节长度
-	blength = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + bmp.bmWidthBytes * bmp.bmHeight;
-	buffer = new BYTE[blength];
-
-	BITMAPINFOHEADER bi;
-	bi.biSize                    =  sizeof(BITMAPINFOHEADER);  
-	bi.biWidth                   =  bmp.bmWidth;  
-	bi.biHeight                  =  bmp.bmHeight;  
-	bi.biPlanes                  =  1;  
-	bi.biBitCount                =  bmp.bmBitsPixel;  
-	bi.biCompression             =  BI_RGB;  
-	bi.biSizeImage               =  0;  
-	bi.biXPelsPerMeter           =  0;  
-	bi.biYPelsPerMeter           =  0;  
-	bi.biClrImportant            =  0;  
-	bi.biClrUsed                 =  0;
-
-	BITMAPFILEHEADER bmfHdr;
-	bmfHdr.bfType  =  0x4D42;  //  "BM"    
-	bmfHdr.bfSize  =  blength;    
-	bmfHdr.bfReserved1  =  0;    
-	bmfHdr.bfReserved2  =  0;    
-	bmfHdr.bfOffBits  =  (DWORD)sizeof(BITMAPFILEHEADER)  +  (DWORD)sizeof(BITMAPINFOHEADER);
-
-	int dwSize= blength - sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER);
-    unsigned char *lpBuffer =(unsigned char *) bmp.bmBits;
-	for( int i = 0 ; i < dwSize ; i+=4 )
-	{
-		if(lpBuffer[i]==255)
-		{		
-			lpBuffer[i+3]=255;
-		}else
-		{
-			lpBuffer[i+3]=0;
-		}
-	}/**/
-
-	memcpy( buffer, &bmfHdr, sizeof(BITMAPFILEHEADER));
-	memcpy( &buffer[sizeof(BITMAPFILEHEADER)], &bi, sizeof(BITMAPINFOHEADER));
-	memcpy( &buffer[sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)],
-		bmp.bmBits, blength - sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER));
-
-	// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
-	if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice, buffer, blength, &Fontexture)))
-	{
-		return;// S_FALSE;
-	}
-
-
-
-	delete[] buffer;
-	DeleteObject(hFont);
-	DeleteObject( hBitmap);
-	DeleteDC( hDc);
 }
 int GetBmpSize(int w,int h);
 
@@ -661,22 +593,21 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
         GetClientRect(m_hView, &rect2);
 		UINT hei=rect2.bottom - rect2.top;
 		UINT Wei=rect2.right - rect2.left;
-		if(hei>0&&Wei>0)
-		{
-			resize( Wei,hei);
+		
+			if(m_w!=Wei&&hei!=m_h){
+				resize( Wei,hei);
+			}
 
-			HRESULT  hr = m_pDevice->CreateOffscreenPlainSurface(Wei,
-				hei,
-				(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),  
-				D3DPOOL_DEFAULT,  
-				&m_pDirect3DSurfaceRender,  
-				NULL);  
-
+		
+			 D3DMULTISAMPLE_TYPE         g_MaxMultiSampleType = D3DMULTISAMPLE_NONE;  // Non-Zero when g_bUseMultiSampleFloat16 is true
+DWORD                       g_dwMultiSampleQuality = 0; // Non-Zero when we have multisampling on a float backbuffer
+           HRESULT   hr  = m_pDevice->CreateRenderTarget(w, h,
+									(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),
+									g_MaxMultiSampleType, g_dwMultiSampleQuality,
+									TRUE, &m_pDirect3DSurfaceRender, NULL );
 			if (FAILED(hr))
 				return false;
-		}else
-			return false;
-		
+			 
     }
 #else
    {
@@ -701,20 +632,23 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 			   NULL);/**/
 		   if (FAILED(hr))
 			   return false;
-		   CreateFonet();
 	   }
 	}
 #endif
    
       D3DLOCKED_RECT rect;//1009*488
-      
-	  {
 		 // w=852 h=480
 		#ifdef VFYUY420P
 		  {
-			  if(m_w>w&&m_h>h)
+
+			 /* m_pYUVAVTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
+
+			  m_pYUVAVTexture->UnlockRect(0);*/
+			  //if(m_w>w&&m_h>h)
 			  {
-				  m_pDirect3DSurfaceRender->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
+				m_pDirect3DSurfaceRender->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
+				 if(rect.pBits!=NULL)
+				 {
 				  byte *pSrc = (byte *)pBuf;  
 				  byte * pDest = (BYTE *)rect.pBits;  
 				  int stride = rect.Pitch;  
@@ -722,10 +656,12 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 				  int pixel_h=h;
 				  int pixel_w=w;
 				  //Copy Data (YUV420P)  
+				  //Y
 				  for(i = 0;i < pixel_h;i ++)
 				  {  
 					  memcpy(pDest + i * stride,pSrc + i * pixel_w, pixel_w);  
-				  }  
+				  } 
+				  //U
 				  for(i = 0;i < pixel_h/2;i ++)
 				  {  
 					  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, pixel_w / 2);  
@@ -733,8 +669,9 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 				  for(i = 0;i < pixel_h/2;i ++)
 				  {  
 					  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, pixel_w / 2);  
-				  } 
-				  m_pDirect3DSurfaceRender->UnlockRect();
+				  } /**/
+				 }
+				 m_pDirect3DSurfaceRender->UnlockRect();
 			  }
 			
 		  } 
@@ -800,8 +737,6 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 			  }
 			m_pDxTexture->UnlockRect(0);		  
 #endif
-	  }
-      
 	UpdateLeftPicTexture();
 //D3DXCreateTextureFromFile
 	
@@ -813,7 +748,8 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 
 void CRenderD3D::renderBk(unsigned char* buf,int len)
 {
-	
+	if (!LostDeviceRestore())
+		return;
 	m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0,0), 1.0f, 0);
 	if( SUCCEEDED(m_pDevice->BeginScene()) )
 	{
@@ -835,6 +771,9 @@ void CRenderD3D::renderBk(unsigned char* buf,int len)
 }
 void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 {
+	if (!LostDeviceRestore())
+		return;
+
 	if(m_CenterLogoTexture==NULL)
 	{
 		// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  

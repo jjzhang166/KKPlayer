@@ -765,8 +765,9 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 
 	m_ReadThreadInfo.Addr = pthread_create(&m_ReadThreadInfo.Tid_task, NULL, (void* (*)(void*))ReadAV_thread, (LPVOID)this);
 	LOGE("m_ReadThreadInfo.Addr =%d\n",m_ReadThreadInfo.Addr);
-	 LOGE("VideoRefreshthread XX");
+	LOGE("VideoRefreshthread XX");
 	m_VideoRefreshthreadInfo.Addr = pthread_create(&m_VideoRefreshthreadInfo.Tid_task, NULL, (void* (*)(void*))VideoRefreshthread, (LPVOID)this);
+	
 	m_AudioCallthreadInfo.Addr =pthread_create(&m_AudioCallthreadInfo.Tid_task, NULL, (void* (*)(void*))Audio_Thread, (LPVOID)this);
 #endif
 
@@ -781,7 +782,7 @@ void KKPlayer::OnDecelerate()
 	{
 		pVideoInfo->AVRate-=10;
 		float aa=(float)pVideoInfo->AVRate/100;
-		snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),",atempo=%f",aa); 
+		snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),"atempo=%f",aa); 
 		seek_target= m_CurTime;
 		
         okk=true;
@@ -798,7 +799,7 @@ void KKPlayer::OnAccelerate()
 	{
 		pVideoInfo->AVRate+=10;
 		float aa=(float)pVideoInfo->AVRate/100;
-		  snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),",atempo=%.2f",aa);
+		  snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),"atempo=%.2f",aa);
 
 		seek_target = m_CurTime;
 		okk=true;
@@ -867,8 +868,8 @@ int KKPlayer::GetAVRate()
 		 pVideoInfo->pKKAudio->Start();
 		 while(!pVideoInfo->abort_request && pVideoInfo->pKKAudio!=NULL)
 		 {
-			 //LOGE("ReadAudio");
-			 pVideoInfo->pKKAudio->ReadAudio();
+			 if(pVideoInfo->IsReady)
+			   pVideoInfo->pKKAudio->ReadAudio();
 		 }
 	 }
 	 LOGE("KKPlayer Audio_Thread over");

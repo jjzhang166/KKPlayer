@@ -447,7 +447,7 @@ void audio_callback(void *userdata, char *stream, int len)
 	//return;
 	SKK_VideoState *pVideoInfo=(SKK_VideoState *)userdata;
 	memset(stream,0,len);
-	if (pVideoInfo->paused)
+	if (pVideoInfo->paused||pVideoInfo->IsReady!=1)
 	{
 		return;
 	}
@@ -475,8 +475,12 @@ void audio_callback(void *userdata, char *stream, int len)
 			if (audio_size < 0)
 			{
 				//::OutputDebugStringA("silence");
-				pVideoInfo->audio_buf      = pVideoInfo->silence_buf;
-				pVideoInfo->audio_buf_size =512;// sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
+				pVideoInfo->audio_buf = pVideoInfo->silence_buf;
+				
+                    pVideoInfo->audio_buf_size =sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
+			
+				
+				//pVideoInfo->audio_buf_size=0;
 				Issilence=true;
 			} else 
 			{
@@ -486,6 +490,7 @@ void audio_callback(void *userdata, char *stream, int len)
 			}
 			pVideoInfo->audio_buf_index = 0;
 		}
+
 		len1 = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 
 		if (len1 > len)
@@ -497,8 +502,9 @@ void audio_callback(void *userdata, char *stream, int len)
 		if(Issilence)
 		{
 			pVideoInfo->audio_buf_index += pVideoInfo->audio_buf_size;
+			//len =0;
 		}
-		else
+		else/**/
 		  pVideoInfo->audio_buf_index += len1;
 
 
@@ -1152,7 +1158,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
     int w=pFrame->width;
 	int h=pFrame->height;
 #ifdef WIN32
-	AVPixelFormat ff=AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
+	AVPixelFormat ff=AV_PIX_FMT_BGRA;//AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
 #else
 	AVPixelFormat ff=AV_PIX_FMT_RGBA;
 #endif
@@ -1610,7 +1616,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				 }
 			}
 		
-				if (reconfigure) 
+				if (reconfigure&&is->AVRate!=100) 
 				{
 
 					char buf1[1024], buf2[1024];
@@ -1626,8 +1632,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					is->audio_filter_src.channel_layout = dec_channel_layout;
 					is->audio_filter_src.freq           = frame->sample_rate;
 					last_serial                         = is->auddec.pkt_serial;
-                    char abcd[256];
-					strcpy(abcd,"volume=0.9");
+                    char abcd[256]="";
+					//strcpy(abcd,"volume=1");
 					if(is->AVRate!=100)
 					strcat(abcd,is->Atempo);
 
@@ -1639,35 +1645,51 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				
 				}
 
-		
-			if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
+		    if(is->AVRate!=100)
 			{
-				Sleep(2);
-				continue;
-			}
+				if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
+				{
+					Sleep(2);
+					continue;
+				}
 
-			
-			//::OutputDebugStringA("xxx\n");
-			while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0&&!is->abort_request) 
-			{
-				
-			
-				tb = is->OutAudioSink->inputs[0]->time_base;
+				while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0&&!is->abort_request) 
+				{
 
-				// ::OutputDebugStringA("11 \n");
-                //::OutputDebugStringA("xxx2\n");
+					tb = is->OutAudioSink->inputs[0]->time_base;
+
+					if (!(af = frame_queue_peek_writable(&is->sampq)))
+					{
+						assert(0);
+					}
+
+					is->sampq.mutex->Lock();
+					af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb)+is->Baseaudio_clock;
+					af->pos = av_frame_get_pkt_pos(frame);
+					af->serial = is->auddec.pkt_serial;
+
+					AVRational avr={frame->nb_samples, frame->sample_rate};
+					af->duration = av_q2d(avr);
+
+					AVSampleFormat ff=(AVSampleFormat)frame->format;
+					av_frame_move_ref(af->frame, frame);
+					is->sampq.mutex->Unlock();
+					frame_queue_push(&is->sampq);
+					//::OutputDebugStringA("xxx4\n");
+				}
+			}else{
+				tb.num=1;
+				tb.den=frame->sample_rate;
 				if (!(af = frame_queue_peek_writable(&is->sampq)))
 				{
-				  assert(0);
+					assert(0);
 				}
-                //::OutputDebugStringA("xxx3\n");
-				//::OutputDebugStringA("12 \n");
 
 				is->sampq.mutex->Lock();
 				af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb)+is->Baseaudio_clock;
 				af->pos = av_frame_get_pkt_pos(frame);
 				af->serial = is->auddec.pkt_serial;
-				
+
 				AVRational avr={frame->nb_samples, frame->sample_rate};
 				af->duration = av_q2d(avr);
 
@@ -1675,8 +1697,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				av_frame_move_ref(af->frame, frame);
 				is->sampq.mutex->Unlock();
 				frame_queue_push(&is->sampq);
-				//::OutputDebugStringA("xxx4\n");
 			}
+			
 		}
 		Sleep(1);
 	} while ((ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)&&!is->abort_request);

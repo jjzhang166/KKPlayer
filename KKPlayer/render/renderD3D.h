@@ -16,7 +16,7 @@ public:
     virtual void resize(unsigned int w, unsigned int h);
     void  WinSize(unsigned int w, unsigned int h);
     bool LostDeviceRestore();
-    bool UpdateTexture(char *pBuf,int w,int h);
+    
     void render(char *pBuf,int width,int height);
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
@@ -27,10 +27,11 @@ public:
 	void SetLeftPicStr(wchar_t *str);
 	std::wstring m_LeftStr;
 private:
+	
+	bool UpdateTexture(char *pBuf,int w,int h);
 	void ResetTexture();
 	bool UpdateLeftPicTexture();
-	//void  source_hdc = GetDC(hwnd);
-	void CreateFonet();
+	
     HWND m_hView;
 	//Ã· æ◊÷ÃÂ
 
@@ -43,7 +44,9 @@ private:
 	IDirect3DTexture9* m_pWaitPicTexture;
 	IDirect3DTexture9* m_pLeftPicTexture;
 	//YUV
-	IDirect3DSurface9 *m_pDirect3DSurfaceRender;
+	IDirect3DSurface9  *m_pDirect3DSurfaceRender;
+
+	IDirect3DTexture9* m_pYUVAVTexture;
 
 //	m_CenterLogoTexture
     unsigned int m_w;

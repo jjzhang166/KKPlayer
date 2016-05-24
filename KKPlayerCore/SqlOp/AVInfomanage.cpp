@@ -120,9 +120,16 @@ void  CAVInfoManage::UpDataAVinfo(_SQL_LITE *sl)
 	char strsql[512]="";
 	snprintf(strsql,512,sl->strSql,w,h);
 
+#ifdef  WIN32
+	AVPixelFormat srcFF=AV_PIX_FMT_BGRA;
+	AVPixelFormat DestFF=AV_PIX_FMT_BGRA;
+#else
+	AVPixelFormat srcFF=AV_PIX_FMT_RGBA;
+	AVPixelFormat DestFF=AV_PIX_FMT_BGRA;
+#endif
 	pimg_convert_ctx = sws_getCachedContext(pimg_convert_ctx,
-		sl->width,sl->height ,AV_PIX_FMT_BGRA,
-		w,             h,     AV_PIX_FMT_BGRA,                
+		sl->width,sl->height ,srcFF,
+		w,             h,     DestFF,                
 		SWS_FAST_BILINEAR,
 		NULL, NULL, NULL);
 	if (pimg_convert_ctx == NULL) 
@@ -131,16 +138,16 @@ void  CAVInfoManage::UpDataAVinfo(_SQL_LITE *sl)
 	}
 
 	AVPicture Srcpict = { { 0 } };
-	int SrcNumBytes=avpicture_get_size(AV_PIX_FMT_BGRA, sl->width,sl->height);
-	avpicture_fill((AVPicture *)&Srcpict, sl->pBuffer,AV_PIX_FMT_BGRA,  sl->width,sl->height);
+	int SrcNumBytes=avpicture_get_size(srcFF, sl->width,sl->height);
+	avpicture_fill((AVPicture *)&Srcpict, sl->pBuffer,srcFF,  sl->width,sl->height);
 
 
 	AVPicture Destpict = { { 0 } };
-	int DestNumBytes=avpicture_get_size(AV_PIX_FMT_BGRA, w,h);
+	int DestNumBytes=avpicture_get_size(DestFF, w,h);
 
 	if(m_Destbuffer==NULL)
 	    m_Destbuffer=(uint8_t *)::malloc(DestNumBytes);
-	avpicture_fill((AVPicture *)&Destpict, m_Destbuffer,AV_PIX_FMT_BGRA,  w, h);
+	avpicture_fill((AVPicture *)&Destpict, m_Destbuffer,DestFF,  w, h);
 
 
 	sws_scale(pimg_convert_ctx, Srcpict.data, Srcpict.linesize,

@@ -8,6 +8,7 @@
 #ifndef IKKAudio_H_
 #define IKKAudio_H_
 typedef  void (*pfun)(void *UserData,char *buf,int buflen);
+//typedef  void (*pfun)(void *UserData,char *buf,int buflen);
 /*********/
 class IKKAudio
 {

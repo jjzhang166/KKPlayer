@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SDLSound.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -222,6 +226,10 @@
 			</File>
 			<File
 				RelativePath=".\Resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SDLSound.h"
 				>
 			</File>
 			<File

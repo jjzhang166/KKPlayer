@@ -13,6 +13,7 @@
 #include <GdiPlus.h>
 #include <GdiPlusHeaders.h>
 #include "KKSound.h"
+#include "SDLSound.h"
 struct SWaitPicInfo
 {
     unsigned char* Buf;
@@ -69,7 +70,8 @@ public:
 	void OnAccelerate();
 	void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 private:
-	CKKSound m_Sound;
+	    //CKKSound m_Sound;
+		CSDLSound m_Sound;
 	    Gdiplus::Bitmap *m_BkGidPulsBitmap;
 	    CRender *m_pRender;
 	    void OnDraw(HDC& memdc,RECT& rt);

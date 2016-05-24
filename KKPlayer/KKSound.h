@@ -8,7 +8,7 @@
 
 #ifndef KKSound_H_
 #define KKSound_H_
-typedef  void (*pfun)(void *UserData,char *buf,int buflen);
+
 
 class CKKSound: public IKKAudio
 {
