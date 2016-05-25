@@ -51,6 +51,16 @@
 			LONG    right;
 			LONG    bottom;
 		} RECT;
+        typedef unsigned char       BYTE;
+		typedef unsigned long ULONG_PTR;
+		typedef ULONG_PTR DWORD_PTR;
+		typedef unsigned short      WORD;
+
+        #define MAKEWORD(a, b)      ((WORD)(((BYTE)(((DWORD_PTR)(a)) & 0xff)) | ((WORD)((BYTE)(((DWORD_PTR)(b)) & 0xff))) << 8))
+		#define LOWORD(l)           ((WORD)(((DWORD_PTR)(l)) & 0xffff))
+		#define HIWORD(l)           ((WORD)((((DWORD_PTR)(l)) >> 16) & 0xffff))
+		#define LOBYTE(w)           ((BYTE)(((DWORD_PTR)(w)) & 0xff))
+		#define HIBYTE(w)           ((BYTE)((((DWORD_PTR)(w)) >> 8) & 0xff))
 
 		void assert(int i);
 		void Sleep(int ms);

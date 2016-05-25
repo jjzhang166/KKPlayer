@@ -283,6 +283,14 @@
 			Name="MainPage"
 			>
 			<File
+				RelativePath=".\MainPage\AVMenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVMenu.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\MainDlg.cpp"
 				>
 			</File>

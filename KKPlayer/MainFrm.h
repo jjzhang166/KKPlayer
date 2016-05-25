@@ -14,6 +14,7 @@
 #include <GdiPlusHeaders.h>
 #include "KKSound.h"
 #include "SDLSound.h"
+#include "MainPage/AVMenu.h"
 struct SWaitPicInfo
 {
     unsigned char* Buf;
@@ -50,6 +51,8 @@ public:
 			MESSAGE_HANDLER(WM_KEYDOWN,OnKeyDown);
 			MESSAGE_HANDLER(WM_CLOSE,OnClose);
 			MESSAGE_HANDLER(WM_MediaClose,OnMediaClose);
+
+			MESSAGE_HANDLER(WM_RBUTTONUP,OnRbuttonUp);
 	END_MSG_MAP()
 
 	
@@ -72,6 +75,7 @@ public:
 private:
 	    //CKKSound m_Sound;
 		CSDLSound m_Sound;
+		SOUI::CAVMenu *m_pAVMenu;
 	    Gdiplus::Bitmap *m_BkGidPulsBitmap;
 	    CRender *m_pRender;
 	    void OnDraw(HDC& memdc,RECT& rt);
@@ -108,5 +112,6 @@ public:
 		LRESULT  OnNcCreate(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
+		LRESULT  OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 };
 #endif

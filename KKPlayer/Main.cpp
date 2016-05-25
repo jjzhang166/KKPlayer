@@ -96,6 +96,9 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
+
+
+	int ll=sizeof(ULONG_PTR);
 	HRESULT hRes = ::CoInitialize(NULL);
     G_Parent =(HWND)_wtoi(lpstrCmdLine);
 	wchar_t abcd[100]=L"";

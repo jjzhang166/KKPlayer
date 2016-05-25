@@ -1721,3 +1721,41 @@ void stream_seek(SKK_VideoState *is, int64_t pos, int64_t rel, int seek_by_bytes
 		is->seek_req = 1;
 	}
 }
+
+
+///*****调节音量算法,一般算法*******/
+void RaiseVolume(char* buf, int size, int uRepeat, double vol)
+//buf为需要调节音量的音频数据块首地址指针，size为长度，uRepeat为重复次数，通常设为1，vol为增益倍数,可以小于1  
+{  
+	if (!size)  
+	{  
+		return;  
+	}  
+	for (int i = 0; i < size;)  
+	{  
+		signed long minData = -0x8000; //如果是8bit编码这里变成-0x80  
+		signed long maxData = 0x7FFF;//如果是8bit编码这里变成0xFF  
+
+		signed short wData = buf[i + 1];  
+		wData = MAKEWORD(buf[i], buf[i + 1]);  
+		signed long dwData = wData;  
+
+		for (int j = 0; j < uRepeat; j++)  
+		{  
+			dwData = dwData * vol;  
+			if (dwData < -0x8000)  //-32768
+			{  
+				dwData = -0x8000;  
+			}  
+			else if (dwData > 0x7FFF)  //32767
+			{  
+				dwData = 0x7FFF;  
+			}  
+		}  
+
+		wData = LOWORD(dwData);  
+		buf[i] = LOBYTE(wData);  
+		buf[i + 1] = HIBYTE(wData);  
+		i += 2;  
+	}  
+}

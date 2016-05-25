@@ -58,7 +58,7 @@ std::basic_string<char> GetModulePathA()
 }
 
 std::basic_string<TCHAR> GetModulePath();
-CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCenterLogoImage(NULL)
+CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
 {
 	std::string basePath=GetModulePathA();
 	m_BkGidPulsBitmap=NULL;
@@ -563,4 +563,34 @@ void CMainFrame::OpenMediaFailure(char* strURL)
 	abcd+=strURL;
 	::MessageBoxA(m_hWnd,abcd.c_str(),"´íÎó",MB_ICONHAND);
 	::PostMessage(m_hWnd,WM_MediaClose,0,0);
+}
+
+LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+	bHandled=true;
+	int xPos = GET_X_LPARAM(lParam); 
+	int yPos = GET_Y_LPARAM(lParam);
+
+	RECT rt;
+	::GetWindowRect(m_hWnd,&rt);
+	xPos+=rt.left;
+	yPos+=rt.top;
+
+	
+
+	SOUI::SMenuEx me;
+
+	BOOL xx=	me.LoadMenu(_T("SMENUEX:avmenuex"));
+	me.TrackPopupMenu(0,xPos,yPos,::GetParent(m_hWnd));
+
+	//if(m_pAVMenu==NULL)
+	//{
+	//	m_pAVMenu = new SOUI::CAVMenu(&m_pAVMenu);
+
+	//BOOL xx=	m_pAVMenu->LoadMenu(_T("smenuex:avmenuex"));
+	//	m_pAVMenu->TrackPopupMenu(0,xPos,yPos,m_hWnd);
+	//	//m_pAVMenu->Create(this->m_hWnd,WS_CHILD| WS_POPUP|WS_VISIBLE,0,xPos,yPos,150,200);
+	//	//m_pAVMenu->ShowWindow(SW_SHOWNORMAL);
+	//}
+	return 1;
 }

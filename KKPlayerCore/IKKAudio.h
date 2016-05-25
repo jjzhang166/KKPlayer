@@ -27,6 +27,7 @@ class IKKAudio
 		  /*********关闭**********/
 		  virtual void CloseAudio()=0;	
 		  /*********设置音量************/
+		  /**********最大值1000，最小值0*******/
 		  virtual void SetVolume(long value)=0;
 		  virtual long GetVolume()=0;
 };

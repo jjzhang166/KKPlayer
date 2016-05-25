@@ -2,11 +2,13 @@
 
 #include "../KKPlayerCore/Includeffmpeg.h"
 
+#include "../KKPlayerCore/KKInternal.h"
 #pragma comment (lib,"../libx86/SDL1.2.15/lib/x86/SDL.lib")
 CSDLSound::CSDLSound()
 {
     m_UserData=NULL;
 	m_pFun=NULL;
+	m_Vol=100;
 }
 CSDLSound::~CSDLSound()
 {
@@ -38,7 +40,12 @@ void  CSDLSound::KKSDLCall(Uint8 *stream, int len)
 	{
 		//memset(buf,0,buf_len);
 		m_pFun(m_UserData,(char*)stream,len);
-		//RaiseVolume((char*)buf, buf_len, 1, 5);
+		if(m_Vol!=100)
+		{
+			double ff=(double)m_Vol/100;
+			RaiseVolume((char*)stream, len, 1, ff);
+		}
+		
 	}
 }
 void CSDLSound::InitAudio()
@@ -112,24 +119,28 @@ void CSDLSound::InitAudio()
 	ii++;
 	SDL_PauseAudio(1);
 }
-	 /*******读取音频数据********/
-	 void CSDLSound::ReadAudio()
-	 {
-		 Sleep(10);
-	 }
-	 void CSDLSound::Start(){
-		 SDL_PauseAudio(0);
-	 } 
-	 void CSDLSound::Stop(){
-		 SDL_PauseAudio(1);
-	 }   
-	 /*********关闭**********/
-	 void CSDLSound::CloseAudio()
-	 {
-         SDL_CloseAudio();
-	 }	
-	 /*********设置音量************/
-	 void CSDLSound::SetVolume(long value){}
-	 long CSDLSound::GetVolume(){
-		 return 1;
-	 }
+ /*******读取音频数据********/
+ void CSDLSound::ReadAudio()
+ {
+	 Sleep(10);
+ }
+ void CSDLSound::Start(){
+	 SDL_PauseAudio(0);
+	 m_Vol=100;
+ } 
+ void CSDLSound::Stop(){
+	 SDL_PauseAudio(1);
+ }   
+ /*********关闭**********/
+ void CSDLSound::CloseAudio()
+ {
+     SDL_CloseAudio();
+ }	
+ /*********设置音量************/
+ void CSDLSound::SetVolume(long value)
+ {
+        m_Vol=value;
+ }
+ long CSDLSound::GetVolume(){
+	 return 1;
+ }

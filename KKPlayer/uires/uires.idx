@@ -5,6 +5,9 @@
 	<LAYOUT>
 		<file name="XML_MAINWND" path="xml\dlg_main.xml"  />
 	</LAYOUT>
+	<SMENUEX>
+             <file name="avmenuex" path="xml\AVMenu.xml"/>
+    </SMENUEX>
 	<png>
 	   <file name="ID_PNG_SHADOW" path="image\shadow.png" />
 	   <file name="ID_PNG_BG_GRAY" path="image\bg_gray.png" />
