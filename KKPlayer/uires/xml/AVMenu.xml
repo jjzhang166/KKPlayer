@@ -3,9 +3,9 @@
 textOffset="5" iconBarWidth="24" maxWidth="180" minWidth="170" 
 translucent="1"
 margin="5,3,5,3" colorBkgnd="#ff0000">
-  <menuItem hotKey="e" id="1" check="1" font="face:宋体">打开文件</menuItem>
+  <menuItem hotKey="e" id="1" font="face:宋体">打开文件</menuItem>
   <menuItem id="2" icon="1" font="face:宋体" >打开URL</menuItem>
   <menuItem id="3" icon="1" font="face:宋体" >全屏</menuItem>
-  <menuItem id="4" icon="1" font="face:宋体" >普通模式</menuItem>
+  <menuItem id="4" icon="1" check="1" font="face:宋体" >普通模式</menuItem>
   <menuItem id="5" icon="1" font="face:宋体" >迷你模式</menuItem>
 </menuRoot>

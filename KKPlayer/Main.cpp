@@ -93,7 +93,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 #else
 #define SYS_NAMED_RESOURCE _T("soui-sys-resource.dll")
 #endif
-
+SOUI::CMainDlg *m_pDlgMain=NULL;
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
@@ -160,7 +160,9 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	}
 
 	std::wstring path=GetModulePath();
-	CMainDlg dlgMain;  
+	
+	SOUI::CMainDlg dlgMain;
+	m_pDlgMain=&dlgMain;
 	dlgMain.Create(GetActiveWindow(),0,0,0,0);
 	dlgMain.GetNative()->SendMessage(WM_INITDIALOG);
 	dlgMain.CenterWindow(dlgMain.m_hWnd);

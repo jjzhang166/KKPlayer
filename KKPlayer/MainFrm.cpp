@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "MainPage/MainDlg.h"
 #include "MainFrm.h"
 #include "render/renderD3D.h"
 #include "render/renderGDI.h"
@@ -6,6 +7,8 @@
 #include "KKSound.h"
 #include "Tool/cchinesecode.h"
 #include "Tool/CFileMgr.h"
+
+extern SOUI::CMainDlg* m_pDlgMain;
 //#define QY_GDI
 Gdiplus::Bitmap* CoverPic(int destWidth,int destHeight,Gdiplus::Image* srcBmp)
 {
@@ -580,9 +583,47 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 
 	SOUI::SMenuEx me;
 
-	BOOL xx=	me.LoadMenu(_T("SMENUEX:avmenuex"));
-	me.TrackPopupMenu(0,xPos,yPos,::GetParent(m_hWnd));
+	BOOL xx=me.LoadMenu(_T("SMENUEX:avmenuex"));
 
+	
+	
+	
+
+	if(m_pDlgMain->GetFullScreen()||m_bOpen)
+	{
+		 SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(3);
+		 if(m_pDlgMain->GetFullScreen())
+		 pItem->SetAttribute(_T("check"),_T("1"));
+		 pItem->SetAttribute(_T("enable"),_T("1"));
+		 pItem->SetAttribute(_T("colorText"),_T("#000000"));
+	}else {
+		SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(3);
+		pItem->SetAttribute(_T("check"),_T("0"));
+		pItem->SetAttribute(_T("enable"),_T("0"));
+		pItem->SetAttribute(_T("colorText"),_T("#C5C5C7"));
+	}
+
+	if(m_pDlgMain->GetScreenModel())
+	{
+		{
+			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(4);
+			pItem->SetAttribute(_T("check"),_T("1"));
+		}
+		{
+			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(5);
+			pItem->SetAttribute(_T("check"),_T("0"));
+		}  
+	}else{
+		{
+			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(4);
+			pItem->SetAttribute(_T("check"),_T("0"));
+		}
+		{
+			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(5);
+			pItem->SetAttribute(_T("check"),_T("1"));
+		}  
+	}
+	me.TrackPopupMenu(0,xPos,yPos,::GetParent(m_hWnd));
 	//if(m_pAVMenu==NULL)
 	//{
 	//	m_pAVMenu = new SOUI::CAVMenu(&m_pAVMenu);
