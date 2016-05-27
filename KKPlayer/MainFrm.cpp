@@ -568,6 +568,17 @@ void CMainFrame::OpenMediaFailure(char* strURL)
 	::PostMessage(m_hWnd,WM_MediaClose,0,0);
 }
 
+LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+	bHandled=true;
+	int xPos = GET_X_LPARAM(lParam); 
+	int yPos = GET_Y_LPARAM(lParam);
+	lastPoint.x=xPos;
+	lastPoint.y=yPos;
+	if(!m_pDlgMain->GetScreenModel())
+	::PostMessage(::GetParent(m_hWnd) ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
+	return 1;
+}
 LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	bHandled=true;
@@ -579,15 +590,9 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 	xPos+=rt.left;
 	yPos+=rt.top;
 
-	
-
 	SOUI::SMenuEx me;
-
 	BOOL xx=me.LoadMenu(_T("SMENUEX:avmenuex"));
 
-	
-	
-	
 
 	if(m_pDlgMain->GetFullScreen()||m_bOpen)
 	{
@@ -634,4 +639,25 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 	//	//m_pAVMenu->ShowWindow(SW_SHOWNORMAL);
 	//}
 	return 1;
+}
+
+LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+	 bHandled=true;
+     int xPos = GET_X_LPARAM(lParam); 
+	 int yPos = GET_Y_LPARAM(lParam);
+
+	 int px=xPos-lastPoint.x;
+	 int py=yPos-lastPoint.y;
+	 if(MK_LBUTTON==wParam&&!m_pDlgMain->GetScreenModel())
+	 {
+		/* RECT rt;
+		 ::GetWindowRect(::GetParent(m_hWnd),&rt);
+		 int x=px+rt.left;
+		 int y=py+rt.top;
+		 ::SetWindowPos(::GetParent(m_hWnd),0,x,y,0,0,SWP_NOSIZE|SWP_NOZORDER);
+		 lastPoint.x=xPos;
+		 lastPoint.y=yPos;*/
+	 }
+	 return 1;
 }

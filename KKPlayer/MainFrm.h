@@ -51,8 +51,10 @@ public:
 			MESSAGE_HANDLER(WM_KEYDOWN,OnKeyDown);
 			MESSAGE_HANDLER(WM_CLOSE,OnClose);
 			MESSAGE_HANDLER(WM_MediaClose,OnMediaClose);
-
+            
+			MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove);
 			MESSAGE_HANDLER(WM_RBUTTONUP,OnRbuttonUp);
+			MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLbuttonDown);
 	END_MSG_MAP()
 
 	
@@ -91,6 +93,7 @@ private:
 		std::vector<SWaitPicInfo*> m_WaitPicList;
 		SWaitPicInfo* m_CurWaitPic;
         bool m_bOpen;
+		CPoint lastPoint;
 public:
 		WTL::CString m_TabName;
 public:
@@ -113,5 +116,7 @@ public:
 		LRESULT  OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
+		LRESULT  OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
+		LRESULT  OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 };
 #endif
