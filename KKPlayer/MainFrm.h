@@ -93,7 +93,7 @@ private:
 		std::vector<SWaitPicInfo*> m_WaitPicList;
 		SWaitPicInfo* m_CurWaitPic;
         bool m_bOpen;
-		CPoint lastPoint;
+		CPoint m_lastPoint;
 public:
 		WTL::CString m_TabName;
 public:

@@ -1578,8 +1578,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
     
 		if (got_frame)
 		{
-			tb.num=1;
-			tb.den=frame->sample_rate;
+			tb=tb=is->audio_st->time_base;
 			
            int64_t srcpts =  frame->pts * av_q2d(tb);
 
@@ -1678,8 +1677,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					//::OutputDebugStringA("xxx4\n");
 				}
 			}else{
-				tb.num=1;
-				tb.den=frame->sample_rate;
+				tb=is->audio_st->time_base;
+				
 				if (!(af = frame_queue_peek_writable(&is->sampq)))
 				{
 					assert(0);

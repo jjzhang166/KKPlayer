@@ -291,6 +291,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MainPage\AVMiniTittle.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVMiniTittle.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\MainDlg.cpp"
 				>
 			</File>

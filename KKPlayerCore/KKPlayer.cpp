@@ -350,15 +350,16 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 	    is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
 	    is->delay = compute_target_delay(is->last_duration, is);
 
-		
-
 		/*******Ê±¼ä**********/
 		if (lastvp->serial != vp->serial && !redisplay)
 		{
 			is->frame_timer = av_gettime_relative() / 1000000.0;
 		}
 
+		if (is->paused)
+               return;
 		//is->frame_timer += delay;
+		
 		time= av_gettime_relative()/1000000.0;
 		if (is->delay > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)
 			is->frame_timer = time+is->delay;
@@ -380,8 +381,11 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 				m_CurTime=vp->frame->pts;
 				
 				float ll= vp->pts-is->audio_clock;
-				if((DiffCurrent>=is->last_duration+is->delay || DiffCurrent<=0.000000)&& ll<=0.000000 || 
-					(vp->pts<is->audio_clock||is->audio_clock<=0.00) ||is->delay >10||vp->pts-is->audio_clock>2
+				float llxxs=vp->pts- is->last_duration*2;
+				//bool llxx=time  is->frame_timer - is->last_duration;
+				bool llxx=is->audio_clock >vp->pts- is->last_duration*2;
+				if((DiffCurrent>=is->last_duration+is->delay || DiffCurrent<=0.000000)&& llxx || 
+					(vp->pts<is->audio_clock||is->audio_clock<=0.000000) ||is->delay >10||vp->pts-is->audio_clock>2
 					||vp->serial!=is->viddec.pkt_serial)
 				{
 					if(vp->PktNumber%20==0)
@@ -750,6 +754,9 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	m_ReadThreadInfo.ThOver=false;
 	m_VideoRefreshthreadInfo.ThOver=false;
 	m_AudioCallthreadInfo.ThOver=false;
+
+	float aa=(float)pVideoInfo->AVRate/100;
+	snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),"atempo=%f",aa);
 
 
 	pVideoInfo->InAudioSrc=NULL;

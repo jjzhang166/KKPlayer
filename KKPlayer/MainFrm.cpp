@@ -357,13 +357,13 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 
 void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 {
-     HBRUSH 	m_SelectDotHbr=CreateSolidBrush(RGB(86, 147, 44));
+     HBRUSH m_SelectDotHbr=CreateSolidBrush(RGB(86, 147, 44));
 	::FillRect(memdc,&rt,m_SelectDotHbr);
 	::DeleteObject(m_SelectDotHbr);
 
 	#ifdef WIN32_KK
-	 m_PlayerInstance.OnDrawImageByDc(memdc);
-#endif
+	    m_PlayerInstance.OnDrawImageByDc(memdc);
+    #endif
 }
 void CMainFrame::Render()
 {
@@ -573,10 +573,14 @@ LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
 	bHandled=true;
 	int xPos = GET_X_LPARAM(lParam); 
 	int yPos = GET_Y_LPARAM(lParam);
-	lastPoint.x=xPos;
-	lastPoint.y=yPos;
+	
 	if(!m_pDlgMain->GetScreenModel())
 	::PostMessage(::GetParent(m_hWnd) ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
+
+	if(!m_pDlgMain->GetScreenModel())
+	{
+	   m_pDlgMain->ShowMiniUI(false);
+	}
 	return 1;
 }
 LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
@@ -643,21 +647,26 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 
 LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
-	 bHandled=true;
-     int xPos = GET_X_LPARAM(lParam); 
-	 int yPos = GET_Y_LPARAM(lParam);
 
-	 int px=xPos-lastPoint.x;
-	 int py=yPos-lastPoint.y;
-	 if(MK_LBUTTON==wParam&&!m_pDlgMain->GetScreenModel())
-	 {
-		/* RECT rt;
-		 ::GetWindowRect(::GetParent(m_hWnd),&rt);
-		 int x=px+rt.left;
-		 int y=py+rt.top;
-		 ::SetWindowPos(::GetParent(m_hWnd),0,x,y,0,0,SWP_NOSIZE|SWP_NOZORDER);
-		 lastPoint.x=xPos;
-		 lastPoint.y=yPos;*/
-	 }
-	 return 1;
+   bHandled=true;
+   int xPos = GET_X_LPARAM(lParam); 
+   int yPos = GET_Y_LPARAM(lParam);
+   
+	//ÃÔÄãÄ£Ê½
+	if(!m_pDlgMain->GetScreenModel()&&xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y)
+	{
+		int ll=0x8000 &GetAsyncKeyState(VK_LBUTTON);
+		if(!ll)
+		{
+			m_pDlgMain->ShowMiniUI(true);
+
+		}else
+		{
+			m_pDlgMain->ShowMiniUI(false);
+		}
+	}
+
+	m_lastPoint.x=xPos;
+	m_lastPoint.y=yPos;
+	return 0;
 }

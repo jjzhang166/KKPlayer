@@ -102,7 +102,7 @@ extern "C"
 }
 
 
-#define MAX_QUEUE_SIZE (1024 * 1024)  //1048576*8  * 8  8M
+#define MAX_QUEUE_SIZE (1024 * 1024*8)  //1048576*8  * 8  8M
 #define MIN_FRAMES 5
 
 /* Minimum SDL audio buffer size, in samples. */
