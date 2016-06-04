@@ -268,7 +268,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     #else
 	         m_pRender =new  CRenderD3D();
     #endif
-	 m_pRender->init(this->m_hWnd);
+	if(!m_pRender->init(this->m_hWnd))
+	{
+		delete m_pRender;
+        m_pRender =new CRenderGDI();
+		m_PlayerInstance.SetBGRA();
+		m_pRender->init(this->m_hWnd);
+	};
 
 	 m_PlayerInstance.InitSound();
 	 m_PlayerInstance.SetWindowHwnd(m_hWnd);

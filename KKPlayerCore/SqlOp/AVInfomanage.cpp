@@ -3,6 +3,7 @@
 #include "SqliteOp.h"
 #include "../stdafx.h"
 #include "../Includeffmpeg.h"
+extern AVPixelFormat DstAVff;
 CAVInfoManage::CAVInfoManage()
 {
 	m_Destbuffer=NULL;
@@ -121,10 +122,10 @@ void  CAVInfoManage::UpDataAVinfo(_SQL_LITE *sl)
 	snprintf(strsql,512,sl->strSql,w,h);
 
 #ifdef  WIN32
-	AVPixelFormat srcFF=AV_PIX_FMT_BGRA;
+	AVPixelFormat srcFF=DstAVff;
 	AVPixelFormat DestFF=AV_PIX_FMT_BGRA;
 #else
-	AVPixelFormat srcFF=AV_PIX_FMT_RGBA;
+	AVPixelFormat srcFF=DstAVff;
 	AVPixelFormat DestFF=AV_PIX_FMT_BGRA;
 #endif
 	pimg_convert_ctx = sws_getCachedContext(pimg_convert_ctx,

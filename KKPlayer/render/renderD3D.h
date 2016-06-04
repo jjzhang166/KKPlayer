@@ -44,11 +44,8 @@ private:
 	IDirect3DTexture9* m_pWaitPicTexture;
 	IDirect3DTexture9* m_pLeftPicTexture;
 	//YUV
-	IDirect3DSurface9  *m_pDirect3DSurfaceRender;
+	IDirect3DSurface9  *m_pYUVAVTexture;
 
-	IDirect3DTexture9* m_pYUVAVTexture;
-
-//	m_CenterLogoTexture
     unsigned int m_w;
 	unsigned int m_h;
     struct Vertex

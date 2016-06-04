@@ -1282,6 +1282,10 @@ SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type t) {
     return (SkImageEncoder::kPNG_Type == t) ? SkNEW(SkPNGImageEncoder) : NULL;
 }
 
-static SkImageDecoder_DecodeReg gDReg(sk_libpng_dfactory);
-static SkImageDecoder_FormatReg gFormatReg(get_format_png);
-static SkImageEncoder_EncodeReg gEReg(sk_libpng_efactory);
+
+void skpngZhuc()
+{
+	static SkImageDecoder_DecodeReg gDReg(sk_libpng_dfactory);
+	static SkImageDecoder_FormatReg gFormatReg(get_format_png);
+	static SkImageEncoder_EncodeReg gEReg(sk_libpng_efactory);
+}

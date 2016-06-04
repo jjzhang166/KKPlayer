@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CryptAV", "CryptAV\CryptAV.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skia", "skia\skia.vcproj", "{022D2356-8EF6-3EA3-A0D2-F1786190B6E1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "png", "png\png.vcproj", "{56476EA3-21CB-3578-B986-9A2A160FEF06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -59,6 +61,12 @@ Global
 		{022D2356-8EF6-3EA3-A0D2-F1786190B6E1}.Release|Win32.Build.0 = Release|Win32
 		{022D2356-8EF6-3EA3-A0D2-F1786190B6E1}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{022D2356-8EF6-3EA3-A0D2-F1786190B6E1}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{56476EA3-21CB-3578-B986-9A2A160FEF06}.Debug|Win32.ActiveCfg = Debug|Win32
+		{56476EA3-21CB-3578-B986-9A2A160FEF06}.Debug|Win32.Build.0 = Debug|Win32
+		{56476EA3-21CB-3578-B986-9A2A160FEF06}.Release|Win32.ActiveCfg = Release|Win32
+		{56476EA3-21CB-3578-B986-9A2A160FEF06}.Release|Win32.Build.0 = Release|Win32
+		{56476EA3-21CB-3578-B986-9A2A160FEF06}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{56476EA3-21CB-3578-B986-9A2A160FEF06}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

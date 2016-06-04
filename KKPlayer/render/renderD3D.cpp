@@ -19,12 +19,16 @@ typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 #include <core\SkTypeface.h>
 
 #ifdef _DEBUG
+extern "C"{
+     #pragma comment (lib,"..\\debug\\libx86\\zlibstat.lib")
+     #pragma comment (lib,"..\\debug\\libx86\\pngd.lib") 
+}
      #pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
 #else
     #pragma comment (lib,"..\\Release\\libx86\\skia.lib")
 #endif
 
-//#define VFYUY420P
+#define VFYUY420P
 LPFN_ISWOW64PROCESS fnIsWow64Process;  
 BOOL IsWow64()  
 {  
@@ -51,7 +55,6 @@ CRenderD3D::CRenderD3D()
     ,m_pD3D(NULL)
     ,m_pDevice(NULL)
 	,m_pDxTexture(NULL)
-	,m_pDirect3DSurfaceRender(NULL)
 	,Fontexture(NULL)
 	,m_pWaitPicTexture(NULL)
 	,m_CenterLogoTexture(NULL)
@@ -92,6 +95,14 @@ void DrawFontSkia()
 }
 D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
 {
+
+
+	/*D3DPRESENT_PARAMETERS d3dpp; 
+	ZeroMemory( &d3dpp, sizeof(d3dpp) );
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+    return d3dpp;*/
     D3DPRESENT_PARAMETERS PresentParams;
     ZeroMemory(&PresentParams, sizeof(PresentParams));
 
@@ -110,8 +121,8 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
     PresentParams.Flags = D3DPRESENTFLAG_VIDEO;
     PresentParams.FullScreen_RefreshRateInHz = 0;
     PresentParams.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-
     return PresentParams;
+  
 }
 
 
@@ -141,18 +152,20 @@ bool CRenderD3D::init(HWND hView)
 		}
 		m_pD3D=pfnDirect3DCreate9(D3D_SDK_VERSION);//Direct3DCreate9(D3D_SDK_VERSION);//
 
+		//DWORD BehaviorFlags =D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		
 		DWORD BehaviorFlags =D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | 
 			D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES;
 		D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(hView);
 
-		int ii=m_pD3D->GetAdapterCount();
-		//GetParent()
-		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetParent(hView), 
+		
+		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,  GetParent(hView), 
 			BehaviorFlags, &PresentParams, &m_pDevice);
+		
 		if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 		{
 			BehaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-			hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hView, BehaviorFlags, &PresentParams, &m_pDevice);
+			hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,hView, BehaviorFlags, &PresentParams, &m_pDevice);
 			if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 			{
 				assert(0);
@@ -343,8 +356,9 @@ void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
 	//
 	ResetTexture();
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
-	m_pDevice->Reset(&PresentParams);
+	int ii=m_pDevice->Reset(&PresentParams);/**/
 
+	ii++;
 	
   //  SAFE_RELEASE(m_pDirect3DSurfaceRender);
 }
@@ -363,9 +377,11 @@ void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 void CRenderD3D::render(char *pBuf,int width,int height)
 {
 
-    if (!LostDeviceRestore())
-        return;
+  if (!LostDeviceRestore())
+        return; /* */
  
+	if(m_pDevice==NULL)
+		return;
 	    m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		if( SUCCEEDED(m_pDevice->BeginScene()) )
 		{
@@ -375,17 +391,20 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 
 #ifdef VFYUY420P
 			
-				IDirect3DSurface9 * pBackBuffer = NULL;  
-				RECT m_rtViewport; 
-				GetClientRect(m_hView,&m_rtViewport);  
-				m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
-				m_pDevice->StretchRect(m_pDirect3DSurfaceRender,NULL,pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
-				/*m_pDevice->SetTexture(0, 	m_pYUVAVTexture);
-				m_pDevice->SetFVF(Vertex::FVF);
-				m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));*/
+				if(m_pYUVAVTexture!=NULL)
+				{
+					IDirect3DSurface9 * pBackBuffer = NULL;  
+					RECT m_rtViewport; 
+					GetClientRect(m_hView,&m_rtViewport);  
+					m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
+					m_pDevice->StretchRect(m_pYUVAVTexture,NULL,pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
+
+					pBackBuffer->Release();
+				}
+				
+				/*m_pDevice->EndScene();
+				m_pDevice->Present(NULL, NULL, NULL, NULL);
+				return;*/
 #else
 				m_pDevice->SetTexture(0, m_pDxTexture);
 				m_pDevice->SetFVF(Vertex::FVF);
@@ -405,7 +424,7 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 				}
 				
 
-			}else if(pBuf==NULL)
+			}else if(pBuf==NULL&&m_pWaitPicTexture!=NULL)
 			{
 				m_pDevice->SetTexture(0,  m_pWaitPicTexture);
 				m_pDevice->SetFVF(Vertex::FVF);
@@ -426,12 +445,12 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 
 void CRenderD3D::ResetTexture()
 {
-	SAFE_RELEASE(m_pDirect3DSurfaceRender);
+
 	SAFE_RELEASE(m_pDxTexture);
 	SAFE_RELEASE(Fontexture);
-	//SAFE_RELEASE(m_CenterLogoTexture);
-    SAFE_RELEASE(m_pYUVAVTexture);
-
+	SAFE_RELEASE(m_CenterLogoTexture);
+   
+	SAFE_RELEASE(m_pYUVAVTexture);
 	SAFE_RELEASE(m_pWaitPicTexture);
 	SAFE_RELEASE(m_pLeftPicTexture);
 	
@@ -444,6 +463,7 @@ bool CRenderD3D::LostDeviceRestore()
        ResetTexture();
         return false;
     }
+
 
     if (hr == D3DERR_DEVICENOTRESET)
     {
@@ -587,7 +607,7 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 {
 	
 #ifdef VFYUY420P	
-   if (m_pDirect3DSurfaceRender == NULL)
+   if (m_pYUVAVTexture == NULL)
     {
         RECT rect2;
         GetClientRect(m_hView, &rect2);
@@ -598,13 +618,18 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 				resize( Wei,hei);
 			}
 
-		
-			 D3DMULTISAMPLE_TYPE         g_MaxMultiSampleType = D3DMULTISAMPLE_NONE;  // Non-Zero when g_bUseMultiSampleFloat16 is true
-DWORD                       g_dwMultiSampleQuality = 0; // Non-Zero when we have multisampling on a float backbuffer
-           HRESULT   hr  = m_pDevice->CreateRenderTarget(w, h,
-									(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),
-									g_MaxMultiSampleType, g_dwMultiSampleQuality,
-									TRUE, &m_pDirect3DSurfaceRender, NULL );
+			HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
+				w, h,
+				(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),
+				D3DPOOL_DEFAULT,
+				&m_pYUVAVTexture,
+				NULL);
+		   //D3DMULTISAMPLE_TYPE g_MaxMultiSampleType = D3DMULTISAMPLE_NONE;  // Non-Zero when g_bUseMultiSampleFloat16 is true
+     //      DWORD       g_dwMultiSampleQuality = 0; // Non-Zero when we have multisampling on a float backbuffer
+     //      HRESULT   hr  = m_pDevice->CreateRenderTarget(w, h,
+					//				(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),
+					//				g_MaxMultiSampleType, g_dwMultiSampleQuality,
+					//				TRUE, &m_pYUVAVTexture, NULL );
 			if (FAILED(hr))
 				return false;
 			 
@@ -640,41 +665,33 @@ DWORD                       g_dwMultiSampleQuality = 0; // Non-Zero when we have
 		 // w=852 h=480
 		#ifdef VFYUY420P
 		  {
-
-			 /* m_pYUVAVTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
-
-			  m_pYUVAVTexture->UnlockRect(0);*/
-			  //if(m_w>w&&m_h>h)
-			  {
-				m_pDirect3DSurfaceRender->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
+				 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
 				 if(rect.pBits!=NULL)
 				 {
-				  byte *pSrc = (byte *)pBuf;  
-				  byte * pDest = (BYTE *)rect.pBits;  
-				  int stride = rect.Pitch;  
-				  unsigned long i = 0;  
-				  int pixel_h=h;
-				  int pixel_w=w;
-				  //Copy Data (YUV420P)  
-				  //Y
-				  for(i = 0;i < pixel_h;i ++)
-				  {  
-					  memcpy(pDest + i * stride,pSrc + i * pixel_w, pixel_w);  
-				  } 
-				  //U
-				  for(i = 0;i < pixel_h/2;i ++)
-				  {  
-					  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, pixel_w / 2);  
-				  }  
-				  for(i = 0;i < pixel_h/2;i ++)
-				  {  
-					  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, pixel_w / 2);  
-				  } /**/
+						  byte *pSrc = (byte *)pBuf;  
+						  byte * pDest = (BYTE *)rect.pBits;  
+						  int stride = rect.Pitch;  
+						  unsigned long i = 0;  
+						  int pixel_h=h;
+						  int pixel_w=w;
+						  //Copy Data (YUV420P)  
+						  //Y
+						  for(i = 0;i < pixel_h;i ++)
+						  {  
+							  memcpy(pDest + i * stride,pSrc + i * pixel_w, pixel_w);  
+						  } 
+						  //U
+						  for(i = 0;i < pixel_h/2;i ++)
+						  {  
+							  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, pixel_w / 2);  
+						  }  
+						  for(i = 0;i < pixel_h/2;i ++)
+						  {  
+							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, pixel_w / 2);  
+						  } /**/
 				 }
-				 m_pDirect3DSurfaceRender->UnlockRect();
-			  }
-			
-		  } 
+				 m_pYUVAVTexture->UnlockRect();
+			  } 
 #else
 			  m_pDxTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
 			 

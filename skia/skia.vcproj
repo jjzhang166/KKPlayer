@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm200 /MP -w34100 -w34189"
 				Optimization="4"
-				AdditionalIncludeDirectories="&quot;.&quot;,&quot;include\config&quot;,&quot;include\core&quot;,&quot;src\core&quot;,&quot;include\gpu&quot;,&quot;src\gpu&quot;,&quot;include\images&quot;,&quot;include\utils&quot;,&quot;include\utils\win&quot;,&quot;src\utils&quot;,&quot;include\ports&quot;,&quot;include\text&quot;,&quot;include\effects&quot;,&quot;src\sfnt&quot;,&quot;include\pathops&quot;,&quot;src\image&quot;,&quot;src\opts&quot;,&quot;src\lazy&quot;,&quot;..\..\config&quot;,..\..\tools\mkspecs\win32-msvc2008"
+				AdditionalIncludeDirectories=".;include\config;include\core;src\core;include\gpu;src\gpu;include\images;include\utils;include\utils\win;src\utils;include\ports;include\text;include\effects;src\sfnt;include\pathops;src\image;src\opts;src\lazy;..\..\config;&quot;..\..\tools\mkspecs\win32-msvc2008&quot;;..\png"
 				PreprocessorDefinitions="_WINDOWS,UNICODE,WIN32,_CRT_SECURE_NO_WARNINGS,SK_IGNORE_ETC1_SUPPORT,SK_CPU_SSE_LEVEL=31"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="1"
@@ -95,8 +95,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\Release\libx86\"
-			IntermediateDirectory="..\Release\libx86\skia\obj\"
+			OutputDirectory="..\Release\"
+			IntermediateDirectory="..\Release\\skia\obj\"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -3748,6 +3748,34 @@
 			</File>
 			<File
 				RelativePath="src\images\transform_scanline.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="ports"
+			>
+			<File
+				RelativePath=".\src\ports\SkImageDecoder_WIC.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="images"
+			>
+			<File
+				RelativePath=".\src\images\SkForceLinking.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\images\SkImageDecoder_FactoryRegistrar.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\images\SkImageDecoder_libpng.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\images\SkScaledBitmapSampler.cpp"
 				>
 			</File>
 		</Filter>

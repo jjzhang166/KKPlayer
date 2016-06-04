@@ -17,6 +17,13 @@ static int lowres = 0;
 static int64_t sws_flags = SWS_BICUBIC;
 static int av_sync_type =AV_SYNC_AUDIO_MASTER;//AV_SYNC_EXTERNAL_CLOCK;//AV_SYNC_AUDIO_MASTER;//AV_SYNC_VIDEO_MASTER;// AV_SYNC_AUDIO_MASTER;
 double rdftspeed = 0.02;
+
+extern AVPixelFormat DstAVff;//=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA;
+//解码成BGRA格式
+void KKPlayer::SetBGRA()
+{
+	DstAVff=AV_PIX_FMT_BGRA;
+}
 KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI), m_OpenMediaEnum(No)
 {
 	m_pAVInfomanage=CAVInfoManage::GetInance();

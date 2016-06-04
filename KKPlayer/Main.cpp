@@ -94,9 +94,12 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 #define SYS_NAMED_RESOURCE _T("soui-sys-resource.dll")
 #endif
 SOUI::CMainDlg *m_pDlgMain=NULL;
+
+void skpngZhuc();
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
+	skpngZhuc();
 
 	int ll=sizeof(ULONG_PTR);
 	HRESULT hRes = ::CoInitialize(NULL);

@@ -4,7 +4,7 @@ appWnd="1" minsize="560,350"
 translucent="0"
 >
 	<root skin="_skin.shadow">
-			<caption pos="0,0,-0,30" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
+			<caption pos="0,0,-0,22" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
                   <icon pos="10,8" src="ICON_LOGO:16"/>
                   <text pos="[5,8" colorText="#ffFFFF">KK影音</text>
 				  

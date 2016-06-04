@@ -27,7 +27,7 @@ typedef struct _SQL_LITE
 	int bufLen;
 	int SqlType;
 	int width;
-	int height;
+	int height;	
 	char* color;
 }SQL_LITE__;
 

@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\libx86\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\skia\include;..\skia\include\core;..\skia\include\config"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -272,6 +272,10 @@
 			</File>
 			<File
 				RelativePath=".\render\renderD3D.h"
+				>
+			</File>
+			<File
+				RelativePath=".\render\renderGDI.cpp"
 				>
 			</File>
 			<File

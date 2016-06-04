@@ -5,7 +5,6 @@
 /*******************Author qq: 784200679 ******************/
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date：2015-6-25**********************************************/
-#pragma once
 #include <queue>
 #include "stdafx.h"
 
@@ -35,7 +34,7 @@ enum SeekEnum
 struct MEDIA_INFO 
 {
 	int CurTime;
-	int TotalTime;
+	int TotalTime;//总时长
 	int serial;
 	bool Open;
 	int KKState;
@@ -80,6 +79,9 @@ class KKPlayer
 
 			//获取放播的历史信息
 			void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
+
+			//解码成BGRA格式
+			void SetBGRA();
 private:
 	        //视频刷线程
 			void VideoRefresh();

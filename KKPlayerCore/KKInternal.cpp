@@ -10,7 +10,11 @@
 #include <assert.h>
 #include <time.h>
 
-
+#ifdef WIN32
+AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
+#else
+AVPixelFormat DstAVff=AV_PIX_FMT_RGBA;
+#endif
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
@@ -1157,11 +1161,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	}
     int w=pFrame->width;
 	int h=pFrame->height;
-#ifdef WIN32
-	AVPixelFormat ff=AV_PIX_FMT_BGRA;//AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
-#else
-	AVPixelFormat ff=AV_PIX_FMT_RGBA;
-#endif
+
 	//LOGE("WindowWidth:%d,WindowHeight:%d pFrame->width:%d pFrame->height:%d\n",is->DestWidth,is->DestHeight,w,h);
 
 	if(vp->buffer!=NULL)
@@ -1186,7 +1186,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	{
 			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 				pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
-				w,              h,                ff,                
+				w,              h,               DstAVff,                
 				SWS_FAST_BILINEAR,
 				NULL, NULL, NULL);
 			if (is->img_convert_ctx == NULL) 
@@ -1195,10 +1195,10 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 				exit(1);
 			}
 		    AVPicture pict = { { 0 } };
-			int numBytes=avpicture_get_size(ff, w,h);
+			int numBytes=avpicture_get_size(DstAVff, w,h);
 			vp->buflen=numBytes*sizeof(uint8_t);
 			uint8_t * buffer=(uint8_t *)av_malloc(vp->buflen);
-			avpicture_fill((AVPicture *)&pict, buffer,ff,  w, h);
+			avpicture_fill((AVPicture *)&pict, buffer,DstAVff,  w, h);
 			sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
 				0,pFrame->height, pict.data, pict.linesize);
             vp->buffer=buffer;
