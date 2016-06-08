@@ -89,7 +89,7 @@ private:
 		unsigned char* m_pBkImage;
 
 		unsigned char* m_pCenterLogoImage;
-
+        int m_CenterLogoLen;
 		std::vector<SWaitPicInfo*> m_WaitPicList;
 		SWaitPicInfo* m_CurWaitPic;
         bool m_bOpen;

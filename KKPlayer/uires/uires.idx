@@ -4,7 +4,8 @@
 	</UIDEF>
 	<LAYOUT>
 		<file name="XML_MAINWND" path="xml\dlg_main.xml"  />
-		 <file name="XML_MINI_TITTLE" path="xml\MiniTittle.xml"/>
+		<file name="XML_MINI_TITTLE" path="xml\MiniTittle.xml"/>
+		<file name="XML_MINI_BOTTOM" path="xml\MiniBottom.xml"/>
 	</LAYOUT>
 	<SMENUEX>
              <file name="avmenuex" path="xml\AVMenu.xml"/>

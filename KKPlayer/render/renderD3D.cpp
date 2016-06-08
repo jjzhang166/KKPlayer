@@ -797,6 +797,8 @@ void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 		if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, & m_CenterLogoTexture)))
 		{
 			//assert(0);
+			int i=0;
+			i++;
 			return;// S_FALSE;
 		}
 	}

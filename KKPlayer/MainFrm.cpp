@@ -63,6 +63,7 @@ std::basic_string<char> GetModulePathA()
 std::basic_string<TCHAR> GetModulePath();
 CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
 {
+	m_CenterLogoLen=0;
 	std::string basePath=GetModulePathA();
 	m_BkGidPulsBitmap=NULL;
 	m_bOpen=false;
@@ -536,7 +537,9 @@ int  CMainFrame::Pause()
 			 fclose(fp);
 			m_pCenterLogoImageLen=len;
 			len=m_pCenterLogoImageLen;
+			m_CenterLogoLen=len;
 		 }
+		 len=m_CenterLogoLen;
 		 return m_pCenterLogoImage;
  }
 unsigned char*  CMainFrame::GetBkImage(int &len)

@@ -1,0 +1,18 @@
+<SOUI name="mainWindow" title="KKplayer" 
+width="600" height="23"  margin="0,0,0,0"  resizable="0"
+appWnd="0" minsize="600,48"
+translucent="0"
+>
+	<root skin="_skin.shadow">
+	        <window pos="10,0,-8,@10" margin="0,0,0,0" name="SeekWin" colorBkgnd="#000000">
+				   <sliderbar name="slider_video_Seek" thumbSkin="_skin.Pro_SeekThBt" 
+				   bkgndSkin="_skin.Pro_Bg" posskin="_skin.Pro_Play" 
+				   thumbInRail="0" pos="0,0,-0,-0"  value="0" min="0" max="1000" />
+			</window>
+			<window pos="0,-38,-0,-0" name="AV_Bottom" margin="0,0,0,0" skin="_skin.ButtonBg" show="1" font="adding:0" >
+				    <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
+					  pos="-30,20" offset="-0.5,-0.5"   colorText="#FFFFFF"
+					  width="29" height="36" animate="0" tip="打开本地文件" />
+			</window>
+	</root>
+</SOUI>

@@ -19,10 +19,10 @@
 		<imglist name="_skin.VOL_BLOCK" src="PNG:ID_PNG_VOL_BLOCK" states="3" />
 		
 		
-		<imglist name="_skin.Win_Close" src="PNG:ID_PNG_WIN_CLOSE" states="5" />
-		<imglist name="_skin.Win_Max" src="PNG:ID_PNG_WIN_MAX" states="5" />
-		<imglist name="_skin.Win_Min" src="PNG:ID_PNG_WIN_MIN" states="5" />
-		<imglist name="_skin.Win_Max2" src="PNG:ID_PNG_WIN_MAX_2" states="5" />
+		<imglist name="_skin.Win_Close" src="PNG:ID_PNG_WIN_CLOSE" states="3" />
+		<imglist name="_skin.Win_Max" src="PNG:ID_PNG_WIN_MAX" states="3" />
+		<imglist name="_skin.Win_Min" src="PNG:ID_PNG_WIN_MIN" states="3" />
+		<imglist name="_skin.Win_Max2" src="PNG:ID_PNG_WIN_MAX_2" states="3" />
 		
 		<imglist name="_skin.Top" src="PNG:ID_PNG_TOP"/>
 		
