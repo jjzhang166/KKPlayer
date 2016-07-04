@@ -18,11 +18,7 @@
 #include "SqlOp/AVInfomanage.h"
 #ifndef KKPlayer_H_
 #define KKPlayer_H_
-enum OpenMediaEnum
-{
-	No=0,
-	Dump=1,//转存
-};
+
 enum SeekEnum
 {
 	Up,
@@ -46,7 +42,7 @@ class KKPlayer
 	        ~KKPlayer(void);
 			void SetWindowHwnd(HWND hwnd);
 			/*********打开媒体************/
-			int OpenMedia(char* fileName,OpenMediaEnum en=No,char* FilePath="C:\\"); 
+			int OpenMedia(char* fileName,char* FilePath="C:\\"); 
 			void CloseMedia(); 
     		void ReadAV();
             int GetCurTime();
@@ -83,6 +79,7 @@ class KKPlayer
 			//解码成BGRA格式
 			void SetBGRA();
 private:
+	        int KKProtocolAnalyze(char *StrfileName);
 	        //视频刷线程
 			void VideoRefresh();
 			  //视频信息
@@ -98,13 +95,12 @@ private:
 private:
 
 	        void Avflush(int64_t seek_target); 
-			void VideoPushStream();
+			//读音频
 	        void ReadAudioCall();
 			void PacketQueuefree();
 
 			
-	        //文件打开后需要做什么
-	        OpenMediaEnum m_OpenMediaEnum;
+	       
 			CAVInfoManage* m_pAVInfomanage;
 	        CKKLock m_CloseLock;
 	        bool m_bOpen;

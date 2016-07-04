@@ -295,14 +295,15 @@ typedef struct SKK_VideoState
 	/****当前帧直接的延迟s****/
 	double delay;
 
-	/**********输出环境,单独存储文件*****************/
-	bool IsOutFile; 
-	AVFormatContext *ofmt_ctx;  
-	AVOutputFormat *ofmt;
-	int videoindex_out;  
-	int audioindex_out;  
-	AVStream *out_audios;
-	AVStream *out_videos;
+	///**********输出环境,单独存储文件*****************/
+	//bool IsOutFile; 
+
+	//AVFormatContext *ofmt_ctx;  
+	//AVOutputFormat *ofmt;
+	//int videoindex_out;  
+	//int audioindex_out;  
+	//AVStream *out_audios;
+	//AVStream *out_videos;
 	
 	/****************推流环境************************/
     AVFormatContext *PushOfmt_ctx;

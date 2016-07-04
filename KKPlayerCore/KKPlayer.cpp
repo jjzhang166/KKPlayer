@@ -24,7 +24,8 @@ void KKPlayer::SetBGRA()
 {
 	DstAVff=AV_PIX_FMT_BGRA;
 }
-KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI), m_OpenMediaEnum(No)
+void register_Kkv();
+KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI)
 {
 	m_pAVInfomanage=CAVInfoManage::GetInance();
 //	assert(m_pPlayUI!=NULL);
@@ -44,7 +45,11 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 		av_register_all();
 		avfilter_register_all();
 		avformat_network_init();
+        register_Kkv();
+		
 		registerFF=false;
+
+		
 	}
 	
 	AVInputFormat *ff=av_iformat_next(NULL);
@@ -211,17 +216,6 @@ Sleep(100);
 	sws_freeContext(pVideoInfo->PicGrab_Img_convert_ctx);
 	pVideoInfo->PicGrab_Img_convert_ctx=NULL;
 
-
-	if(pVideoInfo->IsOutFile)
-	{
-		//Write file trailer  
-		av_write_trailer(pVideoInfo->ofmt_ctx);  
-
-		/* close output */  
-		if (pVideoInfo->ofmt_ctx && !(pVideoInfo->ofmt->flags & AVFMT_NOFILE))  
-			avio_close(pVideoInfo->ofmt_ctx->pb);  
-		avformat_free_context(pVideoInfo->ofmt_ctx);  
-	}
 
 	//av_packet_unref(pVideoInfo->viddec.p)
 	avcodec_close(pVideoInfo->viddec.avctx);
@@ -662,9 +656,47 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 
 #endif
 //unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);  
-int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
-{
 
+char * c_left(char *dst,char *src, int n)
+{
+	char *p = src;
+	char *q = dst;
+	int len = strlen(src);
+	if(n>len) n = len;
+	/*p += (len-n);*/   /*从右边第n个字符开始*/
+	while(n--) *(q++) = *(p++);
+	*(q++)='\0'; /*有必要吗？很有必要*/
+	return dst;
+}
+int KKPlayer::KKProtocolAnalyze(char* StrfileName)
+{
+	char* pos=strstr(StrfileName,"://") ;
+	if(pos!=NULL)
+	{
+		char ProName[256];
+		
+		c_left(ProName,StrfileName,5);
+
+		if(strcmp(ProName,"KK://")==0)
+		{
+			int len=strlen(StrfileName)-5;
+			if(len>0)
+			{
+				strcpy(ProName,pos+3);
+				memset(StrfileName,0,1024);
+               strcpy(StrfileName,ProName);
+				return 1;
+			}
+		}else
+		{
+			return -1;
+		}
+	}
+	return 0;
+}
+int KKPlayer::OpenMedia(char* fileName,char* FilePath)
+{
+	fileName="KK://c:/xxx.kkv";
 	m_CloseLock.Lock();
     if(m_bOpen)
 	{
@@ -678,8 +710,6 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 	m_pStrFilePath=(char*)::malloc(lenstr+1);
 	memset(m_pStrFilePath,0,lenstr+1);
 	strcpy(m_pStrFilePath,FilePath);
-	
-	this->m_OpenMediaEnum=en;
 	
 	pVideoInfo = (SKK_VideoState*)av_mallocz(sizeof(SKK_VideoState));
 	memset(pVideoInfo,0,sizeof(SKK_VideoState));
@@ -708,7 +738,6 @@ int KKPlayer::OpenMedia(char* fileName,OpenMediaEnum en,char* FilePath)
 
 	av_strlcpy(pVideoInfo->filename, fileName, strlen(fileName)+1);
 
-	//pVideoInfo->pFile=fopen("E:\\output.pcm", "wb");  
 	//初始化队列
 	packet_queue_init(&pVideoInfo->videoq);
 	pVideoInfo->videoq.m_pWaitCond=new CKKCond_t();
@@ -900,11 +929,13 @@ int KKPlayer::GetAVRate()
 	 SKK_VideoState *is =(SKK_VideoState *) ctx;
 	 return is->abort_request;
  }
+
+
+ AVIOContext * CreateKKIo(char *strUrl);
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
 	m_ReadThreadInfo.ThOver=false;
-
 	LOGE("ReadAV thread start");
 	AVFormatContext *pFormatCtx= avformat_alloc_context();
 	AVDictionary *format_opts=NULL;
@@ -912,8 +943,6 @@ void KKPlayer::ReadAV()
 	int scan_all_pmts_set = 0;
 	pVideoInfo->iformat=NULL;
 	
-	//av_dict_set(&format_opts, "timeout", "6", 0);
-
 
 	pFormatCtx->interrupt_callback.callback = decode_interrupt_cb;
 	pFormatCtx->interrupt_callback.opaque = pVideoInfo;
@@ -922,44 +951,54 @@ void KKPlayer::ReadAV()
 		av_dict_set(&format_opts, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
 		scan_all_pmts_set = 1;
 	}
+	
+	m_CloseLock.Lock();
+
+	if(KKProtocolAnalyze(pVideoInfo->filename)==1)
+	{	
+	    pFormatCtx->pb=CreateKKIo(pVideoInfo->filename);
+        pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
+		////step2:探测流格式
+		//if (av_probe_input_buffer(pFormatCtx->pb, &pVideoInfo->iformat, "", NULL, 0, 0) < 0) 
+		//{
+		//	fprintf(stderr, "probe failed!\n");
+		//}
+
+    }
+
+
 	//此函数是阻塞的
 	err = avformat_open_input(
 		&pFormatCtx,                    pVideoInfo->filename,
 		pVideoInfo->iformat,    &format_opts);
-    AVPacket cpypkt;
-	
 	LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
     //文件打开失败
 	if(err<0)
 	{
-		
+		m_CloseLock.Unlock();
 		pVideoInfo->abort_request=1;
         if(m_pPlayUI!=NULL)
 		{
-			Sleep(1000);
 			m_pPlayUI->OpenMediaFailure(pVideoInfo->filename);
 		}else
 		{
 		     LOGE("m_pPlayUI=NULL \n");
 		}
+		
 		return;
 		
 	}
     
 	if (scan_all_pmts_set)
 		av_dict_set(&format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE);
+	
 	// Retrieve stream information
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
 	{
 		LOGE("avformat_find_stream_info<0 \n");
+		m_CloseLock.Unlock();
 		return; // Couldn't find stream information
     }
-	if(this->m_OpenMediaEnum==Dump)
-	{
-			    
-	}
-
-
 	pVideoInfo->pFormatCtx = pFormatCtx;
 	
 	int  i, ret=-1;
@@ -1024,14 +1063,9 @@ void KKPlayer::ReadAV()
 	}
 	pVideoInfo->max_frame_duration = (pVideoInfo->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 	pVideoInfo->IsReady=1;	
-	
 	pVideoInfo->m_nLiveType=0;
-	AVBitStreamFilterContext* h264bsfc =  av_bitstream_filter_init("h264_mp4toannexb"); 
+	m_CloseLock.Unlock();
 
-
-	/*AVAES bKey;
-	uint8_t rkey[16] ={ 0x10, 0xa5, 0x88, 0x69, 0xd7, 0x4b, 0xe5, 0xa3,0x74, 0xcf, 0x86, 0x7c, 0xfb, 0x47, 0x38, 0x59 };
-	av_aes_init(&bKey, rkey, 128, 1);*/
 	while(m_bOpen) 
 	{
 		if(pVideoInfo->abort_request)
@@ -1070,8 +1104,6 @@ void KKPlayer::ReadAV()
 			{
 				Avflush(seek_target);
 			}
-			int ii=0;
-			ii++;
 			pVideoInfo->seek_req=0;
 		}
 
@@ -1087,8 +1119,7 @@ void KKPlayer::ReadAV()
 			if(pVideoInfo->audioq.size + pVideoInfo->videoq.size + pVideoInfo->subtitleq.size > MAX_QUEUE_SIZE)
 			{
 				// LOGE("catch full");
-				//等待一会
-				Sleep(10);
+				Sleep(10);//等待一会
 			}else
 			{
 				break;
@@ -1106,22 +1137,14 @@ void KKPlayer::ReadAV()
 			 }
 
 			 if (pFormatCtx->pb && pFormatCtx->pb->error)
-				break;
-			Sleep(10);
+				    break;
+			Sleep(1);
 			continue;
 		} else 
 		{
 			pVideoInfo->eof = 0;
 		}
-		if(pVideoInfo->IsOutFile)//Write 
-		{
-		//av_new_packet(&cpypkt,pkt->size);
-		av_copy_packet(&cpypkt,pkt);
-		}
 		
-
-		
-
 		/* check if packet is in play range specified by user, then queue, otherwise discard */
 		stream_start_time = pFormatCtx->streams[pkt->stream_index]->start_time;
 		
@@ -1155,17 +1178,6 @@ void KKPlayer::ReadAV()
 		{
 			//LOGE("audio_stream");
 			packet_queue_put(&pVideoInfo->audioq, pkt,pVideoInfo->pflush_pkt);
-			if(pVideoInfo->IsOutFile)//Write 
-			{
-				cpypkt.pts = av_rescale_q_rnd(cpypkt.pts, pFormatCtx->streams[pkt->stream_index]->time_base,pVideoInfo->out_audios->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
-				cpypkt.dts = av_rescale_q_rnd(cpypkt.dts, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_audios->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
-				cpypkt.duration = av_rescale_q(cpypkt.duration, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_audios->time_base);
-				if (av_interleaved_write_frame(pVideoInfo->ofmt_ctx, &cpypkt) < 0)
-				{  
-					assert(0);
-					break;
-				}			
-			}
 		} //视频
 		else if (
 			pkt->stream_index == pVideoInfo->video_stream && pkt_in_play_range
@@ -1175,18 +1187,6 @@ void KKPlayer::ReadAV()
 			//LOGE("video pkt");
 			/********无内存泄露*******/
 			packet_queue_put(&pVideoInfo->videoq, pkt,pVideoInfo->pflush_pkt);
-			if(pVideoInfo->IsOutFile)//Write 
-			{
-				cpypkt.pts = av_rescale_q_rnd(cpypkt.pts, pFormatCtx->streams[pkt->stream_index]->time_base,pVideoInfo->out_videos->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
-				cpypkt.dts = av_rescale_q_rnd(cpypkt.dts, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_videos->time_base, (AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
-				cpypkt.duration = av_rescale_q(cpypkt.duration, pFormatCtx->streams[pkt->stream_index]->time_base, pVideoInfo->out_videos->time_base);
-				//cpypkt.pos = -1;
-				if (av_interleaved_write_frame(pVideoInfo->ofmt_ctx, &cpypkt) < 0)
-				{  
-					assert(0);
-					break;
-				}
-			}
 		}//字幕
 		else if (pkt->stream_index == pVideoInfo->subtitle_stream && pkt_in_play_range) 
 		{
@@ -1196,10 +1196,7 @@ void KKPlayer::ReadAV()
 		{
 			av_free_packet(pkt);
 		}
-		if(pVideoInfo->IsOutFile)//Write 
-		{	
-		    av_free_packet(&cpypkt);
-		}
+		
 	}
 
 	LOGE("readAV Over \n");
@@ -1282,50 +1279,6 @@ void KKPlayer::AVSeek(int value)
 	m_CloseLock.Unlock();
 }
 
-//推流
-void KKPlayer::VideoPushStream()
-{
-	int ret=0;
-	int64_t xstart_time=av_gettime();  
-	while(1)
-	{
-		    if(pVideoInfo->abort_request)
-			          break;
-			while(m_PushPktQue.size()>0)
-			{
-
-				m_PushStreamLock.Lock();
-				AVPacket *pkt=m_PushPktQue.front();
-				m_PushPktQue.pop();
-				m_PushStreamLock.Unlock();
-				
-				//Important:Delay
-				{
-					AVRational time_base=pVideoInfo->PushOfmt_ctx->streams[pkt->stream_index]->time_base;
-					AVRational time_base_q={1,AV_TIME_BASE};
-					int64_t pts_time = av_rescale_q(pkt->dts, time_base, time_base_q);
-					int64_t now_time = av_gettime() - xstart_time;
-					if (pts_time > now_time)
-					{
-						av_usleep(pts_time - now_time);
-						if(pVideoInfo->abort_request)
-							break;
-					}
-				}
-			
-
-				ret = av_interleaved_write_frame(pVideoInfo->PushOfmt_ctx, pkt);  
-				if (ret < 0)
-				{  
-					printf( "Error muxing packet\n");  
-					break;  
-				}  
-				av_free_packet(pkt);
-				av_free(pkt);
-			}
-	}
-
-}
 
 void KKPlayer::Avflush(int64_t seek_target)
 {

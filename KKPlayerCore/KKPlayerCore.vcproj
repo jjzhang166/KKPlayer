@@ -283,6 +283,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="kkptl"
+			>
+			<File
+				RelativePath=".\kkptl\kk_dem.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\kkptl\kkio.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
 			>

@@ -138,3 +138,5 @@ extern "C"
 #define isPINF(x) ((x)==PINF)
 #define isNINF(x) ((x)==NINF)
 #endif // Nan_h__
+
+//AV_OPT_TYPE_BOOL

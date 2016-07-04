@@ -242,13 +242,13 @@ BOOL CMainFrame::OnIdle()
 	(((y) + (1L << 15)) >> 16))
 std::basic_string<TCHAR> GetModulePath();
 
-int  CMainFrame::OpenMedia(std::string url,OpenMediaEnum en,std::string FilePath)
+int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 {
 
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
 	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
-	int  ret=m_PlayerInstance.OpenMedia((char*)url.c_str(),en,(char*)FilePath.c_str());
+	int  ret=m_PlayerInstance.OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
 	if(ret==0)
 	  m_bOpen=true;
 	return ret;

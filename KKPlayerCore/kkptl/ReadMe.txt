@@ -1,0 +1,1 @@
+主要用于kkPlayer的p2p的支持
