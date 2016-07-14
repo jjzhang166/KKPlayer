@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skia", "skia\skia.vcproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "png", "png\png.vcproj", "{56476EA3-21CB-3578-B986-9A2A160FEF06}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKV", "KKV\KKV.vcproj", "{0039C16B-DF63-42A3-B42E-A0663A301ED5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -59,6 +61,12 @@ Global
 		{56476EA3-21CB-3578-B986-9A2A160FEF06}.Release|Win32.Build.0 = Release|Win32
 		{56476EA3-21CB-3578-B986-9A2A160FEF06}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{56476EA3-21CB-3578-B986-9A2A160FEF06}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{0039C16B-DF63-42A3-B42E-A0663A301ED5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0039C16B-DF63-42A3-B42E-A0663A301ED5}.Debug|Win32.Build.0 = Debug|Win32
+		{0039C16B-DF63-42A3-B42E-A0663A301ED5}.Release|Win32.ActiveCfg = Release|Win32
+		{0039C16B-DF63-42A3-B42E-A0663A301ED5}.Release|Win32.Build.0 = Release|Win32
+		{0039C16B-DF63-42A3-B42E-A0663A301ED5}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{0039C16B-DF63-42A3-B42E-A0663A301ED5}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

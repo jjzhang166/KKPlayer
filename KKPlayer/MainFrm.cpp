@@ -410,8 +410,9 @@ LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 }
 void CMainFrame::CloseMedia()
 {
-  m_bOpen=false;
+  
    m_PlayerInstance.CloseMedia();
+   m_bOpen=false;
 }
 int CMainFrame::PktSerial()
 {

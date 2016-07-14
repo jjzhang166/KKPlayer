@@ -27,11 +27,10 @@ namespace SOUI
 	{
 		int ll= __super::OnCreate(NULL);
 		HWND h=GetContainer()->GetHostHwnd();
-		
 		RECT rt={0,100,200,300};
-		if(m_VideoWnd.CreateEx(h,rt, WS_CHILDWINDOW| WS_VISIBLE | WS_CLIPSIBLINGS|WS_CLIPCHILDREN) == NULL)
+		//m_VideoWnd.Create()
+		if(m_VideoWnd.CreateEx(h,rt, WS_CHILD| WS_VISIBLE ) == NULL)//| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
 		{
-			
 				return 0;
 		}/**/
 		
@@ -55,14 +54,14 @@ namespace SOUI
 	}
 	void  CSuiVideo::OnSize(UINT nType, CSize size)
 	{
-            __super::OnSize(nType,size);
-			if(m_VideoWnd.IsWindow())
-			{
-				RECT rt;
-				this->GetWindowRect(&rt);
+        __super::OnSize(nType,size);
+		if(m_VideoWnd.IsWindow())
+		{
+			RECT rt;
+			this->GetWindowRect(&rt);
 
-				:: SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left,rt.top,size.cx,size.cy,SWP_NOZORDER);
-			}
+			::SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left,rt.top,size.cx,size.cy,SWP_NOZORDER);
+		}
 	}
 	int CSuiVideo::PktSerial()
 	{

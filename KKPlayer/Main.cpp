@@ -9,6 +9,9 @@
 #include <Gdiplusinit.h>
 #include "MainPage/MainDlg.h"
 #include "MainPage/SUIVideo.h"
+#include "Dir/Dir.hpp"
+#include "../KKPlayerCore/KKPlugin.h"
+#include "../KKPlayerCore/KKPlayer.h"
 #pragma comment (lib,"Gdiplus.lib")
 CAppModule _Module;
 std::basic_string<TCHAR> g_strModuleFileName;
@@ -95,11 +98,45 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 #endif
 SOUI::CMainDlg *m_pDlgMain=NULL;
 
+
+std::basic_string<char> GetModulePathA();
 void skpngZhuc();
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
 	skpngZhuc();
+
+	//в╟ть
+	std::string strPath= GetModulePathA();
+	strPath+="\\Plugin";
+
+	std::list<std::string> DllPathInfoList;
+	dir::listFiles(DllPathInfoList,strPath,"dll");
+	std::list<std::string>::iterator It=DllPathInfoList.begin();
+	int Lenxx=sizeof( __KKPluginInfo);
+	for (;It!=DllPathInfoList.end();++It)
+	{
+		HMODULE	hdll= LoadLibraryA((*It).c_str());
+		fCreateKKPlugin pfn = (fCreateKKPlugin)GetProcAddress(hdll, "CreateKKPlugin");
+		fGetPtlHeader pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
+		fDeleteKKPlugin pFree=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
+		if(pfn!=NULL&&pfGetPtl!=NULL&& pFree!=NULL)
+		{
+			
+				KKPluginInfo Info;
+				pfGetPtl(Info.ptl,32);
+				Info.CreKKP= pfn;
+				Info.DelKKp=pFree;
+                Info.Handle=hdll;
+				KKPlayer::AddKKPluginInfo(Info);
+			
+		}else{
+			FreeLibrary(hdll);
+		}
+
+		int i=0;
+		i++;
+	}
 
 	int ll=sizeof(ULONG_PTR);
 	HRESULT hRes = ::CoInitialize(NULL);
@@ -166,7 +203,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	
 	SOUI::CMainDlg dlgMain;
 	m_pDlgMain=&dlgMain;
-	dlgMain.Create(GetActiveWindow(),0,0,0,0);
+	dlgMain.Create(NULL,WS_POPUP|WS_MINIMIZEBOX | WS_MAXIMIZEBOX&~WS_CAPTION,0,0,0,0,0);
 	dlgMain.GetNative()->SendMessage(WM_INITDIALOG);
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);

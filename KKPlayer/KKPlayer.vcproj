@@ -347,6 +347,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Dir"
+			>
+			<File
+				RelativePath=".\Dir\Dir.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Dir\Dir.hpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>

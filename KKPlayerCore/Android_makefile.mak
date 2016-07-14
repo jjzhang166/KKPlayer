@@ -1,5 +1,5 @@
 include Android_config.mak
-objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o md5.o
+objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o md5.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -48,6 +48,8 @@ KKCond_t.o: KKCond_t.cpp KKCond_t.h	KKMutex.h platforms.h stdafx.h
 	$(CXX) -c $(CFLAGS) KKCond_t.cpp
 KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.h platforms.h stdafx.h 
 	$(CXX) -c $(CFLAGS) KKInternal.cpp
+kkio.o: KKVideoInfo.h kkptl/kkio.cpp
+	$(CXX) -c $(CFLAGS)  kkptl/kkio.cpp
 SqliteOp.o: sqlite/sqlite3.h SqlOp/SqliteOp.h SqlOp/SqliteOp.cpp
 	$(CXX) -c $(CFLAGS) SqlOp/SqliteOp.cpp
 AVInfomanage.o:	KKVideoInfo.h SqlOp/SqliteOp.h SqlOp/AVInfomanage.h SqlOp/AVInfomanage.cpp

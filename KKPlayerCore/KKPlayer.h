@@ -6,6 +6,7 @@
 /*******************KKPlayer  WWW: http://www.70ic.com/KKplayer ********************************/
 /*************************date：2015-6-25**********************************************/
 #include <queue>
+#include <list>
 #include "stdafx.h"
 
 #include "IKKAudio.h"
@@ -16,6 +17,8 @@
 #include "KKLock.h"
 #include "KKVideoInfo.h"
 #include "SqlOp/AVInfomanage.h"
+#include "KKPlugin.h"
+
 #ifndef KKPlayer_H_
 #define KKPlayer_H_
 
@@ -78,8 +81,9 @@ class KKPlayer
 
 			//解码成BGRA格式
 			void SetBGRA();
+			static void AddKKPluginInfo(KKPluginInfo &info);
 private:
-	        int KKProtocolAnalyze(char *StrfileName);
+	        int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 	        //视频刷线程
 			void VideoRefresh();
 			  //视频信息
@@ -132,6 +136,8 @@ private:
 			std::queue<AVPacket *> m_PushPktQue;
 			CKKLock m_PushStreamLock;
 			char* m_pStrFilePath;
+
+			static std::list<KKPluginInfo>  KKPluginInfoList;
 			
 };
 #endif
