@@ -19,7 +19,7 @@ translucent="0"
 			     <pane minSize="400" priority="1">
                          <splitcol name="split_col"  sepSkin="_skin.AV.split.vert" pos="0,0,-0,-0" sepSize="3">
                                  <pane idealSize="300" margin="0,0,0,0" minSize="360" priority="0" clipClient="1">
-			                         <SuiVideo pos="0,0,]-0,-0" name="AVMainWnd" colorBkgnd="#FFFFFF"></SuiVideo>
+			                         <SuiVideo pos="0,0,]-0,-0" name="AVMainWnd" colorBkgnd="#000000"></SuiVideo>
                                  </pane>
                                  <pane idealSize="200" name="AV_list_pane" margin="0,0,0,0" minSize="200" priority="1" clipClient="1">
                                      <listview hotTrack="1" pos="0,0,-2,-0" sbSkin="_skin.Scrollbar" name="AV_list" dividerSize="3" wantTab="1">

@@ -46,6 +46,8 @@ private:
 	//YUV
 	IDirect3DSurface9  *m_pYUVAVTexture;
 
+	IDirect3DSurface9 * m_pBackBuffer;
+    RECT m_rtViewport; 
     unsigned int m_w;
 	unsigned int m_h;
     struct Vertex

@@ -306,7 +306,7 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 	 bHandled=true;
 	 if(!m_bOpen)
 	 {
-		 PAINTSTRUCT ps = { 0 };
+		 /*PAINTSTRUCT ps = { 0 };
 		 ::BeginPaint(m_hWnd, &ps);
 
 		 HDC MemDC=::CreateCompatibleDC(ps.hdc);
@@ -322,12 +322,14 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
          #endif
 		 ::BitBlt(ps.hdc,0,0,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top,MemDC,0,0,SRCCOPY); 
 		 ::DeleteObject(bmp);
-		 ::DeleteDC(MemDC);
+		 ::DeleteDC(MemDC);*/
 
-		 //  m_PlayerInstance.RenderImage(m_pRender);
+		 //::InvalidateRect(m_hWnd,NULL,FALSE);
+		 PAINTSTRUCT ps = { 0 };
+		 ::BeginPaint(m_hWnd, &ps);
 		 ::EndPaint(m_hWnd, &ps);
-	 }else
-	 {
+		 m_PlayerInstance.RenderImage(m_pRender,true);
+	 }else if(0){
 		 PAINTSTRUCT ps = { 0 };
 		 ::BeginPaint(m_hWnd, &ps);
 		 HDC MemDC=::CreateCompatibleDC(ps.hdc);
@@ -353,9 +355,17 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
          ::BitBlt(ps.hdc,0,0,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top,MemDC,0,0,SRCCOPY);
 		 ::DeleteObject(bmp);
 		 ::DeleteDC(MemDC);
-		 //  m_PlayerInstance.RenderImage(m_pRender);
+		
 		 ::EndPaint(m_hWnd, &ps);
-	 }/**/
+	 }else{
+		  PAINTSTRUCT ps = { 0 };
+		  ::BeginPaint(m_hWnd, &ps);
+		  ::EndPaint(m_hWnd, &ps);
+		  m_PlayerInstance.RenderImage(m_pRender,true);
+		
+		 //::ValidateRect(m_hWnd,NULL);
+		// ::InvalidateRect(m_hWnd,NULL,NULL);
+	 }
 	
       //m_PlayerInstance.RenderImage(m_pRender);
 	// return ::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
@@ -374,7 +384,7 @@ void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 }
 void CMainFrame::Render()
 {
-    m_PlayerInstance.RenderImage(m_pRender);
+    m_PlayerInstance.RenderImage(m_pRender,false);
 }
 
 LRESULT  CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
@@ -570,12 +580,24 @@ unsigned char*  CMainFrame::GetBkImage(int &len)
 	len=m_pBkImageLen;
 	return m_pBkImage;
 }
+
+LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+   bHandled=true;
+   char *err=(char*)wParam;
+   ::MessageBoxA(m_hWnd,err,"错误",MB_ICONHAND);
+   ::free(err);
+   return 1;
+}
 void CMainFrame::OpenMediaFailure(char* strURL)
 {
+	char *err=(char*)::malloc(1024);
+	memset(err,0,1024);
 	std::string abcd="无法打开路径：";
 	abcd+=strURL;
-	::MessageBoxA(m_hWnd,abcd.c_str(),"错误",MB_ICONHAND);
-	::PostMessage(m_hWnd,WM_MediaClose,0,0);
+	memcpy(err,abcd.c_str(),abcd.length());
+	//::MessageBoxA(m_hWnd,abcd.c_str(),"错误",MB_ICONHAND);
+	::PostMessage(m_hWnd,WM_OpenErr ,(WPARAM )err,0);
 }
 
 LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)

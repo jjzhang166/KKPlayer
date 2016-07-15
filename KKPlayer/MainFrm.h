@@ -24,6 +24,7 @@ struct SWaitPicInfo
 	int Index;
 };
 #define  WM_MediaClose  WM_USER+100
+#define  WM_OpenErr     WM_USER+101
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	/*public CUpdateUI<CMainFrame>,
@@ -51,7 +52,9 @@ public:
 			MESSAGE_HANDLER(WM_KEYDOWN,OnKeyDown);
 			MESSAGE_HANDLER(WM_CLOSE,OnClose);
 			MESSAGE_HANDLER(WM_MediaClose,OnMediaClose);
-            
+
+			MESSAGE_HANDLER(WM_OpenErr,OnOpenMediaErr);
+            //WM_OpenErr
 			MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove);
 			MESSAGE_HANDLER(WM_RBUTTONUP,OnRbuttonUp);
 			MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLbuttonDown);
@@ -107,6 +110,7 @@ public:
             CloseMedia();
 			return 1;
 		 }
+		LRESULT OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 	    LRESULT  OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);

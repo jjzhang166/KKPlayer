@@ -480,11 +480,8 @@ void audio_callback(void *userdata, char *stream, int len)
 			{
 				//::OutputDebugStringA("silence");
 				pVideoInfo->audio_buf = pVideoInfo->silence_buf;
-				
-                    pVideoInfo->audio_buf_size =sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
-			
-				
-				//pVideoInfo->audio_buf_size=0;
+                pVideoInfo->audio_buf_size =sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
+			    //pVideoInfo->audio_buf_size=0;
 				Issilence=true;
 			} else 
 			{
@@ -1167,13 +1164,31 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			}	
 			//获取包
 			//LOGE("Get video pkt");
-			if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) < 0)  
-			{  
-			   // means we quit getting packets  
-				Sleep(2);
-				continue;
-			}  
+			//if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) < 0)  
+			//{  
+			//   // means we quit getting packets  
+			//	Sleep(2);
+			//	continue;
+			//}  
 		
+
+			do
+			{
+				//av_free_packet(packet); 
+				//从队列获取数据
+				if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) <= 0&&!is->abort_request) 
+				{
+					Sleep(2);
+				}else if(is->abort_request){
+					break;
+				}
+
+				if(is->videoq.serial!=is->viddec.pkt_serial){
+                    av_free_packet(packet); 
+				}
+			}while(is->videoq.serial!=is->viddec.pkt_serial);
+
+
 
 			SKK_Decoder* d=&is->viddec;
 			d->pts=packet->pts;
@@ -1259,8 +1274,6 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 	int len1, resampled_data_size, data_size = 0;
     int wanted_nb_samples;
 
-	
-		
     int got_frame = 0;
 	do
 	{
@@ -1289,8 +1302,15 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 				frame->pts = pkt.pts;
 			}	
 		}
+		if(got_frame&&pVideoInfo->audioq.serial==pVideoInfo->auddec.pkt_serial)
+		{
+              break;
+		}else if(got_frame)
+		{
+           av_free_packet(&pkt);
+		}
 		
-	}while(!got_frame&&pVideoInfo->audioq.serial==pVideoInfo->auddec.pkt_serial);
+	}while(pVideoInfo->audioq.serial!=pVideoInfo->auddec.pkt_serial);
 	if(pkt.data)
 	{
 		av_free_packet(&pkt);

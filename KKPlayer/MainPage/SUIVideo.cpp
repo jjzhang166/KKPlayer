@@ -29,7 +29,7 @@ namespace SOUI
 		HWND h=GetContainer()->GetHostHwnd();
 		RECT rt={0,100,200,300};
 		//m_VideoWnd.Create()
-		if(m_VideoWnd.CreateEx(h,rt, WS_CHILD| WS_VISIBLE ) == NULL)//| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
+		if(m_VideoWnd.CreateEx(h,rt, WS_CHILDWINDOW| WS_VISIBLE|WS_CLIPCHILDREN ) == NULL)//| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
 		{
 				return 0;
 		}/**/

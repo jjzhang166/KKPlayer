@@ -50,7 +50,7 @@ class KKPlayer
     		void ReadAV();
             int GetCurTime();
 			
-			void RenderImage(CRender *pRender);
+			void RenderImage(CRender *pRender,bool Force);
 			
 			void OnDecelerate();
 			void OnAccelerate();
@@ -105,12 +105,21 @@ private:
 
 			
 	       
+			//记录播放信息用
 			CAVInfoManage* m_pAVInfomanage;
+
+			/*******关闭打开锁********/
 	        CKKLock m_CloseLock;
+			/*******准备文件所锁*****/
+			CKKLock m_PreFileLock;
+            volatile int m_nPreFile;
+
 	        bool m_bOpen;
 	        IKKPlayUI* m_pPlayUI;
 	       
+			//当前包序列号
 			volatile int m_PktSerial;
+
 	        int WindowWidth;
 			int WindowHeight;
 			//上一次显示的帧的序号
@@ -118,6 +127,7 @@ private:
 	        IKKAudio* m_pSound;
 			HWND m_hwnd;
 	        
+
 		   
 			int64_t start_time;
 			
@@ -129,14 +139,8 @@ private:
 			SKK_ThreadInfo m_VideoRefreshthreadInfo;
             //音频数据回调线程
 			SKK_ThreadInfo m_AudioCallthreadInfo;
-			//等待事件
-			HANDLE m_WaitEvent;
-
-			//推流数据队列
-			std::queue<AVPacket *> m_PushPktQue;
-			CKKLock m_PushStreamLock;
-			char* m_pStrFilePath;
-
+			
+			//插件信息
 			static std::list<KKPluginInfo>  KKPluginInfoList;
 			
 };

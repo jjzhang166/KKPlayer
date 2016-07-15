@@ -33,7 +33,7 @@ void KKPlayer::AddKKPluginInfo(KKPluginInfo& info)
      KKPluginInfoList.push_back(info);
 }
 void register_Kkv();
-KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI)
+KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI),m_nPreFile(false)
 {
 	m_pAVInfomanage=CAVInfoManage::GetInance();
 //	assert(m_pPlayUI!=NULL);
@@ -98,6 +98,30 @@ void FreeKKIo(SKK_VideoState *kkAV);
 
 void KKPlayer::CloseMedia()
 {
+
+	m_PreFileLock.Lock();
+	while(m_nPreFile==1)
+	{
+		m_PreFileLock.Unlock();
+		Sleep(10);
+		m_PreFileLock.Lock();
+	}
+	if(m_nPreFile==2&&pVideoInfo->pFormatCtx!=NULL&& pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
+	{
+		AVIOContext *io=pVideoInfo->pFormatCtx->pb;
+		KKPlugin* pKKP=(KKPlugin*)io->opaque; 
+		pKKP->kkirq(pKKP);
+	}
+	while(m_nPreFile==2)
+	{
+		m_PreFileLock.Unlock();
+		Sleep(100);
+		m_PreFileLock.Lock();
+       
+	}
+	m_nPreFile=0;
+	m_PreFileLock.Unlock();
+
     m_CloseLock.Lock();
 	if(!m_bOpen)
 	{
@@ -265,22 +289,27 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
 	
 	MEDIA_INFO info;
 	memset(&info,0,sizeof(info));
-	m_CloseLock.Lock();
-	if(m_bOpen)
-	{
-		info.Open=m_bOpen;
-		if(pVideoInfo!=NULL)
+
+	if(m_nPreFile==3)
+	{	
+		m_CloseLock.Lock();
+		if(m_bOpen)
 		{
-		    info.CurTime=m_CurTime;
-			if(pVideoInfo->pFormatCtx!=NULL){
-				info.TotalTime=(pVideoInfo->pFormatCtx->duration/1000/1000);
-				info.serial=pVideoInfo->viddec.pkt_serial;
-			}
-           
-		}else{info.CurTime=0;}
-		
-	}else{info.Open=false;}
-	m_CloseLock.Unlock();/**/
+			info.Open=m_bOpen;
+			if(pVideoInfo!=NULL)
+			{
+				info.CurTime=m_CurTime;
+				if(pVideoInfo->pFormatCtx!=NULL){
+					info.TotalTime=(pVideoInfo->pFormatCtx->duration/1000/1000);
+					info.serial=pVideoInfo->viddec.pkt_serial;
+				}
+	           
+			}else{info.CurTime=0;}
+			
+		}else{info.Open=false;}
+		m_CloseLock.Unlock();/**/
+	}
+	
 	//LOGE("MediaInfo:%f,%f \n",info.CurTime,info.TotalTime);
 	return info;
 }
@@ -365,7 +394,7 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 		/*******时间**********/
 		if (lastvp->serial != vp->serial && !redisplay)
 		{
-			is->frame_timer = av_gettime_relative() / 1000000.0;
+			//is->frame_timer = av_gettime_relative() / 1000000.0;
 		}
 
 		if (is->paused)
@@ -442,7 +471,7 @@ void KKPlayer::VideoRefresh()
 }
 
 
-void KKPlayer::RenderImage(CRender *pRender)
+void KKPlayer::RenderImage(CRender *pRender,bool Force)
 {
 	SKK_Frame *vp;
 	
@@ -462,19 +491,17 @@ void KKPlayer::RenderImage(CRender *pRender)
 		if(pVideoInfo->IsReady==0)
 		{
 			int len=0;
-			unsigned char* pBkImage=m_pPlayUI->GetWaitImage(len,0);
-			if(pBkImage!=NULL)
+			unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
+			if(pWaitImage!=NULL)
 			{
-                 pRender->SetWaitPic(pBkImage,len);
+                 pRender->SetWaitPic(pWaitImage,len);
 				 pRender->render(NULL,0,0);
 			}
 			
 		}else
 		{
-			m_CloseLock.Lock();
 			if(!m_bOpen)
 			{
-               m_CloseLock.Unlock();
 			   return;
 			}
 		      
@@ -489,15 +516,16 @@ void KKPlayer::RenderImage(CRender *pRender)
 				    pRender->render((char*)vp->buffer,vp->width,vp->height);
 					//LOGE("WindowWidth=vp->width:%d,WindowHeight=vp->height:%d \n",vp->width,vp->height);
 			}else{
+				if(Force)
 				 pRender->render((char*)vp->buffer,vp->width,vp->height);
 					//LOGE("no vp");
 			}
-			//LOGE("WindowWidth=vp->width:%d,WindowHeight=vp->height:%d \n",vp->width,vp->height);
+		
 			WindowWidth=vp->width;
 			WindowHeight=vp->height;
 			m_DisplayVp=vp->PktNumber;
 			pVideoInfo->pictq.mutex->Unlock();
-			m_CloseLock.Unlock();
+		
 		}
 	}
 	
@@ -713,7 +741,16 @@ int KKPlayer::KKProtocolAnalyze(char* StrfileName,KKPluginInfo &KKPl)
 }
 int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 {
-	fileName="KKV:687281b0bee195d415caaf20bd50a8de|test.mp4";
+	m_PreFileLock.Lock();
+	if(m_nPreFile!=0)
+	{
+		m_PreFileLock.Unlock();
+        return -1;
+	}
+	m_PreFileLock.Unlock();
+
+	//fileName="KKV:687281b0bee195d415caaf20bd50a8de|test.mp4";
+	//fileName="KKV:e8a486a4e28480ad18bd5041c2ad34fa|test.mp4";
 	//fileName="c:/xx.mp4";
 	m_CloseLock.Lock();
     if(m_bOpen)
@@ -722,12 +759,10 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 		return -1;
 	}
 	m_bOpen=true;
-	m_CloseLock.Unlock();
-
-	int lenstr=strlen(FilePath);
-	m_pStrFilePath=(char*)::malloc(lenstr+1);
-	memset(m_pStrFilePath,0,lenstr+1);
-	strcpy(m_pStrFilePath,FilePath);
+	
+	m_PreFileLock.Lock();
+	m_nPreFile=1;
+	m_PreFileLock.Unlock();
 	
 	pVideoInfo = (SKK_VideoState*)av_mallocz(sizeof(SKK_VideoState));
 	memset(pVideoInfo,0,sizeof(SKK_VideoState));
@@ -749,9 +784,6 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	RECT rt;
 	::GetClientRect(m_hwnd,&rt);
 	
-	
-
-
 	memset(pVideoInfo->pflush_pkt,0,sizeof(AVPacket));
 	av_init_packet(pVideoInfo->pflush_pkt);
 	flush_pkt.data = (uint8_t *)pVideoInfo->pflush_pkt;
@@ -834,6 +866,7 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	m_AudioCallthreadInfo.Addr =pthread_create(&m_AudioCallthreadInfo.Tid_task, NULL, (void* (*)(void*))Audio_Thread, (LPVOID)this);
 #endif
 
+	m_CloseLock.Unlock();
 	return 0;
 }
 void KKPlayer::OnDecelerate()
@@ -933,6 +966,8 @@ int KKPlayer::GetAVRate()
 		 {
 			 if(pVideoInfo->IsReady)
 			   pVideoInfo->pKKAudio->ReadAudio();
+			 else
+				 Sleep(10);
 		 }
 	 }
 	 LOGE("KKPlayer Audio_Thread over");
@@ -955,6 +990,7 @@ int KKPlayer::GetAVRate()
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
+	m_CloseLock.Lock();
 	m_ReadThreadInfo.ThOver=false;
 	LOGE("ReadAV thread start");
 	AVFormatContext *pFormatCtx= avformat_alloc_context();
@@ -981,13 +1017,24 @@ void KKPlayer::ReadAV()
         pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
     }
 
-    m_CloseLock.Lock();
+
+
+	m_PreFileLock.Lock();
+	m_nPreFile=2;
+	m_PreFileLock.Unlock();
+	
 	//此函数是阻塞的
 	err = avformat_open_input(
 		&pVideoInfo->pFormatCtx,                    pVideoInfo->filename,
 		pVideoInfo->iformat,    &format_opts);
 	LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
-	 
+	
+	m_PreFileLock.Lock();
+	m_nPreFile=3;
+	m_PreFileLock.Unlock();
+
+
+
 
 	 if(!m_bOpen)
 	 {
@@ -1162,22 +1209,6 @@ void KKPlayer::ReadAV()
                     pVideoInfo->eof=1;
 			 }
 
-				int xx= AVERROR_BSF_NOT_FOUND;
-				xx= AVERROR_BUG   ;
-				xx= AVERROR_BUFFER_TOO_SMALL;
-				xx= AVERROR_DECODER_NOT_FOUND;
-				xx= AVERROR_DEMUXER_NOT_FOUND ;
-				xx= AVERROR_ENCODER_NOT_FOUND  ;
-				xx= AVERROR_EOF                ;
-				xx= AVERROR_EXIT               ;
-				xx= AVERROR_EXTERNAL           ;
-				xx= AVERROR_FILTER_NOT_FOUND   ;
-				xx= AVERROR_INVALIDDATA        ;
-				xx= AVERROR_MUXER_NOT_FOUND    ;
-				xx= AVERROR_OPTION_NOT_FOUND   ;
-				xx= AVERROR_PATCHWELCOME       ;
-				xx= AVERROR_PROTOCOL_NOT_FOUND;
-
 			 if (pFormatCtx->pb && pFormatCtx->pb->error)
 				    break;
 			Sleep(1);
@@ -1313,19 +1344,19 @@ void KKPlayer::Avflush(int64_t seek_target)
 {
 	if (pVideoInfo->video_stream >= 0) 
 	{
-		packet_queue_flush(&pVideoInfo->videoq);
+		//packet_queue_flush(&pVideoInfo->videoq);
 		packet_queue_put(&pVideoInfo->videoq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt);
 		pVideoInfo->pictq.mutex->Lock();
-		for(int i=0;i<pVideoInfo->pictq.max_size;i++)
-		{
-			SKK_Frame *p=& pVideoInfo->pictq.queue[i];
-			/*******这里不释放内存是为了保证图像连续********/						 
-			if(p->buffer!=NULL)
-			{
-				av_free(p->buffer);
-				p->buffer=NULL;
-			}
-		}
+		//for(int i=0;i<pVideoInfo->pictq.max_size;i++)
+		//{
+		//	SKK_Frame *p=& pVideoInfo->pictq.queue[i];
+		//	/*******这里不释放内存是为了保证图像连续********/						 
+		//	if(p->buffer!=NULL)
+		//	{
+		//		av_free(p->buffer);
+		//		p->buffer=NULL;
+		//	}
+		//}
 		pVideoInfo->pictq.size=0;
 		pVideoInfo->pictq.rindex=0;
 		pVideoInfo->pictq.windex=0;
@@ -1337,7 +1368,7 @@ void KKPlayer::Avflush(int64_t seek_target)
 
 	if (pVideoInfo->audio_stream >= 0) 
 	{
-		packet_queue_flush(&pVideoInfo->audioq);
+		//packet_queue_flush(&pVideoInfo->audioq);
 		packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
 
 		pVideoInfo->sampq.mutex->Lock();
@@ -1345,13 +1376,13 @@ void KKPlayer::Avflush(int64_t seek_target)
 		pVideoInfo->sampq.size=0;
 		pVideoInfo->sampq.rindex=0;
 		pVideoInfo->sampq.windex=0;
-		pVideoInfo->sampq.rindex_shown=1;
+		pVideoInfo->sampq.rindex_shown=0;
 		pVideoInfo->sampq.m_pWaitCond->SetCond();
-		pVideoInfo->sampq.mutex->Unlock();
+		pVideoInfo->sampq.mutex->Unlock();/**/
 	}
 	if (pVideoInfo->subtitle_stream >= 0) 
 	{
-		packet_queue_flush(&pVideoInfo->subtitleq);
+		//packet_queue_flush(&pVideoInfo->subtitleq);
 		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt);
 	}
 

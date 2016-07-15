@@ -60,6 +60,7 @@ CRenderD3D::CRenderD3D()
 	,m_CenterLogoTexture(NULL)
 	,m_pLeftPicTexture(NULL)
 	,m_pYUVAVTexture(NULL)
+	,m_pBackBuffer(NULL)
 {
 }
 
@@ -109,8 +110,8 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
     //PresentParams.BackBufferWidth = 0;
     //PresentParams.BackBufferHeight = 0;
     PresentParams.BackBufferFormat =D3DFMT_UNKNOWN;// D3DFMT_X8R8G8B8;
-
-    //PresentParams.BackBufferCount = 1;
+    PresentParams.BackBufferCount=2;
+   
     PresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
     PresentParams.MultiSampleQuality = 0;
     PresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
@@ -159,9 +160,34 @@ bool CRenderD3D::init(HWND hView)
 		D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(hView);
 
 		
-		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,  GetParent(hView), 
+		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,GetParent(hView), 
 			BehaviorFlags, &PresentParams, &m_pDevice);
 		
+
+	HRESULT hr2= D3DERR_WRONGTEXTUREFORMAT;
+hr2=D3DERR_UNSUPPORTEDCOLOROPERATION;
+hr2= D3DERR_UNSUPPORTEDCOLORARG      ;
+hr2= D3DERR_UNSUPPORTEDALPHAOPERATION ;
+hr2= D3DERR_UNSUPPORTEDALPHAARG        ;
+hr2= D3DERR_TOOMANYOPERATIONS           ;
+hr2= D3DERR_CONFLICTINGTEXTUREFILTER     ;
+hr2= D3DERR_UNSUPPORTEDFACTORVALUE        ;
+hr2= D3DERR_CONFLICTINGRENDERSTATE         ;
+hr2= D3DERR_UNSUPPORTEDTEXTUREFILTER        ;
+hr2= D3DERR_CONFLICTINGTEXTUREPALETTE        ;
+hr2=D3DERR_DRIVERINTERNALERROR              ;
+
+hr2= D3DERR_NOTFOUND                         ;
+hr2= D3DERR_MOREDATA                         ;
+hr2= D3DERR_DEVICELOST                       ;
+hr2= D3DERR_DEVICENOTRESET                   ;
+hr2= D3DERR_NOTAVAILABLE                     ;
+hr2= D3DERR_OUTOFVIDEOMEMORY                 ;
+hr2= D3DERR_INVALIDDEVICE                    ;
+hr2= D3DERR_INVALIDCALL                      ;
+hr2= D3DERR_DRIVERINVALIDCALL                ;
+
+
 		if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 		{
 			BehaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_SOFTWARE_VERTEXPROCESSING;
@@ -353,14 +379,10 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 
 void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
-	//
+	
 	ResetTexture();
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
-	int ii=m_pDevice->Reset(&PresentParams);/**/
-
-	ii++;
-	
-  //  SAFE_RELEASE(m_pDirect3DSurfaceRender);
+	m_pDevice->Reset(&PresentParams);
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 {
@@ -393,18 +415,15 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 			
 				if(m_pYUVAVTexture!=NULL)
 				{
-					IDirect3DSurface9 * pBackBuffer = NULL;  
-					RECT m_rtViewport; 
-					GetClientRect(m_hView,&m_rtViewport);  
-					m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
-					m_pDevice->StretchRect(m_pYUVAVTexture,NULL,pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
-
-					pBackBuffer->Release();
+					if(m_pBackBuffer == NULL)
+					{
+						GetClientRect(m_hView,&m_rtViewport);  
+						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
+					}
+					
+					m_pDevice->StretchRect(m_pYUVAVTexture,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
+					
 				}
-				
-				/*m_pDevice->EndScene();
-				m_pDevice->Present(NULL, NULL, NULL, NULL);
-				return;*/
 #else
 				m_pDevice->SetTexture(0, m_pDxTexture);
 				m_pDevice->SetFVF(Vertex::FVF);
@@ -453,7 +472,7 @@ void CRenderD3D::ResetTexture()
 	SAFE_RELEASE(m_pYUVAVTexture);
 	SAFE_RELEASE(m_pWaitPicTexture);
 	SAFE_RELEASE(m_pLeftPicTexture);
-	
+	SAFE_RELEASE(m_pBackBuffer);
 }
 bool CRenderD3D::LostDeviceRestore()
 {
@@ -538,7 +557,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 		HRESULT  hr = m_pDevice->CreateTexture(
 			200,
 			200,
-			2,
+			0,
 			D3DUSAGE_DYNAMIC,
 			D3DFMT_A8R8G8B8,
 			D3DPOOL_DEFAULT,
@@ -590,14 +609,9 @@ bool CRenderD3D::UpdateLeftPicTexture()
 		for(int i = 0; i < 200; ++i) 
 		{
 			memcpy(dst,XBuf+yxx ,row);
-			/*for(int j=0;j<200;j+=4)
-			{
-                  *(dst+j)=*(dst+j+3);
-			}*/
 			yxx+=row;
 			dst += rect.Pitch;
 		}
-
 	}
 	m_pLeftPicTexture->UnlockRect(0);	
 	}
