@@ -25,6 +25,8 @@ extern "C"{
 }
      #pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
 #else
+    #pragma comment (lib,"..\\Release\\libx86\\zlibstat.lib")
+    #pragma comment (lib,"..\\Release\\libx86\\png.lib");
     #pragma comment (lib,"..\\Release\\libx86\\skia.lib")
 #endif
 

@@ -385,6 +385,10 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 	double time=0;
 	if(vp!=NULL)
 	{
+		/*if (vp->serial != is->videoq.serial) {
+			frame_queue_next(&is->pictq,false);
+			return;
+		}*/
 		//获取上一次的读取位置
 	    SKK_Frame *lastvp = frame_queue_peek_last(&is->pictq);
 		/******上一次更新和这一次时间的差值。图片之间差值******/
@@ -394,7 +398,7 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 		/*******时间**********/
 		if (lastvp->serial != vp->serial && !redisplay)
 		{
-			//is->frame_timer = av_gettime_relative() / 1000000.0;
+			is->frame_timer = av_gettime_relative() / 1000000.0;
 		}
 
 		if (is->paused)
@@ -420,13 +424,15 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
                   start_time=vp->pts;
 				}
 				//m_CurTime=vp->frame->pts;
-				
+				float abc=2;
+				if (vp->serial != is->videoq.serial) {
+			        abc=60*2;
+		        }
 				float ll= vp->pts-is->audio_clock;
 				float llxxs=vp->pts- is->last_duration*2;
-				//bool llxx=time  is->frame_timer - is->last_duration;
 				bool llxx=is->audio_clock >vp->pts- is->last_duration*2;
 				if((DiffCurrent>=is->last_duration+is->delay || DiffCurrent<=0.000000)&& llxx || 
-					(vp->pts<is->audio_clock||is->audio_clock<=0.000000) ||is->delay >10||vp->pts-is->audio_clock>2
+					(vp->pts<is->audio_clock||is->audio_clock<=0.000000) ||is->delay >10||vp->pts-is->audio_clock>120
 					||vp->serial!=is->viddec.pkt_serial)
 				{
 					if(vp->PktNumber%20==0)
@@ -1376,7 +1382,7 @@ void KKPlayer::Avflush(int64_t seek_target)
 		pVideoInfo->sampq.size=0;
 		pVideoInfo->sampq.rindex=0;
 		pVideoInfo->sampq.windex=0;
-		pVideoInfo->sampq.rindex_shown=0;
+		pVideoInfo->sampq.rindex_shown=1;
 		pVideoInfo->sampq.m_pWaitCond->SetCond();
 		pVideoInfo->sampq.mutex->Unlock();/**/
 	}
