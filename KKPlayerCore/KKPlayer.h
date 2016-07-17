@@ -114,7 +114,7 @@ private:
 			CKKLock m_PreFileLock;
             volatile int m_nPreFile;
 
-	       volatile  bool m_bOpen;
+	        volatile  bool m_bOpen;
 	        IKKPlayUI* m_pPlayUI;
 	       
 			//当前包序列号

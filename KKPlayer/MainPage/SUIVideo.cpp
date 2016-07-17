@@ -75,6 +75,10 @@ namespace SOUI
 	{
 
 	}
+	void CSuiVideo::Close()
+	{
+		m_VideoWnd.CloseMedia();
+	}
 	 int CSuiVideo::OpenMedia(const char *str)
 	 {
          int ret= m_VideoWnd.OpenMedia(str);

@@ -326,7 +326,6 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 	   if(frame_queue_nb_remaining(&is->sampq) <= 0) 
 	   {
 		   is->sampq.mutex->Unlock();
-		  // LOGE(" No Audio");
 		   return -1;
 	   }
 	   af = frame_queue_peek(&is->sampq);
@@ -432,8 +431,9 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 
 	 if (!isNAN(af->pts))
 	 {
-		/* n = 2 * pVideoInfo->auddec.avctx->channels;
-		 pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);*/
+		 n = 2 * pVideoInfo->auddec.avctx->channels;
+		 int llxx=data_size/n;
+		 pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);/**/
 	     is->audio_clock = af->pts + (double) af->frame->nb_samples / af->frame->sample_rate;
 	 }
 	 else
@@ -471,22 +471,19 @@ void audio_callback(void *userdata, char *stream, int len)
 	{
 		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
 		{
+			/*audio_size=0;
 			while(!audio_size)
-			{
+			{*/
                 audio_size = audio_fill_frame(pVideoInfo);
-			}
+		//	}
 			
 			if (audio_size < 0)
 			{
-				//::OutputDebugStringA("silence");
 				pVideoInfo->audio_buf = pVideoInfo->silence_buf;
                 pVideoInfo->audio_buf_size =sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
-			    //pVideoInfo->audio_buf_size=0;
-				Issilence=true;
+			  
 			} else 
-			{
-				
-				//::OutputDebugStringA("data \n");
+			{				
 				pVideoInfo->audio_buf_size = audio_size;
 			}
 			pVideoInfo->audio_buf_index = 0;
@@ -497,26 +494,11 @@ void audio_callback(void *userdata, char *stream, int len)
 		if (len1 > len)
 			len1 = len;
 
+
 		memcpy(stream, (uint8_t *)pVideoInfo->audio_buf + pVideoInfo->audio_buf_index, len1);
 		len -= len1;
 		stream += len1;
-		if(Issilence)
-		{
-			pVideoInfo->audio_buf_index += pVideoInfo->audio_buf_size;
-			//len =0;
-		}
-		else/**/
-		  pVideoInfo->audio_buf_index += len1;
-
-
-//#ifdef WIN32_KK
-//		sprintf(abcd,"\n 拷贝len：%d,目标:%d",len1,pVideoInfo->audio_buf_size );
-//		::OutputDebugStringA(abcd);
-//
-//		sprintf(abcd,"\n 缓存:%d,剩余缓存%d",slen,len);
-//		::OutputDebugStringA(abcd);
-//#endif
-	
+		pVideoInfo->audio_buf_index += len1;
 	}
 	pVideoInfo->audio_write_buf_size = pVideoInfo->audio_buf_size - pVideoInfo->audio_buf_index;
 	if (!isNAN(pVideoInfo->audio_clock)) 
@@ -1162,16 +1144,6 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 				//LOGE("Video_thread break");
                 break;
 			}	
-			//获取包
-			//LOGE("Get video pkt");
-			//if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) < 0)  
-			//{  
-			//   // means we quit getting packets  
-			//	Sleep(2);
-			//	continue;
-			//}  
-		
-
 			do
 			{
 				//av_free_packet(packet); 
@@ -1181,6 +1153,10 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 					Sleep(2);
 				}else if(is->abort_request){
 					break;
+				}if (packet->data == is->pflush_pkt->data)
+				{
+					int ii=0;
+					ii++;
 				}
 
 				if(is->videoq.serial!=is->viddec.pkt_serial){
@@ -1204,7 +1180,10 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 					
 					//视频解码
 					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
+					if(got_frame)  
+					{  
 					t_end = time(NULL) ;
+					}
 					//LOGE("de time:%f",difftime(t_end,t_start));
 					
 					// 
@@ -1213,6 +1192,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 					{
 						pts = 0;
 					}
+
 
 					pFrame->pts=pts*av_q2d(is->video_st->time_base);
 					if(is->AVRate!=100)
@@ -1291,6 +1271,7 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 				avcodec_flush_buffers(pVideoInfo->auddec.avctx);
 				pVideoInfo->auddec.Isflush=1;
 				pVideoInfo->auddec.finished = 0;
+				continue;
 				
 			}else{
 				audio_pkt_size=pkt.size;
@@ -1308,6 +1289,7 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 		}else if(got_frame)
 		{
            av_free_packet(&pkt);
+		   got_frame=0;
 		}
 		
 	}while(pVideoInfo->audioq.serial!=pVideoInfo->auddec.pkt_serial);
@@ -1428,9 +1410,9 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 		goto end;
 
 
-
+AVFilter*  Avin=avfilter_get_by_name("abuffersink");
 	ret = avfilter_graph_create_filter(&filt_asink,
-		avfilter_get_by_name("abuffersink"), "ffplay_abuffersink",
+		 Avin, "ffplay_abuffersink",
 		NULL, NULL, is->AudioGraph);
 	if (ret < 0)
 		goto end;
@@ -1475,8 +1457,7 @@ end:
 	return ret;
 }
 
-static inline
-int64_t get_valid_channel_layout(int64_t channel_layout, int channels)
+static inline int64_t get_valid_channel_layout(int64_t channel_layout, int channels)
 {
 	if (channel_layout && av_get_channel_layout_nb_channels(channel_layout) == channels)
 		return channel_layout;
@@ -1526,16 +1507,18 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
     
 		if (got_frame)
 		{
-			tb=tb=is->audio_st->time_base;
-			
-           int64_t srcpts =  frame->pts * av_q2d(tb);
-
+		
+		   tb=tb=is->audio_st->time_base;
+		   static int inx=0;
+		   if(frame->pts<0)
+                inx+=frame->pts;
+           int64_t srcpts =(inx+ frame->pts) * av_q2d(tb);
 		  
 		   if(is->auddec.Isflush==1)
 		   {
 			   if(is->AVRate!=100)
 			   {
-				   double aa=(double)is->AVRate/100;
+				   float aa=(float)is->AVRate/100;
 				   is->Baseaudio_clock= srcpts/aa;
 			   }else
 			   {
@@ -1611,7 +1594,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					}
 
 					is->sampq.mutex->Lock();
-					af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb)+is->Baseaudio_clock;
+					af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
+					af->pts 	+=is->Baseaudio_clock;
 					af->pos = av_frame_get_pkt_pos(frame);
 					af->serial = is->auddec.pkt_serial;
 

@@ -26,6 +26,7 @@ public:
 
 	void SetLeftPicStr(wchar_t *str);
 	std::wstring m_LeftStr;
+	std::wstring m_LstLeftStr;
 private:
 	
 	bool UpdateTexture(char *pBuf,int w,int h);

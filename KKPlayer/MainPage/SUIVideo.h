@@ -14,6 +14,7 @@ namespace SOUI
 		  CSuiVideo(void);
 		  ~CSuiVideo(void);
 		  int OpenMedia(const char *str);
+		  void Close();
 		  void SetPlayStat(int state);
 		  MEDIA_INFO GetMeadiaInfo();
 		  void SetVolume(long value);

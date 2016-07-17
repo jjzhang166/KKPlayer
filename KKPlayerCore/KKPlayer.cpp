@@ -885,12 +885,17 @@ void KKPlayer::OnDecelerate()
 		pVideoInfo->AVRate-=10;
 		float aa=(float)pVideoInfo->AVRate/100;
 		snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),"atempo=%f",aa); 
-		seek_target= m_CurTime;
-		
+		seek_target= m_CurTime;/**/
+		//packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
+		//packet_queue_put(&pVideoInfo->videoq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
         okk=true;
 	}
 	m_CloseLock.Unlock();
-	AVSeek(seek_target);
+if(okk)
+{
+	KKSeek( SeekEnum::Right,1);
+	pVideoInfo->seek_req=2;
+}
 }
 void KKPlayer::OnAccelerate()
 {
@@ -902,14 +907,18 @@ void KKPlayer::OnAccelerate()
 		pVideoInfo->AVRate+=10;
 		float aa=(float)pVideoInfo->AVRate/100;
 		  snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),"atempo=%.2f",aa);
-
+        //packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
+		//packet_queue_put(&pVideoInfo->videoq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
 		seek_target = m_CurTime;
 		okk=true;
 	}
 	m_CloseLock.Unlock();
 
 	if(okk)
-	 AVSeek(seek_target);
+	{
+		KKSeek(SeekEnum::Right,1);
+		pVideoInfo->seek_req=2;
+	}
 }
 int KKPlayer::GetAVRate()
 {
@@ -1170,6 +1179,12 @@ void KKPlayer::ReadAV()
 			int64_t seek_min    =pVideoInfo->seek_rel > 0 ? seek_target - pVideoInfo->seek_rel + 2: INT64_MIN;//pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
 			int64_t seek_max    =pVideoInfo->seek_rel < 0 ? seek_target - pVideoInfo->seek_rel - 2: INT64_MAX;//=pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
 
+
+			if(pVideoInfo->seek_req==2)
+			{
+				seek_min=seek_target;
+                seek_max =seek_target +10000;
+			}
 			//int64_t seek_min    =pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
 			//int64_t seek_max    =pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
 			ret = avformat_seek_file(pVideoInfo->pFormatCtx, -1, seek_min, seek_target, seek_max, pVideoInfo->seek_flags);
@@ -1179,7 +1194,13 @@ void KKPlayer::ReadAV()
 				//Ê§°Ü
 			}else
 			{
+				//if(pVideoInfo->seek_req==2)
+			    //{
+				  // packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
+				   //packet_queue_put(&pVideoInfo->videoq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
+				//}else{
 				Avflush(seek_target);
+				//}
 			}
 			pVideoInfo->seek_req=0;
 		}
@@ -1314,12 +1335,18 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
 	   double incr, pos, frac;
 	   incr=value;
 	   pos = get_master_clock(pVideoInfo);
+	   if(pVideoInfo->AVRate!=100)
+	   {
+		   float aa=(float)pVideoInfo->AVRate/100;
+		   pos=pos*aa;
+	   }
 	   if (isNAN(pos))
 		   pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
 	   pos += incr;
 	   if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
 		   pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
 	   stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
+	   
    }
    m_CloseLock.Unlock();
 }
@@ -1332,12 +1359,13 @@ void KKPlayer::AVSeek(int value)
 	{
 		m_CurTime=value;
 		double incr, pos, frac;
-		
+		incr=value;
 		pos = get_master_clock(pVideoInfo);
 		if (isNAN(pos))
 			pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
 		incr=value-pos;
 		pos += incr;
+		incr=60;
 		if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
 			pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
 		stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);

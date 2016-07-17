@@ -425,7 +425,7 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 					
 					m_pDevice->StretchRect(m_pYUVAVTexture,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
 					
-				}
+				}/**/
 #else
 				m_pDevice->SetTexture(0, m_pDxTexture);
 				m_pDevice->SetFVF(Vertex::FVF);
@@ -437,6 +437,7 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 				if(m_pLeftPicTexture!=NULL)
 				{
 					m_pDevice->SetTexture(0, m_pLeftPicTexture);
+					m_pDevice->SetFVF(Vertex::FVF);
 					m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 					m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 					m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -542,11 +543,17 @@ void CRenderD3D::SetLeftPicStr(wchar_t *str)
 {
 	m_LeftStr=L"放播速度：";
     m_LeftStr+=str;
-	SAFE_RELEASE(m_pLeftPicTexture);
+	
 }
 //提示
 bool CRenderD3D::UpdateLeftPicTexture()
 {
+	if(m_LstLeftStr!=m_LeftStr)
+	{
+		m_LstLeftStr=m_LeftStr;/**/
+		SAFE_RELEASE(m_pLeftPicTexture);
+	}
+	
 //	return true;
 	if (m_pLeftPicTexture == NULL)
 	{
@@ -565,57 +572,60 @@ bool CRenderD3D::UpdateLeftPicTexture()
 			D3DPOOL_DEFAULT,
 			&m_pLeftPicTexture,
 			NULL);/**/
-		if (FAILED(hr))
+		 if (FAILED(hr))
+		 {
+			 m_pLeftPicTexture = NULL;
 			return false;
+			}
 	
-	D3DLOCKED_RECT rect;//1009*488
-	m_pLeftPicTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
+			D3DLOCKED_RECT rect;//1009*488
+			m_pLeftPicTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
 
-	
-	unsigned char* dst = (unsigned char*)rect.pBits;   
-	memset(dst,0,rect.Pitch*200);
-    if(1)
-	{
-		LPCSTR strFont = GetUTF8String(L"宋体");
-		SkTypeface *font = SkTypeface::CreateFromName(strFont, SkTypeface::kNormal);
+			
+			unsigned char* dst = (unsigned char*)rect.pBits;   
+			memset(dst,0,rect.Pitch*200);
+			if(1)
+			{
+				LPCSTR strFont = GetUTF8String(L"宋体");
+				SkTypeface *font = SkTypeface::CreateFromName(strFont, SkTypeface::kNormal);
 
-		SkBitmap Skbit;
-		Skbit.setInfo(SkImageInfo::Make(200,200,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
-		Skbit.allocPixels();
-        char* XBuf= (char*)Skbit.getPixels();
-		memset(XBuf,0,200*200*4);
+				SkBitmap Skbit;
+				Skbit.setInfo(SkImageInfo::Make(200,200,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
+				Skbit.allocPixels();
+				char* XBuf= (char*)Skbit.getPixels();
+				memset(XBuf,0,200*200*4);
 
-		SkCanvas canvas(Skbit);
-		SkPaint  paint; 
-
-
-		//设置文字编码
-		paint.setTextEncoding(SkPaint::TextEncoding::kUTF16_TextEncoding);
-		paint.setTextAlign(SkPaint::Align::kLeft_Align);
-
-		SkRect r; 
-		paint.setARGB(255, 255, 0, 0); /**/
-		r.set(25, 25, 200, 145); 
-		// canvas.drawRect(r, paint); 
+				SkCanvas canvas(Skbit);
+				SkPaint  paint; 
 
 
-		SkRect dst2 = r;
-		paint.setTextSize(15);
-		canvas.drawText(m_LeftStr.c_str(), m_LeftStr.length()*sizeof(WCHAR), dst2.fLeft, dst2.fTop , paint);
+				//设置文字编码
+				paint.setTextEncoding(SkPaint::TextEncoding::kUTF16_TextEncoding);
+				paint.setTextAlign(SkPaint::Align::kLeft_Align);
 
-		
+				SkRect r; 
+				paint.setARGB(255, 255, 0, 0); /**/
+				r.set(25, 25, 200, 145); 
+				// canvas.drawRect(r, paint); 
 
-		dst = (unsigned char*)rect.pBits; 
-		int yxx=0;
-		int row=Skbit.rowBytes();
-		for(int i = 0; i < 200; ++i) 
-		{
-			memcpy(dst,XBuf+yxx ,row);
-			yxx+=row;
-			dst += rect.Pitch;
-		}
-	}
-	m_pLeftPicTexture->UnlockRect(0);	
+
+				SkRect dst2 = r;
+				paint.setTextSize(15);
+				canvas.drawText(m_LeftStr.c_str(), m_LeftStr.length()*sizeof(WCHAR), dst2.fLeft, dst2.fTop , paint);
+
+				
+
+				dst = (unsigned char*)rect.pBits; 
+				int yxx=0;
+				int row=Skbit.rowBytes();
+				for(int i = 0; i < 200; ++i) 
+				{
+					memcpy(dst,XBuf+yxx ,row);
+					yxx+=row;
+					dst += rect.Pitch;
+				}
+			}
+			m_pLeftPicTexture->UnlockRect(0);	
 	}
 	return 1;
 }
