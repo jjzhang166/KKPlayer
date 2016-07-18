@@ -9,6 +9,11 @@ CRenderGDI::CRenderGDI():m_hView(NULL)
 ,m_BkLen(NULL)
 ,m_WaitBuffer(NULL)
 ,m_WaitLen(NULL)
+,m_CenterLogoBuf(NULL)
+,m_CenterLogoBufLen(NULL)
+
+
+
 {
 }
 CRenderGDI::~CRenderGDI()
@@ -47,7 +52,8 @@ void CRenderGDI::resize(unsigned int w, unsigned int h)
 
 void CRenderGDI::LoadCenterLogo(unsigned char* buf,int len)
 {
-
+	m_CenterLogoBuf=buf;
+	m_CenterLogoBufLen=len;
 }
 void CRenderGDI::render(char* buf,int width,int height)
 {

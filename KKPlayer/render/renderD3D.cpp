@@ -19,10 +19,8 @@ typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 #include <core\SkTypeface.h>
 
 #ifdef _DEBUG
-extern "C"{
      #pragma comment (lib,"..\\debug\\libx86\\zlibstat.lib")
      #pragma comment (lib,"..\\debug\\libx86\\pngd.lib") 
-}
      #pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
 #else
     #pragma comment (lib,"..\\Release\\libx86\\zlibstat.lib")

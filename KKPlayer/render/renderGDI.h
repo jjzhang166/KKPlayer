@@ -49,6 +49,8 @@ private:
 	int m_WaitLen;
 
 	void* m_pixels;
+	unsigned char* m_CenterLogoBuf;
+	int m_CenterLogoBufLen;
 };
 
 #endif

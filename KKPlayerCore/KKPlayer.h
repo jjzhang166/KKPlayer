@@ -142,6 +142,8 @@ private:
 			
 			//²å¼þÐÅÏ¢
 			static std::list<KKPluginInfo>  KKPluginInfoList;
+			void *m_PicBuf;
+			int m_PicBufLen;
 			
 };
 #endif

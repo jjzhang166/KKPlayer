@@ -45,8 +45,7 @@ int CKKCond_t::SetCond()
 int CKKCond_t::WaitCond(int ms)
 {
 	#ifdef WIN32_KK
-
-	while(1)
+	/*while(1)
 	{
 		if(WAIT_TIMEOUT!=::WaitForSingleObject(m_hWait, 1))
 		{
@@ -57,8 +56,8 @@ int CKKCond_t::WaitCond(int ms)
 			i++;
 		}
 	}
-	return 0;
-		//return 	::WaitForSingleObject(m_hWait, INFINITE);
+	return 0;*/
+	return 	::WaitForSingleObject(m_hWait, INFINITE);
 	#else
 
 	m_Mutex.Lock();

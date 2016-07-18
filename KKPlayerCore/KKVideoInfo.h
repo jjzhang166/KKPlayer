@@ -96,6 +96,7 @@ typedef struct SKK_Frame
 	int64_t pos;          /* byte position of the frame in the input file */
 	/***********位图数据*************/
 	void *buffer;
+	int dataLen;
 	int buflen;
 
 	/***是否分配内存对frame***/

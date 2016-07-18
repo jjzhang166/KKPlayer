@@ -270,9 +270,6 @@ static int synchronize_audio(SKK_VideoState *is, int nb_samples)
 							max_nb_samples = ((nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100));
 							wanted_nb_samples = av_clip(wanted_nb_samples, min_nb_samples, max_nb_samples);
 						}
-						/*av_log(NULL, AV_LOG_TRACE, "diff=%f adiff=%f sample_diff=%d apts=%0.3f %f\n",
-								diff, avg_diff, wanted_nb_samples - nb_samples,
-								is->audio_clock, is->audio_diff_threshold);*/
 					}
 				} else 
 		         {
@@ -317,18 +314,23 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 	AVFrame *frame=NULL;
 	SKK_Frame *af=NULL;
 	
-	is->sampq.mutex->Lock();
-	
    do 
    {
-	   if(af!=NULL&&af->serial!=is->auddec.pkt_serial)
-           frame_queue_next(&is->sampq,false);
+	   //if(af!=NULL&&af->serial!=is->auddec.pkt_serial)
+        //   frame_queue_next(&is->sampq,true);
 	   if(frame_queue_nb_remaining(&is->sampq) <= 0) 
 	   {
-		   is->sampq.mutex->Unlock();
+		 
 		   return -1;
 	   }
-	   af = frame_queue_peek(&is->sampq);
+	  if( !(af = frame_queue_peek_readable(&is->sampq)))
+		  return -1;
+
+	   frame_queue_next(&is->sampq,true);
+	 // frame_queue_next(&is->sampq);
+	   //af = frame_queue_peek(&is->sampq);
+	   
+
    } while (af->serial!=is->auddec.pkt_serial&&!is->abort_request);
 	
 	frame=af->frame;
@@ -439,8 +441,8 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 	 else
 		 is->audio_clock = NAN;
 
-	frame_queue_next(&is->sampq,false);
-	is->sampq.mutex->Unlock();
+	//frame_queue_next(&is->sampq,true);
+	//is->sampq.mutex->Unlock();
 	return data_size;
 }
 
@@ -448,7 +450,6 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 /* prepare a new audio buffer */
 void audio_callback(void *userdata, char *stream, int len)
 {
-	//return;
 	SKK_VideoState *pVideoInfo=(SKK_VideoState *)userdata;
 	memset(stream,0,len);
 	if (pVideoInfo->paused||pVideoInfo->IsReady!=1)
@@ -459,24 +460,11 @@ void audio_callback(void *userdata, char *stream, int len)
 	int slen=len;
 	//获取现在的时间
 	pVideoInfo->audio_callback_time = av_gettime_relative();
-	//Sleep(1);
-	bool Issilence=false;
-
-	/*#ifdef WIN32_KK
-	char abcd[100]="";
-	sprintf(abcd,"\n START 上次剩余%d", pVideoInfo->audio_buf_size-pVideoInfo->audio_buf_index);
-	::OutputDebugStringA(abcd);
-#endif*/
 	while (len > 0) 
 	{
 		if (pVideoInfo->audio_buf_index >= pVideoInfo->audio_buf_size) 
 		{
-			/*audio_size=0;
-			while(!audio_size)
-			{*/
-                audio_size = audio_fill_frame(pVideoInfo);
-		//	}
-			
+            audio_size = audio_fill_frame(pVideoInfo);	
 			if (audio_size < 0)
 			{
 				pVideoInfo->audio_buf = pVideoInfo->silence_buf;
@@ -522,7 +510,6 @@ static int audio_open2( void *opaque,                               int64_t want
 	static const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
 	static const int next_sample_rates[] = {0, 44100, 48000, 96000, 192000};
 	int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
-
 	env = "2";
 	if (env) 
 	{
@@ -575,9 +562,10 @@ static void decoder_start(SKK_Decoder *d,unsigned (__stdcall* _StartAddress) (vo
 /****刷新队列,更新对列的大小****/
 void frame_queue_push(SKK_FrameQueue *f)
 {
+	f->mutex->Lock();
 	if (++f->windex >= f->max_size)
 		f->windex = 0;
-	f->mutex->Lock();
+	
 	f->size++;
 	f->mutex->Unlock();
 }
@@ -794,8 +782,6 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 		!f->pktq->abort_request) 
 	{
 		/*****无信号******/
-		//ResetEvent(f->m_WaitEvent);
-		//LOGE("queue ResetCond");
 		f->m_pWaitCond->ResetCond();
 		mm=false;
 		f->mutex->Unlock();
@@ -812,9 +798,10 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 
 SKK_Frame *frame_queue_peek_readable(SKK_FrameQueue *f)
 {
+
 	f->mutex->Lock();
 	bool mm=true;
-	if(f->size >= f->max_size &&
+	if(f->size - f->rindex_shown <= 0 &&
 		!f->pktq->abort_request) 
 	{
 		f->m_pWaitCond->ResetCond();
@@ -834,7 +821,8 @@ SKK_Frame *frame_queue_peek_readable(SKK_FrameQueue *f)
 /********可写入的位置*******/
 SKK_Frame *frame_queue_peek(SKK_FrameQueue *f)
 {
-	return &f->queue[(f->rindex + f->rindex_shown) % f->max_size];
+	int ll=(f->rindex + f->rindex_shown) % f->max_size;
+	return &f->queue[ll];
 }
 /* return the number of undisplayed frames in the queue */
 /********未显示的图片数**********/
@@ -863,22 +851,20 @@ void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
 	}
 	frame_queue_unref_item(&f->queue[f->rindex]);
 	/******一个队列已经读取玩****/
+	if(NeedLock)
+		f->mutex->Lock();
 	if (++f->rindex == f->max_size)
 	{
 		f->rindex = 0;
 	}
-	if(NeedLock)
-	   f->mutex->Lock();
+	
 	f->size--;
 	if(f->size<0)
 		f->size=0;
 	if(f->size<f->max_size)
 	{
 		//将事件有效
-		//::SetEvent(f->m_WaitEvent);
-		//LOGE("SetCond over");
 		f->m_pWaitCond->SetCond();
-		//LOGE("SetCond end");
 	}
 	if(NeedLock)
 	f->mutex->Unlock();
@@ -956,77 +942,6 @@ int GetBmpSize(int w,int h)
 }
 struct SwsContext *BMPimg_convert_ctx=NULL;
 
-#ifdef WIN32_KK
-//位图
-void saveBMP(SKK_VideoState *is,AVFrame *pSrcFrame, int width, int height, int index, int bpp=24)
-{
-	
-	int w = width;
-	int h = height;
-
-	int numBytes=avpicture_get_size(PIX_FMT_RGB24, w,h);
-	uint8_t * buffer=(uint8_t *)av_malloc(numBytes*sizeof(uint8_t));
-
-	AVFrame *pFrameRGB;
-	pFrameRGB = avcodec_alloc_frame();
-	avpicture_fill((AVPicture *)pFrameRGB, buffer,PIX_FMT_RGB24,  w, h);
-
-
-	BMPimg_convert_ctx = sws_getCachedContext(BMPimg_convert_ctx,
-		pSrcFrame->width,pSrcFrame->height, (PixelFormat)(pSrcFrame->format), w, h,PIX_FMT_BGR24, sws_flags, NULL, NULL, NULL);
-
-	if (is->img_convert_ctx == NULL) 
-	{
-		fprintf(stderr, "Cannot initialize the conversion context\n");
-		exit(1);
-	}/**/
-	sws_scale(is->img_convert_ctx, pSrcFrame->data, pSrcFrame->linesize,
-		0, h, pFrameRGB->data, pFrameRGB->linesize);/**/
-
-    //CreateDIBSection
-	//2 构造 BITMAPINFOHEADER
-
-	BITMAPINFOHEADER header;
-	header.biSize = sizeof(BITMAPINFOHEADER);
-
-	header.biWidth = w;
-	header.biHeight = h*(-1);
-	header.biBitCount = 24;
-	header.biCompression = 0;
-	header.biSizeImage = 0;
-	header.biClrImportant = 0;
-	header.biClrUsed = 0;
-	header.biXPelsPerMeter = 0;
-	header.biYPelsPerMeter = 0;
-	header.biPlanes = 1;
-
-
-	//3 构造文件头
-	BITMAPFILEHEADER bmpFileHeader;
-	HANDLE hFile = NULL;
-	DWORD dwTotalWriten = 0;
-	DWORD dwWriten;
-
-	bmpFileHeader.bfType = 0x4d42; //'BM';
-	bmpFileHeader.bfOffBits=sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
-	bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)+ width*height*bpp/8;
-
-	char buf[256]="";
-	sprintf_s(buf,255,"%s%d.bmp","D:/pic/",index);  
-	FILE* pf = fopen(buf, "wb");
-	fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, pf);
-	fwrite(&header, sizeof(BITMAPINFOHEADER), 1, pf);
-	fwrite(pFrameRGB->data[0], 1, numBytes, pf);
-	fclose(pf);
-	//sws_freeContext(img_convert_ctx);
-	//释放资源
-	av_free(buffer);
-	buffer=NULL;
-	avcodec_free_frame(&pFrameRGB);
-	av_free(pFrameRGB);
-	pFrameRGB=NULL;
-}
-#endif
 //图片队列 图片
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
 {  
@@ -1042,13 +957,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	if(is->abort_request)
 		return -1;
 	t_end = time(NULL) ;
-    /*LOGE("Waittime:%f",difftime(t_end,t_start));
-	char abcd[100]="";
-	sprintf(abcd,"\n XXId：%f",difftime(t_end,t_start));
-	::OutputDebugStringA(abcd);*/
-	//锁
-	//LOGE("queue_picture Lock \n");
-	pPictq->mutex->Lock();
+   
+	//pPictq->mutex->Lock();
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
     vp->duration=duration;
 	vp->pos=pos;
@@ -1084,36 +994,30 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		h=is->DestHeight;
 	}
 	
-	
-	//time_t t_start, t_end;
-	//t_start = time(NULL) ;
-	
-	
-    if(1)
-	{
-			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
-				pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
-				w,              h,               DstAVff,                
-				SWS_FAST_BILINEAR,
-				NULL, NULL, NULL);
-			if (is->img_convert_ctx == NULL) 
-			{
-				fprintf(stderr, "Cannot initialize the conversion context\n");
-				exit(1);
-			}
-		    AVPicture pict = { { 0 } };
-			int numBytes=avpicture_get_size(DstAVff, w,h);
-			vp->buflen=numBytes*sizeof(uint8_t);
-			uint8_t * buffer=(uint8_t *)av_malloc(vp->buflen);
-			avpicture_fill((AVPicture *)&pict, buffer,DstAVff,  w, h);
-			sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
-				0,pFrame->height, pict.data, pict.linesize);
-            vp->buffer=buffer;
-		    vp->width=is->DestWidth;
-		    vp->height=is->DestHeight;
+
+  
+		is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
+			pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
+			w,              h,               DstAVff,                
+			SWS_FAST_BILINEAR,
+			NULL, NULL, NULL);
+		if (is->img_convert_ctx == NULL) 
+		{
+			fprintf(stderr, "Cannot initialize the conversion context\n");
+			exit(1);
+		}
+	    AVPicture pict = { { 0 } };
+		int numBytes=avpicture_get_size(DstAVff, w,h);
+		vp->buflen=numBytes*sizeof(uint8_t);
+		uint8_t * buffer=(uint8_t *)av_malloc(vp->buflen);
+		avpicture_fill((AVPicture *)&pict, buffer,DstAVff,  w, h);
+		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
+			0,pFrame->height, pict.data, pict.linesize);
+        vp->buffer=buffer;
+	    vp->width=is->DestWidth;
+	    vp->height=is->DestHeight;
 			
-	}
-   	pPictq->mutex->Unlock();
+   	//pPictq->mutex->Unlock();
 
 	//t_end = time(NULL) ;
 	
@@ -1260,7 +1164,7 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 		//从队列获取数据
 		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0&&!pVideoInfo->abort_request) 
 		{
-			Sleep(2);
+			av_usleep(2000);
 		}else if(pVideoInfo->abort_request)
 		{
 			break;
@@ -1579,7 +1483,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 			{
 				if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
 				{
-					Sleep(2);
+					av_usleep(2000);
 					continue;
 				}
 
@@ -1593,7 +1497,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 						assert(0);
 					}
 
-					is->sampq.mutex->Lock();
+					//is->sampq.mutex->Lock();
 					af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
 					af->pts 	+=is->Baseaudio_clock;
 					af->pos = av_frame_get_pkt_pos(frame);
@@ -1604,7 +1508,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 
 					AVSampleFormat ff=(AVSampleFormat)frame->format;
 					av_frame_move_ref(af->frame, frame);
-					is->sampq.mutex->Unlock();
+					//is->sampq.mutex->Unlock();
 					frame_queue_push(&is->sampq);
 					//::OutputDebugStringA("xxx4\n");
 				}
@@ -1616,7 +1520,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					assert(0);
 				}
 
-				is->sampq.mutex->Lock();
+				//is->sampq.mutex->Lock();
 				af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb)+is->Baseaudio_clock;
 				af->pos = av_frame_get_pkt_pos(frame);
 				af->serial = is->auddec.pkt_serial;
@@ -1626,12 +1530,12 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 
 				AVSampleFormat ff=(AVSampleFormat)frame->format;
 				av_frame_move_ref(af->frame, frame);
-				is->sampq.mutex->Unlock();
+				//is->sampq.mutex->Unlock();
+
 				frame_queue_push(&is->sampq);
 			}
 			
 		}
-		Sleep(1);
 	} while ((ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)&&!is->abort_request);
 the_end:
 	av_frame_free(&frame);
