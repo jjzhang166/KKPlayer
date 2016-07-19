@@ -63,6 +63,8 @@ std::basic_string<char> GetModulePathA()
 std::basic_string<TCHAR> GetModulePath();
 CMainFrame::CMainFrame():m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
 {
+	m_pSound=NULL;
+	m_pPlayerInstance=NULL;
 	m_CenterLogoLen=0;
 	std::string basePath=GetModulePathA();
 	m_BkGidPulsBitmap=NULL;
@@ -197,6 +199,13 @@ CMainFrame::CMainFrame():m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NUL
 	
 	
 	
+}
+
+CMainFrame::~CMainFrame()
+{
+    m_pPlayerInstance->CloseMedia();
+	delete m_pSound;
+	delete m_pPlayerInstance;
 }
 void CMainFrame::UpdateLayout(BOOL bResizeBars)
 {

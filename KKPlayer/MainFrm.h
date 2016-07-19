@@ -35,6 +35,7 @@ class CMainFrame :
 {
 public:
 	CMainFrame();
+	~CMainFrame();
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 	//BEGIN_UPDATE_UI_MAP(CMainFrame)
 	//END_UPDATE_UI_MAP()
