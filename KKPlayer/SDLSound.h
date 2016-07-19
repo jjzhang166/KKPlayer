@@ -1,7 +1,7 @@
 #include "IKKAudio.h"
 #ifndef SDLSound_H_
 #define SDLSound_H_
-#include "../libx86/SDL1.2.15/include/SDL.h"
+#include "../../SDL-1.2.15/include/SDL.h"
 class CSDLSound: public IKKAudio
 {
 	public:
@@ -12,7 +12,7 @@ class CSDLSound: public IKKAudio
 		/********设置音频回到函数*********/
 		virtual void SetAudioCallBack(pfun fun);
 		/***********初始化音频设备*********/
-		virtual void InitAudio();
+		virtual int InitAudio();
 		/*******读取音频数据********/
 		virtual void ReadAudio();	   
 		virtual void Start();	   

@@ -417,6 +417,7 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 			int total=(pVideoInfo->pFormatCtx->duration/1000/1000);
 
 			
+			
             if(!isNAN(vp->pts))
 			{
 				update_video_pts(is, vp->pts, vp->pos, vp->serial);
@@ -970,6 +971,9 @@ int KKPlayer::GetAVRate()
  //音频数据回调线程
  unsigned __stdcall  KKPlayer::Audio_Thread(LPVOID lpParameter)
  {
+	#ifdef WIN32_KK
+		 ::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+	#endif
 	 KKPlayer* pPlayer=(KKPlayer*)lpParameter;
 	 pPlayer->ReadAudioCall();
 	 return 1;

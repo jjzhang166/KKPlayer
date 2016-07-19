@@ -61,7 +61,7 @@ std::basic_string<char> GetModulePathA()
 }
 
 std::basic_string<TCHAR> GetModulePath();
-CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
+CMainFrame::CMainFrame():m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
 {
 	m_CenterLogoLen=0;
 	std::string basePath=GetModulePathA();
@@ -195,15 +195,7 @@ CMainFrame::CMainFrame():m_PlayerInstance(this,&m_Sound),m_pBkImage(NULL),m_pCen
 	}
 	m_CurWaitPic=NULL;
 	
-	std::wstring Propath=GetModulePath();
-	Propath+=L"\\Db";
-	CFileMgr mgr;
-	mgr.CreateDirectory(Propath.c_str());
-	Propath+=L"\\mv";
-	std::string pp;
-	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);
 	
-	m_PlayerInstance.SetDbPath((char *)pp.c_str());
 	
 }
 void CMainFrame::UpdateLayout(BOOL bResizeBars)
@@ -212,19 +204,19 @@ void CMainFrame::UpdateLayout(BOOL bResizeBars)
 }
 void  CMainFrame::AvSeek(int value)
 {
-	m_PlayerInstance.AVSeek(value);
+	m_pPlayerInstance->AVSeek(value);
 }
 void CMainFrame::SetVolume(long value)
 {
-	m_PlayerInstance.SetVolume(value);
+	m_pPlayerInstance->SetVolume(value);
 }
 MEDIA_INFO  CMainFrame::GetMediaInfo()
 {
-   return 	m_PlayerInstance.GetMediaInfo();
+   return 	m_pPlayerInstance->GetMediaInfo();
 }
 int CMainFrame::GetCurTime()
 {
-	return m_PlayerInstance.GetCurTime();
+	return m_pPlayerInstance->GetCurTime();
 }
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
@@ -248,7 +240,7 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
 	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
-	int  ret=m_PlayerInstance.OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
+	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
 	if(ret==0)
 	  m_bOpen=true;
 	return ret;
@@ -256,6 +248,20 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+
+	std::wstring Propath=GetModulePath();
+	Propath+=L"\\Db";
+	CFileMgr mgr;
+	mgr.CreateDirectory(Propath.c_str());
+	Propath+=L"\\mv";
+	std::string pp;
+	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);
+
+	m_pSound =new CSDLSound();//
+	m_pSound->SetWindowHAND((int)m_hWnd);
+	//m_pSound ==new CKKSound();//new CKKSound();//
+	m_pPlayerInstance = new KKPlayer(this,m_pSound);
+	m_pPlayerInstance->SetDbPath((char *)pp.c_str());
 
 	m_pRender=NULL;
 	
@@ -273,12 +279,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	{
 		delete m_pRender;
         m_pRender =new CRenderGDI();
-		m_PlayerInstance.SetBGRA();
+		m_pPlayerInstance->SetBGRA();
 		m_pRender->init(this->m_hWnd);
 	};
 
-	 m_PlayerInstance.InitSound();
-	 m_PlayerInstance.SetWindowHwnd(m_hWnd);
+	 m_pPlayerInstance->InitSound();
+	 m_pPlayerInstance->SetWindowHwnd(m_hWnd);
 
 	//OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
     return 0;
@@ -291,7 +297,7 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	if( m_bOpen)
 	{
 		m_bOpen=false;
-		m_PlayerInstance.CloseMedia();
+		m_pPlayerInstance->CloseMedia();
 	}
 	DWORD Id=GetCurrentThreadId();
 	::PostThreadMessage(Id, WM_QUIT, 0, 0);
@@ -328,7 +334,7 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 		 PAINTSTRUCT ps = { 0 };
 		 ::BeginPaint(m_hWnd, &ps);
 		 ::EndPaint(m_hWnd, &ps);
-		 m_PlayerInstance.RenderImage(m_pRender,true);
+		 m_pPlayerInstance->RenderImage(m_pRender,true);
 	 }else if(0){
 		 PAINTSTRUCT ps = { 0 };
 		 ::BeginPaint(m_hWnd, &ps);
@@ -361,13 +367,13 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 		  PAINTSTRUCT ps = { 0 };
 		  ::BeginPaint(m_hWnd, &ps);
 		  ::EndPaint(m_hWnd, &ps);
-		  m_PlayerInstance.RenderImage(m_pRender,true);
+		  m_pPlayerInstance->RenderImage(m_pRender,true);
 		
 		 //::ValidateRect(m_hWnd,NULL);
 		// ::InvalidateRect(m_hWnd,NULL,NULL);
 	 }
 	
-      //m_PlayerInstance.RenderImage(m_pRender);
+      //m_pPlayerInstance->RenderImage(m_pRender);
 	// return ::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
 	return 1;
 }
@@ -379,12 +385,12 @@ void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 	::DeleteObject(m_SelectDotHbr);
 
 	#ifdef WIN32_KK
-	    m_PlayerInstance.OnDrawImageByDc(memdc);
+	    m_pPlayerInstance->OnDrawImageByDc(memdc);
     #endif
 }
 void CMainFrame::Render()
 {
-    m_PlayerInstance.RenderImage(m_pRender,false);
+    m_pPlayerInstance->RenderImage(m_pRender,false);
 }
 
 LRESULT  CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
@@ -421,18 +427,18 @@ LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 void CMainFrame::CloseMedia()
 {
   
-   m_PlayerInstance.CloseMedia();
+   m_pPlayerInstance->CloseMedia();
    m_bOpen=false;
 }
 int CMainFrame::PktSerial()
 {
-  return m_PlayerInstance.PktSerial();
+  return m_pPlayerInstance->PktSerial();
 }
 void  CMainFrame::OnDecelerate()
 {
-   m_PlayerInstance.OnDecelerate();
+   m_pPlayerInstance->OnDecelerate();
 
-    int Rate=m_PlayerInstance.GetAVRate();
+    int Rate=m_pPlayerInstance->GetAVRate();
     CRenderD3D *pRender=( CRenderD3D *)m_pRender;
 	wchar_t abcd[256]=L"";
 	float aa=(float)Rate/100;
@@ -441,8 +447,8 @@ void  CMainFrame::OnDecelerate()
 }
 void  CMainFrame::OnAccelerate()
 {
-   m_PlayerInstance.OnAccelerate();
-   int Rate=m_PlayerInstance.GetAVRate();
+   m_pPlayerInstance->OnAccelerate();
+   int Rate=m_pPlayerInstance->GetAVRate();
    CRenderD3D *pRender=( CRenderD3D *)m_pRender;
    wchar_t abcd[256]=L"";
    float aa=(float)Rate/100;
@@ -451,7 +457,7 @@ void  CMainFrame::OnAccelerate()
 }
 void CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
-	m_PlayerInstance.GetAVHistoryInfo(slQue);
+	m_pPlayerInstance->GetAVHistoryInfo(slQue);
 }
 LRESULT  CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
@@ -459,7 +465,7 @@ LRESULT  CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 	if( m_bOpen)
 	{
 		m_bOpen=false;
-          m_PlayerInstance.CloseMedia();
+          m_pPlayerInstance->CloseMedia();
 	}
 	//::MessageBox(0,L"CLOSE",L"",0);
 	CFrameWindowImpl::DefWindowProc(uMsg, wParam,lParam);
@@ -473,19 +479,19 @@ LRESULT  CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/*
 	switch(wParam)
 	{
 	    case VK_UP:
-                           ll=-1;//m_PlayerInstance.GetVolume()-10;
-						   m_PlayerInstance.SetVolume(ll);
+                           ll=-1;//m_pPlayerInstance->GetVolume()-10;
+						   m_pPlayerInstance->SetVolume(ll);
 		        	       break;
 		case VK_DOWN:
 			               break;
 		case VK_LEFT:
-			              m_PlayerInstance.KKSeek(SeekEnum::Left,-60);
+			              m_pPlayerInstance->KKSeek(SeekEnum::Left,-60);
 			               break;
 		case 80:           /******P¼ü********/
-			               m_PlayerInstance.Pause();
+			               m_pPlayerInstance->Pause();
 						   break;
 		case VK_RIGHT:
-			               m_PlayerInstance.KKSeek(SeekEnum::Right,60);
+			               m_pPlayerInstance->KKSeek(SeekEnum::Right,60);
 			               break;
 	}
 	
@@ -522,7 +528,7 @@ unsigned char*  CMainFrame::GetWaitImage(int &len,int curtime)
 
 int  CMainFrame::Pause()
 {
-	m_PlayerInstance.Pause();
+	m_pPlayerInstance->Pause();
 	return 0;
 }
  unsigned char* CMainFrame::GetCenterLogoImage(int &len)

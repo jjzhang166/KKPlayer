@@ -165,7 +165,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 //	CMainFrame GWndMain;
 //	std::string strErr;
-////WS_CHILD |WS_VISIBLE| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
+//WS_CHILD |WS_VISIBLE| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
 //	RECT rt={0,100,200,300};
 //	if(GWndMain.CreateEx(G_Parent,NULL, WS_OVERLAPPEDWINDOW| WS_CLIPSIBLINGS|WS_CLIPCHILDREN) == NULL)
 //	{
@@ -195,7 +195,9 @@ void skpngZhuc();
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
-	skpngZhuc();
+	int SDL_WindowStyle=WS_POPUP  | WS_VISIBLE|WS_CLIPCHILDREN;
+		//WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX;
+	skpngZhuc(); //0x80000000L|0x10000000L| 0x02000000L
     DeclareDumpFile();
 	//в╟ть
 	std::string strPath= GetModulePathA();
@@ -290,6 +292,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		theApp->LoadSystemNamedResource(sysSesProvider);
 	}
 
+	
 	std::wstring path=GetModulePath();
 	
 	SOUI::CMainDlg dlgMain;

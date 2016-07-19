@@ -16,7 +16,7 @@ class CKKSound: public IKKAudio
 	       CKKSound(void);
 	       ~CKKSound(void);
 
-		   void InitAudio();
+		   int InitAudio();
 		   void SetWindowHAND(int m_hwnd);
 		   void SetUserData(void* UserData);
 		   /********设置音频回到函数*********/
@@ -29,6 +29,7 @@ class CKKSound: public IKKAudio
 		   void Start();   
 		   void Stop();
    private:
+	       static unsigned __stdcall KKAudiothread(LPVOID lpParameter);
 	       DWORD res;
 		   LPVOID buf; 
 		   DWORD  buf_len;  
@@ -44,5 +45,7 @@ class CKKSound: public IKKAudio
 		   bool IsClose;
 		   CKKLock m_Lock;
 		   volatile bool m_Stop;
+		   HANDLE m_ReadAudioH;
+		   unsigned m_ReadAddr;
 };
 #endif

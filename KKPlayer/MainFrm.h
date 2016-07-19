@@ -79,7 +79,7 @@ public:
 	void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 private:
 	    //CKKSound m_Sound;
-		CSDLSound m_Sound;
+		IKKAudio *m_pSound;
 		SOUI::CAVMenu *m_pAVMenu;
 	    Gdiplus::Bitmap *m_BkGidPulsBitmap;
 	    CRender *m_pRender;
@@ -87,7 +87,7 @@ private:
 		void ReadTask();
 		int LeftWidth;
 		int LeftNavigationBarWidth;
-		KKPlayer m_PlayerInstance;
+		KKPlayer* m_pPlayerInstance;
 		/*********Ä¬ÈÏ±³¾°Í¼Æ¬**********/
 		unsigned char* m_pBkImage;
 

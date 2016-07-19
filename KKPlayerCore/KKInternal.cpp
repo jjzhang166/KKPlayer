@@ -468,7 +468,7 @@ void audio_callback(void *userdata, char *stream, int len)
 			if (audio_size < 0)
 			{
 				pVideoInfo->audio_buf = pVideoInfo->silence_buf;
-                pVideoInfo->audio_buf_size =sizeof(pVideoInfo->silence_buf) / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
+                pVideoInfo->audio_buf_size =512 / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
 			  
 			} else 
 			{				

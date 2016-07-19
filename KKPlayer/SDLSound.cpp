@@ -3,18 +3,27 @@
 #include "../KKPlayerCore/Includeffmpeg.h"
 
 #include "../KKPlayerCore/KKInternal.h"
-#pragma comment (lib,"../libx86/SDL1.2.15/lib/x86/SDL.lib")
+#ifdef _DEBUG
+   #pragma comment (lib,"../Debug/SDL.lib")
+#else
+   #pragma comment (lib,"../Release/SDL.lib")
+#endif
 CSDLSound::CSDLSound()
 {
     m_UserData=NULL;
 	m_pFun=NULL;
 	m_Vol=100;
+//	SDL_SetVideoMode
 }
 CSDLSound::~CSDLSound()
 {
 
 }
-void CSDLSound::SetWindowHAND(int m_hwnd){}
+void CSDLSound::SetWindowHAND(int m_hwnd)
+{
+	
+       SDL_HandleAudio(m_hwnd);
+}
 void CSDLSound::SetUserData(void* UserData){
 
 	m_UserData=UserData;
@@ -48,14 +57,14 @@ void  CSDLSound::KKSDLCall(Uint8 *stream, int len)
 		
 	}
 }
-void CSDLSound::InitAudio()
+int  CSDLSound::InitAudio()
 {
 
 	int flags = SDL_INIT_AUDIO | SDL_INIT_TIMER;
 
 	if (SDL_Init (flags)) 
 	{
-	     return;	
+	     return -1;	
 	}
 
 	int wanted_sample_rate=44100;
@@ -84,7 +93,7 @@ void CSDLSound::InitAudio()
 	if (wanted_spec.freq <= 0 || wanted_spec.channels <= 0) 
 	{
 		
-		return;
+		return -1;
 	}
 	while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq)
 		next_sample_rate_idx--;
@@ -105,7 +114,7 @@ void CSDLSound::InitAudio()
 			wanted_spec.channels = wanted_nb_channels;
 			if (!wanted_spec.freq) {
 				
-				return;
+				return -1;
 			}
 		}
 		wanted_channel_layout = av_get_default_channel_layout(wanted_spec.channels);
@@ -113,11 +122,12 @@ void CSDLSound::InitAudio()
 	if (spec.format != AUDIO_S16SYS) 
 	{
 		
-		return;
+		return -1;
 	}
 	int ii=0;
 	ii++;
 	SDL_PauseAudio(1);
+	return 0;
 }
  /*******∂¡»°“Ù∆µ ˝æ›********/
  void CSDLSound::ReadAudio()
