@@ -194,7 +194,13 @@ void KKPlayer::CloseMedia()
 				,pVideoInfo->subdec.decoder_tid.ThOver
 				);
 			 av_usleep(50000);
+			 pVideoInfo->videoq.m_pWaitCond->SetCond();
+			 pVideoInfo->audioq.m_pWaitCond->SetCond();
+			 pVideoInfo->subtitleq.m_pWaitCond->SetCond();
 
+			 pVideoInfo->pictq.m_pWaitCond->SetCond();
+			 pVideoInfo->sampq.m_pWaitCond->SetCond();
+			 pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
 
 		}
 	}
@@ -260,9 +266,10 @@ void KKPlayer::CloseMedia()
 
 
 	//av_packet_unref(pVideoInfo->viddec.p)
-	avcodec_close(pVideoInfo->viddec.avctx);
+	
 	avcodec_close(pVideoInfo->auddec.avctx);
 	avcodec_close(pVideoInfo->subdec.avctx);
+	avcodec_close(pVideoInfo->viddec.avctx);
 
 	
 	avformat_free_context(pVideoInfo->pFormatCtx);
@@ -403,7 +410,10 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 		}
 
 		if (is->paused)
+		{
+			   is->pictq.mutex->Unlock();
                return;
+		}
 		//is->frame_timer += delay;
 		
 		time= av_gettime_relative()/1000000.0;

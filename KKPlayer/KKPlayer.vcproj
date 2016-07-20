@@ -240,6 +240,10 @@
 				RelativePath=".\targetver.h"
 				>
 			</File>
+			<File
+				RelativePath=".\WHRoundRectFrameHelper.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="资源文件"

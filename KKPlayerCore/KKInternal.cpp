@@ -958,7 +958,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		return -1;
 	t_end = time(NULL) ;
    
-	//pPictq->mutex->Lock();
+
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
     vp->duration=duration;
 	vp->pos=pos;
@@ -1017,11 +1017,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	    vp->width=is->DestWidth;
 	    vp->height=is->DestHeight;
 			
-   	//pPictq->mutex->Unlock();
-
-	//t_end = time(NULL) ;
-	
-	//LOGE("cx time:%f",difftime(t_end,t_start));
+   
 	frame_queue_push(&is->pictq);
 	return 0;
    
@@ -1045,6 +1041,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	{
 		    if(is->abort_request)
 			{
+				
 				//LOGE("Video_thread break");
                 break;
 			}	
@@ -1137,6 +1134,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			
 			av_free_packet(packet);  
 	}
+	avcodec_flush_buffers(is->viddec.avctx);
 	av_frame_free(&pFrame);
 	LOGE("Video_thread Over");
 
