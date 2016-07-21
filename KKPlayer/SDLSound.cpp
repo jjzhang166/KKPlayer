@@ -102,7 +102,7 @@ int  CSDLSound::InitAudio()
 	int ll=SDL_AUDIO_MIN_BUFFER_SIZE;
 	int xx= 2 << av_log2(wanted_spec.freq / SDL_AUDIO_MAX_CALLBACKS_PER_SEC);
 	wanted_spec.samples = FFMAX(SDL_AUDIO_MIN_BUFFER_SIZE, 2 << av_log2(wanted_spec.freq / SDL_AUDIO_MAX_CALLBACKS_PER_SEC));
-	wanted_spec.samples /=8;
+	wanted_spec.samples /=4;
 	wanted_spec.callback =sdl_audio_callback;
 	wanted_spec.userdata = this;
 	
@@ -121,11 +121,8 @@ int  CSDLSound::InitAudio()
 	}
 	if (spec.format != AUDIO_S16SYS) 
 	{
-		
 		return -1;
-	}
-	int ii=0;
-	ii++;
+	}	
 	SDL_PauseAudio(1);
 	return 0;
 }

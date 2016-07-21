@@ -316,30 +316,32 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 	
    do 
    {
-	   //if(af!=NULL&&af->serial!=is->auddec.pkt_serial)
-        //   frame_queue_next(&is->sampq,true);
-	   if(frame_queue_nb_remaining(&is->sampq) <= 0) 
-	   {
-		 
-		   return -1;
+#if defined(_WIN32)
+	   while (frame_queue_nb_remaining(&is->sampq) <= 0) {
+		   if ((av_gettime_relative() - is->audio_callback_time) > 1000000LL * is->audio_hw_buf_size / is->audio_tgt.bytes_per_sec / 2)
+			   return -1;
+		   av_usleep (1000);
 	   }
+#else
+	    if(frame_queue_nb_remaining(&is->sampq) <= 0) 
+	   {
+		   return -1;
+	   }/*  */
+#endif
 	  if( !(af = frame_queue_peek_readable(&is->sampq)))
 		  return -1;
 
 	   frame_queue_next(&is->sampq,true);
-	 // frame_queue_next(&is->sampq);
-	   //af = frame_queue_peek(&is->sampq);
-	   
-
    } while (af->serial!=is->auddec.pkt_serial&&!is->abort_request);
 	
 	frame=af->frame;
 
 	//音频转化
-	data_size = av_samples_get_buffer_size(NULL, aCodecCtx->channels,frame->nb_samples,(AVSampleFormat)frame->format,1);
-							dec_channel_layout =
-								(frame->channel_layout && av_frame_get_channels(frame) == av_get_channel_layout_nb_channels(frame->channel_layout)) ?
-								 frame->channel_layout : av_get_default_channel_layout(av_frame_get_channels(frame));
+	data_size = av_samples_get_buffer_size(NULL, av_frame_get_channels(frame)/*aCodecCtx->channels*/,frame->nb_samples,
+		(AVSampleFormat)frame->format,1);
+	dec_channel_layout =
+		(frame->channel_layout && av_frame_get_channels(frame) == av_get_channel_layout_nb_channels(frame->channel_layout)) ?
+		 frame->channel_layout : av_get_default_channel_layout(av_frame_get_channels(frame));
 	AVSampleFormat bc=(AVSampleFormat)frame->format;
     wanted_nb_samples = synchronize_audio(pVideoInfo, frame->nb_samples);
 	if (
@@ -371,7 +373,9 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 	 {
 		 //数据指针  &frame.data[0];//
 		 const uint8_t **inextended_data = (const uint8_t **)frame->extended_data;
-		 
+		 //输出地址
+		 uint8_t **OutData = &pVideoInfo->audio_buf1;
+
 		 int out_count = (int64_t)wanted_nb_samples * pVideoInfo->audio_tgt.freq / frame->sample_rate + 256;
 		 //输出大小
 		 int out_size  = av_samples_get_buffer_size(NULL, pVideoInfo->audio_tgt.channels, out_count, pVideoInfo->audio_tgt.fmt, 0);
@@ -400,8 +404,7 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 		 }
 		 memset(pVideoInfo->audio_buf1,0,out_size);
 
-		 //输出地址
-		 uint8_t **OutData = &pVideoInfo->audio_buf1;
+		 
 
 		int ll=out_size / pVideoInfo->audio_tgt.channels  / av_get_bytes_per_sample(pVideoInfo->audio_tgt.fmt);
 		 //音频转化
@@ -409,7 +412,10 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 			                  pVideoInfo->swr_ctx, 
 							  OutData,               out_count, 
 			                  inextended_data, frame->nb_samples);
-		 
+		 if(len2<0)
+		 {
+			 return -1;
+		 }
 		 if (len2 >= out_count) 
 		 {
 			 //av_log(NULL, AV_LOG_WARNING, "audio buffer is probably too small\n");
