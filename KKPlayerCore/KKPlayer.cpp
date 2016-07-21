@@ -377,102 +377,181 @@ SYSTEMTIME Time_tToSystemTime(time_t t)
 }
 #endif
 //视频刷新函数
+//void KKPlayer::video_image_refresh(SKK_VideoState *is)
+//{
+//	if(is->video_st)
+//	{
+//retry:		
+//				//没有数据
+//				if (frame_queue_nb_remaining(&is->pictq) <= 0)
+//				{
+//				   return;
+//				}
+//				m_CurTime=is->audio_clock;
+//				SKK_Frame *vp;
+//				int redisplay=0;
+//				is->pictq.mutex->Lock();
+//				double time= av_gettime_relative()/1000000.0;
+//				//获取上一次的读取位置
+//			    SKK_Frame *lastvp = frame_queue_peek_last(&is->pictq);
+//				/**********获取包位置**********/
+//				vp = frame_queue_peek(&is->pictq);
+//
+//				if (vp->serial != is->videoq.serial) {
+//					frame_queue_next(&is->pictq,false);
+//					is->pictq.mutex->Unlock();
+//					goto retry;
+//				}
+//				
+//				if(vp!=NULL)
+//				{
+//					/*******时间**********/
+//					if (lastvp->serial != vp->serial)
+//					{
+//						is->frame_timer = av_gettime_relative() / 1000000.0;
+//					}
+//					if (is->paused)
+//					{
+//						   is->pictq.mutex->Unlock();
+//						   return;
+//					}
+//					//is->frame_timer += delay;
+//					
+//					
+//					if (is->delay > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)
+//						is->frame_timer = time+is->delay;
+//
+//					/******上一次更新和这一次时间的差值。图片之间差值******/
+//					is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
+//					is->delay = compute_target_delay(is->last_duration, is);
+//					/******上一次更新和这一次时间的差值。图片之间差值******/
+//					double DiffCurrent=(is->frame_timer -is->vidclk.last_updated);
+//					time= av_gettime_relative()/1000000.0;
+//
+//					if (time < is->frame_timer + is->delay) {
+//						is->pictq.mutex->Unlock();
+//						return;
+//					}/**/
+//
+//					is->frame_timer += is->delay ;
+//					if (is->delay  > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)
+//						is->frame_timer = time;
+//
+//					if(!isNAN(vp->pts))
+//					{
+//						update_video_pts(is, vp->pts, vp->pos, vp->serial);
+//						if(start_time==AV_NOPTS_VALUE)
+//						{
+//							start_time=vp->pts;
+//						}
+//					}
+//
+//					if (frame_queue_nb_remaining(&is->pictq) >1)
+//					{
+//						SKK_Frame *nextvp = frame_queue_peek_next(&is->pictq);
+//						double duration = vp_duration(is, vp, nextvp);
+//						if(get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER && time > is->frame_timer + duration)
+//						{
+//							is->frame_drops_late++;
+//							frame_queue_next(&is->pictq,false);
+//							is->pictq.mutex->Unlock();
+//							return;
+//						}
+//					}
+//
+//					if (vp->buffer)
+//					{
+//						 int total=(pVideoInfo->pFormatCtx->duration/1000/1000);
+//                         if(vp->PktNumber%20==0)
+//						 {
+//							 m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,vp->width,vp->height);
+//						 }
+//					}
+//					frame_queue_next(&is->pictq,false);
+//				}
+//				is->pictq.mutex->Unlock();
+//	}
+//}
+
 void KKPlayer::video_image_refresh(SKK_VideoState *is)
 {
+	m_CurTime=is->audio_clock;
+
 	if(is->video_st)
-	{
-retry:		
-				//没有数据
-				if (frame_queue_nb_remaining(&is->pictq) <= 0)
-				{
-				   return;
-				}
-				m_CurTime=is->audio_clock;
-				SKK_Frame *vp;
-				int redisplay=0;
-				is->pictq.mutex->Lock();
-				double time= av_gettime_relative()/1000000.0;
-				//获取上一次的读取位置
-			    SKK_Frame *lastvp = frame_queue_peek_last(&is->pictq);
-				/**********获取包位置**********/
-				vp = frame_queue_peek(&is->pictq);
-
-				if (vp->serial != is->videoq.serial) {
+    {
+			//没有数据
+			if (frame_queue_nb_remaining(&is->pictq) <= 0)
+			{
+			   return;
+			}
+			SKK_Frame *vp;
+			int redisplay=0;
+			is->pictq.mutex->Lock();
+			/**********获取包位置**********/
+			vp = frame_queue_peek(&is->pictq);
+			double time=0;
+			if(vp!=NULL)
+			{
+				/*if (vp->serial != is->videoq.serial) {
 					frame_queue_next(&is->pictq,false);
-					is->pictq.mutex->Unlock();
-					goto retry;
-				}
-				
-				if(vp!=NULL)
+					return;
+				}*/
+				//获取上一次的读取位置
+				SKK_Frame *lastvp = frame_queue_peek_last(&is->pictq);
+				/******上一次更新和这一次时间的差值。图片之间差值******/
+				is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
+				is->delay = compute_target_delay(is->last_duration, is);
+
+				/*******时间**********/
+				if (lastvp->serial != vp->serial && !redisplay)
 				{
-					/*******时间**********/
-					if (lastvp->serial != vp->serial)
-					{
-						is->frame_timer = av_gettime_relative() / 1000000.0;
-					}
-					if (is->paused)
-					{
-						   is->pictq.mutex->Unlock();
-						   return;
-					}
-					//is->frame_timer += delay;
-					
-					
-					if (is->delay > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)
-						is->frame_timer = time+is->delay;
+					is->frame_timer = av_gettime_relative() / 1000000.0;
+				}
 
-					/******上一次更新和这一次时间的差值。图片之间差值******/
-					is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
-					is->delay = compute_target_delay(is->last_duration, is);
-					/******上一次更新和这一次时间的差值。图片之间差值******/
-					double DiffCurrent=(is->frame_timer -is->vidclk.last_updated);
-					time= av_gettime_relative()/1000000.0;
+				if (is->paused)
+					   return;
+				//is->frame_timer += delay;
+				
+				time= av_gettime_relative()/1000000.0;
+				if (is->delay > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)
+					is->frame_timer = time+is->delay;
 
-					if (time < is->frame_timer + is->delay) {
-						is->pictq.mutex->Unlock();
-						return;
-					}/**/
-
-					is->frame_timer += is->delay ;
-					if (is->delay  > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)
-						is->frame_timer = time;
-
+				/******上一次更新和这一次时间的差值。图片之间差值******/
+				double DiffCurrent=(is->frame_timer -is->vidclk.last_updated);
+				if (vp->buffer)
+				{
+					int total=(pVideoInfo->pFormatCtx->duration/1000/1000);
 					if(!isNAN(vp->pts))
 					{
 						update_video_pts(is, vp->pts, vp->pos, vp->serial);
+					}
 						if(start_time==AV_NOPTS_VALUE)
 						{
-							start_time=vp->pts;
+						  start_time=vp->pts;
 						}
-					}
-
-					if (frame_queue_nb_remaining(&is->pictq) >1)
-					{
-						SKK_Frame *nextvp = frame_queue_peek_next(&is->pictq);
-						double duration = vp_duration(is, vp, nextvp);
-						if(get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER && time > is->frame_timer + duration)
+						//m_CurTime=vp->frame->pts;
+						float abc=2;
+						if (vp->serial != is->videoq.serial) {
+							abc=60*2;
+						}
+						float ll= vp->pts-is->audio_clock;
+						float llxxs=vp->pts- is->last_duration*2;
+						bool llxx=is->audio_clock >vp->pts- is->last_duration*2;
+						if((DiffCurrent>=is->last_duration+is->delay || DiffCurrent<=0.000000)&& llxx || is->delay >10||vp->pts-is->audio_clock>120
+							||vp->serial!=is->viddec.pkt_serial)
 						{
-							is->frame_drops_late++;
+							if(vp->PktNumber%20==0)
+							{
+							  m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,vp->width,vp->height);
+							}
+							
 							frame_queue_next(&is->pictq,false);
-							is->pictq.mutex->Unlock();
-							return;
 						}
-					}
-
-					if (vp->buffer)
-					{
-						 int total=(pVideoInfo->pFormatCtx->duration/1000/1000);
-                         if(vp->PktNumber%20==0)
-						 {
-							 m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,vp->width,vp->height);
-						 }
-						 frame_queue_next(&is->pictq,false);
-					}
 				}
-				is->pictq.mutex->Unlock();
+			}
+			is->pictq.mutex->Unlock();
 	}
 }
-
 int KKPlayer::PktSerial()
 {
 	return m_PktSerial;
@@ -930,7 +1009,7 @@ void KKPlayer::OnDecelerate()
 	//m_CloseLock.Unlock();
 	if(okk)
 	{
-		KKSeek( SeekEnum::Right,1);
+		KKSeek(Right,1);
 		pVideoInfo->seek_req=2;
 	}
 }
@@ -953,7 +1032,7 @@ void KKPlayer::OnAccelerate()
 
 	if(okk)
 	{
-		KKSeek(SeekEnum::Right,1);
+		KKSeek(Right,1);
 		pVideoInfo->seek_req=2;
 	}
 }

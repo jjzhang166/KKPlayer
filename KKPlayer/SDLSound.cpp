@@ -67,7 +67,7 @@ int  CSDLSound::InitAudio()
 	     return -1;	
 	}
 
-	int wanted_sample_rate=44100;
+	int wanted_sample_rate=48000;
 	int wanted_nb_channels =2;
 	int wanted_channel_layout =0;
 	SDL_AudioSpec wanted_spec, spec;

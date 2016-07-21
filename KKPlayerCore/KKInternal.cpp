@@ -344,11 +344,12 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 		 frame->channel_layout : av_get_default_channel_layout(av_frame_get_channels(frame));
 	AVSampleFormat bc=(AVSampleFormat)frame->format;
     wanted_nb_samples = synchronize_audio(pVideoInfo, frame->nb_samples);
+	//实时比较慢
 	if (
 		 frame->format        != pVideoInfo->audio_src.fmt            ||
 		 dec_channel_layout       != pVideoInfo->audio_src.channel_layout ||
 		 frame->sample_rate   != pVideoInfo->audio_src.freq           ||
-		 (wanted_nb_samples       != frame->nb_samples && !pVideoInfo->swr_ctx)
+		 (wanted_nb_samples       != frame->nb_samples )
 		 ) 
 	 {	
 			  swr_free(&pVideoInfo->swr_ctx);
@@ -428,13 +429,14 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 		 resampled_data_size = len2 *pVideoInfo->audio_tgt.channels * av_get_bytes_per_sample(pVideoInfo->audio_tgt.fmt);
 		 data_size=resampled_data_size;
 
-	 }else if(data_size>=0)
+	 }else 
 	 {
+		 is->audio_buf = af->frame->data[0];
 		 resampled_data_size = data_size;
 		 //分配内存
-		 av_fast_malloc(&pVideoInfo->audio_buf1, &pVideoInfo->audio_buf_size, data_size);
+		// av_fast_malloc(&pVideoInfo->audio_buf1, &pVideoInfo->audio_buf_size, data_size);
 		
-		 pVideoInfo->audio_buf = pVideoInfo->audio_buf1;
+		 //pVideoInfo->audio_buf = pVideoInfo->audio_buf1;
 	 }
 
 	 if (!isNAN(af->pts))
@@ -531,7 +533,7 @@ static int audio_open2( void *opaque,                               int64_t want
 		wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
 
 	audio_hw_params->fmt = AV_SAMPLE_FMT_S16;
-	audio_hw_params->freq = 44100;
+	audio_hw_params->freq = 48000;
 	audio_hw_params->channel_layout = wanted_channel_layout;
 	audio_hw_params->channels = 2;
 	audio_hw_params->frame_size = av_samples_get_buffer_size(NULL, audio_hw_params->channels, 1, audio_hw_params->fmt, 1);
@@ -1271,9 +1273,11 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 	AVFilterContext *filt_asrc = NULL, *filt_asink = NULL;
 	char aresample_swr_opts[512] = "";
 	AVDictionaryEntry *e = NULL;
+	AVFilter*  Avin;
+	int ret;
 	char asrc_args[256];
 	memset(asrc_args,0,256);
-	int ret;
+	
 
 	avfilter_free(is->InAudioSrc);
 	is->InAudioSrc=NULL;
@@ -1285,7 +1289,7 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 		return AVERROR(ENOMEM);
 
 
-	LOGE("filter 1");
+	
 	AVDictionary *swr_opts=NULL;
     ffp_show_dict("swr-opts   ", swr_opts);
 	//while ((e = av_dict_get(swr_opts, "", e, AV_DICT_IGNORE_SUFFIX)))
@@ -1314,49 +1318,47 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 	ret = avfilter_graph_create_filter(&filt_asrc,
 		avfilter_get_by_name("abuffer"), "ffplay_abuffer",
 		asrc_args, NULL, is->AudioGraph);
+	
 	if (ret < 0)
-		goto end;
-
-
-AVFilter*  Avin=avfilter_get_by_name("abuffersink");
+		goto endXX;
+   
+	Avin=avfilter_get_by_name("abuffersink");
 	ret = avfilter_graph_create_filter(&filt_asink,
 		 Avin, "ffplay_abuffersink",
 		NULL, NULL, is->AudioGraph);
 	if (ret < 0)
-		goto end;
+		goto endXX;
 
 	
 	if ((ret = av_opt_set_int_list(filt_asink, "sample_fmts", sample_fmts,  AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0)
-		goto end;
+		goto endXX;
 	if ((ret = av_opt_set_int(filt_asink, "all_channel_counts", 1, AV_OPT_SEARCH_CHILDREN)) < 0)
-		goto end;
+		goto endXX;
 
 	if (force_output_format) {
 		channel_layouts[0] = is->audio_filter_src.channel_layout;
 		channels       [0] = is->audio_filter_src.channels;
 		sample_rates   [0] = is->audio_filter_src.freq;
-		sample_fmts[0]=is->audio_filter_src.fmt;
+	//	sample_fmts[0]=is->audio_filter_src.fmt;
 		if ((ret = av_opt_set_int(filt_asink, "all_channel_counts", 0, AV_OPT_SEARCH_CHILDREN)) < 0)
-			goto end;
+			goto endXX;
 		if ((ret = av_opt_set_int_list(filt_asink, "channel_layouts", channel_layouts,  -1, AV_OPT_SEARCH_CHILDREN)) < 0)
-			goto end;
+			goto endXX;
 		if ((ret = av_opt_set_int_list(filt_asink, "channel_counts" , channels       ,  -1, AV_OPT_SEARCH_CHILDREN)) < 0)
-			goto end;
+			goto endXX;
 		if ((ret = av_opt_set_int_list(filt_asink, "sample_rates"   , sample_rates   ,  -1, AV_OPT_SEARCH_CHILDREN)) < 0)
-			goto end;
+			goto endXX;
 		if ((ret = av_opt_set_int_list(filt_asink, "sample_fmts", sample_fmts,  AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN)) < 0)
-			goto end;
+			goto endXX;
 	}
 
 
 	if ((ret = configure_filtergraph(is->AudioGraph, afilters, filt_asrc, filt_asink)) < 0)
-		goto end;
+		goto endXX;
 
 	is->InAudioSrc  = filt_asrc;
 	is->OutAudioSink = filt_asink;
-
-end:
-	if (ret < 0)
+endXX:if (ret < 0)
 	{
 		avfilter_free(is->InAudioSrc);
 		avfilter_free(is->OutAudioSink);
@@ -1381,6 +1383,8 @@ static inline int cmp_audio_fmts(enum AVSampleFormat fmt1, int64_t channel_count
 	else
 		return channel_count1 != channel_count2 || fmt1 != fmt2;
 }
+
+ char Audioabcd[256]="";
 //音频解码线程
 unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 {
@@ -1420,7 +1424,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		   static int inx=0;
 		   if(frame->pts<0)
                 inx+=frame->pts;
-           int64_t srcpts =(inx+ frame->pts) * av_q2d(tb);
+           int64_t srcpts =frame->pts * av_q2d(tb);
 		  
 		   if(is->auddec.Isflush==1)
 		   {
@@ -1454,7 +1458,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				 }
 			}
 		
-				if (reconfigure&&is->AVRate!=100) 
+				if (reconfigure) 
 				{
 
 					char buf1[1024], buf2[1024];
@@ -1470,12 +1474,17 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					is->audio_filter_src.channel_layout = dec_channel_layout;
 					is->audio_filter_src.freq           = frame->sample_rate;
 					last_serial                         = is->auddec.pkt_serial;
-                    char abcd[256]="";
-					//strcpy(abcd,"volume=1");
+                   
+					char *au=NULL;
 					if(is->AVRate!=100)
-					strcat(abcd,is->Atempo);
+					{
+						 memset(Audioabcd,0,256);
+                         strcat(Audioabcd,is->Atempo);
+						 au=Audioabcd;
+					}
+					
 
-					if ((ret = configure_audio_filters(is, abcd, 1)) < 0)
+					if ((ret = configure_audio_filters(is, au, 1)) < 0)
 					{
 						
 						goto the_end;

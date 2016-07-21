@@ -621,7 +621,7 @@ LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
 	int xPos = GET_X_LPARAM(lParam); 
 	int yPos = GET_Y_LPARAM(lParam);
 	
-	if(!m_pDlgMain->GetScreenModel())
+	//if(!m_pDlgMain->GetScreenModel())
 	::PostMessage(::GetParent(m_hWnd) ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
 
 	if(!m_pDlgMain->GetScreenModel())
