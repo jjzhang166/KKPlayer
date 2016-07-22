@@ -441,9 +441,9 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 
 	 if (!isNAN(af->pts))
 	 {
-		 n = 2 * pVideoInfo->auddec.avctx->channels;
-		 int llxx=data_size/n;
-		 pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);/**/
+		// n = 2 * pVideoInfo->auddec.avctx->channels;
+		// int llxx=data_size/n;
+		// pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);/**/
 	     is->audio_clock = af->pts + (double) af->frame->nb_samples / af->frame->sample_rate;
 	 }
 	 else
@@ -1142,6 +1142,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			
 			av_free_packet(packet);  
 	}
+
 	avcodec_flush_buffers(is->viddec.avctx);
 	av_frame_free(&pFrame);
 	LOGE("Video_thread Over");

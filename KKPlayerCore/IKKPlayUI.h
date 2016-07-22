@@ -15,6 +15,8 @@ class IKKPlayUI
 		     virtual unsigned char* GetBkImage(int &length)=0;
 			 virtual unsigned char* GetCenterLogoImage(int &length)=0;
 			 virtual void OpenMediaFailure(char* strURL)=0;
+             
+			 virtual void AVRender()=0;
    protected:
 	         unsigned char* m_pBkImage;
 			 int m_pBkImageLen;

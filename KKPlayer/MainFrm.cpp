@@ -7,7 +7,8 @@
 #include "KKSound.h"
 #include "Tool/cchinesecode.h"
 #include "Tool/CFileMgr.h"
-
+#pragma comment(lib, "winmm.lib")
+//#include <Windows.h>
 extern SOUI::CMainDlg* m_pDlgMain;
 //#define QY_GDI
 Gdiplus::Bitmap* CoverPic(int destWidth,int destHeight,Gdiplus::Image* srcBmp)
@@ -255,6 +256,12 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 	return ret;
 }
 
+#include<Mmsystem.h>
+void CALLBACK TimeProc(UINT uID,UINT uMsg,DWORD dwUsers,DWORD dw1,DWORD dw2)
+{
+          CMainFrame *Pts=(CMainFrame *)dwUsers;
+		 // Pts->Render();
+}
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 
@@ -279,6 +286,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	::SetTimer(this->m_hWnd,10010,10,NULL);
 
 
+
+
+
 	#ifdef QY_GDI
 	         m_pRender =new CRenderGDI(); //new  CRenderD3D();
     #else
@@ -295,6 +305,20 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	 m_pPlayerInstance->InitSound();
 	 m_pPlayerInstance->SetWindowHwnd(m_hWnd);
 
+
+	 //m_AVwTimerRes=0;
+	 //m_AVtimerID=0;
+	 //TIMECAPS ts;
+	 //////确定多媒体定时器提供的最大和最小定时器事件周期
+	 //::timeGetDevCaps(&ts, sizeof(ts));
+
+	 //m_AVwTimerRes=1;
+	 //////建立最小定时器精度
+	 //timeBeginPeriod(m_AVwTimerRes);
+
+	 //////启动定时器事件，设置定时周期为100ms，分辨率是10毫秒
+	 //m_AVtimerID = timeSetEvent(10,1,TimeProc,(DWORD)this,TIME_PERIODIC);
+	 //
 	//OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
     return 0;
 }
@@ -397,11 +421,10 @@ void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 	    m_pPlayerInstance->OnDrawImageByDc(memdc);
     #endif
 }
-void CMainFrame::Render()
+void CMainFrame::AVRender()
 {
-    m_pPlayerInstance->RenderImage(m_pRender,false);
+ m_pPlayerInstance->RenderImage(m_pRender,false);
 }
-
 LRESULT  CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 { 	
      ::DefWindowProc(this->m_hWnd,uMsg, wParam, lParam);
@@ -423,13 +446,13 @@ LRESULT  CMainFrame::OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPara
 LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	
-	#ifndef QY_GDI
-         Render();
-    #else
-	    RECT rcWindow;
-	    ::GetClientRect(m_hWnd,&rcWindow);
-	    this->InvalidateRect(&rcWindow);
-    #endif
+	//#ifndef QY_GDI
+ //        Render();
+ //   #else
+	//    RECT rcWindow;
+	//    ::GetClientRect(m_hWnd,&rcWindow);
+	//    this->InvalidateRect(&rcWindow);
+ //   #endif/**/
 	bHandled=true;
 	return 1;
 }

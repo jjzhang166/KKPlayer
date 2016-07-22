@@ -66,7 +66,6 @@ public:
 	virtual BOOL OnIdle();
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-	void Render();
 	virtual void UpdateLayout(BOOL bResizeBars = TRUE);
 	virtual unsigned char* GetWaitImage(int &len,int curtime);
 	virtual unsigned char* GetBkImage(int &len);
@@ -78,6 +77,8 @@ public:
 	void OnDecelerate();
 	void OnAccelerate();
 	void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
+	
+	void AVRender();
 private:
 	    //CKKSound m_Sound;
 		IKKAudio *m_pSound;
@@ -98,6 +99,9 @@ private:
 		SWaitPicInfo* m_CurWaitPic;
         bool m_bOpen;
 		CPoint m_lastPoint;
+
+		UINT m_AVwTimerRes;
+		UINT m_AVtimerID;
 public:
 		WTL::CString m_TabName;
 public:

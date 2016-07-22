@@ -379,10 +379,12 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 
 void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
-	
+
+	m_lock.Lock();
 	ResetTexture();
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_pDevice->Reset(&PresentParams);
+	m_lock.Unlock();
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 {
@@ -399,11 +401,18 @@ void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 void CRenderD3D::render(char *pBuf,int width,int height)
 {
 
+  m_lock.Lock();
   if (!LostDeviceRestore())
+  {
+	  m_lock.Unlock();
         return; /* */
+  }
  
 	if(m_pDevice==NULL)
+	{
+		m_lock.Unlock();
 		return;
+	}
 	    m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		if( SUCCEEDED(m_pDevice->BeginScene()) )
 		{
@@ -418,6 +427,28 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 					if(m_pBackBuffer == NULL)
 					{
 						GetClientRect(m_hView,&m_rtViewport);  
+						int dw=m_rtViewport.right-m_rtViewport.left;
+						int dh=m_rtViewport.bottom-m_rtViewport.top;
+						int h=dh,w=dw;
+						//if(dw>width)
+						{
+                            dh=dw*height/width;
+						}
+						if(dh>h)
+						{
+							dh=h;
+							dw=width*dh/height;
+						}
+                        if(dw<w)
+						{
+							m_rtViewport.left+=(w-dw)/2;
+							m_rtViewport.right=m_rtViewport.left+dw;
+						}
+						if(dh<h)
+						{
+							m_rtViewport.top+=(h-dh)/2;
+							m_rtViewport.bottom=m_rtViewport.top+dh;
+						}
 						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
 					}
 					
@@ -460,6 +491,7 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 			m_pDevice->EndScene();
 			m_pDevice->Present(NULL, NULL, NULL, NULL);
 		}
+		 m_lock.Unlock();
 }
 
 
@@ -789,8 +821,11 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 
 void CRenderD3D::renderBk(unsigned char* buf,int len)
 {
-	if (!LostDeviceRestore())
+	 m_lock.Lock();
+	 if (!LostDeviceRestore()){
+		m_lock.Unlock();
 		return;
+	 }
 	m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0,0), 1.0f, 0);
 	if( SUCCEEDED(m_pDevice->BeginScene()) )
 	{
@@ -809,6 +844,7 @@ void CRenderD3D::renderBk(unsigned char* buf,int len)
 		m_pDevice->EndScene();
 		m_pDevice->Present(NULL, NULL, NULL, NULL);
 	}
+	  m_lock.Unlock();
 }
 void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 {

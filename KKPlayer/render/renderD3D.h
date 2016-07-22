@@ -2,6 +2,7 @@
 #define RENDER_D3D_H
 
 #include "../../KKPlayerCore/render/render.h"
+#include "../../KKPlayerCore/KKLock.h"
 #include <string>
 #include <d3d9.h>
 #include <d3dx9.h>
@@ -27,8 +28,9 @@ public:
 	void SetLeftPicStr(wchar_t *str);
 	std::wstring m_LeftStr;
 	std::wstring m_LstLeftStr;
-private:
 	
+private:
+	CKKLock m_lock;
 	bool UpdateTexture(char *pBuf,int w,int h);
 	void ResetTexture();
 	bool UpdateLeftPicTexture();
