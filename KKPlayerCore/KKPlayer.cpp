@@ -621,36 +621,32 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 			   return;
 			}
 		      
+
 			pVideoInfo->pictq.mutex->Lock();
 			/**********获取包位置**********/
 			vp =frame_queue_peek(&pVideoInfo->pictq);// frame_queue_peek_last(&pVideoInfo->pictq);
            
-			if(vp->buflen>m_PicBufLen)
+			int width=vp->width;
+			int height=vp->height;
+
+			if(vp->buflen>0&&vp->buflen>m_PicBufLen)
 			{
 				av_free(m_PicBuf);
 				m_PicBufLen=vp->buflen;
-				m_PicBuf= av_malloc(vp->buflen);
+				m_PicBuf= av_malloc(vp->buflen); 
 				
 			}
-            if(vp->buflen>0&&vp->buffer!=NULL)
+
+			if(vp->buffer!=NULL)
 			   memcpy(m_PicBuf,vp->buffer,vp->buflen);
-			int width=vp->width;
-			int height=vp->height;
+
 			int PktNumber=vp->PktNumber;
-
-			 pVideoInfo->pictq.mutex->Unlock();
-
+			pVideoInfo->pictq.mutex->Unlock();
 			if(m_PicBuf!=NULL)
 			{
-				/*if(PktNumber!=m_DisplayVp)
-				{*/
-					pRender->render((char*)m_PicBuf,width,height);
-					//m_DisplayVp=PktNumber;
-				/*}else{
-					if(Force)
-						pRender->render((char*)m_PicBuf,width,height);
-				}*/
+				pRender->render((char*)m_PicBuf,width,height);
 			}
+
 		
 		    
 		}
@@ -1059,6 +1055,7 @@ int KKPlayer::GetAVRate()
 	 LOGE("VideoRefreshthread strat");
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=false;
+	 int llxx;
 	 while(pPlayer->m_bOpen)
 	 {
 		
@@ -1069,8 +1066,10 @@ int KKPlayer::GetAVRate()
 
 			if (pPlayer->pVideoInfo->remaining_time > 0.0)
 			{
-				int64_t ll=(int64_t)(pPlayer->pVideoInfo->remaining_time* 1000000.0);
+				int64_t ll=(int64_t)(pPlayer->pVideoInfo->remaining_time* 1000000.0)- llxx;
+				if(ll>0)
 				av_usleep(ll);
+				llxx=0;
 			}
 			pPlayer->pVideoInfo->remaining_time = 0.01;
             pPlayer->VideoRefresh();
@@ -1078,7 +1077,11 @@ int KKPlayer::GetAVRate()
             av_usleep(5000);
 		}
 		if( pPlayer->m_pPlayUI!=NULL)
-			 pPlayer->m_pPlayUI->AVRender();
+		{
+			 int xx=::GetTickCount();
+			 pPlayer->m_pPlayUI->AVRender();/**/
+			 llxx=::GetTickCount()-xx;
+		}
 		
 	 }
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=true;

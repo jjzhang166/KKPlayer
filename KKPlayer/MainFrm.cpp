@@ -446,13 +446,13 @@ LRESULT  CMainFrame::OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPara
 LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	
-	//#ifndef QY_GDI
- //        Render();
- //   #else
-	//    RECT rcWindow;
-	//    ::GetClientRect(m_hWnd,&rcWindow);
-	//    this->InvalidateRect(&rcWindow);
- //   #endif/**/
+	/*#ifndef QY_GDI
+         AVRender();
+    #else
+	    RECT rcWindow;
+	    ::GetClientRect(m_hWnd,&rcWindow);
+	    this->InvalidateRect(&rcWindow);
+    #endif*/
 	bHandled=true;
 	return 1;
 }
