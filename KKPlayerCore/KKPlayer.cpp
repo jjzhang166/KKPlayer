@@ -247,8 +247,10 @@ void KKPlayer::CloseMedia()
 	pVideoInfo->subtitleq.pLock=NULL;
 	delete pVideoInfo->audioq.pLock;
 	pVideoInfo->audioq.pLock=NULL;
+	
 	//IsWindow()
 	delete pVideoInfo->pictq.mutex;
+
 	pVideoInfo->pictq.mutex=NULL;
 	delete pVideoInfo->subpq.mutex;
 	pVideoInfo->subpq.mutex=NULL;
@@ -268,9 +270,10 @@ void KKPlayer::CloseMedia()
 	avfilter_free(pVideoInfo->OutAudioSink);
 	avfilter_graph_free(&pVideoInfo->AudioGraph);
 
-	if(pVideoInfo->pFormatCtx)
-	    avformat_close_input(&pVideoInfo->pFormatCtx);
-	else{
+	/*if(pVideoInfo->pFormatCtx)
+	   
+	else*/
+	{
          avcodec_close(pVideoInfo->auddec.avctx);
 		avcodec_close(pVideoInfo->subdec.avctx);
 		avcodec_close(pVideoInfo->viddec.avctx);
@@ -278,8 +281,8 @@ void KKPlayer::CloseMedia()
 	
 	
 
-	
-	//avformat_free_context(pVideoInfo->pFormatCtx);
+	 avformat_close_input(&pVideoInfo->pFormatCtx);
+//	avformat_free_context(pVideoInfo->pFormatCtx);
 	
 	
 
@@ -481,9 +484,23 @@ SYSTEMTIME Time_tToSystemTime(time_t t)
 void KKPlayer::video_image_refresh(SKK_VideoState *is)
 {
 	m_CurTime=is->audio_clock;
+   double time=0,duration=0;
+	if (0&&is->audio_st) {
+		time = av_gettime_relative() / 1000000.0;
+		if (is->force_refresh || is->last_vis_time + rdftspeed < time)
+		{
+			
+			
+			is->last_vis_time = time;
+		}
+
+		
+		is->remaining_time = FFMIN(is->remaining_time, is->last_vis_time + rdftspeed - time);
+	}
 
 	if(is->video_st)
     {
+retry:
 			//没有数据
 			if (frame_queue_nb_remaining(&is->pictq) <= 0)
 			{
@@ -493,37 +510,37 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 				
 			SKK_Frame *vp;
 			int redisplay=0;
-			is->pictq.mutex->Lock();
-			
+		
 			/**********获取包位置**********/
 			vp = frame_queue_peek(&is->pictq);
 			//获取上一次的读取位置
 			SKK_Frame *lastvp = frame_queue_peek_last(&is->pictq);
 			if (vp->serial != is->videoq.serial) {
-				frame_queue_next(&is->pictq,false);
+				frame_queue_next(&is->pictq,true);
+				goto retry;
 			}
-			double time=0,duration=0;
+			
 			if(vp!=NULL)
 			{
 				
-				/******上一次更新和这一次时间的差值。图片之间差值******/
-				is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
-				is->delay = compute_target_delay(is->last_duration, is);
-
+				
 				/*******时间**********/
 				if (lastvp->serial != vp->serial && !redisplay)
 				{
 					is->frame_timer = av_gettime_relative() / 1000000.0;
 				}
 
-				/*if (is->paused)
-					   return;*/
+				if (is->paused)
+					goto display;
 				//is->frame_timer += delay;
-				
+				/******上一次更新和这一次时间的差值。图片之间差值******/
+				is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
+				is->delay = compute_target_delay(is->last_duration, is);
+
 				time= av_gettime_relative()/1000000.0;
 				if (time < is->frame_timer + is->delay) {
-					is->pictq.mutex->Unlock();
-					is->remaining_time = FFMIN(is->frame_timer + is->delay - time, is->remaining_time);
+					double llxxxx=is->frame_timer + is->delay - time;
+					is->remaining_time = FFMIN(llxxxx, is->remaining_time);
 					goto display;
 				}
 
@@ -542,9 +559,9 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 					if((get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER) && time > is->frame_timer + duration)
 					{
 						is->frame_drops_late++;
-						frame_queue_next(&is->pictq,false);
-						is->pictq.mutex->Unlock();
-						goto display;
+						frame_queue_next(&is->pictq,true);
+						//is->pictq.mutex->Unlock();
+						goto retry;
 					}
 				}
 				
@@ -557,14 +574,18 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 						}
 						if(vp->PktNumber%20==0)
 						{
-						//  m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,vp->width,vp->height);
+						  m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,is->viddec_width,is->viddec_height);
 						}		
 				}
-				frame_queue_next(&is->pictq,false);
+				frame_queue_next(&is->pictq,true);
 			}
-			is->pictq.mutex->Unlock();
+			//is->pictq.mutex->Unlock();
 	}
 display:
+	if(m_pPlayUI!=NULL)
+	{		
+		m_pPlayUI->AVRender();
+	}
 	if(is->subtitle_st!=NULL)
 	{
 
@@ -624,12 +645,13 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 
 		//	pVideoInfo->pictq.mutex->Lock();
 			
-			vp =frame_queue_peek_last(&pVideoInfo->pictq);//frame_queue_peek(&pVideoInfo->pictq);// 
-		//	pVideoInfo->pictq.mutex->Unlock();
-			pVideoInfo->pictq.BufLock->Lock();
-			if(vp->buffer!=NULL)
-			pRender->render((char*)vp->buffer,vp->width,vp->height);
-			pVideoInfo->pictq.BufLock->Unlock();
+		   vp =frame_queue_peek_last(&pVideoInfo->pictq);//frame_queue_peek(&pVideoInfo->pictq);// 
+		   if(vp->buffer!=NULL)
+		   {
+			vp->BmpLock->Lock();
+			pRender->render((char*)vp->buffer,pVideoInfo->viddec_width,pVideoInfo->viddec_height);
+			vp->BmpLock->Unlock();
+		   }
 			/*if(m_PicBuf!=NULL)
 			{
 				pRender->render((char*)m_PicBuf,width,height);
@@ -652,7 +674,7 @@ void KKPlayer::OnDrawImageByDc(HDC memdc)
 	pVideoInfo->pictq.mutex->Lock();
 	/**********获取包位置**********/
 	vp = frame_queue_peek(&pVideoInfo->pictq);
-	VideoDisplay(vp->buffer,vp->width,vp->height,&memdc,pVideoInfo->last_duration,vp->pts,vp->duration,vp->pos,pVideoInfo->delay);
+	//VideoDisplay(vp->buffer,pVideoInfo->width,vp->height,&memdc,pVideoInfo->last_duration,vp->pts,vp->duration,vp->pos,pVideoInfo->delay);
 	pVideoInfo->pictq.mutex->Unlock();
 }
 void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,int64_t pos,double diff)
@@ -1043,7 +1065,11 @@ int KKPlayer::GetAVRate()
 	 LOGE("VideoRefreshthread strat");
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=false;
-	 int llxx;
+	 int llxx=0;
+#ifdef WIN32
+	 ::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+#endif
+	 pPlayer->pVideoInfo->remaining_time = 0.01;
 	 while(pPlayer->m_bOpen)
 	 {
 		
@@ -1054,22 +1080,16 @@ int KKPlayer::GetAVRate()
 
 			if (pPlayer->pVideoInfo->remaining_time > 0.0)
 			{
-				int64_t ll=(int64_t)(pPlayer->pVideoInfo->remaining_time* 1000000.0)- llxx;
-				if(ll>0)
+				int64_t ll=(int64_t)(pPlayer->pVideoInfo->remaining_time* 1000000.0);
 				av_usleep(ll);
-				llxx=0;
 			}
-			pPlayer->pVideoInfo->remaining_time = 0.01;
+			 pPlayer->pVideoInfo->remaining_time = 0.01;
+			
             pPlayer->VideoRefresh();
 		}else{
             av_usleep(5000);
 		}
-		if( pPlayer->m_pPlayUI!=NULL)
-		{
-			 int xx=::GetTickCount();
-			 pPlayer->m_pPlayUI->AVRender();/**/
-			 llxx=::GetTickCount()-xx;
-		}
+		
 		
 	 }
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=true;
@@ -1080,7 +1100,7 @@ int KKPlayer::GetAVRate()
  //音频数据回调线程
  unsigned __stdcall  KKPlayer::Audio_Thread(LPVOID lpParameter)
  {
-	#ifdef WIN32_KK
+	#ifdef WIN32
 		 ::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 	#endif
 	 KKPlayer* pPlayer=(KKPlayer*)lpParameter;
@@ -1089,7 +1109,7 @@ int KKPlayer::GetAVRate()
  }
  void KKPlayer::ReadAudioCall()
  {
-	
+	 m_AudioCallthreadInfo.ThOver=false;
 	 if(pVideoInfo->pKKAudio!=NULL)
 	 {
 		 pVideoInfo->pKKAudio->Start();

@@ -121,6 +121,7 @@ void frame_queue_destory(SKK_FrameQueue *f)
 		SKK_Frame *vp = &f->queue[i];
 		frame_queue_unref_item(vp);
 		av_frame_free(&vp->frame);
+		delete vp->BmpLock;
 		av_free(vp->buffer);
 	}
 }
@@ -290,7 +291,6 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 	memset(f, 0, sizeof(SKK_FrameQueue));
 
 	f->mutex = new CKKLock();
-	f->BufLock=new CKKLock();
 	f->pktq = pktq;
 	f->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
 	f->keep_last = keep_last;
@@ -956,17 +956,12 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 {  
 
 	SKK_FrameQueue *pPictq=&is->pictq;
-	time_t t_start, t_end;
-	t_start = time(NULL) ;
+	
 	///***找到一个可用的SKK_Frame***/
 	SKK_Frame *vp = frame_queue_peek_writable(pPictq);
 	if(vp==NULL)
 		return -1;
-	
-	if(is->abort_request)
-		return -1;
-	t_end = time(NULL) ;
-   
+
 
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
     vp->duration=duration;
@@ -975,35 +970,14 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	vp->pts=pts;
 	vp->PktNumber=is->PktNumber++;
     vp->frame->pts=pFrame->pts;
-	if( !vp->buffer || 
-		vp->width != pFrame->width ||
-		vp->height != pFrame->height) 
-	{
-			vp->allocated = 0;
-			vp->width = is->viddec.avctx->width;
-			vp->height = is->viddec.avctx->height;
-			vp->allocated = 1;
-			
-	}
-    int w=pFrame->width;
-	int h=pFrame->height;
-
-	//LOGE("WindowWidth:%d,WindowHeight:%d pFrame->width:%d pFrame->height:%d\n",is->DestWidth,is->DestHeight,w,h);
-
-	
-	if( pFrame->width>0&&pFrame->height>0)
-	{
-		is->DestWidth=pFrame->width;
-		is->DestHeight=pFrame->height;
-		w=is->DestWidth;
-		h=is->DestHeight;
-	}
+    is->viddec_width=pFrame->width;
+    is->viddec_height=pFrame->height;
 	
 
   
 		is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
-			w,              h,               DstAVff,                
+			pFrame->width,       pFrame->height,               DstAVff,                
 			SWS_FAST_BILINEAR,
 			NULL, NULL, NULL);
 		if (is->img_convert_ctx == NULL) 
@@ -1011,22 +985,21 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			fprintf(stderr, "Cannot initialize the conversion context\n");
 			exit(1);
 		}
-	    AVPicture pict = { { 0 } };
-		uint8_t * buffer=NULL;
+	   
 		if( vp->buffer==NULL)
 		{
-			int numBytes=avpicture_get_size(DstAVff, w,h);
+			vp->allocated = 1;
+			vp->BmpLock = new CKKLock();
+			int numBytes=avpicture_get_size(DstAVff, pFrame->width,       pFrame->height);
 			vp->buflen=numBytes*sizeof(uint8_t);
 			vp->buffer=(uint8_t *)av_malloc(vp->buflen);
+			avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff,  pFrame->width,       pFrame->height);
 		}
 
-		is->pictq.BufLock->Lock();
-		avpicture_fill((AVPicture *)&pict, vp->buffer,DstAVff,  w, h);
+		vp->BmpLock->Lock();
 		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
-			0,pFrame->height, pict.data, pict.linesize);
-	    vp->width=is->DestWidth;
-	    vp->height=is->DestHeight;
-		is->pictq.BufLock->Unlock();	
+			0,pFrame->height,vp->Bmp.data, vp->Bmp.linesize);
+		vp->BmpLock->Unlock();	
    
 	frame_queue_push(&is->pictq);
 	return 0;
@@ -1061,16 +1034,12 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 				//从队列获取数据
 				if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) <= 0&&!is->abort_request) 
 				{
-					Sleep(2);
+					continue;
 				}else if(is->abort_request){
 					break;
-				}if (packet->data == is->pflush_pkt->data)
-				{
-					int ii=0;
-					ii++;
 				}
-
-				if(is->videoq.serial!=is->viddec.pkt_serial){
+				if(is->videoq.serial!=is->viddec.pkt_serial)
+				{
                     av_free_packet(packet); 
 				}
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
@@ -1080,24 +1049,13 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			SKK_Decoder* d=&is->viddec;
 			d->pts=packet->pts;
 			d->dts=packet->dts;
-			d->current_pts_time=av_gettime();
 			if (packet->data != is->pflush_pkt->data&&is->videoq.serial==is->viddec.pkt_serial) 
 			{
-					//LOGE("Get video pkt Ok");
 					pts = 0; 
-					
-					time_t t_start, t_end;
-					t_start = time(NULL) ;
 					
 					//视频解码
 					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
-					if(got_frame)  
-					{  
-					t_end = time(NULL) ;
-					}
-					//LOGE("de time:%f",difftime(t_end,t_start));
 					
-					// 
 					//找到pts
 					if((pts = av_frame_get_best_effort_timestamp(pFrame)) == AV_NOPTS_VALUE) 
 					{
@@ -1116,23 +1074,13 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 
 					AVRational  fun={frame_rate.den, frame_rate.num};
 					is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
-
-					//LOGE("Video_thread got_frame=%d",got_frame);
-					// Did we get a video frame?  
 					if(got_frame)  
 					{  
-						//pts = synchronize_video(is, pFrame, pts);  
-						
-						t_start = time(NULL) ;
-						//LOGE("Get pic");
 						if(queue_picture(is, pFrame, pts, is->duration , av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
 						{  
 							//break;  
 						}  
-						t_end = time(NULL) ;
-					//	LOGE("queue_picture time:%f",difftime(t_end,t_start));
-						//LOGE("Get pic Ok");
-						 av_frame_unref(pFrame);
+						av_frame_unref(pFrame);
 					}
 			}else
 			{

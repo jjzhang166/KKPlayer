@@ -283,7 +283,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	
 	this->SetFocus();
 	this->EnableWindow(true);
-	::SetTimer(this->m_hWnd,10010,10,NULL);
+	::SetTimer(this->m_hWnd,10010,20,NULL);
 
 
 

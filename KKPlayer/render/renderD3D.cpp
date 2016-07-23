@@ -110,7 +110,7 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
     //PresentParams.BackBufferWidth = 0;
     //PresentParams.BackBufferHeight = 0;
     PresentParams.BackBufferFormat =D3DFMT_UNKNOWN;// D3DFMT_X8R8G8B8;
-    PresentParams.BackBufferCount=1;
+    PresentParams.BackBufferCount=2;
    
     PresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
     PresentParams.MultiSampleQuality = 0;

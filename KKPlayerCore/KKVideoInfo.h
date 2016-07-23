@@ -95,15 +95,14 @@ typedef struct SKK_Frame
 	double duration;      /* estimated duration of the frame 这一帧持续的时间*/ 
 	int64_t pos;          /* byte position of the frame in the input file */
 	/***********位图数据*************/
+	AVPicture Bmp;
 	uint8_t *buffer;
 	int dataLen;
 	int buflen;
 
 	/***是否分配内存对frame***/
 	int allocated;
-	//int reallocate;
-	int width;
-	int height;
+	CKKLock *BmpLock;
 } SKK_Frame;
 
 //帧队列(解码后的数据为帧)
@@ -120,7 +119,7 @@ typedef struct SKK_FrameQueue
 	int keep_last;
 	int rindex_shown;
 
-	CKKLock *BufLock;
+	
 	CKKLock *mutex;
 	//等待事件
 	CKKCond_t* m_pWaitCond;
@@ -138,6 +137,10 @@ enum EKK_AV_SYNC
 //解码
 typedef struct SKK_Decoder 
 {
+
+	AVPacket pkt;
+	AVPacket pkt_temp;
+
 	//与队列中的serial对应
 	int pkt_serial;
 	int finished;
@@ -163,6 +166,8 @@ typedef struct SKK_Decoder
 //视频音频信息
 typedef struct SKK_VideoState 
 {
+
+	int decoder_reorder_pts;
 	/********包序号递增*********/
 	int PktNumber;
 	double duration;
@@ -221,6 +226,10 @@ typedef struct SKK_VideoState
 	int audio_diff_avg_count;
 	IKKAudio *pKKAudio;
 
+	int vfilter_idx;
+	AVFilterContext *in_video_filter;   // the first filter in the video chain
+	AVFilterContext *out_video_filter;  // the last filter in the video chain
+
     /****音频过滤***/
 	AVFilterGraph *AudioGraph;
 	AVFilterContext *InAudioSrc, *OutAudioSink;
@@ -229,8 +238,10 @@ typedef struct SKK_VideoState
 	//倍速
     int AVRate;//100正常速率
 	int LastAVRate;//100正常速率
-	AVFilterGraph *AudioVolGraph;
-	AVFilterContext *AudioVolSrc, *AudioVolSink;
+
+
+
+
 	/***************************/
 	//原音频流
 	AVStream *audio_st;
@@ -283,7 +294,7 @@ typedef struct SKK_VideoState
 	int eof;
     /*****文件名******/
 	char filename[1024];
-	int DestWidth, DestHeight, xleft, ytop;
+	int viddec_width,viddec_height;
 	
 	int step;
 
