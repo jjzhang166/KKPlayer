@@ -95,7 +95,7 @@ typedef struct SKK_Frame
 	double duration;      /* estimated duration of the frame 这一帧持续的时间*/ 
 	int64_t pos;          /* byte position of the frame in the input file */
 	/***********位图数据*************/
-	void *buffer;
+	uint8_t *buffer;
 	int dataLen;
 	int buflen;
 
@@ -120,6 +120,7 @@ typedef struct SKK_FrameQueue
 	int keep_last;
 	int rindex_shown;
 
+	CKKLock *BufLock;
 	CKKLock *mutex;
 	//等待事件
 	CKKCond_t* m_pWaitCond;

@@ -290,6 +290,7 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 	memset(f, 0, sizeof(SKK_FrameQueue));
 
 	f->mutex = new CKKLock();
+	f->BufLock=new CKKLock();
 	f->pktq = pktq;
 	f->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
 	f->keep_last = keep_last;
@@ -989,11 +990,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 
 	//LOGE("WindowWidth:%d,WindowHeight:%d pFrame->width:%d pFrame->height:%d\n",is->DestWidth,is->DestHeight,w,h);
 
-	if(vp->buffer!=NULL)
-	{	
-		av_free(vp->buffer);
-		vp->buffer=NULL;
-	}
+	
 	if( pFrame->width>0&&pFrame->height>0)
 	{
 		is->DestWidth=pFrame->width;
@@ -1015,16 +1012,21 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			exit(1);
 		}
 	    AVPicture pict = { { 0 } };
-		int numBytes=avpicture_get_size(DstAVff, w,h);
-		vp->buflen=numBytes*sizeof(uint8_t);
-		uint8_t * buffer=(uint8_t *)av_malloc(vp->buflen);
-		avpicture_fill((AVPicture *)&pict, buffer,DstAVff,  w, h);
+		uint8_t * buffer=NULL;
+		if( vp->buffer==NULL)
+		{
+			int numBytes=avpicture_get_size(DstAVff, w,h);
+			vp->buflen=numBytes*sizeof(uint8_t);
+			vp->buffer=(uint8_t *)av_malloc(vp->buflen);
+		}
+
+		is->pictq.BufLock->Lock();
+		avpicture_fill((AVPicture *)&pict, vp->buffer,DstAVff,  w, h);
 		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
 			0,pFrame->height, pict.data, pict.linesize);
-        vp->buffer=buffer;
 	    vp->width=is->DestWidth;
 	    vp->height=is->DestHeight;
-			
+		is->pictq.BufLock->Unlock();	
    
 	frame_queue_push(&is->pictq);
 	return 0;

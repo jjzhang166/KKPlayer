@@ -557,7 +557,7 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 						}
 						if(vp->PktNumber%20==0)
 						{
-						  m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,vp->width,vp->height);
+						//  m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,vp->width,vp->height);
 						}		
 				}
 				frame_queue_next(&is->pictq,false);
@@ -622,30 +622,18 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 			}
 		      
 
-			pVideoInfo->pictq.mutex->Lock();
-			/**********获取包位置**********/
-			vp =frame_queue_peek(&pVideoInfo->pictq);// frame_queue_peek_last(&pVideoInfo->pictq);
-           
-			int width=vp->width;
-			int height=vp->height;
-
-			if(vp->buflen>0&&vp->buflen>m_PicBufLen)
-			{
-				av_free(m_PicBuf);
-				m_PicBufLen=vp->buflen;
-				m_PicBuf= av_malloc(vp->buflen); 
-				
-			}
-
+		//	pVideoInfo->pictq.mutex->Lock();
+			
+			vp =frame_queue_peek_last(&pVideoInfo->pictq);//frame_queue_peek(&pVideoInfo->pictq);// 
+		//	pVideoInfo->pictq.mutex->Unlock();
+			pVideoInfo->pictq.BufLock->Lock();
 			if(vp->buffer!=NULL)
-			   memcpy(m_PicBuf,vp->buffer,vp->buflen);
-
-			int PktNumber=vp->PktNumber;
-			pVideoInfo->pictq.mutex->Unlock();
-			if(m_PicBuf!=NULL)
+			pRender->render((char*)vp->buffer,vp->width,vp->height);
+			pVideoInfo->pictq.BufLock->Unlock();
+			/*if(m_PicBuf!=NULL)
 			{
 				pRender->render((char*)m_PicBuf,width,height);
-			}
+			}*/
 
 		
 		    
