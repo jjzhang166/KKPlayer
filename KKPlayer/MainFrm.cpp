@@ -64,6 +64,7 @@ std::basic_string<char> GetModulePathA()
 std::basic_string<TCHAR> GetModulePath();
 CMainFrame::CMainFrame():m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
 {
+	int ii=310001000;
 	m_pSound=NULL;
 	m_pPlayerInstance=NULL;
 	m_CenterLogoLen=0;

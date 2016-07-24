@@ -543,9 +543,10 @@ retry:
 					is->remaining_time = FFMIN(llxxxx, is->remaining_time);
 					goto display;
 				}
-
+	
+				is->frame_timer += is->delay;
 				if (is->delay > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)
-					is->frame_timer = time+is->delay;
+					is->frame_timer = time;
 
 
 				if(!isNAN(vp->pts))
@@ -561,6 +562,7 @@ retry:
 						is->frame_drops_late++;
 						frame_queue_next(&is->pictq,true);
 						//is->pictq.mutex->Unlock();
+						//goto display;
 						goto retry;
 					}
 				}
@@ -578,11 +580,12 @@ retry:
 						}		
 				}
 				frame_queue_next(&is->pictq,true);
+				is->force_refresh=1;
 			}
 			//is->pictq.mutex->Unlock();
 	}
 display:
-	if(m_pPlayUI!=NULL)
+	if(is->force_refresh&&m_pPlayUI!=NULL)
 	{		
 		m_pPlayUI->AVRender();
 	}
@@ -590,6 +593,7 @@ display:
 	{
 
 	}
+	is->force_refresh=0;
 }
 int KKPlayer::PktSerial()
 {
@@ -645,7 +649,8 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 
 		//	pVideoInfo->pictq.mutex->Lock();
 			
-		   vp =frame_queue_peek_last(&pVideoInfo->pictq);//frame_queue_peek(&pVideoInfo->pictq);// 
+		   vp =frame_queue_peek_last(&pVideoInfo->pictq);//
+		  // vp =frame_queue_peek(&pVideoInfo->pictq);// 
 		   if(vp->buffer!=NULL)
 		   {
 			vp->BmpLock->Lock();
