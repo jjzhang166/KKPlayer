@@ -291,6 +291,14 @@
 			Name="MainPage"
 			>
 			<File
+				RelativePath=".\MainPage\AVInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVInfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\AVMenu.cpp"
 				>
 			</File>

@@ -986,20 +986,28 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			exit(1);
 		}
 	   
-		if( vp->buffer==NULL)
+		//pPictq->mutex->Lock();
+		if( vp->buffer==NULL || is->viddec_height!=pFrame->height ||is->viddec_width!=pFrame->width)
 		{
 			vp->allocated = 1;
-			vp->BmpLock = new CKKLock();
+			if(vp->BmpLock==NULL)
+			    vp->BmpLock = new CKKLock();
+			
+			vp->BmpLock->Lock();
 			int numBytes=avpicture_get_size(DstAVff, pFrame->width,       pFrame->height);
 			vp->buflen=numBytes*sizeof(uint8_t);
+			av_free(vp->buffer);
 			vp->buffer=(uint8_t *)av_malloc(vp->buflen);
 			avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff,  pFrame->width,       pFrame->height);
+			vp->BmpLock->Unlock();
 		}
+        //
 
 		vp->BmpLock->Lock();
 		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
 			0,pFrame->height,vp->Bmp.data, vp->Bmp.linesize);
 		vp->BmpLock->Unlock();	
+		//pPictq->mutex->Unlock();
    
 	frame_queue_push(&is->pictq);
 	return 0;

@@ -648,15 +648,21 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 		      
 
 		//	pVideoInfo->pictq.mutex->Lock();
+		
 			
+		   pVideoInfo->pictq.mutex->Lock();
 		   vp =frame_queue_peek_last(&pVideoInfo->pictq);//
-		  // vp =frame_queue_peek(&pVideoInfo->pictq);// 
+		  //vp =frame_queue_peek(&pVideoInfo->pictq);// 
+		 
+		  
+          
 		   if(vp->buffer!=NULL)
 		   {
-			vp->BmpLock->Lock();
-			pRender->render((char*)vp->buffer,pVideoInfo->viddec_width,pVideoInfo->viddec_height);
-			vp->BmpLock->Unlock();
+			   vp->BmpLock->Lock();
+			   pRender->render((char*)vp->buffer,pVideoInfo->viddec_width,pVideoInfo->viddec_height);
+			   vp->BmpLock->Unlock();
 		   }
+		   pVideoInfo->pictq.mutex->Unlock();
 			/*if(m_PicBuf!=NULL)
 			{
 				pRender->render((char*)m_PicBuf,width,height);
@@ -887,7 +893,9 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	}
 	m_PreFileLock.Unlock();
 
-	//fileName="KKV:687281b0bee195d415caaf20bd50a8de|test.mp4";
+
+	//fileName="rtmp://172.25.123.2:19350/live/livestream";
+		//"KKV:687281b0bee195d415caaf20bd50a8de|test.mp4";
 	//fileName="KKV:e8a486a4e28480ad18bd5041c2ad34fa|test.mp4";
 	//fileName="c:/xx.mp4";
 	m_CloseLock.Lock();
