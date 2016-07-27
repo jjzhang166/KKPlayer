@@ -12,25 +12,27 @@ translucent="0"
 			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 			            <window pos="10,[10,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 			                  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">文件类型:</text>
-							  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">mp4</text>
+							  <text pos="[0,0,@60,@20" name="AVFileType" font="adding:-2" colorText="#243A61"></text>
 							  
-							  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">分辨率:</text>
-							  <text pos="[0,0,@200,@20" font="adding:-2" colorText="#243A61">1024x720</text>
+							  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">分 辨 率:</text>
+							  <text pos="[0,0,@200,@20" name="TxtAvRes" font="adding:-2" colorText="#243A61">1024x720</text>
 						</window>
 						
 						<window pos="10,[5,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 			                  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">文件大小:</text>
-							  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">784MB</text>
+							  <text pos="[0,0,@60,@20" name="TxtFileLen" font="adding:-2" colorText="#243A61">784MB</text>
 							  
 							  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">媒体时长:</text>
-							  <text pos="[0,0,@200,@20" font="adding:-2" colorText="#243A61">01:50:01</text>
+							  <text pos="[0,0,@200,@20" name="TxtAvTime" font="adding:-2" colorText="#243A61">01:50:01</text>
 					    </window>
 						<window pos="10,[25,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 			                  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">文件路径:</text>
-							  <text pos="[0,0,]-5,@20" font="adding:-2" colorText="#243A61">784MB</text>
+							  <text pos="[0,0,]-5,@20" name="TxtFilePath" font="adding:-2" colorText="#243A61"></text>
 					    </window>
-					   <window pos="10,[25,-0,@100" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
-					          <richedit pos="0,[10,]-10,]10" rich="1" multilines="1" colorBkgnd="#FFFFFF" vertical="1" font="adding:-2" colorText="#243A61">
+					   <window pos="10,[20,-0,]-10" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+					          <richedit pos="0,[10,]-10,]-10" rich="1" multilines="1" colorBkgnd="#FFFFFF" vertical="1" 
+							  name="EditAVInfo"
+							  font="adding:-2" colorText="#243A61">
 							  </richedit>
 					   </window>
 					   

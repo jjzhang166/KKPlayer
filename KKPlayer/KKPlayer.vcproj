@@ -323,6 +323,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MainPage\AVOpenUrl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVOpenUrl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\MainDlg.cpp"
 				>
 			</File>

@@ -284,7 +284,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	
 	this->SetFocus();
 	this->EnableWindow(true);
-	::SetTimer(this->m_hWnd,10010,20,NULL);
+	::SetTimer(this->m_hWnd,10010,40,NULL);
 
 
 
@@ -446,7 +446,11 @@ LRESULT  CMainFrame::OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPara
 }
 LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
-	
+
+	if(wParam==10010)
+	{
+          AVRender();
+	}
 	/*#ifndef QY_GDI
          AVRender();
     #else
@@ -626,6 +630,7 @@ LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
    char *err=(char*)wParam;
    ::MessageBoxA(m_hWnd,err,"´íÎó",MB_ICONHAND);
    ::free(err);
+   CloseMedia();
    return 1;
 }
 void CMainFrame::OpenMediaFailure(char* strURL)

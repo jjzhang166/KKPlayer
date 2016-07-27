@@ -1,0 +1,26 @@
+<SOUI name="AVOpenUrlWindow" title="文件信息" 
+width="350" height="200"  margin="5,5,5,5"  resizable="1"
+appWnd="0" minsize="350,200"
+translucent="0"
+>
+	<root skin="_skin.shadow">
+			<caption pos="0,0,-0,29" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
+                   <icon pos="10,8" src="ICON_LOGO:16"/>
+                   <text pos="[5,8" colorText="#DBEEFD">打开Url</text>
+				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
+			</caption>
+			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+			            <window pos="10,[10,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+			                  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">打开Url:</text>
+							  <richedit pos="[0,0,]-10,@20" rich="1" multilines="1" colorBkgnd="#FFFFFF" vertical="1" 
+							  name="AVInfoUrl"
+							  font="adding:-2" colorText="#243A61">
+							  </richedit>
+						</window>
+						<window pos="10,[10,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+						        <button  pos="]-70,0,@60,@20" name="btnOk" focusable="0" >确定</button>
+								<button  pos="]-65,0,]-5,@20" name="btnCancell" focusable="0" >取消</button>
+						</window>
+			</window>
+	</root>
+</SOUI>
