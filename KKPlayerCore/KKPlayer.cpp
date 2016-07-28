@@ -592,17 +592,17 @@ retry:
 				is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
 				is->delay = compute_target_delay(is->last_duration, is);
 
-				if(is->realtime==1&&is->delay>5)
-				{
-					if(!isNAN(vp->pts))
-					{
-						update_video_pts(is, vp->pts, vp->pos, vp->serial);
-					}
-					frame_queue_next(&is->pictq,true);
-					//is->pictq.mutex->Unlock();
-					//goto display;
-					goto retry;
-				}
+				//if(is->realtime==1&&is->delay>5)
+				//{
+				//	if(!isNAN(vp->pts))
+				//	{
+				//		update_video_pts(is, vp->pts, vp->pos, vp->serial);
+				//	}
+				//	frame_queue_next(&is->pictq,true);
+				//	//is->pictq.mutex->Unlock();
+				//	//goto display;
+				//	goto retry;
+				//}
 				time= av_gettime_relative()/1000000.0;
 				if (time < is->frame_timer + is->delay) {
 					double llxxxx=is->frame_timer + is->delay - time;
@@ -1312,10 +1312,12 @@ void KKPlayer::ReadAV()
 		return;
 		
 	}
-    
+    m_CloseLock.Unlock();
+
 	if (scan_all_pmts_set)
 		av_dict_set(&format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE);
 	
+	av_format_inject_global_side_data(pFormatCtx);
 	// Retrieve stream information
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
 	{
@@ -1323,7 +1325,7 @@ void KKPlayer::ReadAV()
 		char urlx[256]="";
 		strcpy(urlx,pVideoInfo->filename);
 		pVideoInfo->abort_request=1;
-		m_CloseLock.Unlock();
+		//m_CloseLock.Unlock();
 		if(m_pPlayUI!=NULL)
 		{
 			m_pPlayUI->OpenMediaFailure(urlx);
@@ -1348,19 +1350,18 @@ void KKPlayer::ReadAV()
 
 
 	
-	av_format_inject_global_side_data(pFormatCtx);
+	
 	if (start_time != AV_NOPTS_VALUE) 
 	{
 		int64_t timestamp;
-
 		timestamp = start_time;
+		
 		/* add the stream start time */
 		if (pFormatCtx->start_time != AV_NOPTS_VALUE)
 			timestamp += pFormatCtx->start_time;
-		//ret = avformat_seek_file(ic, -1, INT64_MIN, timestamp, INT64_MAX, 0);
-		if (ret < 0) 
-		{
-
+		ret = avformat_seek_file(pFormatCtx, -1, INT64_MIN, timestamp, INT64_MAX, 0);
+		if (ret < 0) {
+			
 		}
 	}
 
@@ -1397,7 +1398,7 @@ void KKPlayer::ReadAV()
 	}
 	pVideoInfo->max_frame_duration = (pVideoInfo->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 	pVideoInfo->IsReady=1;	
-	m_CloseLock.Unlock();
+	
 
 	if(!pVideoInfo->realtime)
 	{

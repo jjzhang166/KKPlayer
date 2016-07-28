@@ -1380,9 +1380,9 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		{
 		
 		   tb=tb=is->audio_st->time_base;
-		   static int inx=0;
+		   /*static int inx=0;
 		   if(frame->pts<0)
-                inx+=frame->pts;
+                inx+=frame->pts;*/
            int64_t srcpts =frame->pts * av_q2d(tb);
 		  
 		   if(is->auddec.Isflush==1)

@@ -62,11 +62,11 @@ namespace SOUI
 		this->FindChildByName("TxtAvTime")->SetWindowText(CurTimeStr.c_str());
 
 
-		CChineseCode::charTowchar(Info.AvFile,abcd,1024);
-		this->FindChildByName("TxtFilePath")->SetWindowText(abcd);
-
-
-
+		if(Info.AvFile!=NULL){
+			CChineseCode::charTowchar(Info.AvFile,abcd,1024);
+			this->FindChildByName("TxtFilePath")->SetWindowText(abcd);
+		}
+		
 	    CurTimeStr=abcd;
 		int index=CurTimeStr.find_last_of(L".");
 		if(index>-1)

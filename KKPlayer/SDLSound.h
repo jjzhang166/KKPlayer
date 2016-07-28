@@ -28,6 +28,6 @@ public:
    private:
 		pfun m_pFun;
 		void* m_UserData;
-		long m_Vol;
+		static long m_Vol;
 };
 #endif

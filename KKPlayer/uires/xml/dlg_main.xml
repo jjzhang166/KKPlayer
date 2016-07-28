@@ -3,10 +3,10 @@ width="600" height="400"  margin="5,5,5,5"  resizable="1"
 appWnd="1" minsize="560,350"
 translucent="0"
 >
-	<root skin="_skin.shadow">
+	<root skin="_skin.shadow" >
 			<caption pos="0,0,-0,29" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
                    <icon pos="10,8" src="ICON_LOGO:16"/>
-                   <text pos="[5,8" name="TxtAVTitle" colorText="#FFFFFF">KK影音</text>
+                   <text pos="[5,8" name="TxtAVTitle" font="宋体" colorText="#FFFFFF">KK影音</text>
 				  
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
                    <imgbtn name="btn_max" skin="_skin.Win_Max"  pos="-60,0"  tip="最大化" animate="0" />

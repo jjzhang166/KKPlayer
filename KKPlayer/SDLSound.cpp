@@ -8,11 +8,12 @@
 #else
    #pragma comment (lib,"../Release/SDL.lib")
 #endif
+long CSDLSound::m_Vol=100;
 CSDLSound::CSDLSound()
 {
     m_UserData=NULL;
 	m_pFun=NULL;
-	m_Vol=100;
+	
 //	SDL_SetVideoMode
 }
 CSDLSound::~CSDLSound()
@@ -133,7 +134,7 @@ int  CSDLSound::InitAudio()
  }
  void CSDLSound::Start(){
 	 SDL_PauseAudio(0);
-	 m_Vol=100;
+	
  } 
  void CSDLSound::Stop(){
 	 SDL_PauseAudio(1);
