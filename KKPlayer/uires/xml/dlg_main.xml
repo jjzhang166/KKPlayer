@@ -5,8 +5,8 @@ translucent="0"
 >
 	<root skin="_skin.shadow">
 			<caption pos="0,0,-0,29" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
-                  <icon pos="10,8" src="ICON_LOGO:16"/>
-                  <text pos="[5,8" colorText="#FFFFFF">KK影音</text>
+                   <icon pos="10,8" src="ICON_LOGO:16"/>
+                   <text pos="[5,8" name="TxtAVTitle" colorText="#FFFFFF">KK影音</text>
 				  
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
                    <imgbtn name="btn_max" skin="_skin.Win_Max"  pos="-60,0"  tip="最大化" animate="0" />
@@ -63,7 +63,7 @@ translucent="0"
 					  
 					  <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
 					  pos="-60,26" offset="-0.5,-0.5"   colorText="#FFFFFF"
-					  width="29" height="36" animate="1" tip="打开本地文件" />
+					  width="29" height="36" animate="0" tip="打开本地文件" />
 					  
 					  <imgbtn  skin="_skin.List_Button" name="AVFileListBtn" colorText="#FFFFFF"
 					  pos="-30,26" focusable="0"

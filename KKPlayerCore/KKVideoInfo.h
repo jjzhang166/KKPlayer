@@ -294,6 +294,7 @@ typedef struct SKK_VideoState
 	int eof;
     /*****ÎÄ¼şÃû******/
 	char filename[1024];
+	int fileSize;
 	int viddec_width,viddec_height;
 	
 	int step;

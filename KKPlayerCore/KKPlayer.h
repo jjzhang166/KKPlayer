@@ -32,11 +32,17 @@ enum SeekEnum
 //获取播放器信息
 struct MEDIA_INFO 
 {
+	//分辨率
+	char AVRes[32];
+	char AVinfo[1024];
+	const char* AvFile;
+	int FileSize;
 	int CurTime;
 	int TotalTime;//总时长
 	int serial;
 	bool Open;
 	int KKState;
+	
 };
 class KKPlayer
 {
@@ -78,6 +84,9 @@ class KKPlayer
 
 			//获取放播的历史信息
 			void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
+
+			//1为流媒体
+			int GetRealtime();
 
 			//解码成BGRA格式
 			void SetBGRA();

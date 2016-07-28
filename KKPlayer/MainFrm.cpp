@@ -209,6 +209,13 @@ CMainFrame::~CMainFrame()
 	delete m_pSound;
 	delete m_pPlayerInstance;
 }
+int CMainFrame::GetRealtime()
+{
+	if(m_pPlayerInstance!=NULL)
+		return m_pPlayerInstance->GetRealtime();
+
+	return 0;
+}
 void CMainFrame::UpdateLayout(BOOL bResizeBars)
 {
    	   

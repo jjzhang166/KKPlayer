@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "SUIVideo.h"
+#include "MainDlg.h"
+#include "../Tool/cchinesecode.h"
+#include <string>
+extern SOUI::CMainDlg *m_pDlgMain;
 namespace SOUI
 {
 	CSuiVideo::CSuiVideo(void)
@@ -60,6 +64,7 @@ namespace SOUI
 			RECT rt;
 			this->GetWindowRect(&rt);
 
+			
 			::SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left,rt.top,size.cx,size.cy,SWP_NOZORDER);
 		}
 	}
@@ -78,6 +83,27 @@ namespace SOUI
 	void CSuiVideo::Close()
 	{
 		m_VideoWnd.CloseMedia();
+		m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(L"KKÓ°Òô");
+	}
+
+	int is_realtime2(char *str)
+	{
+		if(   !strcmp(str, "rtp")    || 
+			!strcmp(str, "rtsp")   || 
+			!strcmp(str, "sdp")
+			)
+			return 1;
+
+
+		if( !strncmp(str, "rtmp:",5))
+		{
+			return 1;
+		}
+		if(   !strncmp(str, "rtp:", 4)|| 
+			!strncmp(str, "udp:", 4) 
+			)
+			return 1;
+		return 0;
 	}
 	 int CSuiVideo::OpenMedia(const char *str)
 	 {
@@ -90,6 +116,32 @@ namespace SOUI
 				 return -1;
 			
 		 }
+		 WCHAR abcd[1024];
+		 std::string title2;
+		 
+		 std::wstring title=L"KKÓ°Òô-";
+         title2=str;
+		 if(! is_realtime2((char*)str))
+		 {		
+				 int index=title2.find_last_of(".");
+				 if(index>-1)
+				 {
+					 title2=title2.substr(0,index);
+					 index=title2.find_last_of("/");
+					 if(index<0)
+						 index=title2.find_last_of("\\");
+					 if(index>-1)
+					 {
+						 title2=title2.substr(index+1,title2.length()-index-1);
+					 }else{
+						  title2=str;
+					 }
+				 }
+		 }
+
+		 CChineseCode::charTowchar(title2.c_str(),abcd,1024);
+		 title+=abcd;
+		 m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(title.c_str());
 		  return 0;
 	 }
 	 void CSuiVideo::OnDecelerate()

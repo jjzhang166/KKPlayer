@@ -35,7 +35,7 @@
 		<imgframe name="_skin.Pro_Bg" src="PNG:ID_PNG_PRO_MASK" />
 		<imgframe name="_skin.Pro_Play" src="PNG:ID_PNG_PRO_PLAY"/>
 		
-		<imglist name="_skin.Folder" src="PNG:ID_PNG_FOLDER"  states="5"/>
+		<imglist name="_skin.Folder" src="PNG:ID_PNG_FOLDER"  states="3"/>
 		<imgframe name="_skin.Vol_Bg" src="PNG:ID_PNG_VolBg"/>
 		<imgframe name="_skin.Vol_Pre" src="PNG:ID_PNG_VolPre" margin-x="3"/>
 		

@@ -77,7 +77,7 @@ public:
 	void OnDecelerate();
 	void OnAccelerate();
 	void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
-	
+	int GetRealtime();
 	void AVRender();
 private:
 	    //CKKSound m_Sound;

@@ -10,13 +10,25 @@ translucent="0"
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
 			</caption>
 			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
-			            <window pos="10,[10,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+			            <window pos="10,[15,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+			                  <text pos="[0,0,]-10,@20" font="adding:-2" colorText="#243A61">输入网络上您想要放播的媒体文件的url或路径</text>
+					    </window>
+			            <window pos="10,[0,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+			                  <text pos="[0,0,]-10,@20" font="adding:-2" colorText="#243A61">协议支持:rtmp,rtsp,hls等</text>
+					    </window>
+			            <window pos="10,[0,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 			                  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">打开Url:</text>
 							  <richedit pos="[0,0,]-10,@20" rich="1" multilines="1" colorBkgnd="#FFFFFF" vertical="1" 
-							  name="AVInfoUrl"
+							  name="AVInfoUrl" inset="1,1,1,1" 
 							  font="adding:-2" colorText="#243A61">
 							  </richedit>
 						</window>
+						<window pos="10,[5,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+			                  <text pos="[10,0,]-10,@20" font="adding:-2" colorText="#243A61">例如:rtmp://live.hkstv.hk.lxdns.com/live/hks live=1</text>
+					    </window>
+						<window pos="10,[0,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+							  <text pos="[10,0,]-10,@20" font="adding:-2" colorText="#243A61">例如:rtmp://58.213.67.162:1936/live/livestream</text>
+					    </window>
 						<window pos="10,[10,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 						        <button  pos="]-70,0,@60,@20" name="btnOk" focusable="0" >确定</button>
 								<button  pos="]-65,0,]-5,@20" name="btnCancell" focusable="0" >取消</button>
