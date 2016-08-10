@@ -66,6 +66,8 @@ AVIOContext * CreateKKIo(SKK_VideoState *kkAV)
 	unsigned char *aviobuffer=(unsigned char*)av_malloc(len);  
 	KKPlugin* pKKP=kkAV->pKKPluginInfo->CreKKP();
 	pKKP->URL=kkAV->filename;
+	pKKP->kkirqOpaque=kkAV;
+	pKKP->kkirq=kkAV->pFormatCtx->interrupt_callback.callback;
 	AVIOContext *avio=avio_alloc_context(aviobuffer, len,0,pKKP, pKKP->kkread,NULL,pKKP->kkseek); 
 	return avio;
 }

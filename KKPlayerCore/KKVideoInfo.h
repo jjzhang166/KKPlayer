@@ -20,8 +20,12 @@
 #define SUBPICTURE_QUEUE_SIZE 9
 #define SAMPLE_QUEUE_SIZE 9
 #define FRAME_QUEUE_SIZE  FFMAX(SAMPLE_QUEUE_SIZE, FFMAX(VIDEO_PICTURE_QUEUE_SIZE, SUBPICTURE_QUEUE_SIZE))
+#ifndef INT64_MAX
 #define INT64_MAX 0x7fffffffffffffffLL 
+#endif
+#ifndef INT64_MIN
 #define INT64_MIN (-0x7fffffffffffffffLL-1)
+#endif
 /* no AV correction is done if too big error */
 #define AV_NOSYNC_THRESHOLD 10.0
 /* we use about AUDIO_DIFF_AVG_NB A-V differences to make the average */
@@ -127,6 +131,7 @@ typedef struct SKK_FrameQueue
 	
 } SKK_FrameQueue;
 
+
 //同步方式
 enum EKK_AV_SYNC
 {
@@ -226,6 +231,7 @@ typedef struct SKK_VideoState
 	int audio_diff_avg_count;
 	IKKAudio *pKKAudio;
 
+	//视频过滤器
 	int vfilter_idx;
 	AVFilterContext *in_video_filter;   // the first filter in the video chain
 	AVFilterContext *out_video_filter;  // the last filter in the video chain
@@ -245,6 +251,7 @@ typedef struct SKK_VideoState
 	/***************************/
 	//原音频流
 	AVStream *audio_st;
+	//音频队列
 	SKK_PacketQueue audioq;
 	int audio_hw_buf_size;
 	uint8_t silence_buf[KK_AUDIO_MIN_BUFFER_SIZE];
@@ -295,6 +302,7 @@ typedef struct SKK_VideoState
     /*****文件名******/
 	char filename[1024];
 	int fileSize;
+	/*******视频大小信息********/
 	int viddec_width,viddec_height;
 	
 	int step;

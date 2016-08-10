@@ -291,6 +291,30 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Rtmp"
+			>
+			<File
+				RelativePath=".\rtmp\AV_FLv.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\rtmp\AV_FLv.h"
+				>
+			</File>
+			<File
+				RelativePath=".\rtmp\FlvEncode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\rtmp\FlvEncode.h"
+				>
+			</File>
+			<File
+				RelativePath=".\rtmp\rtmpPush.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
 			>

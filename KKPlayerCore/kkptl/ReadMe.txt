@@ -1,10 +1,10 @@
-主要用于kkPlayer的p2p的支持。
+主要用于kkPlayer的p2p的支持。文件最大支持4G
 关于kkv文件格式的说明。模拟flv文件存储(flv文件比较简单)。
 1.文件2进制格式：小端字节。
 2.文件头 KKV +ver(int32)。              3+4=7
-         FileSize：int32;               4
-		 FileMd5:  int32+strMd5;        4+32
-		 FileName: int32+strName;        
+         FileSize：uint32;               4
+		 FileMd5:  uint32+strMd5;        4+32
+		 FileName: uint32+strName;        
 3.tag
       TagLen(int32):      4
 	  SegId:int32:        4

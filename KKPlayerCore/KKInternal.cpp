@@ -9,7 +9,8 @@
 #include <math.h>
 #include <assert.h>
 #include <time.h>
-
+#include "rtmp/AV_FLv.h"
+CAV_Flv G_AV_Flv;
 #ifdef WIN32
 AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
 #else
@@ -300,6 +301,8 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 	return 0;
 }
 
+
+
 //音频填充回调
 int audio_fill_frame( SKK_VideoState *pVideoInfo) 
 { 
@@ -314,6 +317,8 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 
 	AVFrame *frame=NULL;
 	SKK_Frame *af=NULL;
+	
+
 	
    do 
    {
@@ -461,7 +466,7 @@ void audio_callback(void *userdata, char *stream, int len)
 {
 	SKK_VideoState *pVideoInfo=(SKK_VideoState *)userdata;
 	memset(stream,0,len);
-	if (pVideoInfo->paused||pVideoInfo->IsReady!=1)
+	if (pVideoInfo->paused||pVideoInfo->IsReady!=1||!pVideoInfo->audio_st)
 	{
 		return;
 	}
@@ -522,6 +527,7 @@ static int audio_open2( void *opaque,                               int64_t want
 	env = "2";
 	if (env) 
 	{
+		
 		wanted_nb_channels = atoi(env);
 		wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
 	}
@@ -804,6 +810,28 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 
 	return &f->queue[f->windex];
 }
+//队列是否能写
+static SKK_Frame *frame_queue_peek_writableNoWait(SKK_FrameQueue *f)
+{
+	f->mutex->Lock();
+	bool mm=true;
+	if(f->size >= f->max_size &&
+		!f->pktq->abort_request) 
+	{
+		/*****无信号******/
+		f->m_pWaitCond->ResetCond();
+		mm=false;
+		f->mutex->Unlock();
+		return NULL;
+	}
+	if(mm)
+		f->mutex->Unlock();
+
+	if (f->pktq->abort_request)
+		return NULL;
+
+	return &f->queue[f->windex];
+}
 
 SKK_Frame *frame_queue_peek_readable(SKK_FrameQueue *f)
 {
@@ -956,7 +984,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 {  
 
 	SKK_FrameQueue *pPictq=&is->pictq;
-	
+	SKK_Frame *vp2 =0;
 	///***找到一个可用的SKK_Frame***/
 	SKK_Frame *vp = frame_queue_peek_writable(pPictq);
 	if(vp==NULL)
@@ -964,12 +992,17 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 
 
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
+	vp->frame->pts=pFrame->pts;
+	vp->frame->format=pFrame->format;
+	vp->frame->width=pFrame->width;
+	vp->frame->height=pFrame->height;
+
     vp->duration=duration;
 	vp->pos=pos;
 	vp->serial=serial;
 	vp->pts=pts;
 	vp->PktNumber=is->PktNumber++;
-    vp->frame->pts=pFrame->pts;
+   
     is->viddec_width=pFrame->width;
     is->viddec_height=pFrame->height;
 	
@@ -1006,8 +1039,9 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		vp->BmpLock->Lock();
 		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
 			0,pFrame->height,vp->Bmp.data, vp->Bmp.linesize);
+
+	
 		vp->BmpLock->Unlock();	
-		//pPictq->mutex->Unlock();
    
 	frame_queue_push(&is->pictq);
 	return 0;
@@ -1344,6 +1378,9 @@ static inline int cmp_audio_fmts(enum AVSampleFormat fmt1, int64_t channel_count
 }
 
  char Audioabcd[256]="";
+
+
+ 
 //音频解码线程
 unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 {
@@ -1358,7 +1395,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	t_start = time(NULL) ;
 	///***找到一个可用的SKK_Frame***/
 	SKK_Frame *af = NULL;
-
+    SKK_Frame *af2 = NULL;
 	int got_frame = 0;
 	AVRational tb;
 	int ret = 0;
@@ -1451,7 +1488,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				
 				}
 
-		    if(is->AVRate!=100)
+		    if(1)
 			{
 				if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
 				{
@@ -1480,9 +1517,10 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 
 					AVSampleFormat ff=(AVSampleFormat)frame->format;
 					av_frame_move_ref(af->frame, frame);
-					//is->sampq.mutex->Unlock();
+					
+
+					
 					frame_queue_push(&is->sampq);
-					//::OutputDebugStringA("xxx4\n");
 				}
 			}else{
 				tb=is->audio_st->time_base;
@@ -1504,6 +1542,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				av_frame_move_ref(af->frame, frame);
 				//is->sampq.mutex->Unlock();
 
+			
 				frame_queue_push(&is->sampq);
 			}
 			
