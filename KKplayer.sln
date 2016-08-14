@@ -22,6 +22,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL", "SDL-1.2.15\VisualC\S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AVTest", "AVTest\AVTest.vcproj", "{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DECDXVA2", "DECDXVA2\DECDXVA2.vcproj", "{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "decoder", "decoder", "{F9B1AE1F-F7B1-4BE3-B17D-2A2D41C735E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -83,8 +87,17 @@ Global
 		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.Release|Win32.Build.0 = Release|Win32
 		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4}.Debug|Win32.Build.0 = Debug|Win32
+		{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4}.Release|Win32.ActiveCfg = Release|Win32
+		{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4}.Release|Win32.Build.0 = Release|Win32
+		{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA050EA0-0DC7-4AC5-8FAC-A7ACC63CF2F4} = {F9B1AE1F-F7B1-4BE3-B17D-2A2D41C735E6}
 	EndGlobalSection
 EndGlobal

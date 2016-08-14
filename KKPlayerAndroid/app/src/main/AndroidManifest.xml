@@ -2,6 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ic70.kkplayer.kkplayer">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- RECORD_AUDIO is needed to create an audio recorder -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- MODIFY_AUDIO_SETTINGS is needed to use audio effects such as environmental reverb -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
+    <uses-sdk android:minSdkVersion="9"/>
     <application
         android:allowBackup="true"
 
@@ -18,22 +27,11 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-
             </intent-filter>
         </activity>
         <activity android:name=".CPlayerActivity"
-         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            >
-
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:configChanges="orientation|screenSize|keyboardHidden">
         </activity>
     </application>
-    <!-- RECORD_AUDIO is needed to create an audio recorder -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- MODIFY_AUDIO_SETTINGS is needed to use audio effects such as environmental reverb -->
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
-    <uses-sdk android:minSdkVersion="9"/>
 </manifest>

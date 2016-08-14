@@ -51,8 +51,9 @@ CAndKKPlayerUI::~CAndKKPlayerUI()
         glDeleteTextures(2,&m_nTextureID);
         m_nTextureID=0;
     }
-    //m_Audio.CloseAudio();
+    //
     m_player.CloseMedia();
+    m_Audio.CloseAudio();
 }
 void  CAndKKPlayerUI::Pause()
 {
@@ -128,7 +129,7 @@ int CAndKKPlayerUI::Resizeint(int w,int h)
     // 重置模型观察矩阵
     glLoadIdentity();//:将当前的用户坐标系的原点移到了屏幕中心：类似于一个复位操作
 
-    m_player.AdjustDisplay(w,h);
+    //m_player.AdjustDisplay(w,h);
     m_bAdJust= false;
 }
 
@@ -167,7 +168,8 @@ void CAndKKPlayerUI::renderFrame()
     glEnable(GL_TEXTURE_2D);                                // 启用纹理映射
         // 选择纹理
 
-    m_player.RenderImage(this);
+   // LOGI(" renderFrame %d\n",0);
+    m_player.RenderImage(this, false);
     if(m_nTextureID==0)
         return;
 
@@ -256,14 +258,19 @@ void CAndKKPlayerUI::WinSize(unsigned int w, unsigned int h)
 }
 
 
-
-void CAndKKPlayerUI::render(char* buf,int width,int height){
+void  CAndKKPlayerUI::AVRender()
+{
+    //LOGI(" renderFrame %d\n",1);
+   // m_player.RenderImage(this, false);
+}
+void CAndKKPlayerUI::render(char* buf,int width,int height)
+{
+    //LOGI(" renderFrame %d\n",2);
+   // m_RenderLock.Lock();
     if(buf!=NULL)
     {
         if(m_nTextureID==0)
         {
-           /* glDeleteTextures(2,&m_nTextureID);
-            m_nTextureID=0;*/
             glGenTextures(2, &m_nTextureID);
         }
 
@@ -275,7 +282,7 @@ void CAndKKPlayerUI::render(char* buf,int width,int height){
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
-
+   // m_RenderLock.Unlock();
 }
 //呈现背景图片
 void CAndKKPlayerUI::renderBk(unsigned char* buf,int len){}

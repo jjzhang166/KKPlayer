@@ -213,6 +213,9 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		fCreateKKPlugin pfn = (fCreateKKPlugin)GetProcAddress(hdll, "CreateKKPlugin");
 		fGetPtlHeader pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
 		fDeleteKKPlugin pFree=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
+        fKKDownAVFile pKKDownAVFile=(fKKDownAVFile)GetProcAddress(hdll, "KKDownAVFile");
+		fKKStopDownAVFile pKKStopDownAVFile=(fKKStopDownAVFile)GetProcAddress(hdll, "KKStopDownAVFile");
+		
 		if(pfn!=NULL&&pfGetPtl!=NULL&& pFree!=NULL)
 		{
 			
@@ -221,6 +224,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 				Info.CreKKP= pfn;
 				Info.DelKKp=pFree;
                 Info.Handle=hdll;
+				Info.KKDownAVFile=pKKDownAVFile;
+				Info.KKStopDownAVFile=pKKStopDownAVFile;
 				KKPlayer::AddKKPluginInfo(Info);
 			
 		}else{

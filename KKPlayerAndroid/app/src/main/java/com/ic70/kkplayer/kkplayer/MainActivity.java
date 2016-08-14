@@ -1,5 +1,7 @@
 package com.ic70.kkplayer.kkplayer;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,17 +39,58 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
     private CFileManage m_FileManage;
     boolean m_HandleIni=false;
     private List<CKKMoviePath> m_lstFile;
+    private EditText txtAvUrl;
     public MainActivity()
     {
+
         Log.v("MainActivity","初始化" );
         //扫描文件系统
-        m_FileManage = new CFileManage();
+       // m_FileManage = new CFileManage();
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        IniControl();
-        ListView Localmovie_list = (ListView) findViewById(R.id.listView);/**/
+       // IniControl();
+        //ListView Localmovie_list = (ListView) findViewById(R.id.listView);/**/
+        IniControl2();
+    }
+    void IniControl2()
+    {
+        setContentView(R.layout.rtmptest);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Button btx=(Button)findViewById(R.id.AVButton1);
+         btx.setOnClickListener(new Button.OnClickListener(){//创建监听
+            public void onClick(View v) {
+                Intent intent = new Intent();
+
+                intent.putExtra("MoviePath",  "rtmp://121.42.14.63/live/livestream");
+        /* 指定intent要启动的类 */
+
+                intent.setClass(v.getContext(),CPlayerActivity.class);//(context.this, Activity02.class);
+        /* 启动一个新的Activity */
+                v.getContext().startActivity(intent);
+            }
+
+        });
+
+        txtAvUrl=( EditText)findViewById(R.id.AVeditText);
+        Button btx2=(Button)findViewById(R.id.AVbutton2);
+        btx2.setOnClickListener(new Button.OnClickListener(){//创建监听
+            public void onClick(View v) {
+                Intent intent = new Intent();
+
+            EditText txtAv=  txtAvUrl;
+             String xx=   txtAv.getText().toString();
+                intent.putExtra("MoviePath",  xx);
+        /* 指定intent要启动的类 */
+
+                intent.setClass(v.getContext(),CPlayerActivity.class);//(context.this, Activity02.class);
+        /* 启动一个新的Activity */
+                v.getContext().startActivity(intent);
+            }
+
+        });
+
     }
     void IniControl()
     {
@@ -79,11 +123,12 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
     public void onConfigurationChanged (Configuration newConfig){
 
         super.onConfigurationChanged(newConfig);
-        IniControl();
+        IniControl2();
+       /* IniControl();
         if(m_lstFile!=null)
         {
             LoadFileInfo(m_lstFile);
-        }
+        }*/
     }
     public void HandleKKObj(Object obj)
     {
@@ -135,10 +180,10 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
 
         return super.onOptionsItemSelected(item);
     }
-    @Override
+   /* @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-        finish();
+       // finish();
         return false;
-    }
+    }*/
 }

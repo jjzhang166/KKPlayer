@@ -9,13 +9,16 @@
 #include <math.h>
 #include <assert.h>
 #include <time.h>
-#include "rtmp/AV_FLv.h"
-CAV_Flv G_AV_Flv;
+//#include "rtmp/AV_FLv.h"
+
+
 #ifdef WIN32
-AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
+      AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
+	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
 #else
-AVPixelFormat DstAVff=AV_PIX_FMT_RGBA;
+      AVPixelFormat DstAVff=AV_PIX_FMT_BGRA;//AV_PIX_FMT_YUV420P;
 #endif
+	 // AVPixelFormat DstAVff=AV_PIX_FMT_BGRA;
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
 static int lowres = 0;
@@ -37,6 +40,8 @@ inline long rint(double x)
 
 int quit = 0;
 
+int GetW(AVCodecContext  *pCodecCtx);
+int GetH(AVCodecContext  *pCodecCtx);
 void packet_queue_init(SKK_PacketQueue  *q) 
 {
 	memset(q, 0, sizeof(SKK_PacketQueue));
@@ -606,6 +611,7 @@ int is_realtime(AVFormatContext *s)
 		return 1;
 	return 0;
 }
+
 //打开流
 int stream_component_open(SKK_VideoState *is, int stream_index)
 {
@@ -669,6 +675,20 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	if(codec->capabilities & CODEC_CAP_DR1)
 		avctx->flags |= CODEC_FLAG_EMU_EDGE;
 
+	if(avctx->codec_type==AVMEDIA_TYPE_VIDEO)
+	{
+       #ifdef WIN32
+		       avctx->codec_id=codec->id;
+			  // is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
+			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
+				   if(BindDxva2Module(avctx)<0)
+				   {
+					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
+				   }
+			   }
+       #endif
+		//dxva->tmp_frame= av_frame_alloc();
+	}
 	//打开解码器
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
@@ -979,6 +999,8 @@ int GetBmpSize(int w,int h)
 }
 struct SwsContext *BMPimg_convert_ctx=NULL;
 
+int DxPictureCopy(struct AVCodecContext *avctx,AVFrame *src);
+
 //图片队列 图片
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
 {  
@@ -1003,23 +1025,21 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	vp->pts=pts;
 	vp->PktNumber=is->PktNumber++;
    
-    is->viddec_width=pFrame->width;
-    is->viddec_height=pFrame->height;
+   // is->viddec_width=pFrame->width;
+    //is->viddec_height=pFrame->height;
 	
 
-  
-		is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
-			pFrame->width,  pFrame->height , (PixelFormat)(pFrame->format),
-			pFrame->width,       pFrame->height,               DstAVff,                
-			SWS_FAST_BILINEAR,
-			NULL, NULL, NULL);
-		if (is->img_convert_ctx == NULL) 
-		{
-			fprintf(stderr, "Cannot initialize the conversion context\n");
-			exit(1);
-		}
-	   
-		//pPictq->mutex->Lock();
+//AV_PIX_FMT_NV12
+#ifdef WIN32
+	 if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA)
+	 {
+	       DWORD t_start = GetTickCount();
+	       DxPictureCopy(is->viddec.avctx,pFrame);//(PixelFormat)pFrame->format
+	       DWORD t_end = GetTickCount();
+	       int ll=t_end-t_start;
+           PixelFormat xxx=(PixelFormat)(pFrame->format);
+	}
+#endif
 		if( vp->buffer==NULL || is->viddec_height!=pFrame->height ||is->viddec_width!=pFrame->width)
 		{
 			vp->allocated = 1;
@@ -1027,21 +1047,39 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			    vp->BmpLock = new CKKLock();
 			
 			vp->BmpLock->Lock();
-			int numBytes=avpicture_get_size(DstAVff, pFrame->width,       pFrame->height);
-			vp->buflen=numBytes*sizeof(uint8_t);
-			av_free(vp->buffer);
-			vp->buffer=(uint8_t *)av_malloc(vp->buflen);
-			avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff,  pFrame->width,       pFrame->height);
+			{
+				 int sw=pFrame->width; //FFALIGN(pFrame->width, 64);
+				 int sh=pFrame->height;//FFALIGN(pFrame->height, 2);
+				 is->viddec_height=sh;
+				 is->viddec_width=sw;
+			     int numBytes=avpicture_get_size(DstAVff, sw,sh); //pFrame->width,pFrame->height
+			     vp->buflen=numBytes*sizeof(uint8_t);
+			     av_free(vp->buffer);
+			     vp->buffer=(uint8_t *)av_malloc(vp->buflen);
+			     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff, sw,sh);
+			}
 			vp->BmpLock->Unlock();
 		}
         //
+         
+		 is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
+			 pFrame->width,  pFrame->height ,(PixelFormat)(pFrame->format) ,
+			 pFrame->width,       pFrame->height,               DstAVff,                
+			 SWS_FAST_BILINEAR,
+			 NULL, NULL, NULL);
+		 if (is->img_convert_ctx == NULL) 
+		 {
+			 fprintf(stderr, "Cannot initialize the conversion context\n");
+			 exit(1);
+		 }
 
+		
+		
+		
 		vp->BmpLock->Lock();
-		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,
-			0,pFrame->height,vp->Bmp.data, vp->Bmp.linesize);
-
+		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,0,pFrame->height,vp->Bmp.data, vp->Bmp.linesize);
+		vp->BmpLock->Unlock();/**/
 	
-		vp->BmpLock->Unlock();	
    
 	frame_queue_push(&is->pictq);
 	return 0;
@@ -1109,9 +1147,9 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 					if(is->AVRate!=100)
 					{
 						pts=pts/((float)is->AVRate/100);
-					}/**/
-					pts *= av_q2d(is->video_st->time_base);
-
+					}
+					//pts *= av_q2d(is->video_st->time_base);
+                    pts *= av_q2d(is->video_st->time_base);
 					
 
 					AVRational  fun={frame_rate.den, frame_rate.num};
@@ -1416,10 +1454,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		if (got_frame)
 		{
 		
-		   tb=tb=is->audio_st->time_base;
-		   /*static int inx=0;
-		   if(frame->pts<0)
-                inx+=frame->pts;*/
+		   tb=is->audio_st->time_base;
+		   
            int64_t srcpts =frame->pts * av_q2d(tb);
 		  
 		   if(is->auddec.Isflush==1)
@@ -1439,22 +1475,25 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		   }
 
 			dec_channel_layout = get_valid_channel_layout(frame->channel_layout, av_frame_get_channels(frame));
-			reconfigure = cmp_audio_fmts(is->audio_filter_src.fmt, is->audio_filter_src.channels,
-				(AVSampleFormat)frame->format, av_frame_get_channels(frame))    ||
-				is->audio_filter_src.channel_layout != dec_channel_layout ||
-				is->audio_filter_src.freq           != frame->sample_rate||
-				is->auddec.pkt_serial               != last_serial;
-
-			if(is->LastAVRate!=is->AVRate)
+			if(is->realtime)
 			{
-				is->LastAVRate=is->AVRate;
-			     if(is->AVRate!=100)
-				 {
-                    reconfigure =true;
-				 }
+				reconfigure = cmp_audio_fmts(is->audio_filter_src.fmt, is->audio_filter_src.channels,
+					(AVSampleFormat)frame->format, av_frame_get_channels(frame))    ||
+					is->audio_filter_src.channel_layout != dec_channel_layout ||
+					is->audio_filter_src.freq           != frame->sample_rate||
+					is->auddec.pkt_serial               != last_serial;
+
+				if(is->LastAVRate!=is->AVRate)
+				{
+					is->LastAVRate=is->AVRate;
+					 if(is->AVRate!=100)
+					 {
+						reconfigure =true;
+					 }
+				}
 			}
 		
-				if (reconfigure) 
+				if (reconfigure&&!is->realtime) 
 				{
 
 					char buf1[1024], buf2[1024];
@@ -1488,7 +1527,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				
 				}
 
-		    if(1)
+		    if(!is->realtime)
 			{
 				if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
 				{
@@ -1540,8 +1579,6 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 
 				AVSampleFormat ff=(AVSampleFormat)frame->format;
 				av_frame_move_ref(af->frame, frame);
-				//is->sampq.mutex->Unlock();
-
 			
 				frame_queue_push(&is->sampq);
 			}

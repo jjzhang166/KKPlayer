@@ -23,7 +23,7 @@ class CAndKKAudio: public IKKAudio
               /********设置音频回到函数*********/
               void SetAudioCallBack(pfun fun);
               /***********初始化音频设备*********/
-              void InitAudio();
+              int InitAudio();
               /*******读取音频数据********/
               void ReadAudio();
               void Start();

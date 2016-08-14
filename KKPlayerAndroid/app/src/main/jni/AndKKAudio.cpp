@@ -156,7 +156,7 @@ void CAndKKAudio::SetAudioCallBack(pfun fun)
     m_ReadLock.Unlock();
 }
 /***********初始化音频设备*********/
-void CAndKKAudio::InitAudio()
+int CAndKKAudio::InitAudio()
 {
     SLresult result;
     // create engine创建一个引擎对象
@@ -291,17 +291,21 @@ void CAndKKAudio::Stop()
 void CAndKKAudio::CloseAudio()
 {
 
-    if(m_bqPlayerPlay!=NULL)
-    {
-        SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);
-        LOGI("m_outputMixObject\n");
-        m_bqPlayerPlay=NULL;
+    Stop();
+
+    if(m_bqPlayerObject!=NULL){
+        (*m_bqPlayerObject)->Destroy(m_bqPlayerObject);
+        m_bqPlayerObject=NULL;
+        LOGI("m_bqPlayerObject\n");
     }
+
+
     if(m_outputMixObject!=NULL)
     {
-        LOGI("m_outputMixObject\n");
+
         (*m_outputMixObject)->Destroy(m_outputMixObject);
-        m_outputMixObject==NULL;
+        m_outputMixObject=NULL;
+        LOGI("m_outputMixObject\n");
 
     }
     if(m_engineObject!=NULL)

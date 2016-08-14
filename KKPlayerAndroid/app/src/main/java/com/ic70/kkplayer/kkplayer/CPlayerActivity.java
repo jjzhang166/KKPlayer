@@ -109,6 +109,7 @@ public class CPlayerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.movielayout);
 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         timer.schedule(task, 500, 500);
         glView = new GLSurfaceView(this);
 
@@ -117,9 +118,10 @@ public class CPlayerActivity extends Activity {
         FrameLayout MovieFrameLayout = (FrameLayout) findViewById(R.id.MovieFrameLayout);
         MovieFrameLayout.addView(glView, 0);
 
-        Bundle bundle = getIntent().getExtras();
+       Bundle bundle = getIntent().getExtras();
         CharSequence MoviePath = bundle.getCharSequence("MoviePath");
-        String path = MoviePath.toString();
+        String path = MoviePath.toString(); /**/
+       // String path="";
         ImageButton Btn=(ImageButton)findViewById(R.id.StartButton);
         Btn.setOnClickListener(new MediaClassBtnClick(this));
         AdJustControl();

@@ -5,7 +5,7 @@
          #include <pthread.h>
          #include <unistd.h>
          // #define  LOGE(...) ; 
-         #define  LOGE(...) __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+         #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
     #else
         #include <Windows.h>
 		#include <assert.h>

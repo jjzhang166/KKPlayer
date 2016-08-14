@@ -172,6 +172,7 @@ typedef struct SKK_Decoder
 typedef struct SKK_VideoState 
 {
 
+	int redisplay;
 	int decoder_reorder_pts;
 	/********包序号递增*********/
 	int PktNumber;
@@ -303,7 +304,8 @@ typedef struct SKK_VideoState
 	char filename[1024];
 	int fileSize;
 	/*******视频大小信息********/
-	int viddec_width,viddec_height;
+	int viddec_width;                /**********解码后的宽度**********/
+	int viddec_height;               /**********解码后的高度**********/
 	
 	int step;
 
@@ -320,5 +322,11 @@ typedef struct SKK_VideoState
 
 	/***********插件信息*****************/
 	KKPluginInfo *pKKPluginInfo;
+
+	//硬件解码方式
+	enum HARDCODE
+	{
+		HARD_CODE_NONE = 0, HARD_CODE_DXVA = 1, HARD_CODE_CUDA
+	} Hard_Code;
 } SKK_VideoState;
 #endif

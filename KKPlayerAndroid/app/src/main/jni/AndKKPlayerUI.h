@@ -6,7 +6,6 @@
 #include "AndKKAudio.h"
 
 #include "../../../../../KKPlayerCore/IKKPlayUI.h"
-         //"F:/ProgramTool/OpenPro/KKPlayer/KKPlayerAndroid/app/src/main/jni/"
 #include "../../../../../KKPlayerCore/KKPlayer.h"
 #ifndef AndKKPlayerUI_H_
 #define AndKKPlayerUI_H_
@@ -28,6 +27,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              void render(char* buf,int width,int height);
              //呈现背景图片
              void renderBk(unsigned char* buf,int len);
+             void AVRender();
              void SetWaitPic(unsigned char* buf,int len);
              void SetBkImagePic(unsigned char* buf,int len);
              unsigned char* GetCenterLogoImage(int &length);
@@ -58,5 +58,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
         int m_Screen_Width;
         int m_Screen_Height;
         unsigned int  m_nTextureID;
+
+       CKKLock m_RenderLock;
 };
 #endif

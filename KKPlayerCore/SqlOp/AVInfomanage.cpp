@@ -61,6 +61,7 @@ void CAVInfoManage::InitDb()
 
 void CAVInfoManage::UpDataAVinfo(char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height)
 {
+	return ;
 	SQL_LITE__ *sl =(SQL_LITE__ *)::malloc(sizeof(SQL_LITE__));
 	memset(sl,0,sizeof(SQL_LITE__));
 

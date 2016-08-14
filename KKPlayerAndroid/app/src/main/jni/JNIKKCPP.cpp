@@ -75,7 +75,8 @@ JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv
 }
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(JNIEnv *env, jobject instance, jstring str_,jint obj)
 {
-    const char *str = env->GetStringUTFChars(str_, 0);
+    //char str[] ="rtmp://121.42.14.63/live/livestream";
+    const char *str=env->GetStringUTFChars(str_, 0);
 
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
     int l= pKKUI->OpenMedia((char*)str);

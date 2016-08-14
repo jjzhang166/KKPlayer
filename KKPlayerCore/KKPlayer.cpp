@@ -62,23 +62,26 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 		
 	}
 	
+
 	AVInputFormat *ff=av_iformat_next(NULL);
 
-	//AVCodec *codec=av_codec_next(NULL);
-	//AVHWAccel *hwaccel=av_hwaccel_next(NULL);
-	////LOGE("AVInputFormatList \n");
-	//int i=0;
-	//while(hwaccel!=NULL)
-	//{
-	//	const char *aa=hwaccel->name;
-	//	::OutputDebugStringA("\n");
-	//	::OutputDebugStringA(aa);
-	//	::OutputDebugStringA("---");
-	//	// aa=hwaccel->
-	//	//::OutputDebugStringA(aa);
-	//	//LOGE("%d,%s \n",i++,aa);
-	//	hwaccel=av_hwaccel_next(hwaccel);
-	//}
+	AVCodec *codec=av_codec_next(NULL);
+	AVHWAccel *hwaccel=av_hwaccel_next(NULL);
+	//LOGE("AVInputFormatList \n");
+#ifdef WIN32
+	int i=0;
+	while(hwaccel!=NULL)
+	{
+		const char *aa=hwaccel->name;
+		::OutputDebugStringA("\n");
+		::OutputDebugStringA(aa);
+		::OutputDebugStringA("---");
+		// aa=hwaccel->
+		//::OutputDebugStringA(aa);
+		//LOGE("%d,%s \n",i++,aa);
+		hwaccel=av_hwaccel_next(hwaccel);
+	}
+#endif
 
 	char buf[1024]="";
 	//MD5File("F://ttxx.mp4", buf);
@@ -109,6 +112,8 @@ void KKPlayer::CloseMedia()
 		m_PreFileLock.Unlock();
 		Sleep(10);
 		m_PreFileLock.Lock();
+
+		LOGE(" xx\n");
 	}
 	if(m_nPreFile==2&&pVideoInfo->pFormatCtx!=NULL&& pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
 	{
@@ -167,7 +172,7 @@ void KKPlayer::CloseMedia()
 		LOGE("thread Over1 m_ReadThreadInfo%d,m_VideoRefreshthreadInfo%d",m_ReadThreadInfo.ThOver
 			,m_VideoRefreshthreadInfo.ThOver
 			);
-		 av_usleep(50000);;
+		 av_usleep(50000);
 	}
 
 
@@ -345,7 +350,7 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
 				
                     info.FileSize=pVideoInfo->fileSize;
 				
-					sprintf_s(info.AVRes,32,"%dx%d",pVideoInfo->viddec_width,pVideoInfo->viddec_height);
+					snprintf(info.AVRes,32,"%dx%d",pVideoInfo->viddec_width,pVideoInfo->viddec_height);
 					char infostr[1024]="";
 					if(pVideoInfo->viddec.avctx!=NULL)
 					{
@@ -354,11 +359,12 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
 						strcat(infostr, pVideoInfo->viddec.avctx->codec->name);
 						strcat(infostr, "\n+平均码率:");   
 						char abcd[32]="";
-						sprintf_s(abcd,32,"%dkbps",pVideoInfo->viddec.avctx->bit_rate/1000);
+						
+						snprintf(abcd,32,"%dkbps",pVideoInfo->viddec.avctx->bit_rate/1000);
 						strcat(infostr, abcd);
 
 						strcat(infostr, "\n+视频帧率:");   
-						sprintf_s(abcd,32,"%d",pVideoInfo->viddec.avctx->framerate);
+						snprintf(abcd,32,"%d",pVideoInfo->viddec.avctx->framerate);
 						strcat(infostr, abcd);
 					}
 					if(pVideoInfo->auddec.avctx!=NULL)
@@ -369,15 +375,15 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
 						strcat(infostr, pVideoInfo->auddec.avctx->codec->name);
 						strcat(infostr, "\n+平均码率:");   
 						char abcd[32]="";
-						sprintf_s(abcd,32,"%dkbps",pVideoInfo->auddec.avctx->bit_rate/1000);
+						snprintf(abcd,32,"%dkbps",pVideoInfo->auddec.avctx->bit_rate/1000);
 						strcat(infostr, abcd);
 
 						strcat(infostr, "\n+采样帧率:");   
-						sprintf_s(abcd,32,"%d Hz",pVideoInfo->auddec.avctx->sample_rate);
+						snprintf(abcd,32,"%d Hz",pVideoInfo->auddec.avctx->sample_rate);
 						strcat(infostr, abcd);
 
 						strcat(infostr, "\n+声 道 数:");   
-						sprintf_s(abcd,32,"%d channels",pVideoInfo->auddec.avctx->channels);
+						snprintf(abcd,32,"%d channels",pVideoInfo->auddec.avctx->channels);
 						strcat(infostr, abcd);
 					}
 					
@@ -478,23 +484,23 @@ retry:
 			
 				
 			SKK_Frame *vp;
-			int redisplay=0;
+			
 		
-			/**********获取包位置**********/
-			vp = frame_queue_peek(&is->pictq);
 			//获取上一次的读取位置
 			SKK_Frame *lastvp = frame_queue_peek_last(&is->pictq);
+			/**********获取包位置**********/
+			vp = frame_queue_peek(&is->pictq);
+			
 			if (vp->serial != is->videoq.serial) {
 				frame_queue_next(&is->pictq,true);
+				is->redisplay=0;
 				goto retry;
 			}
 			
-			if(vp!=NULL)
-			{
-				
+			
 				
 				/*******时间**********/
-				if (lastvp->serial != vp->serial && !redisplay)
+				if (lastvp->serial != vp->serial && !is->redisplay)
 				{
 					is->frame_timer = av_gettime_relative() / 1000000.0;
 				}
@@ -504,21 +510,14 @@ retry:
 				//is->frame_timer += delay;
 				/******上一次更新和这一次时间的差值。图片之间差值******/
 				is->last_duration = vp_duration(is, lastvp, vp);/******pts-pts********/
+
+				if (is->redisplay)
+					is->delay= 0.0;
+				else/**/
 				is->delay = compute_target_delay(is->last_duration, is);
 
-				//if(is->realtime==1&&is->delay>5)
-				//{
-				//	if(!isNAN(vp->pts))
-				//	{
-				//		update_video_pts(is, vp->pts, vp->pos, vp->serial);
-				//	}
-				//	frame_queue_next(&is->pictq,true);
-				//	//is->pictq.mutex->Unlock();
-				//	//goto display;
-				//	goto retry;
-				//}
 				time= av_gettime_relative()/1000000.0;
-				if (time < is->frame_timer + is->delay) {
+				if (time < is->frame_timer + is->delay&&!is->redisplay) {
 					double llxxxx=is->frame_timer + is->delay - time;
 					is->remaining_time = FFMIN(llxxxx, is->remaining_time);
 					goto display;
@@ -529,7 +528,7 @@ retry:
 					is->frame_timer = time;
 
 
-				if(!isNAN(vp->pts))
+				if(!isNAN(vp->pts)&&!is->redisplay)
 				{
 					update_video_pts(is, vp->pts, vp->pos, vp->serial);
 				}
@@ -537,12 +536,11 @@ retry:
 				{
 					SKK_Frame *nextvp = frame_queue_peek_next(&is->pictq);
 					duration = vp_duration(is, vp, nextvp);
-					if((get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER) && time > is->frame_timer + duration)
+					if((is->redisplay ||(get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER)) && time > is->frame_timer + duration)
 					{
 						is->frame_drops_late++;
 						frame_queue_next(&is->pictq,true);
-						//is->pictq.mutex->Unlock();
-						//goto display;
+						is->redisplay=0;
 						goto retry;
 					}
 				}
@@ -554,15 +552,13 @@ retry:
 						{
 						  start_time=vp->pts;
 						}
-						if(vp->PktNumber%20==0)
+						/*if(vp->PktNumber%20==0)
 						{
 						  m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,is->viddec_width,is->viddec_height);
-						}		
+						}	*/	
 				}
 				frame_queue_next(&is->pictq,true);
 				is->force_refresh=1;
-			}
-			//is->pictq.mutex->Unlock();
 	}
 display:
 	if(is->force_refresh&&m_pPlayUI!=NULL)
@@ -889,7 +885,7 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	//fileName="rtmp://172.25.123.2:19350/live/livestream";
 		//"KKV:687281b0bee195d415caaf20bd50a8de|test.mp4";
 	//fileName="KKV:e8a486a4e28480ad18bd5041c2ad34fa|test.mp4";
-	//fileName="c:/xx.mp4";
+	//fileName="rtmp://live.hkstv.hk.lxdns.com/live/hks live=1";
 	m_CloseLock.Lock();
     if(m_bOpen)
 	{
@@ -1188,14 +1184,14 @@ void KKPlayer::ReadAV()
 	m_nPreFile=2;
 	m_PreFileLock.Unlock();
 	
-
+#ifdef WIN32
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5))
 	{
 
 		 av_dict_set(&format_opts, "rtmp_listen", "1", AV_DICT_MATCH_CASE);
 		 av_dict_set(&format_opts, "timeout", "5", AV_DICT_MATCH_CASE);
-          
 	}
+#endif
 	
 	
 	//此函数是阻塞的
@@ -1606,3 +1602,110 @@ void KKPlayer::Avflush(int64_t seek_target)
 		set_clock(&pVideoInfo->extclk, seek_target / (double)AV_TIME_BASE, 0);
 	}
 }
+
+#ifdef WIN32
+#include <emmintrin.h>
+#include <smmintrin.h>
+void* gpu_memcpy(void* d, const void* s, size_t size)
+{
+	static const size_t regsInLoop = sizeof(size_t) * 2; // 8 or 16
+
+	if (d == NULL|| s == NULL) 
+		return NULL;
+
+	// If memory is not aligned, use memcpy
+	bool isAligned = (((size_t)(s) | (size_t)(d)) & 0xF) == 0;
+	if (!isAligned)
+	{
+		return memcpy(d, s, size);
+	}
+
+	__m128i xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7;
+#ifdef _M_X64
+	__m128i xmm8, xmm9, xmm10, xmm11, xmm12, xmm13, xmm14, xmm15;
+#endif
+
+	size_t reminder = size & (regsInLoop * sizeof(xmm0) - 1); // Copy 128 or 256 bytes every loop
+	size_t end = 0;
+
+	__m128i* pTrg = (__m128i*)d;
+	__m128i* pTrgEnd = pTrg + ((size - reminder) >> 4);
+	__m128i* pSrc = (__m128i*)s;
+
+	// Make sure source is synced - doesn't hurt if not needed.
+	_mm_sfence();
+
+	while (pTrg < pTrgEnd)
+	{
+		// _mm_stream_load_si128 emits the Streaming SIMD Extensions 4 (SSE4.1) instruction MOVNTDQA
+		// Fastest method for copying GPU RAM. Available since Penryn (45nm Core 2 Duo/Quad)
+		xmm0  = _mm_stream_load_si128(pSrc);
+		xmm1  = _mm_stream_load_si128(pSrc + 1);
+		xmm2  = _mm_stream_load_si128(pSrc + 2);
+		xmm3  = _mm_stream_load_si128(pSrc + 3);
+		xmm4  = _mm_stream_load_si128(pSrc + 4);
+		xmm5  = _mm_stream_load_si128(pSrc + 5);
+		xmm6  = _mm_stream_load_si128(pSrc + 6);
+		xmm7  = _mm_stream_load_si128(pSrc + 7);
+#ifdef _M_X64 // Use all 16 xmm registers
+		xmm8  = _mm_stream_load_si128(pSrc + 8);
+		xmm9  = _mm_stream_load_si128(pSrc + 9);
+		xmm10 = _mm_stream_load_si128(pSrc + 10);
+		xmm11 = _mm_stream_load_si128(pSrc + 11);
+		xmm12 = _mm_stream_load_si128(pSrc + 12);
+		xmm13 = _mm_stream_load_si128(pSrc + 13);
+		xmm14 = _mm_stream_load_si128(pSrc + 14);
+		xmm15 = _mm_stream_load_si128(pSrc + 15);
+#endif
+		pSrc += regsInLoop;
+		// _mm_store_si128 emit the SSE2 intruction MOVDQA (aligned store)
+		_mm_store_si128(pTrg     , xmm0);
+		_mm_store_si128(pTrg +  1, xmm1);
+		_mm_store_si128(pTrg +  2, xmm2);
+		_mm_store_si128(pTrg +  3, xmm3);
+		_mm_store_si128(pTrg +  4, xmm4);
+		_mm_store_si128(pTrg +  5, xmm5);
+		_mm_store_si128(pTrg +  6, xmm6);
+		_mm_store_si128(pTrg +  7, xmm7);
+#ifdef _M_X64 // Use all 16 xmm registers
+		_mm_store_si128(pTrg +  8, xmm8);
+		_mm_store_si128(pTrg +  9, xmm9);
+		_mm_store_si128(pTrg + 10, xmm10);
+		_mm_store_si128(pTrg + 11, xmm11);
+		_mm_store_si128(pTrg + 12, xmm12);
+		_mm_store_si128(pTrg + 13, xmm13);
+		_mm_store_si128(pTrg + 14, xmm14);
+		_mm_store_si128(pTrg + 15, xmm15);
+#endif
+		pTrg += regsInLoop;
+	}
+
+	// Copy in 16 byte steps
+	if (reminder >= 16)
+	{
+		size = reminder;
+		reminder = size & 15;
+		end = size >> 4;
+		for (size_t i = 0; i < end; ++i)
+		{
+			pTrg[i] = _mm_stream_load_si128(pSrc + i);
+		}
+	}
+
+	// Copy last bytes - shouldn't happen as strides are modulu 16
+	if (reminder)
+	{
+		__m128i temp = _mm_stream_load_si128(pSrc + end);
+
+		char* ps = (char*)(&temp);
+		char* pt = (char*)(pTrg + end);
+
+		for (size_t i = 0; i < reminder; ++i)
+		{
+			pt[i] = ps[i];
+		}
+	}
+
+	return d;
+}
+#endif
