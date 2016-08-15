@@ -58,20 +58,20 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
     {
         setContentView(R.layout.rtmptest);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        Button btx=(Button)findViewById(R.id.AVButton1);
+       /* Button btx=(Button)findViewById(R.id.AVButton1);
          btx.setOnClickListener(new Button.OnClickListener(){//创建监听
             public void onClick(View v) {
                 Intent intent = new Intent();
 
-                intent.putExtra("MoviePath",  "rtmp://121.42.14.63/live/livestream");
+                intent.putExtra("MoviePath",  "rtmp://121.42.14.63/live/livestream");*/
         /* 指定intent要启动的类 */
 
-                intent.setClass(v.getContext(),CPlayerActivity.class);//(context.this, Activity02.class);
+        /*        intent.setClass(v.getContext(),CPlayerActivity.class);//(context.this, Activity02.class);*/
         /* 启动一个新的Activity */
-                v.getContext().startActivity(intent);
+        /*       v.getContext().startActivity(intent);
             }
 
-        });
+        });*/
 
         txtAvUrl=( EditText)findViewById(R.id.AVeditText);
         Button btx2=(Button)findViewById(R.id.AVbutton2);

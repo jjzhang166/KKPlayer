@@ -283,7 +283,7 @@ void CAndKKAudio::Stop()
     SetCond();
     if(m_bqPlayerPlay!=NULL)
     {
-        LOGI("m_bqPlayerPlay\n");
+        LOGI("m_bqPlayerPlay stop\n");
         SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay,  SL_PLAYSTATE_STOPPED);
     }
 }
@@ -296,7 +296,7 @@ void CAndKKAudio::CloseAudio()
     if(m_bqPlayerObject!=NULL){
         (*m_bqPlayerObject)->Destroy(m_bqPlayerObject);
         m_bqPlayerObject=NULL;
-        LOGI("m_bqPlayerObject\n");
+        LOGI("m_bqPlayerObject Destroy\n");
     }
 
 
@@ -305,14 +305,14 @@ void CAndKKAudio::CloseAudio()
 
         (*m_outputMixObject)->Destroy(m_outputMixObject);
         m_outputMixObject=NULL;
-        LOGI("m_outputMixObject\n");
+        LOGI("m_outputMixObject Destroy\n");
 
     }
     if(m_engineObject!=NULL)
     {
          (*m_engineObject)->Destroy(m_engineObject);
         m_engineObject=NULL;
-        LOGI("m_engineObject\n");
+        LOGI("m_engineObject Destroy\n");
     }
 }
 /*********设置音量************/

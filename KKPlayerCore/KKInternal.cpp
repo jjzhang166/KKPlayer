@@ -16,7 +16,7 @@
       AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
 	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
 #else
-      AVPixelFormat DstAVff=AV_PIX_FMT_BGRA;//AV_PIX_FMT_YUV420P;
+      AVPixelFormat DstAVff=AV_PIX_FMT_RGB24;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
 #endif
 	 // AVPixelFormat DstAVff=AV_PIX_FMT_BGRA;
  //<tgmath.h> 
@@ -1444,7 +1444,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 
 	
 	int64_t dec_channel_layout;
-	int reconfigure;
+	int reconfigure=0;
 	//½âÂë²Ù×÷
 	do {
 		
@@ -1475,7 +1475,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		   }
 
 			dec_channel_layout = get_valid_channel_layout(frame->channel_layout, av_frame_get_channels(frame));
-			if(is->realtime)
+			if(!is->realtime)
 			{
 				reconfigure = cmp_audio_fmts(is->audio_filter_src.fmt, is->audio_filter_src.channels,
 					(AVSampleFormat)frame->format, av_frame_get_channels(frame))    ||

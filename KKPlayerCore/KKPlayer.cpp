@@ -132,6 +132,7 @@ void KKPlayer::CloseMedia()
 		m_PreFileLock.Unlock();
 		Sleep(100);
 		m_PreFileLock.Lock();
+		LOGE(" xx2\n");
        
 	}
 	m_nPreFile=0;
@@ -1406,14 +1407,25 @@ void KKPlayer::ReadAV()
 			
 			  //LOGE("readAV ret=%d \n",ret);
 			 if ((ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof) 
-			// if ((ret == AVERROR_EOF ) && !pVideoInfo->eof) 
 			 {
 				    
                     pVideoInfo->eof=1;
+					if(pVideoInfo->realtime)
+					{
+					
+						pVideoInfo->abort_request=1;
+						m_pPlayUI->AutoMediaCose(-1);
+					}else{
+						m_pPlayUI->AutoMediaCose(0);
+					}
 			 }
 
 			 if (pFormatCtx->pb && pFormatCtx->pb->error)
+			 {
+
+				    m_pPlayUI->AutoMediaCose(-2);
 				    break;
+			 }
 			av_usleep(10000);
 			continue;
 		} else 

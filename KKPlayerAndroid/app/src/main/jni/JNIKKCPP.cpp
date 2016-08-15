@@ -83,6 +83,13 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(
     env->ReleaseStringUTFChars(str_, str);
     return l;
 }
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKIsNeedReConnect(JNIEnv *env, jobject instance,jint obj)
+{
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    if(pKKUI->GetNeedReconnect())
+        return 1;
+    return 0;
+}
 JNIEXPORT jstring JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetMediaInfo(JNIEnv *env, jobject instance, jint obj) {
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
     MEDIA_INFO info=pKKUI->GetMediaInfo();

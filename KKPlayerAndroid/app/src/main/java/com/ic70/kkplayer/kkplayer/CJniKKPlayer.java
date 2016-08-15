@@ -27,6 +27,7 @@ public class CJniKKPlayer {
     public native void DelKK(int obj);
     public native int KKOpenMedia(String str,int obj);
 
+    public native int KKIsNeedReConnect(int obj);
     //get about of movie info
     public native String GetMediaInfo(int obj);
     //Movie Pause

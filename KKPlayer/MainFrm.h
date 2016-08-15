@@ -71,6 +71,8 @@ public:
 	virtual unsigned char* GetBkImage(int &len);
 	virtual unsigned char* GetCenterLogoImage(int &length);
 	virtual void OpenMediaFailure(char* strURL);
+	/*******视频流结束调用*******/
+	virtual void  AutoMediaCose(int Stata);
 	int GetCurTime();
 	int Pause();
 	int PktSerial();

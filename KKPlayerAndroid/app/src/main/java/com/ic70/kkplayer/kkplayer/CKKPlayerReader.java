@@ -13,6 +13,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class CKKPlayerReader implements GLSurfaceView.Renderer
 {
     CMediaInfo info = new  CMediaInfo();
+    String m_url;
     public class CMediaInfo
     {
         public int CurTime;
@@ -59,6 +60,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     }
     public int OpenMedia(String str)
     {
+        m_url=str;
         String ll;
         ll=m_nKKPlayer+";";
         Log.v("MoviePath",str);
@@ -82,6 +84,10 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     {
         if(m_nKKPlayer!=0)
         {
+            if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1)
+            {
+                m_JniKKPlayer.KKOpenMedia(m_url,m_nKKPlayer);
+            }
             m_JniKKPlayer.GlRender(m_nKKPlayer);
         }
     }

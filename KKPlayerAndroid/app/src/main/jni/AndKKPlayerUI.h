@@ -33,19 +33,21 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              unsigned char* GetCenterLogoImage(int &length);
              MEDIA_INFO GetMediaInfo();
              int OpenMedia(char *str);
+
     /***********UI调用***********/
    public:
             virtual unsigned char* GetWaitImage(int &length,int curtime);
             virtual unsigned char* GetBkImage(int &length);
             virtual void OpenMediaFailure(char* strURL);
+            virtual void  AutoMediaCose(int Stata);
             void LoadCenterLogo(unsigned char* buf,int len);
-
+            bool GetNeedReconnect();
             void Pause();
             void Seek(int value);
    private:
         int m_width;
         int m_height;
-
+        bool m_bNeedReconnect;
         int m_Picwidth;
         int m_Picheight;
         bool m_bAdJust;

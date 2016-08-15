@@ -650,7 +650,10 @@ void CMainFrame::OpenMediaFailure(char* strURL)
 	//::MessageBoxA(m_hWnd,abcd.c_str(),"´íÎó",MB_ICONHAND);
 	::PostMessage(m_hWnd,WM_OpenErr ,(WPARAM )err,0);
 }
+void  CMainFrame::AutoMediaCose(int Stata)
+{
 
+}
 LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	bHandled=true;

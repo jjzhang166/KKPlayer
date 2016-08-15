@@ -43,6 +43,7 @@ CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
     m_bAdJust= false;
     m_player.InitSound();
     m_player.SetWindowHwnd(0);
+    m_bNeedReconnect= false;
 }
 CAndKKPlayerUI::~CAndKKPlayerUI()
 {
@@ -97,6 +98,7 @@ MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
 int  CAndKKPlayerUI::OpenMedia(char *str)
 {
     LOGI(" CAndKKPlayerUI %s\n",str);
+    m_bNeedReconnect=false;
     return m_player.OpenMedia(str);
 }
 // 定义π
@@ -213,6 +215,10 @@ void CAndKKPlayerUI::renderFrame()
     glDisable(GL_TEXTURE_2D);
     return;
 }
+bool CAndKKPlayerUI::GetNeedReconnect()
+{
+    return  m_bNeedReconnect;
+}
 unsigned char* CAndKKPlayerUI::GetWaitImage(int &length,int curtime)
 {
     return NULL;
@@ -234,7 +240,13 @@ void CAndKKPlayerUI::OpenMediaFailure(char *strURL)
     LOGE("Open Err");
     return;
 }
-
+void  CAndKKPlayerUI::AutoMediaCose(int Stata)
+{
+     if(Stata==-1)
+     {
+         m_bNeedReconnect=true;
+     }
+}
 bool CAndKKPlayerUI::init(HWND hView)
 {
 
@@ -276,7 +288,7 @@ void CAndKKPlayerUI::render(char* buf,int width,int height)
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D,m_nTextureID );
-        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,buf);
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGB, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,buf);
         m_Picwidth=width;
         m_Picheight=height;
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
