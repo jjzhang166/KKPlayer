@@ -30,6 +30,8 @@ public class CJniKKPlayer {
     public native int KKIsNeedReConnect(int obj);
     //get about of movie info
     public native String GetMediaInfo(int obj);
+    public native  int KKCloseMedia(int obj);
+    public native  int KKGetPlayerState(int obj);
     //Movie Pause
     public native void Pause(int obj);
 

@@ -44,6 +44,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
             bool GetNeedReconnect();
             void Pause();
             void Seek(int value);
+            int GetPlayerState();
    private:
         int m_width;
         int m_height;

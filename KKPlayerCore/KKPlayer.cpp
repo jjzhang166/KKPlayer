@@ -870,6 +870,28 @@ int KKPlayer::GetRealtime()
 
 }
 
+
+//返回 1 流媒体
+int is_realtime2(char *name)
+{
+	if(   !strcmp(name, "rtp")    || 
+		!strcmp(name, "rtsp")   || 
+		!strcmp(name, "sdp")
+		)
+		return 1;
+
+
+	if(!strncmp(name, "rtmp:",5))>=0)
+	{
+		return 1;
+	}
+	if
+		(  !strncmp(name, "rtp:", 4)|| 
+		!strncmp(name, "udp:", 4) 
+		)
+		return 1;
+	return 0;
+}
 int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 {
 	m_PreFileLock.Lock();
@@ -925,6 +947,8 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	flush_pkt.data = (uint8_t *)pVideoInfo->pflush_pkt;
 
 	av_strlcpy(pVideoInfo->filename, fileName, strlen(fileName)+1);
+
+	pVideoInfo->realtime = is_realtime2(fileName);
 
 	//初始化队列
 	packet_queue_init(&pVideoInfo->videoq);
@@ -1285,7 +1309,7 @@ void KKPlayer::ReadAV()
 		}
 	}
 
-	pVideoInfo->realtime = is_realtime(pFormatCtx);
+	
 	for (i = 0; i < pFormatCtx->nb_streams; i++) 
 	{
 		AVStream *st = pFormatCtx->streams[i];
@@ -1409,6 +1433,7 @@ void KKPlayer::ReadAV()
 			 if ((ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof) 
 			 {
 				    
+				     LOGE("ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof \n");
                     pVideoInfo->eof=1;
 					if(pVideoInfo->realtime)
 					{
@@ -1422,9 +1447,16 @@ void KKPlayer::ReadAV()
 
 			 if (pFormatCtx->pb && pFormatCtx->pb->error)
 			 {
-
-				    m_pPlayUI->AutoMediaCose(-2);
-				    break;
+				 pVideoInfo->eof=1;
+				 pVideoInfo->abort_request=1;
+				 if(pVideoInfo->realtime)
+				 {
+					 m_pPlayUI->AutoMediaCose(-2);
+				 }else{
+				     m_pPlayUI->AutoMediaCose(-3);
+				 }
+				 LOGE("pFormatCtx->pb && pFormatCtx->pb->error \n");
+				 break;
 			 }
 			av_usleep(10000);
 			continue;

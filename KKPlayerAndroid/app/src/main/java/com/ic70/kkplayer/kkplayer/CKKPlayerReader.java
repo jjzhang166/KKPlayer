@@ -45,7 +45,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     public void Seek(int l)
     {
         if(m_nKKPlayer!=0) {
-            m_JniKKPlayer.Seek(m_nKKPlayer,l);
+            m_JniKKPlayer.Seek(m_nKKPlayer, l);
         }
     }
     public CMediaInfo GetCMediaInfo()
@@ -65,6 +65,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         ll=m_nKKPlayer+";";
         Log.v("MoviePath",str);
         if(m_nKKPlayer!=0) {
+            m_JniKKPlayer.KKCloseMedia(m_nKKPlayer);
             return m_JniKKPlayer.KKOpenMedia(str,m_nKKPlayer);
         }
         return 2;
@@ -79,6 +80,20 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
 
         }
     }
+    public int GetPlayerState()
+    {
+        if(m_nKKPlayer!=0) {
+            return m_JniKKPlayer.KKGetPlayerState(m_nKKPlayer);
+        }
+        return -1;
+    }
+    public int GetNeedReConnect()
+    {
+        if(m_nKKPlayer!=0) {
+            return  m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer);
+        }
+        return 0;
+    }
     @Override
     public void onDrawFrame(GL10 gl)
     {
@@ -86,7 +101,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         {
             if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1)
             {
-                m_JniKKPlayer.KKOpenMedia(m_url,m_nKKPlayer);
+                OpenMedia(m_url);
             }
             m_JniKKPlayer.GlRender(m_nKKPlayer);
         }

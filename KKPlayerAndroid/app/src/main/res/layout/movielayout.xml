@@ -66,5 +66,31 @@
                                            </LinearLayout>
     </LinearLayout>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="网络断开点击重试"
+        android:id="@+id/NetButton"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="打开失败"
+        android:id="@+id/TipTxtView"
+        android:layout_gravity="center"
+        android:textColor="#fefefe"
+        android:visibility="gone" />
+
+    <ImageView
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/WaitRImageView"
+        android:src="@drawable/wait1"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:layout_centerHorizontal="true" />
 </FrameLayout>

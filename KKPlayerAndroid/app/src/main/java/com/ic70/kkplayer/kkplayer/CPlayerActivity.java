@@ -3,6 +3,8 @@ package com.ic70.kkplayer.kkplayer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -29,7 +32,8 @@ public class CPlayerActivity extends Activity {
     private GLSurfaceView glView;
     private CKKPlayerReader m_KKPlayer=null;
     private boolean m_bSeekPlayer=false;
-
+    Activity m_PlayerActivity=null;
+    boolean m_bNecState=true;
     String CurTimeStr = new String();
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {
@@ -49,12 +53,33 @@ public class CPlayerActivity extends Activity {
    }
     EnumPlayerStata PlayerStata=EnumPlayerStata.Stop;
     int m_CurTime=0;
+    String MoviePathStr;
     Handler handler = new Handler()
     {
         public void handleMessage(Message msg)
         {
+
             if (msg.what == 1)
             {
+
+
+                if (m_PlayerActivity != null)
+                {
+                         m_bNecState = isNetworkAvailable(m_PlayerActivity);
+                         if (PlayerStata == EnumPlayerStata.Play && !m_bNecState) {
+                             Button NetButton = (Button) findViewById(R.id.NetButton);
+                             NetButton.setVisibility(View.VISIBLE);
+                         }
+                }
+                if(m_KKPlayer.GetPlayerState()==-2) {
+                TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
+                Button NetButton = (Button) findViewById(R.id.NetButton);
+                if( NetButton.getVisibility()==View.GONE)
+                    TipTxtView.setVisibility(View.VISIBLE);
+            }else{
+                TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
+                TipTxtView.setVisibility(View.GONE);
+            }
                  if( m_KKPlayer!=null&&!m_bSeekPlayer)
                  {
                      CKKPlayerReader.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
@@ -105,10 +130,12 @@ public class CPlayerActivity extends Activity {
             super.handleMessage(msg);
         };
     };
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.movielayout);
-
+        m_PlayerActivity=this;
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         timer.schedule(task, 500, 500);
         glView = new GLSurfaceView(this);
@@ -118,9 +145,19 @@ public class CPlayerActivity extends Activity {
         FrameLayout MovieFrameLayout = (FrameLayout) findViewById(R.id.MovieFrameLayout);
         MovieFrameLayout.addView(glView, 0);
 
-       Bundle bundle = getIntent().getExtras();
+        Button NetButton= ( Button) findViewById(R.id.NetButton);
+
+        NetButton.setOnClickListener(new Button.OnClickListener(){//创建监听
+            public void onClick(View v) {
+                Button NetButton2=(Button)v;
+                NetButton2.setVisibility(View.GONE);
+                m_KKPlayer.OpenMedia(MoviePathStr);
+            }
+
+        });
+        Bundle bundle = getIntent().getExtras();
         CharSequence MoviePath = bundle.getCharSequence("MoviePath");
-        String path = MoviePath.toString(); /**/
+        MoviePathStr= MoviePath.toString(); /**/
        // String path="";
         ImageButton Btn=(ImageButton)findViewById(R.id.StartButton);
         Btn.setOnClickListener(new MediaClassBtnClick(this));
@@ -128,7 +165,7 @@ public class CPlayerActivity extends Activity {
 
         SeekBar SeekBtn=(SeekBar)findViewById(R.id.MovieSeekbar);
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
-        m_KKPlayer.OpenMedia(path);
+        m_KKPlayer.OpenMedia(MoviePathStr);
         m_CurTime=0;
         PlayerStata=EnumPlayerStata.Play;
     }
@@ -254,6 +291,38 @@ public class CPlayerActivity extends Activity {
             Log.v("MoviePath", "Del");
             finish();
             Log.v("MoviePath", "退出 over mmm");
+        }
+        return false;
+    }
+
+    public boolean isNetworkAvailable(Activity activity)
+    {
+        Context context = activity.getApplicationContext();
+        // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (connectivityManager == null)
+        {
+            return false;
+        }
+        else
+        {
+            // 获取NetworkInfo对象
+            NetworkInfo[] networkInfo = connectivityManager.getAllNetworkInfo();
+
+            if (networkInfo != null && networkInfo.length > 0)
+            {
+                for (int i = 0; i < networkInfo.length; i++)
+                {
+                  //  System.out.println(i + "===状态===" + networkInfo[i].getState());
+                    //System.out.println(i + "===类型===" + networkInfo[i].getTypeName());
+                    // 判断当前网络状态是否为连接状态
+                    if (networkInfo[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }

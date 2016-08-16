@@ -34,7 +34,7 @@ static void checkGlError(const char* op)
 CAndKKPlayerUI::CAndKKPlayerUI():m_player(this,&m_Audio)
 {
     //播放器未启动
-    m_playerState=0;
+    m_playerState=-1;
     m_pGLHandle=0;
     gvPositionHandle=0;
     m_Screen_Width=0;
@@ -97,9 +97,14 @@ MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
 }
 int  CAndKKPlayerUI::OpenMedia(char *str)
 {
-    LOGI(" CAndKKPlayerUI %s\n",str);
-    m_bNeedReconnect=false;
-    return m_player.OpenMedia(str);
+    LOGI(" CAndKKPlayerUI %s,%d\n",str, m_playerState);
+    if( m_playerState<=-1)
+    {
+        m_bNeedReconnect=false;
+        m_player.CloseMedia();
+        m_playerState=m_player.OpenMedia(str);
+    }
+    return m_playerState;
 }
 // 定义π
 const GLfloat PI = 3.1415f;
@@ -219,6 +224,10 @@ bool CAndKKPlayerUI::GetNeedReconnect()
 {
     return  m_bNeedReconnect;
 }
+int CAndKKPlayerUI::GetPlayerState()
+{
+    return m_playerState;
+}
 unsigned char* CAndKKPlayerUI::GetWaitImage(int &length,int curtime)
 {
     return NULL;
@@ -238,6 +247,7 @@ unsigned char* CAndKKPlayerUI::GetBkImage(int &length)
 void CAndKKPlayerUI::OpenMediaFailure(char *strURL)
 {
     LOGE("Open Err");
+    m_playerState=-2;
     return;
 }
 void  CAndKKPlayerUI::AutoMediaCose(int Stata)
@@ -246,6 +256,7 @@ void  CAndKKPlayerUI::AutoMediaCose(int Stata)
      {
          m_bNeedReconnect=true;
      }
+    m_playerState=-1;
 }
 bool CAndKKPlayerUI::init(HWND hView)
 {
@@ -254,6 +265,7 @@ bool CAndKKPlayerUI::init(HWND hView)
 int  CAndKKPlayerUI::CloseMedia()
 {
     m_player.CloseMedia();
+    m_playerState=-1;
     return 0;
 }
 void CAndKKPlayerUI::destroy()
