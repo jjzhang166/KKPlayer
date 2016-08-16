@@ -1,7 +1,11 @@
 package com.ic70.kkplayer.kkplayer;
 
+import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -27,8 +31,10 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     private CJniKKPlayer m_JniKKPlayer;
     private int m_nKKPlayer=0;
     private int m_nGlHandle=0;
-    public CKKPlayerReader()
+    private Activity m_PlayerAc=null;
+    public CKKPlayerReader(Activity ac)
     {
+        m_PlayerAc=ac;
         m_JniKKPlayer = new CJniKKPlayer();
         m_nKKPlayer=m_JniKKPlayer.IniKK();
         int ll=0;
@@ -57,6 +63,11 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
             info.TotalTime=Integer.parseInt(ll[1]);
         }
         return  info;
+    }
+    boolean m_ReOpen=false;
+    public void NeedReOpenMedia()
+    {
+        m_ReOpen=true;
     }
     public int OpenMedia(String str)
     {
@@ -87,6 +98,13 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         }
         return -1;
     }
+    public int GetReady()
+    {
+        if(m_nKKPlayer!=0) {
+            return m_JniKKPlayer.KKIsReady(m_nKKPlayer);
+        }
+        return 0;
+    }
     public int GetNeedReConnect()
     {
         if(m_nKKPlayer!=0) {
@@ -99,7 +117,10 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     {
         if(m_nKKPlayer!=0)
         {
-            if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1)
+            if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1&& !m_ReOpen)
+            {
+                OpenMedia(m_url);
+            }else if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)!=1&& m_ReOpen)
             {
                 OpenMedia(m_url);
             }

@@ -32,9 +32,11 @@ public class CJniKKPlayer {
     public native String GetMediaInfo(int obj);
     public native  int KKCloseMedia(int obj);
     public native  int KKGetPlayerState(int obj);
+    public native  int KKIsReady(int obj);
     //Movie Pause
     public native void Pause(int obj);
 
     public native void Seek(int obj,int value);
+
 }
 //javah -classpath ..\..\..\build\intermediates\classes\debug com.ic70.kkplayer.kkplayer.CJniKKPlayer

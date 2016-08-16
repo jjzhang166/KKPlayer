@@ -91,6 +91,7 @@ class KKPlayer
 			//解码成BGRA格式
 			void SetBGRA();
 			static void AddKKPluginInfo(KKPluginInfo &info);
+			int GetIsReady();
 private:
 	        int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 	        //视频刷线程

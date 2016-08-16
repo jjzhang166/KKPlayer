@@ -587,7 +587,12 @@ void KKPlayer::VideoRefresh()
 	
 	video_image_refresh(pVideoInfo);
 }
-
+int KKPlayer::GetIsReady()
+{
+	if(pVideoInfo!=NULL)
+	    return pVideoInfo->IsReady;
+	return 0;
+}
 
 void KKPlayer::RenderImage(CRender *pRender,bool Force)
 {
@@ -881,7 +886,7 @@ int is_realtime2(char *name)
 		return 1;
 
 
-	if(!strncmp(name, "rtmp:",5))>=0)
+	if(!strncmp(name, "rtmp:",5)>=0)
 	{
 		return 1;
 	}

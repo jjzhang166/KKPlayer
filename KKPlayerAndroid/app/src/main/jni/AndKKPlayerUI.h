@@ -33,7 +33,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              unsigned char* GetCenterLogoImage(int &length);
              MEDIA_INFO GetMediaInfo();
              int OpenMedia(char *str);
-
+             int GetIsReady();
     /***********UI调用***********/
    public:
             virtual unsigned char* GetWaitImage(int &length,int curtime);

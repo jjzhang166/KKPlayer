@@ -312,3 +312,7 @@ void CAndKKPlayerUI::render(char* buf,int width,int height)
 void CAndKKPlayerUI::renderBk(unsigned char* buf,int len){}
 void CAndKKPlayerUI::SetWaitPic(unsigned char* buf,int len){}
 void CAndKKPlayerUI::SetBkImagePic(unsigned char* buf,int len){}
+int CAndKKPlayerUI::GetIsReady()
+{
+    return  m_player.GetIsReady();
+}

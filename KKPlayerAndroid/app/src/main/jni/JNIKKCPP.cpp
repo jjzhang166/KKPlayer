@@ -116,3 +116,8 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKGetPlayerS
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
     return  pKKUI->GetPlayerState();
 }
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKIsReady(JNIEnv *env, jobject instance,jint obj)
+{
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    return  pKKUI->GetIsReady();
+}

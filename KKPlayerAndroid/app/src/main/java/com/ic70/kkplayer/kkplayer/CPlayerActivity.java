@@ -14,9 +14,13 @@ import android.view.KeyEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -61,25 +65,53 @@ public class CPlayerActivity extends Activity {
 
             if (msg.what == 1)
             {
-
-
-                if (m_PlayerActivity != null)
+                int llx=m_KKPlayer.GetReady();
+                if(llx==0&&m_KKPlayer.GetPlayerState()>-1)
                 {
-                         m_bNecState = isNetworkAvailable(m_PlayerActivity);
-                         if (PlayerStata == EnumPlayerStata.Play && !m_bNecState) {
-                             Button NetButton = (Button) findViewById(R.id.NetButton);
-                             NetButton.setVisibility(View.VISIBLE);
-                         }
+                        WaitGif();
+                }else {
+                    ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
+                    System.out.println(m_KKPlayer.GetReady() + "SSS");
+                    ImageV.setVisibility(View.GONE);
+                    ImageV.setAnimation(null);
+
+                    Button NetButton = (Button) findViewById(R.id.NetButton);
+                    NetButton.setVisibility(View.GONE);
                 }
-                if(m_KKPlayer.GetPlayerState()==-2) {
-                TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
-                Button NetButton = (Button) findViewById(R.id.NetButton);
-                if( NetButton.getVisibility()==View.GONE)
+                m_bNecState = isNetworkAvailable(m_PlayerActivity);
+                if (PlayerStata == EnumPlayerStata.Play && !m_bNecState) {
+                         Button NetButton = (Button) findViewById(R.id.NetButton);
+                         NetButton.setText("网络断开点击重试");
+                         NetButton.setVisibility(View.VISIBLE);
+                         TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
+                         TipTxtView.setVisibility(View.GONE);
+                }else
+                {
+                    //网络断开后重试打开
+                    if(PlayerStata == EnumPlayerStata.Play &&m_bNecState)
+                    {
+                        Button NetButton = (Button) findViewById(R.id.NetButton);
+                        if( NetButton.getVisibility()==View.VISIBLE)
+                        {
+                            NetButton.setVisibility(View.GONE);
+                            m_KKPlayer.NeedReOpenMedia();
+                        }
+                    }
+                }
+
+                if(m_KKPlayer.GetPlayerState()==-2)
+                {
+                    TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
+                    Button NetButton = (Button) findViewById(R.id.NetButton);
+                    if( NetButton.getVisibility()==View.GONE)
+                        TipTxtView.setVisibility(View.VISIBLE);
+                }
+                /* if( NetButton.getVisibility()==View.GONE)
                     TipTxtView.setVisibility(View.VISIBLE);
-            }else{
+             }else{
                 TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
                 TipTxtView.setVisibility(View.GONE);
-            }
+            }*/
                  if( m_KKPlayer!=null&&!m_bSeekPlayer)
                  {
                      CKKPlayerReader.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
@@ -168,6 +200,19 @@ public class CPlayerActivity extends Activity {
         m_KKPlayer.OpenMedia(MoviePathStr);
         m_CurTime=0;
         PlayerStata=EnumPlayerStata.Play;
+        WaitGif();
+    }
+    public void WaitGif()
+    {
+        ImageView infoOperatingIV = (ImageView)findViewById(R.id.WaitRImageView);
+        Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.dirtiprotate);
+        LinearInterpolator lin = new LinearInterpolator();
+        operatingAnim.setInterpolator(lin);
+        if (operatingAnim != null) {
+            infoOperatingIV.startAnimation(operatingAnim);
+            infoOperatingIV.bringToFront();
+            infoOperatingIV.setVisibility(View.VISIBLE);
+        }
     }
     public void onConfigurationChanged (Configuration newConfig){
         super.onConfigurationChanged(newConfig);
@@ -275,7 +320,7 @@ public class CPlayerActivity extends Activity {
     }
     public CPlayerActivity()
     {
-        m_KKPlayer = new CKKPlayerReader();
+        m_KKPlayer = new CKKPlayerReader(this);
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
