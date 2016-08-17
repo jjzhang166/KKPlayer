@@ -422,7 +422,7 @@ void KKPlayer::SetWindowHwnd(HWND hwnd)
 }
 void KKPlayer::InitSound()
 {
-   m_pSound->InitAudio();
+
 }
 unsigned __stdcall  KKPlayer::ReadAV_thread(LPVOID lpParameter)
 {
@@ -591,7 +591,7 @@ int KKPlayer::GetIsReady()
 {
 	if(pVideoInfo!=NULL)
 	    return pVideoInfo->IsReady;
-	return 0;
+	return -1;
 }
 
 void KKPlayer::RenderImage(CRender *pRender,bool Force)
@@ -871,7 +871,7 @@ int KKPlayer::GetRealtime()
 
 	if(pVideoInfo!=NULL)
 		return pVideoInfo->realtime;
-	return 0;
+	return -1;
 
 }
 
@@ -886,7 +886,7 @@ int is_realtime2(char *name)
 		return 1;
 
 
-	if(!strncmp(name, "rtmp:",5)>=0)
+	if(strncmp(name, "rtmp:",5)==0)
 	{
 		return 1;
 	}

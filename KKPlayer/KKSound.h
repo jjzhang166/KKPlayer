@@ -17,6 +17,10 @@ class CKKSound: public IKKAudio
 	       ~CKKSound(void);
 
 		   int InitAudio();
+		   int OpenAudio(int &wanted_channel_layout, int &wanted_nb_channels, int &wanted_sample_rate)
+		   {
+return -1;
+		   }
 		   void SetWindowHAND(int m_hwnd);
 		   void SetUserData(void* UserData);
 		   /********设置音频回到函数*********/

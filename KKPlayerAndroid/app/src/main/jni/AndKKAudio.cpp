@@ -5,6 +5,7 @@
 #include <malloc.h>
 #include <string.h>
 #include "AndKKAudio.h"
+#include "ffmpeg2.8.6/include/libavutil/common.h"
 #include <time.h>
 #define  LOG_TAG    "XlibOpenLSjni"
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
@@ -57,108 +58,13 @@ unsigned long GetTickCount()
 }
 void CAndKKAudio::SetWindowHAND(int hwnd)
 {
+
     m_hwnd=hwnd;
     SLresult result;
     m_ReadLock.Lock();
     m_AudioClose=0;
     m_ReadLock.Unlock();
-   int lll=1024*4;
-    // configure audio source
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,4};
-    SLDataFormat_PCM format_pcm;
 
-    format_pcm.formatType=SL_DATAFORMAT_PCM;
-    format_pcm.numChannels=2;
-    format_pcm.samplesPerSec=SL_SAMPLINGRATE_44_1;
-    format_pcm.bitsPerSample=SL_PCMSAMPLEFORMAT_FIXED_16;
-    format_pcm.containerSize= SL_PCMSAMPLEFORMAT_FIXED_16;
-    format_pcm.channelMask=SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
-    format_pcm.endianness=SL_BYTEORDER_LITTLEENDIAN;
-
-    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
-
-    // configure audio sink
-    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, m_outputMixObject};
-    SLDataSink audioSnk = {&loc_outmix, NULL};
-
-
-
-    // create audio playerSL_IID_ANDROIDSIMPLEBUFFERQUEUE
-    // //SL_IID_BUFFERQUEUE
-    const SLInterfaceID ids2[] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE , SL_IID_VOLUME, SL_IID_PLAY };
-    static const SLboolean req2[] = { SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE };
-
-    result = (*m_engineEngine)->CreateAudioPlayer(m_engineEngine, &m_bqPlayerObject, &audioSrc, &audioSnk,
-                                                  sizeof(ids2) / sizeof(*ids2),ids2, req2);
-    if(SL_RESULT_SUCCESS != result)
-    {
-        LOGE(" CreateAudioPlayer m_engineObject m_bqPlayerObject error");
-    }
-    (void)result;
-
-    // realize the player
-    result = (*m_bqPlayerObject)->Realize(m_bqPlayerObject, SL_BOOLEAN_FALSE);
-    if(SL_RESULT_SUCCESS != result)
-    {
-        LOGE("Realize m_bqPlayerObject error");
-    }
-    (void)result;
-
-    // get the play interface
-    result = (*m_bqPlayerObject)->GetInterface(m_bqPlayerObject, SL_IID_PLAY, &m_bqPlayerPlay);
-    if(SL_RESULT_SUCCESS != result)
-    {
-        LOGE("GetInterface m_bqPlayerObject m_bqPlayerPlay error");
-    }
-    (void)result;
-    // get the volume interface
-    result = (*m_bqPlayerObject)->GetInterface(m_bqPlayerObject, SL_IID_VOLUME, &m_bqPlayerVolume);
-   if(SL_RESULT_SUCCESS != result)
-   {
-       LOGE("GetInterface m_bqPlayerObject m_bqPlayerVolume error，%d",result);
-   }
-
-    (void)result;
-    // get the buffer queue interface SL_IID_BUFFERQUEUE
-    result = (*m_bqPlayerObject)->GetInterface(m_bqPlayerObject,SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
-                                               &m_bqPlayerBufferQueue);
-    if(SL_RESULT_SUCCESS != result)
-    {
-        LOGE("GetInterface m_bqPlayerObject m_bqPlayerBufferQueue error，%d",result);
-    }
-    (void)result;
-
-    // register callback on the buffer queue
-    result = (*m_bqPlayerBufferQueue)->RegisterCallback(m_bqPlayerBufferQueue, bqPlayerCallback, this);
-    if(SL_RESULT_SUCCESS != result)
-    {
-        LOGE("RegisterCallback m_bqPlayerBufferQueue m_bqPlayerBufferQueue error，%d",result);
-    }
-
-    (void)result;
-    // set the player's state to playing
-    result = (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
-    if(SL_RESULT_SUCCESS != result)
-    {
-        LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
-    }
-    (void)result;
-}
-void CAndKKAudio::SetUserData(void* UserData)
-{
-   m_UserData=UserData;
-}
-/********设置音频回到函数*********/
-void CAndKKAudio::SetAudioCallBack(pfun fun)
-{
-    m_ReadLock.Lock();
-    m_pFun=fun;
-    m_ReadLock.Unlock();
-}
-/***********初始化音频设备*********/
-int CAndKKAudio::InitAudio()
-{
-    SLresult result;
     // create engine创建一个引擎对象
     result = slCreateEngine(&m_engineObject, 0, NULL, 0, NULL, NULL);
 
@@ -206,6 +112,134 @@ int CAndKKAudio::InitAudio()
         LOGE("Realize m_outputMixObject eror");
     }
 
+}
+void CAndKKAudio::SetUserData(void* UserData)
+{
+   m_UserData=UserData;
+}
+/********设置音频回到函数*********/
+void CAndKKAudio::SetAudioCallBack(pfun fun)
+{
+    m_ReadLock.Lock();
+    m_pFun=fun;
+    m_ReadLock.Unlock();
+}
+/***********初始化音频设备*********/
+int CAndKKAudio::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels,int &wanted_sample_rate)
+{
+    SLresult result;
+    int lll=1024*4;
+	SetCond();
+    // configure audio source
+    SLDataLocator_AndroidSimpleBufferQueue loc_bufq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,4};
+    SLDataFormat_PCM format_pcm;
+    wanted_channel_layout=3;
+    wanted_nb_channels=2;
+    format_pcm.formatType=SL_DATAFORMAT_PCM;
+    format_pcm.numChannels=2;
+    format_pcm.samplesPerSec=wanted_sample_rate*1000;//
+
+
+    SLuint32 lxs[]={ SL_SAMPLINGRATE_8,SL_SAMPLINGRATE_11_025	,SL_SAMPLINGRATE_12	,
+                     SL_SAMPLINGRATE_16	,SL_SAMPLINGRATE_22_05, SL_SAMPLINGRATE_24,
+                     SL_SAMPLINGRATE_32,SL_SAMPLINGRATE_44_1	,SL_SAMPLINGRATE_48	,
+                     SL_SAMPLINGRATE_64	, SL_SAMPLINGRATE_88_2,SL_SAMPLINGRATE_96,
+                     SL_SAMPLINGRATE_192};
+    int next_sample_rate_idx = FF_ARRAY_ELEMS(lxs) - 1;
+    while (next_sample_rate_idx >0)
+    {
+
+        if(lxs[next_sample_rate_idx]==format_pcm.samplesPerSec)
+        {
+            break;
+        }
+        next_sample_rate_idx--;
+    }
+    if(next_sample_rate_idx<0)
+        format_pcm.samplesPerSec=SL_SAMPLINGRATE_44_1;//
+
+    format_pcm.bitsPerSample=SL_PCMSAMPLEFORMAT_FIXED_16;
+    format_pcm.containerSize= SL_PCMSAMPLEFORMAT_FIXED_16;
+    format_pcm.channelMask=SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
+    format_pcm.endianness=SL_BYTEORDER_LITTLEENDIAN;
+
+    SLDataSource audioSrc = {&loc_bufq, &format_pcm};
+
+    // configure audio sink
+    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, m_outputMixObject};
+    SLDataSink audioSnk = {&loc_outmix, NULL};
+
+
+
+    // create audio playerSL_IID_ANDROIDSIMPLEBUFFERQUEUE
+    // //SL_IID_BUFFERQUEUE
+    const SLInterfaceID ids2[] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE , SL_IID_VOLUME, SL_IID_PLAY };
+    static const SLboolean req2[] = { SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE };
+
+	
+	 if(m_bqPlayerObject!=NULL){
+        (*m_bqPlayerObject)->Destroy(m_bqPlayerObject);
+        m_bqPlayerObject=NULL;
+        LOGI("m_bqPlayerObject Destroy\n");
+    }
+	
+    result = (*m_engineEngine)->CreateAudioPlayer(m_engineEngine, &m_bqPlayerObject, &audioSrc, &audioSnk,
+                                                  sizeof(ids2) / sizeof(*ids2),ids2, req2);
+    if(SL_RESULT_SUCCESS != result)
+    {
+        LOGE(" CreateAudioPlayer m_engineObject m_bqPlayerObject error");
+        return -1;
+    }
+    (void)result;
+
+    // realize the player
+    result = (*m_bqPlayerObject)->Realize(m_bqPlayerObject, SL_BOOLEAN_FALSE);
+    if(SL_RESULT_SUCCESS != result)
+    {
+        LOGE("Realize m_bqPlayerObject error");
+    }
+    (void)result;
+
+    // get the play interface
+    result = (*m_bqPlayerObject)->GetInterface(m_bqPlayerObject, SL_IID_PLAY, &m_bqPlayerPlay);
+    if(SL_RESULT_SUCCESS != result)
+    {
+        LOGE("GetInterface m_bqPlayerObject m_bqPlayerPlay error");
+    }
+    (void)result;
+    // get the volume interface
+    result = (*m_bqPlayerObject)->GetInterface(m_bqPlayerObject, SL_IID_VOLUME, &m_bqPlayerVolume);
+    if(SL_RESULT_SUCCESS != result)
+    {
+        LOGE("GetInterface m_bqPlayerObject m_bqPlayerVolume error，%d",result);
+    }
+
+    (void)result;
+    // get the buffer queue interface SL_IID_BUFFERQUEUE
+    result = (*m_bqPlayerObject)->GetInterface(m_bqPlayerObject,SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
+                                               &m_bqPlayerBufferQueue);
+    if(SL_RESULT_SUCCESS != result)
+    {
+        LOGE("GetInterface m_bqPlayerObject m_bqPlayerBufferQueue error，%d",result);
+    }
+    (void)result;
+
+    // register callback on the buffer queue
+    result = (*m_bqPlayerBufferQueue)->RegisterCallback(m_bqPlayerBufferQueue, bqPlayerCallback, this);
+    if(SL_RESULT_SUCCESS != result)
+    {
+        LOGE("RegisterCallback m_bqPlayerBufferQueue m_bqPlayerBufferQueue error，%d",result);
+    }
+
+    (void)result;
+    // set the player's state to playing
+    result = (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+    if(SL_RESULT_SUCCESS != result)
+    {
+        LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
+    }
+    (void)result;
+    return 0;
     // ignore unsuccessful result codes for environmental reverb, as it is optional for this example
 }
 /*******读取音频数据********/

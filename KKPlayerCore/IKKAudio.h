@@ -19,7 +19,7 @@ class IKKAudio
 	      /********设置音频回到函数*********/
 	      virtual void SetAudioCallBack(pfun fun)=0;
 		  /***********初始化音频设备*********/
-	      virtual int InitAudio()=0;
+	      virtual int OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels,int &wanted_sample_rate)=0;
 		  /*******读取音频数据********/
           virtual void ReadAudio()=0;	   
           virtual void Start()=0;	   

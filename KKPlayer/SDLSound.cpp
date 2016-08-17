@@ -14,6 +14,7 @@ CSDLSound::CSDLSound()
     m_UserData=NULL;
 	m_pFun=NULL;
 	
+
 //	SDL_SetVideoMode
 }
 CSDLSound::~CSDLSound()
@@ -22,8 +23,13 @@ CSDLSound::~CSDLSound()
 }
 void CSDLSound::SetWindowHAND(int m_hwnd)
 {
+	int flags = SDL_INIT_AUDIO | SDL_INIT_TIMER;
+	if (SDL_Init (flags)) 
+	{
 	
-       SDL_HandleAudio(m_hwnd);
+	}
+    SDL_HandleAudio(m_hwnd);
+	   
 }
 void CSDLSound::SetUserData(void* UserData){
 
@@ -58,19 +64,15 @@ void  CSDLSound::KKSDLCall(Uint8 *stream, int len)
 		
 	}
 }
-int  CSDLSound::InitAudio()
+int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels,                     int &wanted_sample_rate)
 {
 
-	int flags = SDL_INIT_AUDIO | SDL_INIT_TIMER;
-
-	if (SDL_Init (flags)) 
-	{
-	     return -1;	
-	}
-
-	int wanted_sample_rate=48000;
+	
+	
+	SDL_CloseAudio();
+	/*int wanted_sample_rate=32000;
 	int wanted_nb_channels =2;
-	int wanted_channel_layout =0;
+	int wanted_channel_layout =0;*/
 	SDL_AudioSpec wanted_spec, spec;
 	const char *env;
 	static const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
@@ -124,7 +126,7 @@ int  CSDLSound::InitAudio()
 	{
 		return -1;
 	}	
-	SDL_PauseAudio(1);
+	SDL_PauseAudio(0);
 	return 0;
 }
  /*******∂¡»°“Ù∆µ ˝æ›********/

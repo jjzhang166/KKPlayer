@@ -105,6 +105,13 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         }
         return 0;
     }
+    public int GetRealtime()
+    {
+        if(m_nKKPlayer!=0) {
+            return m_JniKKPlayer.KKGetRealtime(m_nKKPlayer);
+        }
+        return 0;
+    }
     public int GetNeedReConnect()
     {
         if(m_nKKPlayer!=0) {
@@ -117,11 +124,13 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     {
         if(m_nKKPlayer!=0)
         {
-            if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1&& !m_ReOpen)
+            /*if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1&& !m_ReOpen&&m_JniKKPlayer.KKIsReady(m_nKKPlayer)==1)
             {
                 OpenMedia(m_url);
-            }else if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)!=1&& m_ReOpen)
+            }else*/
+            if(m_ReOpen)
             {
+                m_ReOpen=false;
                 OpenMedia(m_url);
             }
             m_JniKKPlayer.GlRender(m_nKKPlayer);

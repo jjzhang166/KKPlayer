@@ -520,12 +520,12 @@ void audio_callback(void *userdata, char *stream, int len)
 
 
 //´ò¿ªÒôÆµ
-static int audio_open2( void *opaque,                               int64_t wanted_channel_layout, 
+static int audio_open2( void *opaque,                               int wanted_channel_layout, 
 					    int wanted_nb_channels,                     int wanted_sample_rate, 
                         struct SKK_AudioParams *audio_hw_params)
 {
 	
-	const char *env;
+	/*const char *env;
 	static const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
 	static const int next_sample_rates[] = {0, 44100, 48000, 96000, 192000};
 	int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
@@ -541,11 +541,18 @@ static int audio_open2( void *opaque,                               int64_t want
 		wanted_channel_layout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
 	}
 	wanted_nb_channels = av_get_channel_layout_nb_channels(wanted_channel_layout);
-	
-		wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
+	wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
 
+	while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_sample_rate)
+		next_sample_rate_idx--;*/
+
+	SKK_VideoState *is=(SKK_VideoState *)opaque;
+	if(is->pKKAudio!=NULL)
+	{
+		is->pKKAudio->OpenAudio( wanted_channel_layout, wanted_nb_channels,wanted_sample_rate);
+	}
 	audio_hw_params->fmt = AV_SAMPLE_FMT_S16;
-	audio_hw_params->freq = 48000;
+	audio_hw_params->freq = wanted_sample_rate;
 	audio_hw_params->channel_layout = wanted_channel_layout;
 	audio_hw_params->channels = 2;
 	audio_hw_params->frame_size = av_samples_get_buffer_size(NULL, audio_hw_params->channels, 1, audio_hw_params->fmt, 1);
@@ -623,7 +630,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
     AVDictionary *opts=NULL;
     AVDictionaryEntry *t = NULL;
     int sample_rate, nb_channels;
-    int64_t channel_layout;
+    int channel_layout;
 	int stream_lowres = lowres;
     int ret = 0;
    

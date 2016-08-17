@@ -256,7 +256,7 @@ void  CAndKKPlayerUI::AutoMediaCose(int Stata)
      {
          m_bNeedReconnect=true;
      }
-    m_playerState=-1;
+    m_playerState=-3;
 }
 bool CAndKKPlayerUI::init(HWND hView)
 {
@@ -315,4 +315,8 @@ void CAndKKPlayerUI::SetBkImagePic(unsigned char* buf,int len){}
 int CAndKKPlayerUI::GetIsReady()
 {
     return  m_player.GetIsReady();
+}
+int CAndKKPlayerUI::GetRealtime()
+{
+    return  m_player.GetRealtime();
 }

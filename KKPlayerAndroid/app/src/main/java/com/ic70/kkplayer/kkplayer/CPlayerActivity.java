@@ -51,6 +51,8 @@ public class CPlayerActivity extends Activity {
     }; /* */
    public  enum  EnumPlayerStata
    {
+       OpenFailure,
+       Opening,
        Stop,
        Play,
        PAUSE
@@ -58,60 +60,91 @@ public class CPlayerActivity extends Activity {
     EnumPlayerStata PlayerStata=EnumPlayerStata.Stop;
     int m_CurTime=0;
     String MoviePathStr;
+    int m_OpenCouner=0;
+    int m_LastDisConnect=0;
     Handler handler = new Handler()
     {
         public void handleMessage(Message msg)
         {
 
-            if (msg.what == 1)
-            {
-                int llx=m_KKPlayer.GetReady();
-                if(llx==0&&m_KKPlayer.GetPlayerState()>-1)
+            if (msg.what == 1) {
+                int llx = m_KKPlayer.GetReady();
+                if(llx==0&& m_KKPlayer.GetPlayerState() > -1&&m_OpenCouner==0)
                 {
-                        WaitGif();
-                }else {
+                    PlayerStata=EnumPlayerStata.Opening;
+                }else if(llx== 1&&m_OpenCouner==0)
+                {
+                    PlayerStata=EnumPlayerStata.Play;
+                }
+
+                //System.out.println( m_KKPlayer.GetPlayerState() + "==="+m_OpenCouner);
+                if(   m_KKPlayer.GetPlayerState()==-2 &&m_OpenCouner==0&&  (PlayerStata==EnumPlayerStata.Opening||PlayerStata==EnumPlayerStata.Play))
+                    { /*********文件打开失败***********/
+                        PlayerStata = EnumPlayerStata.OpenFailure;
+                        Button NetButton = (Button) findViewById(R.id.NetButton);
+                        NetButton.setText("文件打开失败");
+                        NetButton.setVisibility(View.VISIBLE);
+                        ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
+                        ImageV.setVisibility(View.GONE);
+                        ImageV.setAnimation(null);
+                        PlayerStata=EnumPlayerStata.OpenFailure;
+                    }
+
+                if ((llx == 0 && m_KKPlayer.GetPlayerState() > -1) || m_OpenCouner >= 2) {
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
-                    System.out.println(m_KKPlayer.GetReady() + "SSS");
+                    if (ImageV.getVisibility() != View.VISIBLE)
+                        WaitGif();
+                } else if ((llx ==1 && m_KKPlayer.GetPlayerState() > -1)&& m_OpenCouner == 0) {
+                    ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     ImageV.setVisibility(View.GONE);
                     ImageV.setAnimation(null);
 
                     Button NetButton = (Button) findViewById(R.id.NetButton);
                     NetButton.setVisibility(View.GONE);
                 }
-                m_bNecState = isNetworkAvailable(m_PlayerActivity);
-                if (PlayerStata == EnumPlayerStata.Play && !m_bNecState) {
-                         Button NetButton = (Button) findViewById(R.id.NetButton);
-                         NetButton.setText("网络断开点击重试");
-                         NetButton.setVisibility(View.VISIBLE);
-                         TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
-                         TipTxtView.setVisibility(View.GONE);
-                }else
+
+                //检查是否需要重连,只有流媒体才需要
+                if (m_OpenCouner == 0&& m_KKPlayer.GetRealtime()==1)
                 {
-                    //网络断开后重试打开
-                    if(PlayerStata == EnumPlayerStata.Play &&m_bNecState)
-                    {
-                        Button NetButton = (Button) findViewById(R.id.NetButton);
-                        if( NetButton.getVisibility()==View.VISIBLE)
-                        {
-                            NetButton.setVisibility(View.GONE);
-                            m_KKPlayer.NeedReOpenMedia();
-                        }
-                    }
+                    m_bNecState = isNetworkAvailable(m_PlayerActivity);
+                    if (!m_bNecState||m_KKPlayer.GetNeedReConnect()==1)
+                          m_LastDisConnect = 1;
+                    /***********网络断开了显示*********/
+                   if (!m_bNecState) {
+                               Button NetButton = (Button) findViewById(R.id.NetButton);
+                               NetButton.setText("网络已断");
+                               NetButton.setVisibility(View.VISIBLE);
+                               TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
+                               TipTxtView.setVisibility(View.GONE);
+                    } else {
+                          //网络断开后重连，及流断了重连打开
+                          if (
+                                  (PlayerStata == EnumPlayerStata.Play||PlayerStata == EnumPlayerStata.Opening)
+                                  && m_bNecState && m_OpenCouner == 0 && m_LastDisConnect == 1)
+                          {
+                                 System.out.println(m_OpenCouner + "===状态2===");
+                                 Button NetButton = (Button) findViewById(R.id.NetButton);
+                                 NetButton.setVisibility(View.GONE);
+                                 m_OpenCouner = 1;
+                                m_LastDisConnect = 0;
+                             }
+                   }
+               }
+                if(m_OpenCouner>=1) {
+                    System.out.println(m_OpenCouner + "===状态===");
+                    m_OpenCouner++;
                 }
 
-                if(m_KKPlayer.GetPlayerState()==-2)
+                if(m_OpenCouner>20)
                 {
-                    TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
-                    Button NetButton = (Button) findViewById(R.id.NetButton);
-                    if( NetButton.getVisibility()==View.GONE)
-                        TipTxtView.setVisibility(View.VISIBLE);
+                    m_KKPlayer.NeedReOpenMedia();
+                    m_OpenCouner=0;
+                    ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
+                    ImageV.setVisibility(View.GONE);
+                    ImageV.setAnimation(null);
                 }
-                /* if( NetButton.getVisibility()==View.GONE)
-                    TipTxtView.setVisibility(View.VISIBLE);
-             }else{
-                TextView TipTxtView = (TextView) findViewById(R.id.TipTxtView);
-                TipTxtView.setVisibility(View.GONE);
-            }*/
+
+
                  if( m_KKPlayer!=null&&!m_bSeekPlayer)
                  {
                      CKKPlayerReader.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
@@ -181,9 +214,9 @@ public class CPlayerActivity extends Activity {
 
         NetButton.setOnClickListener(new Button.OnClickListener(){//创建监听
             public void onClick(View v) {
-                Button NetButton2=(Button)v;
+                /*Button NetButton2=(Button)v;
                 NetButton2.setVisibility(View.GONE);
-                m_KKPlayer.OpenMedia(MoviePathStr);
+                m_KKPlayer.OpenMedia(MoviePathStr);*/
             }
 
         });
@@ -199,7 +232,7 @@ public class CPlayerActivity extends Activity {
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
         m_KKPlayer.OpenMedia(MoviePathStr);
         m_CurTime=0;
-        PlayerStata=EnumPlayerStata.Play;
+        PlayerStata=EnumPlayerStata.Opening;
         WaitGif();
     }
     public void WaitGif()

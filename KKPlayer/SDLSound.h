@@ -12,7 +12,7 @@ class CSDLSound: public IKKAudio
 		/********设置音频回到函数*********/
 		virtual void SetAudioCallBack(pfun fun);
 		/***********初始化音频设备*********/
-		virtual int InitAudio();
+		int OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, int &wanted_sample_rate);
 		/*******读取音频数据********/
 		virtual void ReadAudio();	   
 		virtual void Start();	   

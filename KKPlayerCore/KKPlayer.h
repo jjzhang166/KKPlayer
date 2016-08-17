@@ -50,10 +50,10 @@ class KKPlayer
 	        KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound);
 	        ~KKPlayer(void);
 			void SetWindowHwnd(HWND hwnd);
-			/*********打开媒体************/
+			/*********打开媒体.成功返回0，失败返回-1.************/
 			int OpenMedia(char* fileName,char* FilePath="C:\\"); 
 			void CloseMedia(); 
-    		void ReadAV();
+    		
             int GetCurTime();
 			
 			void RenderImage(CRender *pRender,bool Force);
@@ -85,14 +85,19 @@ class KKPlayer
 			//获取放播的历史信息
 			void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 
-			//1为流媒体
+			//1为流媒体,没有open返回-1/******是否是流媒体,该方法不是很准确*****/
 			int GetRealtime();
 
 			//解码成BGRA格式
 			void SetBGRA();
+			/**********添加插件**********/
 			static void AddKKPluginInfo(KKPluginInfo &info);
+			/******是否准备好了,准备好返回1，否则返回0，没有open返回-1*******/
 			int GetIsReady();
+			
+			
 private:
+	        void ReadAV();
 	        int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 	        //视频刷线程
 			void VideoRefresh();

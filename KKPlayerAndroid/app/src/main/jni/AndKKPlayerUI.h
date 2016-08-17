@@ -34,6 +34,8 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              MEDIA_INFO GetMediaInfo();
              int OpenMedia(char *str);
              int GetIsReady();
+             /******是否是流媒体,该方法不是很准确*****/
+             int GetRealtime();
     /***********UI调用***********/
    public:
             virtual unsigned char* GetWaitImage(int &length,int curtime);

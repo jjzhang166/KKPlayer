@@ -64,7 +64,6 @@ std::basic_string<char> GetModulePathA()
 std::basic_string<TCHAR> GetModulePath();
 CMainFrame::CMainFrame():m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
 {
-	int ii=310001000;
 	m_pSound=NULL;
 	m_pPlayerInstance=NULL;
 	m_CenterLogoLen=0;
@@ -258,6 +257,13 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
 	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
+
+	 if(m_pRender!=NULL)
+	 {
+		     CRenderD3D *pRender=( CRenderD3D *)m_pRender;
+			 pRender->SetLeftPicStr(_T(""));
+	 }
+	  
 	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
 	if(ret==0)
 	  m_bOpen=true;
@@ -283,7 +289,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	m_pSound =new CSDLSound();//
 	m_pSound->SetWindowHAND((int)m_hWnd);
-	//m_pSound ==new CKKSound();//new CKKSound();//
+	
 	m_pPlayerInstance = new KKPlayer(this,m_pSound);
 	m_pPlayerInstance->SetDbPath((char *)pp.c_str());
 

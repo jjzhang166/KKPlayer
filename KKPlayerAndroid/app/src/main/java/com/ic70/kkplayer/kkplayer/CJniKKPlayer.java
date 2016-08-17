@@ -33,6 +33,7 @@ public class CJniKKPlayer {
     public native  int KKCloseMedia(int obj);
     public native  int KKGetPlayerState(int obj);
     public native  int KKIsReady(int obj);
+    public native  int KKGetRealtime(int obj);
     //Movie Pause
     public native void Pause(int obj);
 
