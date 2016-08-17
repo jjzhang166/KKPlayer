@@ -1298,7 +1298,7 @@ void KKPlayer::ReadAV()
     int64_t duration= AV_NOPTS_VALUE;
 
 
-	
+	//char longt[1025]="";
 	
 	if (start_time != AV_NOPTS_VALUE) 
 	{
@@ -1359,12 +1359,60 @@ void KKPlayer::ReadAV()
 			 fclose(ff);
 		  }
 	}
+	int avfirt=0;
+	bool fush=false;
 	while(m_bOpen) 
 	{
 		if(pVideoInfo->abort_request)
 		{
 			break;
 		}
+
+
+		if(pVideoInfo->realtime)
+		{
+
+			if(pVideoInfo->audioq.size==0||pVideoInfo->videoq.size==0)
+			{
+                    avfirt++;
+			}
+			/*if(
+				(pVideoInfo->audioq.size>=2000&&pVideoInfo->videoq.size==0)||
+				(pVideoInfo->audioq.size==0&&pVideoInfo->videoq.size>=80000)||
+				(pVideoInfo->audioq.size==0&&pVideoInfo->videoq.size==0&&avfirt>1000)
+				)*/
+			if(
+				(
+				(pVideoInfo->audioq.size==0||pVideoInfo->videoq.size==0)&&avfirt>1000||
+				(pVideoInfo->audioq.size>=20000&&pVideoInfo->videoq.size==0)||
+				(pVideoInfo->audioq.size==0&&pVideoInfo->videoq.size>=80000)
+				)&&
+				!pVideoInfo->paused
+			 )
+			{
+				LOGE("que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
+
+				if (frame_queue_nb_remaining(&pVideoInfo->pictq) <= 1||frame_queue_nb_remaining(&pVideoInfo->sampq)<=0)
+				{
+					LOGE("Avflush \n");
+					Avflush(0);
+				    pVideoInfo->IsReady=0;
+				    pVideoInfo->paused=1;
+				    avfirt=0;
+				    fush=true;
+				}else{
+				   avfirt=0;
+				}
+				
+			}
+			if(pVideoInfo->audioq.size>1000&&pVideoInfo->videoq.size>10000&&fush){
+				fush=false;
+				pVideoInfo->IsReady=1;
+				pVideoInfo->paused=0;
+				avfirt=0;
+			}
+		}
+
 		/********************实时流媒体不支持暂停******************************/
 		if (pVideoInfo->paused != pVideoInfo->last_paused&&!pVideoInfo->realtime) 
 		{
@@ -1401,13 +1449,7 @@ void KKPlayer::ReadAV()
 				//失败
 			}else
 			{
-				//if(pVideoInfo->seek_req==2)
-			    //{
-				  // packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
-				   //packet_queue_put(&pVideoInfo->videoq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
-				//}else{
 				Avflush(seek_target);
-				//}
 			}
 			pVideoInfo->seek_req=0;
 		}
@@ -1429,8 +1471,11 @@ void KKPlayer::ReadAV()
 				break;
 			}
 		}
+
+		
         /********读取一个pkt**********/
 		ret = av_read_frame(pFormatCtx, pkt);
+		avfirt=false;
 		if (ret < 0) 
 		{
 			
@@ -1643,13 +1688,17 @@ void KKPlayer::Avflush(int64_t seek_target)
 		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt);
 	}
 
-	if (pVideoInfo->seek_flags & AVSEEK_FLAG_BYTE) 
+	if(!pVideoInfo->realtime)
 	{
-		set_clock(&pVideoInfo->extclk, NAN, 0);
-	} else 
-	{
-		set_clock(&pVideoInfo->extclk, seek_target / (double)AV_TIME_BASE, 0);
+		if (pVideoInfo->seek_flags & AVSEEK_FLAG_BYTE) 
+		{
+			set_clock(&pVideoInfo->extclk, NAN, 0);
+		} else 
+		{
+			set_clock(&pVideoInfo->extclk, seek_target / (double)AV_TIME_BASE, 0);
+		}
 	}
+	
 }
 
 #ifdef WIN32

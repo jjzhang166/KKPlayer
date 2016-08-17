@@ -112,7 +112,7 @@ private:
 	        /*******显示视频**********/
 		    void video_image_refresh(SKK_VideoState *is);
 private:
-
+	        /********流媒体这是刷新函数**********/
 	        void Avflush(int64_t seek_target); 
 			//读音频
 	        void ReadAudioCall();

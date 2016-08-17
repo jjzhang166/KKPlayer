@@ -185,11 +185,17 @@ void CAndKKPlayerUI::renderFrame()
 
 
 
-    if(!m_bAdJust)
+    //if(!m_bAdJust)
     {
-        float lx=(float)m_width/m_Picwidth;
-        float w= (float)m_Picwidth /m_width*lx;
-        float h= (float)m_Picheight /m_height*lx;
+        float w2=m_width;
+        float h2=(float)(m_Picheight*w2)/m_Picwidth;
+        if(h2>m_height)
+        {
+            h2=m_height;
+            w2=(float)(m_Picwidth*h2)/m_Picwidth;
+        }
+        float w= (float)w2/m_width;
+        float h= (float)h2/m_height;
         gVertices2[0]= -w;
         gVertices2[1]=-h;
         gVertices2[2]=0.0f; // 左下
