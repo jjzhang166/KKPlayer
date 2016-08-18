@@ -460,6 +460,7 @@ DELXXX:
 		// pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);/**/
 		 double ll=(double) af->frame->nb_samples / af->frame->sample_rate;
 	     is->audio_clock = af->pts + ll;
+		 //double  Ade=pVideoInfo->m_RealtimeDelay;
 		 if(data_size>0&&!is->abort_request)
 		 {
 			 Ade-=ll;

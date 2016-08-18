@@ -465,7 +465,7 @@ SYSTEMTIME Time_tToSystemTime(time_t t)
 void KKPlayer::video_image_refresh(SKK_VideoState *is)
 {
 	m_CurTime=is->audio_clock;
-   double time=0,duration=0;
+    double time=0,duration=0;
 	if (0&&is->audio_st) {
 		time = av_gettime_relative() / 1000000.0;
 		if (is->force_refresh || is->last_vis_time + rdftspeed < time)
@@ -1365,15 +1365,9 @@ void KKPlayer::ReadAV()
 	pVideoInfo->IsReady=1;	
 	
 
-	if(!pVideoInfo->realtime)
+	if(pVideoInfo->realtime&&pVideoInfo->audio_st==NULL)
 	{
-          FILE *ff=fopen(pVideoInfo->filename,"r");
-		  if(ff!=NULL)
-		  {
-			 fseek(ff,0,SEEK_END);
-			 pVideoInfo->fileSize=ftell(ff);
-			 fclose(ff);
-		  }
+         pVideoInfo->max_frame_duration = 2.0;
 	}
 	int avfirt=0;
 	bool fush=false;
@@ -1386,7 +1380,7 @@ void KKPlayer::ReadAV()
 		}
 
 
-		if(pVideoInfo->realtime)
+		if(pVideoInfo->realtime&&pVideoInfo->audio_st!=NULL)
 		{
 
 			if(pVideoInfo->audioq.size==0||pVideoInfo->videoq.size==0)
@@ -1395,7 +1389,8 @@ void KKPlayer::ReadAV()
 			}
 			
 			int64_t  OpenTime2= av_gettime ()/1000/1000;
-			pVideoInfo->m_RealtimeDelay=OpenTime2-OpenTime-m_CurTime;
+			
+			pVideoInfo->m_RealtimeDelay=OpenTime2-OpenTime-pVideoInfo->audio_clock;
 
 			LOGE("de %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->m_RealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
 			if(pVideoInfo->m_RealtimeDelay<=2)//开始缓存
@@ -1410,47 +1405,33 @@ void KKPlayer::ReadAV()
 				}
 				
 			}
-			/*else if(
-				(
-				(pVideoInfo->audioq.size>=20000&&pVideoInfo->videoq.size==0)||
-				(pVideoInfo->audioq.size==0&&pVideoInfo->videoq.size>=80000)
-				)&&
-				!pVideoInfo->paused&&pVideoInfo->video_st!=NULL&&pVideoInfo->audio_st!=NULL
-			 )
-			{
-				LOGE("que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
-
-				if (frame_queue_nb_remaining(&pVideoInfo->pictq) <= 1||frame_queue_nb_remaining(&pVideoInfo->sampq)<=0)
-				{
-					LOGE("Avflush \n");
-					
-					if(pVideoInfo->audioq.size>=20000&&pVideoInfo->videoq.size==0)
-					{
-						AvflushRealTime(2);  
-						fush=true;
-					}else if (pVideoInfo->audioq.size==0&&pVideoInfo->videoq.size>=80000){
-                                AvflushRealTime(1);
-								fush=true;
-					}
-				  
-					if(fush)
-					{
-						pVideoInfo->IsReady=0;
-						pVideoInfo->paused=1;
-					}
-				    avfirt=0;
-				    
-				}else{
-				   avfirt=0;
-				}
-				
-			}*/
 			/********刷新后缓存一会儿********/
-			if(pVideoInfo->audioq.size>1000&&pVideoInfo->videoq.size>10000&&fush){
+			if(pVideoInfo->audioq.size>2000&&pVideoInfo->videoq.size>10000&&fush){
 				fush=false;
 				pVideoInfo->IsReady=1;
 				pVideoInfo->paused=0;
 				avfirt=0;
+			}
+		}else if(pVideoInfo->realtime&&pVideoInfo->audio_st==NULL&&pVideoInfo->video_st!=NULL)
+		{
+			if(pVideoInfo->videoq.size==0)
+			{
+				if( avfirt>1000)
+				{
+				   pVideoInfo->IsReady=0;
+				   pVideoInfo->paused=1;
+				   fush=true;
+				   avfirt=0;
+				}
+				avfirt++;
+			}else{
+                avfirt=0;
+			}
+                
+
+			if(pVideoInfo->videoq.size>10000&&fush){
+				   pVideoInfo->IsReady=1;
+				   pVideoInfo->paused=0;
 			}
 		}
 
@@ -1528,20 +1509,24 @@ void KKPlayer::ReadAV()
                     pVideoInfo->eof=1;
 					if(pVideoInfo->realtime)
 					{
-					
+						pVideoInfo->m_RealtimeDelay=0;
 						pVideoInfo->abort_request=1;
+						pVideoInfo->IsReady=0;
 						m_pPlayUI->AutoMediaCose(-1);
-					}else{
+						
+					}/*else{
 						m_pPlayUI->AutoMediaCose(0);
-					}
+					}*/
 			 }
 
 			 if (pFormatCtx->pb && pFormatCtx->pb->error)
 			 {
 				 pVideoInfo->eof=1;
 				 pVideoInfo->abort_request=1;
+				 pVideoInfo->m_RealtimeDelay=0;
 				 if(pVideoInfo->realtime)
 				 {
+					 pVideoInfo->IsReady=0;
 					 m_pPlayUI->AutoMediaCose(-2);
 				 }else{
 				     m_pPlayUI->AutoMediaCose(-3);

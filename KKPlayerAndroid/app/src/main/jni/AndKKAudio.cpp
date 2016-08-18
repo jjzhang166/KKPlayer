@@ -31,6 +31,22 @@ CAndKKAudio::CAndKKAudio():m_engineObject(NULL),m_engineEngine(NULL),m_outputMix
 }
 CAndKKAudio::~CAndKKAudio()
 {
+
+    CloseAudio();
+    if(m_outputMixObject!=NULL)
+    {
+        (*m_outputMixObject)->Destroy(m_outputMixObject);
+        m_outputMixObject=NULL;
+        LOGI("m_outputMixObject Destroy\n");
+
+    }
+    if(m_engineObject!=NULL)
+    {
+        (*m_engineObject)->Destroy(m_engineObject);
+        m_engineObject=NULL;
+        m_engineEngine=NULL;
+        LOGI("m_engineObject Destroy\n");
+    }
     ::free(m_pBuf);
     m_pBuf=NULL;
     LOGE("~CAndKKAudio");
@@ -339,21 +355,6 @@ void CAndKKAudio::CloseAudio()
         LOGI("m_bqPlayerObject Destroy\n");
     }
 
-
-    if(m_outputMixObject!=NULL)
-    {
-        (*m_outputMixObject)->Destroy(m_outputMixObject);
-        m_outputMixObject=NULL;
-        LOGI("m_outputMixObject Destroy\n");
-
-    }
-    if(m_engineObject!=NULL)
-    {
-         (*m_engineObject)->Destroy(m_engineObject);
-          m_engineObject=NULL;
-          m_engineEngine=NULL;
-        LOGI("m_engineObject Destroy\n");
-    }
     LOGI("CloseAudio Over\n");
 }
 /*********设置音量************/

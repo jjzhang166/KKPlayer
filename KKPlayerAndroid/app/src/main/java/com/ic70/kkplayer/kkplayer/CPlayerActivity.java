@@ -269,7 +269,7 @@ public class CPlayerActivity extends Activity {
     public void onStop()
     {
         super.onStop();
-        if(PlayerStata==EnumPlayerStata.Play)
+        if(PlayerStata==EnumPlayerStata.Play||PlayerStata==EnumPlayerStata.Opening)
         {
             FunPalyState();
         }
@@ -347,7 +347,7 @@ public class CPlayerActivity extends Activity {
     protected void FunPalyState()
     {
         ImageButton btn=(ImageButton)findViewById(R.id.StartButton);
-        if(PlayerStata==EnumPlayerStata.Play) {
+        if(PlayerStata==EnumPlayerStata.Play||PlayerStata==EnumPlayerStata.Opening) {
             btn.setImageResource(R.drawable.play1);
             PlayerStata=EnumPlayerStata.PAUSE;
             m_KKPlayer.Pause();
