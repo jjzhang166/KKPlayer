@@ -90,10 +90,10 @@ public class CPlayerActivity extends Activity {
                         PlayerStata=EnumPlayerStata.OpenFailure;
                     }
 
-                if ((llx == 0 && m_KKPlayer.GetPlayerState() > -1) || m_OpenCouner >= 2) {
+                if (((llx == 0 && m_KKPlayer.GetPlayerState() > -1) || m_OpenCouner >= 2)||  m_KKPlayer.GetRealtimeDelay()>5) {
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     if (ImageV.getVisibility() != View.VISIBLE)
-                        WaitGif();
+                         WaitGif();
                 } else if ((llx ==1 && m_KKPlayer.GetPlayerState() > -1)&& m_OpenCouner == 0) {
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     ImageV.setVisibility(View.GONE);
@@ -101,8 +101,15 @@ public class CPlayerActivity extends Activity {
 
                     Button NetButton = (Button) findViewById(R.id.NetButton);
                     NetButton.setVisibility(View.GONE);
-                }
+                }else if (m_OpenCouner == 0&& m_KKPlayer.GetPlayerState() > -1 && m_KKPlayer.GetRealtimeDelay() < 5 && llx ==1)
+                {
+                    ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
+                    ImageV.setVisibility(View.GONE);
+                    ImageV.setAnimation(null);
 
+                    Button NetButton = (Button) findViewById(R.id.NetButton);
+                    NetButton.setVisibility(View.GONE);
+                }
                 //检查是否需要重连,只有流媒体才需要
                 if (m_OpenCouner == 0&& m_KKPlayer.GetRealtime()==1)
                 {

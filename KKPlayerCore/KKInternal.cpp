@@ -311,7 +311,10 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 //ÒôÆµÌî³ä»Øµ÷
 int audio_fill_frame( SKK_VideoState *pVideoInfo) 
 { 
-    int n=0;
+
+	double  Ade=pVideoInfo->m_RealtimeDelay;
+DELXXX:
+	int n=0;
 	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
 	SKK_VideoState *is=pVideoInfo;
     int audio_pkt_size = 0;
@@ -324,14 +327,14 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 	SKK_Frame *af=NULL;
 	
 
-	
+   
    do 
    {
 #if defined(_WIN32)
 	   while (frame_queue_nb_remaining(&is->sampq) <= 0) {
 		   if ((av_gettime_relative() - is->audio_callback_time) > 1000000LL * is->audio_hw_buf_size / is->audio_tgt.bytes_per_sec / 2)
 			   return -1;
-		   av_usleep (1000);
+		   av_usleep (5000);
 	   }
 #else
 	    if(frame_queue_nb_remaining(&is->sampq) <= 0) 
@@ -455,13 +458,22 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 		// n = 2 * pVideoInfo->auddec.avctx->channels;
 		// int llxx=data_size/n;
 		// pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);/**/
-	     is->audio_clock = af->pts + (double) af->frame->nb_samples / af->frame->sample_rate;
+		 double ll=(double) af->frame->nb_samples / af->frame->sample_rate;
+	     is->audio_clock = af->pts + ll;
+		 if(data_size>0&&!is->abort_request)
+		 {
+			 Ade-=ll;
+			 if(Ade>4)
+			 {
+				 goto DELXXX;
+			 }
+		 }
+		 
 	 }
 	 else
 		 is->audio_clock = NAN;
 
-	//frame_queue_next(&is->sampq,true);
-	//is->sampq.mutex->Unlock();
+	
 	return data_size;
 }
 

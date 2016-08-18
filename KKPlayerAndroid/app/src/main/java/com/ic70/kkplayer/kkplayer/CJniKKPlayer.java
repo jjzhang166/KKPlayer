@@ -34,6 +34,12 @@ public class CJniKKPlayer {
     public native  int KKGetPlayerState(int obj);
     public native  int KKIsReady(int obj);
     public native  int KKGetRealtime(int obj);
+
+    //得到延迟
+    public native  int KKGetRealtimeDelay(int obj);
+    //强制刷新缓存队列
+    public native  void KKForceFlushQue(int obj);
+    /***********UI调用***********/
     //Movie Pause
     public native void Pause(int obj);
 

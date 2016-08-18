@@ -126,3 +126,13 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKGetRealtim
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
     return  pKKUI->GetRealtime();
 }
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKGetRealtimeDelay(JNIEnv *env, jobject instance,jint obj)
+{
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    return  pKKUI->GetRealtimeDelay();
+}
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKForceFlushQue(JNIEnv *env, jobject instance,jint obj)
+{
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    pKKUI->ForceFlushQue();
+}

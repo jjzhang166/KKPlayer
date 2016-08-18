@@ -36,6 +36,11 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              int GetIsReady();
              /******是否是流媒体,该方法不是很准确*****/
              int GetRealtime();
+
+    //得到延迟
+    int GetRealtimeDelay();
+    //强制刷新Que
+    void ForceFlushQue();
     /***********UI调用***********/
    public:
             virtual unsigned char* GetWaitImage(int &length,int curtime);

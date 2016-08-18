@@ -177,7 +177,7 @@ typedef struct SKK_VideoState
 	/********包序号递增*********/
 	int PktNumber;
 	double duration;
-    //视频已经准备好了
+    //音视频已经准备好了，0位准备好，1准备好了，2需要等待
 	int IsReady;
 	//读线程信息
 	SKK_ThreadInfo read_tid;
@@ -323,6 +323,8 @@ typedef struct SKK_VideoState
 	/***********插件信息*****************/
 	KKPluginInfo *pKKPluginInfo;
 
+	/***********实时流媒体延迟************/
+	int m_RealtimeDelay;
 	//硬件解码方式
 	enum HARDCODE
 	{

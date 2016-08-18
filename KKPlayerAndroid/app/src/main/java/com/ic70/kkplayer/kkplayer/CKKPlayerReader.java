@@ -112,6 +112,13 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         }
         return 0;
     }
+    public int GetRealtimeDelay()
+    {
+        if(m_nKKPlayer!=0) {
+            return m_JniKKPlayer.KKGetRealtimeDelay(m_nKKPlayer);
+        }
+        return 0;
+    }
     public int GetNeedReConnect()
     {
         if(m_nKKPlayer!=0) {

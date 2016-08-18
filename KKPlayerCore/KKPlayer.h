@@ -95,8 +95,12 @@ class KKPlayer
 			/******是否准备好了,准备好返回1，否则返回0，没有open返回-1*******/
 			int GetIsReady();
 			
-			
+			//得到延迟
+			int GetRealtimeDelay();
+			//强制刷新Que
+			void ForceFlushQue();
 private:
+	       
 	        void ReadAV();
 	        int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 	        //视频刷线程
@@ -114,6 +118,7 @@ private:
 private:
 	        /********流媒体这是刷新函数**********/
 	        void Avflush(int64_t seek_target); 
+			void AvflushRealTime(int Avtype);
 			//读音频
 	        void ReadAudioCall();
 			void PacketQueuefree();

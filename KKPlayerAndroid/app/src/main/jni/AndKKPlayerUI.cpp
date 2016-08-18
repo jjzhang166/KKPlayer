@@ -256,6 +256,16 @@ void CAndKKPlayerUI::OpenMediaFailure(char *strURL)
     m_playerState=-2;
     return;
 }
+//得到延迟
+int  CAndKKPlayerUI::GetRealtimeDelay()
+{
+    return m_player.GetRealtimeDelay();
+}
+//强制刷新Que
+void  CAndKKPlayerUI::ForceFlushQue()
+{
+    m_player.ForceFlushQue();
+}
 void  CAndKKPlayerUI::AutoMediaCose(int Stata)
 {
      if(Stata==-1)
