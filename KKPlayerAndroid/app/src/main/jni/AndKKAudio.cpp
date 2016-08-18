@@ -253,7 +253,7 @@ void CAndKKAudio::ReadAudio()
     }
     //LOGI("ReadAudio\n");
     m_ReadLock.Unlock();
-    if(m_pFun!=NULL)
+    if(m_pFun!=NULL&&m_bqPlayerPlay!=NULL)
     {
         long t_start, t_end;
         t_start =GetTickCount();
