@@ -62,15 +62,15 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNI
     pKKUI->renderFrame();
     return 1;
 }
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance,jint obj)
 {
     if(G_pKKUI!=NULL)
     {
-
        CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
        delete pKKUI;
         G_pKKUI=NULL;
-
+        LOGE("DelKK\n");
     }
 }
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(JNIEnv *env, jobject instance, jstring str_,jint obj)

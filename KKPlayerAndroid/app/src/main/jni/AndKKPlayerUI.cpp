@@ -52,9 +52,9 @@ CAndKKPlayerUI::~CAndKKPlayerUI()
         glDeleteTextures(2,&m_nTextureID);
         m_nTextureID=0;
     }
-    //
     m_player.CloseMedia();
     m_Audio.CloseAudio();
+    LOGI("~CAndKKPlayerUI\n");
 }
 void  CAndKKPlayerUI::Pause()
 {

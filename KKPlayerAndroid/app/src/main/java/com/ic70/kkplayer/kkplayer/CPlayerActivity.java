@@ -67,7 +67,7 @@ public class CPlayerActivity extends Activity {
         public void handleMessage(Message msg)
         {
 
-            if (msg.what == 1) {
+            if (msg.what == 1&&PlayerStata!=EnumPlayerStata.Stop) {
                 int llx = m_KKPlayer.GetReady();
                 if(llx==0&& m_KKPlayer.GetPlayerState() > -1&&m_OpenCouner==0)
                 {
@@ -360,6 +360,7 @@ public class CPlayerActivity extends Activity {
     {
         if (keyCode == KeyEvent.KEYCODE_BACK)
         {
+            timer.cancel();
             PlayerStata=EnumPlayerStata.Stop;
             timer.cancel();
             CKKPlayerReader KKPlayer= m_KKPlayer;

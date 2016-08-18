@@ -17,6 +17,7 @@ CAndKKAudio::CAndKKAudio():m_engineObject(NULL),m_engineEngine(NULL),m_outputMix
     m_nBufLength=1024*3*4;
     //4096
     m_pBuf=::malloc( m_nBufLength);
+    if(m_pBuf!=NULL)
     memset(m_pBuf,0,m_nBufLength);
 
     m_pNext_buffer=m_pBuf;
@@ -32,7 +33,7 @@ CAndKKAudio::~CAndKKAudio()
 {
     ::free(m_pBuf);
     m_pBuf=NULL;
-    CloseAudio();
+    LOGE("~CAndKKAudio");
 }
 
 
@@ -266,33 +267,35 @@ void CAndKKAudio::ReadAudio()
         result = (*m_bqPlayerPlay)->GetPlayState(m_bqPlayerPlay,&lx);
         if(SL_RESULT_SUCCESS == result&&lx!=SL_PLAYSTATE_PLAYING)
         {
-        result = (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
-        if(SL_RESULT_SUCCESS != result)
-        {
-            LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
+           result = (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+           if(SL_RESULT_SUCCESS != result)
+           {
+                LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
+           }
         }
-        }
-        m_ReadLock.Lock();
-        m_nReadWait=true;
-        m_ReadLock.Unlock();
-        result = (* m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue, m_pNext_buffer,bytes_per_buffer);
-
-        //int t=m_nBufLength*10000/1764;
-        if(SL_RESULT_SUCCESS != result)
+        if(m_bqPlayerBufferQueue!=NULL)
         {
-            LOGE(" m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue error");
-        }
-        //LOGE("WaitCond");
-        //m_ReadLockCond.WaitCond(1);
-        m_ReadLock.Lock();
-        while (m_nReadWait&&!m_AudioClose)
-        {
-            m_ReadLock.Unlock();
-           // LOGE("WaitCond");
-            usleep(400);
             m_ReadLock.Lock();
+            m_nReadWait=true;
+            m_ReadLock.Unlock();
+            result = (* m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue, m_pNext_buffer,bytes_per_buffer);
+            //int t=m_nBufLength*10000/1764;
+            if(SL_RESULT_SUCCESS != result)
+            {
+                   LOGE(" m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue error");
+            }
+            //LOGE("WaitCond");
+            //m_ReadLockCond.WaitCond(1);
+            m_ReadLock.Lock();
+            while (m_nReadWait&&!m_AudioClose)
+            {
+                     m_ReadLock.Unlock();
+                     // LOGE("WaitCond");
+                     usleep(400);
+                     m_ReadLock.Lock();
+            }
+            m_ReadLock.Unlock();
         }
-        m_ReadLock.Unlock();
         t_end = GetTickCount();
         //LOGE("audio:%d,%d,%d,%d",t_end-t_start,m_nnext_buffer_index,lx,SL_PLAYSTATE_PLAYING);
         m_pNext_buffer = m_pBuf + m_nnext_buffer_index * bytes_per_buffer;
@@ -324,19 +327,21 @@ void CAndKKAudio::Stop()
 /*********关闭**********/
 void CAndKKAudio::CloseAudio()
 {
-
     Stop();
+    LOGI("CloseAudio Stop m_bqPlayerObject=%d\n",m_bqPlayerObject);
 
     if(m_bqPlayerObject!=NULL){
         (*m_bqPlayerObject)->Destroy(m_bqPlayerObject);
         m_bqPlayerObject=NULL;
+        m_bqPlayerPlay=NULL;
+        m_bqPlayerBufferQueue=NULL;
+        m_bqPlayerVolume=NULL;
         LOGI("m_bqPlayerObject Destroy\n");
     }
 
 
     if(m_outputMixObject!=NULL)
     {
-
         (*m_outputMixObject)->Destroy(m_outputMixObject);
         m_outputMixObject=NULL;
         LOGI("m_outputMixObject Destroy\n");
@@ -345,9 +350,11 @@ void CAndKKAudio::CloseAudio()
     if(m_engineObject!=NULL)
     {
          (*m_engineObject)->Destroy(m_engineObject);
-        m_engineObject=NULL;
+          m_engineObject=NULL;
+          m_engineEngine=NULL;
         LOGI("m_engineObject Destroy\n");
     }
+    LOGI("CloseAudio Over\n");
 }
 /*********设置音量************/
 void CAndKKAudio::SetVolume(long value)

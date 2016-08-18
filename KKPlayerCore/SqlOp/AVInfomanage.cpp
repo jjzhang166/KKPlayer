@@ -39,8 +39,6 @@ CAVInfoManage *CAVInfoManage::GetInance()
 	if(m_pInance==NULL)
 	{
 		m_pInance= new CAVInfoManage();
-
-
 	}
 	return m_pInance;
 }

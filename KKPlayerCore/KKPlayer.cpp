@@ -411,7 +411,11 @@ void KKPlayer::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 }
 KKPlayer::~KKPlayer(void)
 {
-    delete m_pAVInfomanage;
+	/*if(m_pAVInfomanage!=NULL)
+	{
+       delete m_pAVInfomanage;
+	   m_pAVInfomanage=NULL;
+	}*/
 }
 
 void KKPlayer::SetWindowHwnd(HWND hwnd)
@@ -1156,7 +1160,7 @@ int KKPlayer::GetAVRate()
 		 while(!pVideoInfo->abort_request)
 		 {
 			 if(pVideoInfo->IsReady&&pVideoInfo->audio_st!=NULL)
-			   pVideoInfo->pKKAudio->ReadAudio();
+			    pVideoInfo->pKKAudio->ReadAudio();
 			 else
 				 av_usleep(1000);
 		 }
