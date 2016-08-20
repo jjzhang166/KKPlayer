@@ -16,7 +16,7 @@
       AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
 	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
 #else
-      AVPixelFormat DstAVff=AV_PIX_FMT_RGB24;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
+      AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
 #endif
 	 // AVPixelFormat DstAVff=AV_PIX_FMT_BGRA;
  //<tgmath.h> 
@@ -538,27 +538,7 @@ static int audio_open2( void *opaque,                               int wanted_c
                         struct SKK_AudioParams *audio_hw_params)
 {
 	
-	/*const char *env;
-	static const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
-	static const int next_sample_rates[] = {0, 44100, 48000, 96000, 192000};
-	int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
-	env = "2";
-	if (env) 
-	{
-		
-		wanted_nb_channels = atoi(env);
-		wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
-	}
-	if (!wanted_channel_layout || wanted_nb_channels != av_get_channel_layout_nb_channels(wanted_channel_layout)) {
-		wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
-		wanted_channel_layout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
-	}
-	wanted_nb_channels = av_get_channel_layout_nb_channels(wanted_channel_layout);
-	wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
-
-	while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_sample_rate)
-		next_sample_rate_idx--;*/
-
+	
 	SKK_VideoState *is=(SKK_VideoState *)opaque;
 	if(is->pKKAudio!=NULL)
 	{
@@ -712,7 +692,8 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	//´ò¿ª½âÂëÆ÷
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
-		//LOGE("avcodec_open2 %d",avctx->codec_type);  
+		if(is->bTraceAV)
+		LOGE("avcodec_open2 %d",avctx->codec_type);  
 		//Ê§°Ü
 		assert(0);
 	}
@@ -1089,17 +1070,22 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			 NULL, NULL, NULL);
 		 if (is->img_convert_ctx == NULL) 
 		 {
+			 if(is->bTraceAV)
 			 fprintf(stderr, "Cannot initialize the conversion context\n");
 			 exit(1);
 		 }
 
 		
 		
-		
+		int  OpenTime= av_gettime ()/1000;
 		vp->BmpLock->Lock();
 		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,0,pFrame->height,vp->Bmp.data, vp->Bmp.linesize);
 		vp->BmpLock->Unlock();/**/
 	
+		int  OpenTime2= av_gettime ()/1000-OpenTime;
+
+		if(is->bTraceAV)
+		LOGE("dex:%d ,%d,%d\n",OpenTime2,pFrame->width,pFrame->height );
    
 	frame_queue_push(&is->pictq);
 	return 0;
@@ -1122,10 +1108,9 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
     
 	for(;;)  
 	{
-		    if(is->abort_request)
-			{
-				
-				//LOGE("Video_thread break");
+		    if(is->abort_request){
+				if(is->bTraceAV)
+				LOGE("Video_thread break");
                 break;
 			}	
 			do

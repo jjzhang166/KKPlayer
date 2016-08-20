@@ -33,7 +33,8 @@ import java.util.TimerTask;
  * Video UI
  */
 public class CPlayerActivity extends Activity {
-    private GLSurfaceView glView;
+    //private GLSurfaceView glView;
+    private  GLES2_0_SurfaceView glView;
     private CKKPlayerReader m_KKPlayer=null;
     private boolean m_bSeekPlayer=false;
     Activity m_PlayerActivity=null;
@@ -210,7 +211,7 @@ public class CPlayerActivity extends Activity {
         m_PlayerActivity=this;
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         timer.schedule(task, 500, 500);
-        glView = new GLSurfaceView(this);
+        glView = new GLES2_0_SurfaceView(this);// GLSurfaceView(this);
 
         glView.setRenderer(m_KKPlayer); // Use a custom renderer
         glView.getAlpha();

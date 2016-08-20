@@ -4,6 +4,18 @@ package com.ic70.kkplayer.kkplayer;
  * Created by saint on 2016/2/26.
  */
 public class CJniKKPlayer {
+    public class CapImgInfo
+    {
+        public CapImgInfo()
+        {
+
+        }
+        public byte[] ImgData=null;
+        public String ImgPixfmt=null;
+        public int imgHeight=0;
+        public  int imgWidth=0;
+        public int dataSize=0;
+    }
     static{
         System.loadLibrary("z");
        // System.loadLibrary("dvbcsa");
@@ -45,5 +57,6 @@ public class CJniKKPlayer {
 
     public native void Seek(int obj,int value);
 
+    public native int GetCapImg(CapImgInfo obj);
 }
 //javah -classpath ..\..\..\build\intermediates\classes\debug com.ic70.kkplayer.kkplayer.CJniKKPlayer

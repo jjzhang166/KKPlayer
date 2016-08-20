@@ -99,6 +99,8 @@ class KKPlayer
 			int GetRealtimeDelay();
 			//强制刷新Que
 			void ForceFlushQue();
+			//显示视频追踪信息
+			void ShowTraceAV(bool Show);
 private:
 	       
 	        void ReadAV();
@@ -164,6 +166,8 @@ private:
 			static std::list<KKPluginInfo>  KKPluginInfoList;
 			void *m_PicBuf;
 			int m_PicBufLen;
+			int64_t m_lstPts;
+			bool m_bTrace;
 			
 };
 #endif

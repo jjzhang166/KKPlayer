@@ -7,6 +7,29 @@
 #define _Included_com_ic70_kkplayer_kkplayer_CJniKKPlayer
 
 
+JNIEXPORT jint JNICALL
+Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetCapImg(JNIEnv *env, jobject instance, jobject obj)
+{
+     jclass cls_objClass=env->GetObjectClass( obj);
+     jfieldID ImgPixfmtId=env->GetFieldID(cls_objClass,"ImgPixfmt","Ljava/lang/String;");
+     jstring BGR= env->NewStringUTF("BGR");
+     env->SetObjectField(obj,ImgPixfmtId,BGR);
+
+
+     jfieldID imgHeightId=env->GetFieldID(cls_objClass,"imgHeight","I");
+     env->SetIntField(obj,imgHeightId,1);
+     jfieldID imgWidthId=env->GetFieldID(cls_objClass,"imgWidth","I");
+     env->SetIntField(obj,imgWidthId,2);
+
+     jfieldID dataSizeId=env->GetFieldID(cls_objClass,"dataSize","I");
+     env->SetIntField(obj, dataSizeId,100);
+
+     jfieldID ImgDataId=env->GetFieldID(cls_objClass,"ImgData","[");
+     jbyteArray dataImg= env->NewByteArray(100);
+     env->SetObjectField(obj, ImgDataId,dataImg);
+
+     //jfieldID ImgPixfmtId=env->GetFieldID(cls_objClass,"ImgPixfmt","Ljava/lang/String;");
+}
 
 #ifdef __cplusplus
 extern "C" {

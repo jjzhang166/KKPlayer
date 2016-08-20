@@ -1,7 +1,7 @@
 //#define __cplusplus
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-#include <GLES/gl.h>
+#include <GLES2/gl2.h>
+//#include <GLES/glext.h>
+#include <GLES2/gl2ext.h>
 #include <android/log.h>
 #include "AndKKAudio.h"
 
@@ -53,13 +53,31 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
             void Seek(int value);
             int GetPlayerState();
    private:
-        int m_width;
-        int m_height;
-        bool m_bNeedReconnect;
+        GLuint buildProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
+        void GLES2_Renderer_reset();
+        void AVTexCoords_reset();
+        void AVTexCoords_cropRight(GLfloat cropRight);
+        GLuint g_texYId;
+        GLuint g_texUId;
+        GLuint g_texVId;
+        GLuint g_glProgram;
+        GLuint g_av2_texcoord;
+        GLuint g_av4_position;
+
+        GLuint m_vertexShader;
+        GLuint m_fragmentShader;
+        GLuint m_plane_textures[3];
+        GLint m_us2_sampler[3];
+
+        GLfloat m_AVVertices[8];
+        GLfloat m_AVTexcoords[8];
+        int m_glwidth;
+        int m_glheight;
         int m_Picwidth;
         int m_Picheight;
         bool m_bAdJust;
         /*************浏览器状态***************/
+        bool m_bNeedReconnect;
         int m_playerState;
         KKPlayer m_player;
         CAndKKAudio m_Audio;

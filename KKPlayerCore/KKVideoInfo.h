@@ -314,9 +314,13 @@ typedef struct SKK_VideoState
 	int last_video_stream, last_audio_stream, last_subtitle_stream;
 
 	double remaining_time;
-	void *pScreen;
+	
 
+	//追踪音视频信息
+	bool bTraceAV;
+	//上一次速率
 	double last_duration;
+	
 	/****当前帧直接的延迟s****/
 	double delay;
 
