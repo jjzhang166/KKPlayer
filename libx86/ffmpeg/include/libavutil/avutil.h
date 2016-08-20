@@ -138,14 +138,6 @@
  *
  * @{
  *
- * @defgroup lavu_internal Internal
- *
- * Not exported functions, for internal usage only
- *
- * @{
- *
- * @}
- *
  * @defgroup preproc_misc Preprocessor String Macros
  *
  * @{
@@ -274,7 +266,7 @@ enum AVPictureType {
     AV_PICTURE_TYPE_I,     ///< Intra
     AV_PICTURE_TYPE_P,     ///< Predicted
     AV_PICTURE_TYPE_B,     ///< Bi-dir predicted
-    AV_PICTURE_TYPE_S,     ///< S(GMC)-VOP MPEG4
+    AV_PICTURE_TYPE_S,     ///< S(GMC)-VOP MPEG-4
     AV_PICTURE_TYPE_SI,    ///< Switching Intra
     AV_PICTURE_TYPE_SP,    ///< Switching Predicted
     AV_PICTURE_TYPE_BI,    ///< BI type
