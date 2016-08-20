@@ -6,7 +6,21 @@
 			{
 				usleep(ms*1000);
 			}
+
 		#endif
+
+
+
+		
+	/*		 void __cdecl LOGE(const char* _Format, ...) 
+			{
+
+				char abcd[1024];
+				sprintf_s(abcd,1024,_Format,__VA_ARGS__);
+			     ::OutputDebugStringA(abcd);
+			}*/
+
+
       /* BOOL ResetEvent(HANDLE hEvent)
        {
 	      return TRUE;

@@ -16,8 +16,8 @@
 			#include <process.h>
 			#include <assert.h>
             typedef CRITICAL_SECTION KKCRITICAL_SECTION;
-            #define  LOGE(...)  ;
-//(char _Labcd__[256]="%s";sprintf(_Labcd__,__VA_ARGS__);::OutputDebugStringA(_Labcd__))
+			//void __cdecl LOGE(const char* _Format,...);
+             #define  LOGE(...)  ;
 	#else
             #include "platforms.h"
 	#endif

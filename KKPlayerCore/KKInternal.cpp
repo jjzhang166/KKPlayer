@@ -312,7 +312,7 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 int audio_fill_frame( SKK_VideoState *pVideoInfo) 
 { 
 
-	double  Ade=pVideoInfo->m_RealtimeDelay;
+	double  Ade=pVideoInfo->nRealtimeDelay;
 DELXXX:
 	int n=0;
 	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
@@ -460,11 +460,10 @@ DELXXX:
 		// pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);/**/
 		 double ll=(double) af->frame->nb_samples / af->frame->sample_rate;
 	     is->audio_clock = af->pts + ll;
-		 //double  Ade=pVideoInfo->m_RealtimeDelay;
-		 if(data_size>0&&!is->abort_request)
+		 if(data_size>0&&!is->abort_request&&is->realtime)
 		 {
 			 Ade-=ll;
-			 if(Ade>4)
+			 if(Ade>is->nMinRealtimeDelay)
 			 {
 				 goto DELXXX;
 			 }
@@ -1105,7 +1104,6 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
     AVRational frame_rate = av_guess_frame_rate(is->pFormatCtx, is->video_st, NULL);
 
 	pFrame = avcodec_alloc_frame();  
-    
 	for(;;)  
 	{
 		    if(is->abort_request){

@@ -5,7 +5,7 @@ typedef long long          int64_t;
 extern "C"
 {   typedef char (*fGetPtlHeader)(char *buf,char len);
     /****下载函数****/
-    typedef char (*fKKDownAVFile)(char *str);
+    typedef char (*fKKDownAVFile)(char *strUrl);
 	/********停止下载函数**********/
 	typedef char (*fKKStopDownAVFile)(char *str);
 	/************下载速度回调函数*********/

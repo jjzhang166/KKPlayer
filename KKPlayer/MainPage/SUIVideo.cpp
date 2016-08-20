@@ -105,6 +105,11 @@ namespace SOUI
 			return 1;
 		return 0;
 	}
+	int CSuiVideo::DownMedia(char *KKVURL)
+	{
+		int ret= m_VideoWnd.DownMedia(KKVURL);
+	    return ret;
+	}
 	 int CSuiVideo::OpenMedia(const char *str)
 	 {
          int ret= m_VideoWnd.OpenMedia(str);

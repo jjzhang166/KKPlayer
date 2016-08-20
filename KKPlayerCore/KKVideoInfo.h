@@ -56,7 +56,7 @@ typedef struct SKK_PacketQueue
 	/******包数******/
 	int nb_packets;
 	/***包大小***/
-	int size;
+	volatile int size;
 	int abort_request;
 	/*******序列号*********/
 	int serial;
@@ -327,8 +327,10 @@ typedef struct SKK_VideoState
 	/***********插件信息*****************/
 	KKPluginInfo *pKKPluginInfo;
 
-	/***********实时流媒体延迟************/
-	int m_RealtimeDelay;
+	/***********实时流媒体延迟值，单位秒************/
+	int nRealtimeDelay;
+	/********最小延迟********/
+	int nMinRealtimeDelay;
 	//硬件解码方式
 	enum HARDCODE
 	{

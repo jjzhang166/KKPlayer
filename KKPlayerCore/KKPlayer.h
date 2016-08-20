@@ -54,6 +54,7 @@ class KKPlayer
 			int OpenMedia(char* fileName,char* FilePath="C:\\"); 
 			void CloseMedia(); 
     		
+			//获取播放的时间
             int GetCurTime();
 			
 			void RenderImage(CRender *pRender,bool Force);
@@ -99,12 +100,17 @@ class KKPlayer
 			int GetRealtimeDelay();
 			//强制刷新Que
 			void ForceFlushQue();
-			//显示视频追踪信息
-			void ShowTraceAV(bool Show);
+			//显示视频追踪信息,返回1成功
+			int ShowTraceAV(bool Show);
+
+			/******设置实时流媒体最小延迟**********/
+			int SetMinRealtimeDelay(int Delay);
+			/*******************插件可是分析*********************/
+			int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 private:
 	       
 	        void ReadAV();
-	        int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
+	       
 	        //视频刷线程
 			void VideoRefresh();
 			  //视频信息
@@ -141,11 +147,6 @@ private:
 	       
 			//当前包序列号
 			volatile int m_PktSerial;
-
-	        int WindowWidth;
-			int WindowHeight;
-			//上一次显示的帧的序号
-	        int m_DisplayVp;
 	        IKKAudio* m_pSound;
 			HWND m_hwnd;
 	        
@@ -167,7 +168,6 @@ private:
 			void *m_PicBuf;
 			int m_PicBufLen;
 			int64_t m_lstPts;
-			bool m_bTrace;
 			
 };
 #endif

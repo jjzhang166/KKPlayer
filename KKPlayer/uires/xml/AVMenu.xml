@@ -5,8 +5,10 @@ translucent="1"
 margin="5,3,5,3" colorBkgnd="#ff0000">
   <menuItem hotKey="e" id="1" font="face:宋体">打开文件</menuItem>
   <menuItem id="2" icon="1" font="face:宋体" >打开URL</menuItem>
+  <menuItem id="7" icon="1" font="face:宋体" >添加网络任务</menuItem>
   <menuItem id="3" icon="1" font="face:宋体" >全屏</menuItem>
   <menuItem id="4" icon="1" check="1" font="face:宋体" >普通模式</menuItem>
   <menuItem id="5" icon="1" font="face:宋体" >迷你模式</menuItem>
   <menuItem id="6" icon="1" font="face:宋体" >文件信息</menuItem>
+  
 </menuRoot>

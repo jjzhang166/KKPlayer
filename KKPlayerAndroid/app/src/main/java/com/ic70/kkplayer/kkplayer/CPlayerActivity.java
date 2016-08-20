@@ -53,7 +53,6 @@ public class CPlayerActivity extends Activity {
    public  enum  EnumPlayerStata
    {
        OpenFailure,
-       Opening,
        Stop,
        Play,
        PAUSE
@@ -72,14 +71,14 @@ public class CPlayerActivity extends Activity {
                 int llx = m_KKPlayer.GetReady();
                 if(llx==0&& m_KKPlayer.GetPlayerState() > -1&&m_OpenCouner==0)
                 {
-                    PlayerStata=EnumPlayerStata.Opening;
+                   // PlayerStata=EnumPlayerStata.Opening;
                 }else if(llx== 1&&m_OpenCouner==0)
                 {
-                    PlayerStata=EnumPlayerStata.Play;
+                    //PlayerStata=EnumPlayerStata.Play;
                 }
 
                 //System.out.println( m_KKPlayer.GetPlayerState() + "==="+m_OpenCouner);
-                if(   m_KKPlayer.GetPlayerState()==-2 &&m_OpenCouner==0&&  (PlayerStata==EnumPlayerStata.Opening||PlayerStata==EnumPlayerStata.Play))
+                if(   m_KKPlayer.GetPlayerState()==-2 &&m_OpenCouner==0&&  PlayerStata==EnumPlayerStata.Play)
                     { /*********文件打开失败***********/
                         PlayerStata = EnumPlayerStata.OpenFailure;
                         Button NetButton = (Button) findViewById(R.id.NetButton);
@@ -127,7 +126,7 @@ public class CPlayerActivity extends Activity {
                     } else {
                           //网络断开后重连，及流断了重连打开
                           if (
-                                  (PlayerStata == EnumPlayerStata.Play||PlayerStata == EnumPlayerStata.Opening)
+                                  (PlayerStata == EnumPlayerStata.Play)
                                   && m_bNecState && m_OpenCouner == 0 && m_LastDisConnect == 1)
                           {
                                  System.out.println(m_OpenCouner + "===状态2===");
@@ -240,7 +239,7 @@ public class CPlayerActivity extends Activity {
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
         m_KKPlayer.OpenMedia(MoviePathStr);
         m_CurTime=0;
-        PlayerStata=EnumPlayerStata.Opening;
+        PlayerStata = EnumPlayerStata.Play;
         WaitGif();
     }
     public void WaitGif()
@@ -270,7 +269,7 @@ public class CPlayerActivity extends Activity {
     public void onStop()
     {
         super.onStop();
-        if(PlayerStata==EnumPlayerStata.Play||PlayerStata==EnumPlayerStata.Opening)
+        if(PlayerStata==EnumPlayerStata.Play)
         {
             FunPalyState();
         }
@@ -348,7 +347,7 @@ public class CPlayerActivity extends Activity {
     protected void FunPalyState()
     {
         ImageButton btn=(ImageButton)findViewById(R.id.StartButton);
-        if(PlayerStata==EnumPlayerStata.Play||PlayerStata==EnumPlayerStata.Opening) {
+        if(PlayerStata==EnumPlayerStata.Play) {
             btn.setImageResource(R.drawable.play1);
             PlayerStata=EnumPlayerStata.PAUSE;
             m_KKPlayer.Pause();

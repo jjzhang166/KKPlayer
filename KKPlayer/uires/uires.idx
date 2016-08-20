@@ -8,6 +8,7 @@
 		<file name="XML_MINI_BOTTOM" path="xml\MiniBottom.xml"/>
 		<file name="XML_AVINFO" path="xml\AvInfo.xml"/>
 		<file name="XML_AVOPENURL" path="xml\AvOpenUrl.xml"/>
+		<file name="XML_AVNETDOWN" path="xml\AvNetDown.xml"/>
 		
 	</LAYOUT>
 	<SMENUEX>

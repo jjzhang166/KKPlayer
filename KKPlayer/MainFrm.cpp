@@ -251,9 +251,26 @@ BOOL CMainFrame::OnIdle()
 	(((y) + (1L << 15)) >> 16))
 std::basic_string<TCHAR> GetModulePath();
 
+int CMainFrame::DownMedia(char *KKVURL)
+{
+	if(m_pPlayerInstance!=NULL)
+	{
+		KKPluginInfo KKPl;
+		memset(&KKPl,0,sizeof(KKPl));
+        int ret=m_pPlayerInstance->KKProtocolAnalyze(KKVURL,KKPl);
+		if(ret==1)
+		{
+            if(KKPl.KKDownAVFile!=NULL)
+			{
+                  return KKPl.KKDownAVFile(KKVURL);
+			}
+		}
+	}
+	
+    return -1;
+}
 int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 {
-
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
 	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
