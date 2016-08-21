@@ -116,7 +116,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\libx86\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\skia\include;..\skia\include\core;..\skia\include\config"
+				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\skia\include;..\skia\include\core;..\skia\include\config"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

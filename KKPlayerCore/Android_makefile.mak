@@ -26,12 +26,13 @@ $(ObjTARGET):$(objects)
 	-L$(BASELib) \
 	-l$(BASELib)/liblog.so \
 	-l$(STLLib)/libstlport_static.a \
-	-l$(FFMPEGLib)libavcodec-56.so \
-	-l$(FFMPEGLib)libavdevice-56.so -l$(FFMPEGLib)libavfilter-5.so \
-	-l$(FFMPEGLib)libavformat-56.so \
-	-l$(FFMPEGLib)libavutil-54.so \
-	-l$(FFMPEGLib)libswresample-1.so \
-	-l$(FFMPEGLib)libswscale-3.so;
+	-l$(FFMPEGLib)libavcodec-57.so \
+	-l$(FFMPEGLib)libavdevice-57.so \
+	-l$(FFMPEGLib)libavfilter-6.so \
+	-l$(FFMPEGLib)libavformat-57.so \
+	-l$(FFMPEGLib)libavutil-55.so \
+	-l$(FFMPEGLib)libswresample-2.so \
+	-l$(FFMPEGLib)libswscale-4.so;
 	$(AR) rcs $(ObjLib) $(objects) 
 
 md5.o: MD5/md5.c MD5/md5.h

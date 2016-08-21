@@ -71,21 +71,21 @@ typedef struct
 typedef struct {
 	const char   *name;
 	D3DFORMAT    format;
-	PixelFormat  codec;
+	AVPixelFormat  codec;
 } d3d_format_t;
 /* XXX Prefered format must come first */
 static const d3d_format_t d3d_formats[] = {
-	{ "YV12",   (D3DFORMAT)MAKEFOURCC('Y','V','1','2'),    PIX_FMT_YUV420P },
-	{ "NV12",   (D3DFORMAT)MAKEFOURCC('N','V','1','2'),    PIX_FMT_NV12 },
+	{ "YV12",   (D3DFORMAT)MAKEFOURCC('Y','V','1','2'),    AV_PIX_FMT_YUV420P },
+	{ "NV12",   (D3DFORMAT)MAKEFOURCC('N','V','1','2'),    AV_PIX_FMT_NV12 },
 
-	{ NULL, (D3DFORMAT)0, PIX_FMT_NONE }
+	{ NULL, (D3DFORMAT)0, AV_PIX_FMT_NONE }
 };
 /**
  * video format description
  */
 struct video_format_t
 {
-    PixelFormat  i_chroma;                               /**< picture chroma */
+    AVPixelFormat  i_chroma;                               /**< picture chroma */
  
     unsigned int i_width;                                 /**< picture width */
     unsigned int i_height;                               /**< picture height */
@@ -223,17 +223,17 @@ typedef struct {
 
 /* XXX Prefered modes must come first */
 static const dxva2_mode_t dxva2_modes[] = {
-	{ "MPEG-2 variable-length decoder",            DXVA2_ModeMPEG2_VLD,     CODEC_ID_MPEG2VIDEO },
-	{ "MPEG-2 & MPEG-1 variable-length decoder",   DXVA2_ModeMPEG2and1_VLD, CODEC_ID_MPEG2VIDEO },
+	{ "MPEG-2 variable-length decoder",            DXVA2_ModeMPEG2_VLD,     AV_CODEC_ID_MPEG2VIDEO },
+	{ "MPEG-2 & MPEG-1 variable-length decoder",   DXVA2_ModeMPEG2and1_VLD, AV_CODEC_ID_MPEG2VIDEO },
 	{ "MPEG-2 motion compensation",                DXVA2_ModeMPEG2_MoComp,  0 },
 	{ "MPEG-2 inverse discrete cosine transform",  DXVA2_ModeMPEG2_IDCT,    0 },
 
 	{ "MPEG-1 variable-length decoder",            DXVA2_ModeMPEG1_VLD,     0 },
 
-	{ "H.264 variable-length decoder, film grain technology",                      DXVA2_ModeH264_F,                   CODEC_ID_H264 },
-	{ "H.264 variable-length decoder, no film grain technology",                   DXVA2_ModeH264_E,                   CODEC_ID_H264 },
-	{ "H.264 variable-length decoder, no film grain technology (Intel ClearVideo)",DXVADDI_Intel_ModeH264_E,           CODEC_ID_H264 },
-	{ "H.264 variable-length decoder, no film grain technology, FMO/ASO",          DXVA_ModeH264_VLD_WithFMOASO_NoFGT, CODEC_ID_H264 },
+	{ "H.264 variable-length decoder, film grain technology",                      DXVA2_ModeH264_F,                   AV_CODEC_ID_H264 },
+	{ "H.264 variable-length decoder, no film grain technology",                   DXVA2_ModeH264_E,                   AV_CODEC_ID_H264 },
+	{ "H.264 variable-length decoder, no film grain technology (Intel ClearVideo)",DXVADDI_Intel_ModeH264_E,           AV_CODEC_ID_H264 },
+	{ "H.264 variable-length decoder, no film grain technology, FMO/ASO",          DXVA_ModeH264_VLD_WithFMOASO_NoFGT, AV_CODEC_ID_H264 },
 	{ "H.264 inverse discrete cosine transform, film grain technology",            DXVA2_ModeH264_D,                   0             },
 	{ "H.264 inverse discrete cosine transform, no film grain technology",         DXVA2_ModeH264_C,                   0             },
 	{ "H.264 inverse discrete cosine transform, no film grain technology (Intel)", DXVADDI_Intel_ModeH264_C,           0             },
@@ -248,10 +248,10 @@ static const dxva2_mode_t dxva2_modes[] = {
 	{ "Windows Media Video 9 motion compensation", DXVA2_ModeWMV9_B, 0 },
 	{ "Windows Media Video 9 post processing",     DXVA2_ModeWMV9_A, 0 },
 
-	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D, CODEC_ID_VC1 },
-	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D, CODEC_ID_WMV3 },
-	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D2010, CODEC_ID_VC1 },
-	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D2010, CODEC_ID_WMV3 },
+	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D, AV_CODEC_ID_VC1 },
+	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D, AV_CODEC_ID_WMV3 },
+	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D2010, AV_CODEC_ID_VC1 },
+	{ "VC-1 variable-length decoder",              DXVA2_ModeVC1_D2010, AV_CODEC_ID_WMV3 },
 	{ "VC-1 inverse discrete cosine transform",    DXVA2_ModeVC1_C, 0 },
 	{ "VC-1 motion compensation",                  DXVA2_ModeVC1_B, 0 },
 	{ "VC-1 post processing",                      DXVA2_ModeVC1_A, 0 },

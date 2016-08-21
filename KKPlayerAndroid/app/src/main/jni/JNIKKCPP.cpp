@@ -1,5 +1,5 @@
 #include "com_ic70_kkplayer_kkplayer_CJniKKPlayer.h"
-#include "ffmpeg2.8.6/include/libavutil/avstring.h"
+/*#include "ffmpeg2.8.6/include/libavutil/avstring.h"
 #include "ffmpeg2.8.6/include/libavutil/eval.h"
 #include "ffmpeg2.8.6/include/libavutil/mathematics.h"
 #include "ffmpeg2.8.6/include/libavutil/pixdesc.h"
@@ -21,7 +21,8 @@
 # include "ffmpeg2.8.6/include/libavfilter/avfilter.h"
 # include "ffmpeg2.8.6/include/libavfilter/buffersink.h"
 # include "ffmpeg2.8.6/include/libavfilter/buffersrc.h"
-#include  "ffmpeg2.8.6/include/libavutil/mathematics.h"
+#include  "ffmpeg2.8.6/include/libavutil/mathematics.h"*/
+
 #include <pthread.h>
 #include <string>
 #include <stdlib.h>

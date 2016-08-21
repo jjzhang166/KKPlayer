@@ -813,14 +813,14 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 		bmpFileHeader.bfOffBits=sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
 		bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)+ w*h*24/8;
 
-		char buf[256]="";
+	/*	char buf[256]="";
 		sprintf_s(buf,255,"%s%d.bmp","D:/pic/",index++);  
 		FILE* pf = fopen(buf, "wb");
 		fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, pf);
 		fwrite(&header, sizeof(BITMAPINFOHEADER), 1, pf);
 		int numBytes=avpicture_get_size(PIX_FMT_RGB24, w,h);
 		fwrite(buf, 1, numBytes, pf);
-		fclose(pf);
+		fclose(pf);*/
 	}
 }
 
@@ -1467,9 +1467,9 @@ void KKPlayer::ReadAV()
 
 		LOGE("paued %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->paused,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
 #ifdef WIN32
-		char abcdxf[1024]="";
+		/*char abcdxf[1024]="";
 		sprintf_s(abcdxf,1024,"paued %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->paused,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
-		OutputDebugStringA(abcdxf);
+		OutputDebugStringA(abcdxf);*/
 #endif
 		/********************实时流媒体不支持暂停******************************/
 		if (pVideoInfo->paused != pVideoInfo->last_paused&&!pVideoInfo->realtime) 
@@ -1496,7 +1496,8 @@ void KKPlayer::ReadAV()
 			if(pVideoInfo->seek_req==2)
 			{
 				seek_min=seek_target;
-                seek_max =seek_target +10000;
+				if(pVideoInfo->audio_st!=0)
+                seek_max =seek_target + 1000000;
 			}
 			//int64_t seek_min    =pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
 			//int64_t seek_max    =pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
@@ -1667,18 +1668,17 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
  
    if(pVideoInfo!=NULL&&pVideoInfo->IsReady)
    {
-	   m_CurTime=value;
 	   double incr, pos, frac;
 	   incr=value;
 	   pos = get_master_clock(pVideoInfo);
-	   if(pVideoInfo->AVRate!=100)
+	  /* if(pVideoInfo->AVRate!=100)
 	   {
 		   float aa=(float)pVideoInfo->AVRate/100;
 		   pos=pos*aa;
-	   }
+	   }*/
 	   if (isNAN(pos))
 		   pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
-	   pos += incr;
+	   incr+=3;
 	   if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
 		   pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
 	   stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);

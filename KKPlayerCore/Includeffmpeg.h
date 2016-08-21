@@ -55,7 +55,7 @@ extern "C"
 #include "libswresample/swresample.h"
 
 #include "libavfilter/avfilter.h"
-#include "libavfilter/avcodec.h"
+//#include "libavfilter/avcodec.h"
 #include "libavfilter/avfilter.h"
 #include "libavfilter/buffersink.h"
 #include "libavfilter/buffersrc.h"
@@ -80,16 +80,16 @@ extern "C"
 		//} AVAES;
 
 #ifdef WIN32
-	#ifdef _DEBUG
+	//#ifdef _DEBUG
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avcodec.lib")
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avdevice.lib")
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avfilter.lib")
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avformat.lib")
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avutil.lib")
-		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\postproc.lib")
+		//#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\postproc.lib")
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swresample.lib")
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swscale.lib")
-	#else
+	/*#else
 		#pragma comment (lib,"..\\libx86\\ffmpeg\\vs2008lib\\avcodec-56.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avdevice-56.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\avfilter-5.lib")
@@ -98,7 +98,7 @@ extern "C"
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\postproc-53.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swresample-1.lib")
 		#pragma comment (lib,"../libx86/ffmpeg/vs2008lib\\swscale-3.lib")
-	#endif
+	#endif*/
 #endif
 }
 

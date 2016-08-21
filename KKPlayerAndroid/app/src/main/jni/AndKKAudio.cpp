@@ -5,7 +5,7 @@
 #include <malloc.h>
 #include <string.h>
 #include "AndKKAudio.h"
-#include "ffmpeg2.8.6/include/libavutil/common.h"
+#include "ffmpeg/include/libavutil/common.h"
 #include <time.h>
 #define  LOG_TAG    "XlibOpenLSjni"
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)

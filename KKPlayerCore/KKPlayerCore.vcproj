@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INTInclude;..\libx86\ffmpeg\include;..\librtmp"
+				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\INTInclude;..\libx86\ffmpeg\include;..\librtmp"
+				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -306,14 +306,6 @@
 		<Filter
 			Name="Rtmp"
 			>
-			<File
-				RelativePath=".\rtmp\AV_FLv.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\rtmp\AV_FLv.h"
-				>
-			</File>
 			<File
 				RelativePath=".\rtmp\FlvEncode.cpp"
 				>

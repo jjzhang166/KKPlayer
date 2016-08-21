@@ -454,7 +454,7 @@ static int DxCreateVideoDecoder(vlc_va_dxva2_t *va,
 	va->surface_width  = (fmt->i_width  + 15) & ~15;
 	va->surface_height = (fmt->i_height + 15) & ~15;
 	switch (codec_id) {
-	case CODEC_ID_H264:
+	case AV_CODEC_ID_H264:
 		va->surface_count = 16 + 1;
 		break;
 	default:
@@ -538,7 +538,7 @@ static int DxCreateVideoDecoder(vlc_va_dxva2_t *va,
 		int score;
 		if (cfg->ConfigBitstreamRaw == 1)
 			score = 1;
-		else if (codec_id == CODEC_ID_H264 && cfg->ConfigBitstreamRaw == 2)
+		else if (codec_id == AV_CODEC_ID_H264 && cfg->ConfigBitstreamRaw == 2)
 			score = 2;
 		else
 			continue;
@@ -590,7 +590,7 @@ static void DxCreateVideoConversion(vlc_va_dxva2_t *va)
 }
 
 
-static int Setup(vlc_va_dxva2_t *external, void **hw, PixelFormat *chroma,
+static int Setup(vlc_va_dxva2_t *external, void **hw, AVPixelFormat *chroma,
 	int width, int height)
 {
 	vlc_va_dxva2_t *va = external;
@@ -602,7 +602,7 @@ static int Setup(vlc_va_dxva2_t *external, void **hw, PixelFormat *chroma,
 	DxDestroyVideoConversion(va);
 	DxDestroyVideoDecoder(va);
 
-	*chroma = PIX_FMT_NONE;
+	*chroma = AV_PIX_FMT_NONE;
 	if (width <= 0 || height <= 0)
 		return -1;
 
@@ -710,7 +710,7 @@ static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,
 	p_ff_pic->reordered_opaque = p_context->reordered_opaque;
 	p_ff_pic->opaque = NULL;
 
-	PixelFormat chroma;
+	AVPixelFormat chroma;
 	if( va )
 	{
 		/* hwaccel_context is not present in old ffmpeg version */
@@ -723,7 +723,7 @@ static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,
 		}
 
 		/* */
-		p_ff_pic->type = FF_BUFFER_TYPE_USER;
+		//p_ff_pic->type = FF_BUFFER_TYPE_USER;
 
 		/* FIXME what is that, should give good value */
 //		p_ff_pic->age = 256*256*256*64; // FIXME FIXME from ffmpeg
@@ -738,7 +738,7 @@ static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,
 	else if( /*!p_sys->b_direct_rendering*/ 1 )
 	{
 		/* Not much to do in indirect rendering mode. */
-		return avcodec_default_get_buffer( p_context, p_ff_pic );
+		return avcodec_default_get_buffer2( p_context, p_ff_pic,AV_CODEC_CAP_DR1 );
 	}
 }
 
@@ -747,34 +747,36 @@ static int  ffmpeg_ReGetFrameBuf( struct AVCodecContext *p_context, AVFrame *p_f
 {
 	p_ff_pic->reordered_opaque = p_context->reordered_opaque;
 
+	return 0;
 	/* We always use default reget function, it works perfectly fine */
-	return avcodec_default_reget_buffer( p_context, p_ff_pic );
+	//return avcodec_default_release_buffer( p_context, p_ff_pic );
 }
 
 static void ffmpeg_ReleaseFrameBuf( struct AVCodecContext *p_context,
 	AVFrame *p_ff_pic )
 {
-	vlc_va_dxva2_t *va = (vlc_va_dxva2_t *)p_context->opaque;
+	//return 0;
+	//vlc_va_dxva2_t *va = (vlc_va_dxva2_t *)p_context->opaque;
 
-	if( va )
-	{
-		Release( va, p_ff_pic );
-	}
-	else if( !p_ff_pic->opaque )
-	{
-		/* We can end up here without the AVFrame being allocated by
-		* avcodec_default_get_buffer() if VA is used and the frame is
-		* released when the decoder is closed
-		*/
-		if( p_ff_pic->type == FF_BUFFER_TYPE_INTERNAL )
-			avcodec_default_release_buffer( p_context, p_ff_pic );
-	}
-	for( int i = 0; i < 4; i++ )
-		p_ff_pic->data[i] = NULL;
+	//if( va )
+	//{
+	//	Release( va, p_ff_pic );
+	//}
+	//else if( !p_ff_pic->opaque )
+	//{
+	//	/* We can end up here without the AVFrame being allocated by
+	//	* avcodec_default_get_buffer() if VA is used and the frame is
+	//	* released when the decoder is closed
+	//	*/
+	//	if( p_ff_pic->pict_type== _FF_BUFFER_TYPE_INTERNAL )
+	//		avcodec_default_release_buffer( p_context, p_ff_pic );
+	//}
+	//for( int i = 0; i < 4; i++ )
+	//	p_ff_pic->data[i] = NULL;
 }
 
-static enum PixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
-	const enum PixelFormat *pi_fmt )
+static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
+	const enum AVPixelFormat *pi_fmt )
 {
 	vlc_va_dxva2_t *va = (vlc_va_dxva2_t *)p_context->opaque;
 
@@ -785,21 +787,21 @@ static enum PixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
 	}
 
 	/* Try too look for a supported hw acceleration */
-	for( int i = 0; pi_fmt[i] != PIX_FMT_NONE; i++ )
+	for( int i = 0; pi_fmt[i] != AV_PIX_FMT_NONE; i++ )
 	{
-		static const char *ppsz_name[PIX_FMT_NB] = {NULL};
-		ppsz_name[PIX_FMT_VDPAU_H264] = "PIX_FMT_VDPAU_H264";
-		ppsz_name[PIX_FMT_VAAPI_IDCT] = "PIX_FMT_VAAPI_IDCT";
-		ppsz_name[PIX_FMT_VAAPI_VLD] = "PIX_FMT_VAAPI_VLD";
-		ppsz_name[PIX_FMT_VAAPI_MOCO] = "PIX_FMT_VAAPI_MOCO";
-		ppsz_name[PIX_FMT_DXVA2_VLD] = "PIX_FMT_DXVA2_VLD";
-		ppsz_name[PIX_FMT_YUYV422] = "PIX_FMT_YUYV422";
-		ppsz_name[PIX_FMT_YUV420P] = "PIX_FMT_YUV420P";
+		static const char *ppsz_name[AV_PIX_FMT_NB] = {NULL};
+		ppsz_name[AV_PIX_FMT_VDPAU_H264] = "PIX_FMT_VDPAU_H264";
+		ppsz_name[AV_PIX_FMT_VAAPI_IDCT] = "PIX_FMT_VAAPI_IDCT";
+		ppsz_name[AV_PIX_FMT_VAAPI_VLD] = "PIX_FMT_VAAPI_VLD";
+		ppsz_name[AV_PIX_FMT_VAAPI_MOCO] = "PIX_FMT_VAAPI_MOCO";
+		ppsz_name[AV_PIX_FMT_DXVA2_VLD] = "PIX_FMT_DXVA2_VLD";
+		ppsz_name[AV_PIX_FMT_YUYV422] = "PIX_FMT_YUYV422";
+		ppsz_name[AV_PIX_FMT_YUV420P] = "PIX_FMT_YUV420P";
 
 		av_log(p_context, AV_LOG_DEBUG, "Available decoder output format %d (%s)\n", pi_fmt[i], ppsz_name[pi_fmt[i]] ? ppsz_name[pi_fmt[i]] : "Unknown" );
 
 		/* Only VLD supported */
-		if( pi_fmt[i] == PIX_FMT_DXVA2_VLD )
+		if( pi_fmt[i] == AV_PIX_FMT_DXVA2_VLD )
 		{
 			av_log(p_context, AV_LOG_DEBUG, "Trying DXVA2\n" );
 			va = vlc_va_NewDxva2( p_context->codec_id );
@@ -1256,9 +1258,9 @@ int BindDxva2Module(	AVCodecContext  *pCodecCtx)
 	
 	pCodecCtx->opaque = dxva;
 	pCodecCtx->get_format = ffmpeg_GetFormat;
-	pCodecCtx->get_buffer = ffmpeg_GetFrameBuf;
-	pCodecCtx->reget_buffer = ffmpeg_ReGetFrameBuf;
-	pCodecCtx->release_buffer = ffmpeg_ReleaseFrameBuf;
+	//pCodecCtx->get_buffer2 = ffmpeg_GetFrameBuf;
+	//pCodecCtx->reget_buffer2 = ffmpeg_ReGetFrameBuf;
+	//pCodecCtx->release_buffer2 = ffmpeg_ReleaseFrameBuf;
 	pCodecCtx->thread_count = 1;
 	return 0;
 }

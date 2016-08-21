@@ -1,5 +1,5 @@
 #include "AndKKPlayerUI.h"
-#include "ffmpeg2.8.6/include/libavutil/common.h"
+#include "ffmpeg/include/libavutil/common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
