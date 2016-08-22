@@ -44,7 +44,7 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 	if(registerFF)
 	{
 		 
-		LOGE("len:%d",strlen("我们"));
+		LOGE("len:%d \n",strlen("我们"));
 		/*std::string strPort="";
 		const char *pp=strPort.c_str();
 		char* const aaa=(char* const)pp;*/
@@ -197,7 +197,7 @@ void KKPlayer::CloseMedia()
 			{
 				break;
 			}
-			LOGE("thread Over2 viddec%d,auddec%d,subdec%d",pVideoInfo->viddec.decoder_tid.ThOver
+			LOGE("thread Over2 viddec%d,auddec%d,subdec%d \n",pVideoInfo->viddec.decoder_tid.ThOver
 				,pVideoInfo->auddec.decoder_tid.ThOver
 				,pVideoInfo->subdec.decoder_tid.ThOver
 				);
@@ -315,7 +315,7 @@ void KKPlayer::CloseMedia()
 	m_bOpen=false;
 	m_CloseLock.Unlock();
 
-	LOGE("thread Over Ok");
+	LOGE("thread Over Ok \n");
 }
 
 //获取媒体播放的信息
@@ -1107,7 +1107,7 @@ int KKPlayer::GetAVRate()
 /*********视频刷新线程********/
  unsigned __stdcall KKPlayer::VideoRefreshthread(LPVOID lpParameter)
  {
-	 LOGE("VideoRefreshthread strat");
+	 LOGE("VideoRefreshthread strat \n");
      KKPlayer* pPlayer=(KKPlayer*)lpParameter;
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=false;
 	 int llxx=0;
@@ -1137,7 +1137,7 @@ int KKPlayer::GetAVRate()
 		
 	 }
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=true;
-	 LOGE("VideoRefreshthread over");
+	 LOGE("VideoRefreshthread over \n");
 	 return 1;
  }
 
@@ -1165,7 +1165,7 @@ int KKPlayer::GetAVRate()
 				 av_usleep(1000);
 		 }
 	 }
-	 LOGE("KKPlayer Audio_Thread over");
+	 LOGE("KKPlayer Audio_Thread over \n");
 	 m_AudioCallthreadInfo.ThOver=true;
  }
  int KKPlayer::GetCurTime()
@@ -1207,7 +1207,7 @@ void KKPlayer::ReadAV()
 	//rtmp://117.135.131.98/771/003 live=1
 	m_CloseLock.Lock();
 	m_ReadThreadInfo.ThOver=false;
-	LOGE("ReadAV thread start");
+	LOGE("ReadAV thread start \n");
 	AVFormatContext *pFormatCtx= avformat_alloc_context();
 	pVideoInfo->pFormatCtx = pFormatCtx;
 	AVDictionary *format_opts=NULL;
@@ -1369,21 +1369,21 @@ void KKPlayer::ReadAV()
 	if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) 
 	{
 		//if(m_bTrace)
-		LOGE("AVMEDIA_TYPE_AUDIO");
+		LOGE("AVMEDIA_TYPE_AUDIO \n");
 		stream_component_open(pVideoInfo, st_index[AVMEDIA_TYPE_AUDIO]);
 	}
 
 	if (st_index[AVMEDIA_TYPE_VIDEO] >= 0) 
 	{
 		//if(m_bTrace)
-		LOGE("AVMEDIA_TYPE_VIDEO");
+		LOGE("AVMEDIA_TYPE_VIDEO \n");
 		ret = stream_component_open(pVideoInfo, st_index[AVMEDIA_TYPE_VIDEO]);
 	}
 
 	if (st_index[AVMEDIA_TYPE_SUBTITLE] >= 0) 
 	{
 		//if(m_bTrace)
-		LOGE("AVMEDIA_TYPE_SUBTITLE");
+		LOGE("AVMEDIA_TYPE_SUBTITLE \n");
 		stream_component_open(pVideoInfo, st_index[AVMEDIA_TYPE_SUBTITLE]);
 	}
 
@@ -1422,7 +1422,7 @@ void KKPlayer::ReadAV()
 			pVideoInfo->nRealtimeDelay=OpenTime2-OpenTime-pVideoInfo->audio_clock;
 
 			if(pVideoInfo->bTraceAV)
-			   LOGE("de %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
+			   LOGE("de %d,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
 			if(pVideoInfo->nRealtimeDelay<=2)//开始缓存
 			{
 				if(pVideoInfo->audioq.size<=1000&&pVideoInfo->videoq.size<=1000&&pVideoInfo->IsReady&&avsize>100)
@@ -1458,14 +1458,14 @@ void KKPlayer::ReadAV()
 			pVideoInfo->nRealtimeDelay=OpenTime2-OpenTime-get_master_clock(pVideoInfo);
 
 			if(pVideoInfo->bTraceAV)
-				LOGE("de %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
+				LOGE("de %d,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
 			if(pVideoInfo->videoq.size>2000&& pVideoInfo->IsReady==0){
 				   pVideoInfo->IsReady=1;
 				   pVideoInfo->paused=0;
 			}
 		}
 
-		LOGE("paued %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->paused,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
+		LOGE("paued %d,de %d,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->paused,pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
 #ifdef WIN32
 		/*char abcdxf[1024]="";
 		sprintf_s(abcdxf,1024,"paued %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->paused,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
@@ -1751,7 +1751,7 @@ void KKPlayer::AvflushRealTime(int Avtype)
 /******设置实时流媒体最小延迟**********/
 int KKPlayer::SetMinRealtimeDelay(int Delay)
 {
-     if(pVideoInfo!=NULL&&Delay>4)
+     if(pVideoInfo!=NULL&&Delay>1)
 	 {
 		 pVideoInfo->nMinRealtimeDelay=Delay;
 		 return 1;

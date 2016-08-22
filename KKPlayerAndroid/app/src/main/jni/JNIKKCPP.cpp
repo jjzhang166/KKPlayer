@@ -137,3 +137,9 @@ JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKForceFlush
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
     pKKUI->ForceFlushQue();
 }
+
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKSetMinRealtimeDelay(JNIEnv *env, jobject instance,jint obj, jint value)
+{
+    CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
+    pKKUI->SetMinRealtimeDelay(value);
+}

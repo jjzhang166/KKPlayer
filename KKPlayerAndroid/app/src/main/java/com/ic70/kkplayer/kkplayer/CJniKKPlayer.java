@@ -49,6 +49,8 @@ public class CJniKKPlayer {
 
     //得到延迟
     public native  int KKGetRealtimeDelay(int obj);
+    //设置延迟
+    public native  int KKSetMinRealtimeDelay(int obj,int value);
     //强制刷新缓存队列
     public native  void KKForceFlushQue(int obj);
     /***********UI调用***********/

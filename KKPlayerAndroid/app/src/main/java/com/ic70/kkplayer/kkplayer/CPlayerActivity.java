@@ -39,6 +39,7 @@ public class CPlayerActivity extends Activity {
     private boolean m_bSeekPlayer=false;
     Activity m_PlayerActivity=null;
     boolean m_bNecState=true;
+    int m_MinRealtimeDelay=3;
     String CurTimeStr = new String();
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {
@@ -90,7 +91,7 @@ public class CPlayerActivity extends Activity {
                         PlayerStata=EnumPlayerStata.OpenFailure;
                     }
 
-                if (((llx == 0 && m_KKPlayer.GetPlayerState() > -1) || m_OpenCouner >= 2)||  m_KKPlayer.GetRealtimeDelay()>5) {
+                if (((llx == 0 && m_KKPlayer.GetPlayerState() > -1) || m_OpenCouner >= 2)|| (PlayerStata==EnumPlayerStata.Play&& m_KKPlayer.GetRealtimeDelay()>m_MinRealtimeDelay)) {
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     if (ImageV.getVisibility() != View.VISIBLE)
                          WaitGif();
@@ -238,6 +239,7 @@ public class CPlayerActivity extends Activity {
         SeekBar SeekBtn=(SeekBar)findViewById(R.id.MovieSeekbar);
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
         m_KKPlayer.OpenMedia(MoviePathStr);
+        m_KKPlayer.SetMinRealtimeDelay(m_MinRealtimeDelay);
         m_CurTime=0;
         PlayerStata = EnumPlayerStata.Play;
         WaitGif();

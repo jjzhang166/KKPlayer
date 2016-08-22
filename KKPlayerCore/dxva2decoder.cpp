@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Dxva2Def.h"
 #include "dxva2decoder.h"
+#include "libavutil/buffer.h"
 void* gpu_memcpy(void* d, const void* s, size_t size);
 static void (*CopyFrameNV12)(const BYTE *pSourceData, BYTE *pY, BYTE *pUV, size_t surfaceHeight, size_t imageHeight, size_t pitch) = 0;
 
@@ -634,6 +635,10 @@ ok:
 	return 0;
 }
 
+typedef struct SurfaceWrapper {
+	vlc_va_dxva2_t  *pDec;
+	AVFrame *pPic;
+} SurfaceWrapper;
 
 static int Get(vlc_va_dxva2_t *external, AVFrame *ff)
 {
@@ -677,6 +682,10 @@ static int Get(vlc_va_dxva2_t *external, AVFrame *ff)
 		if (i == 0 || i == 3)
 			ff->data[i] = (uint8_t *)surface->d3d;/* Yummie */
 	}
+
+
+	
+
 	return 0;
 }
 
@@ -694,6 +703,32 @@ static void Release(vlc_va_dxva2_t *external, AVFrame *ff)
 	}
 }
 
+static void ffmpeg_ReleaseFrameBuf( void *p1,
+	uint8_t *p2 )
+{
+	
+	 SurfaceWrapper *surfaceWrapper=(SurfaceWrapper *)p1;
+
+		AVFrame *p_ff_pic=(AVFrame *)surfaceWrapper->pPic;
+	vlc_va_dxva2_t *va = (vlc_va_dxva2_t *)surfaceWrapper->pDec;
+
+	if( va )
+	{
+		Release( va, p_ff_pic );
+	}
+	else if( !p_ff_pic->opaque )
+	{
+		/* We can end up here without the AVFrame being allocated by
+		* avcodec_default_get_buffer() if VA is used and the frame is
+		* released when the decoder is closed
+		*/
+		//if( p_ff_pic->pict_type== AV_PICTURE_TYPE_NONE )
+			//avcodec_default_release_buffer( p_context, p_ff_pic );
+	}
+	delete surfaceWrapper;
+	/*for( int i = 0; i < 4; i++ )
+		p_ff_pic->data[i] = NULL;*/
+}
 
 /*****************************************************************************
 * ffmpeg_GetFrameBuf: callback used by ffmpeg to get a frame buffer.
@@ -702,7 +737,7 @@ static void Release(vlc_va_dxva2_t *external, AVFrame *ff)
 * decoded picture (even in indirect rendering mode).
 *****************************************************************************/
 static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,
-	AVFrame *p_ff_pic )
+	AVFrame *p_ff_pic,int flags)
 {
 	vlc_va_dxva2_t *va = (vlc_va_dxva2_t *)p_context->opaque;
 
@@ -722,17 +757,21 @@ static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,
 			return -1;
 		}
 
-		/* */
-		//p_ff_pic->type = FF_BUFFER_TYPE_USER;
-
-		/* FIXME what is that, should give good value */
-//		p_ff_pic->age = 256*256*256*64; // FIXME FIXME from ffmpeg
-
 		if( Get( va, p_ff_pic ) )
 		{
 			av_log(NULL, AV_LOG_ERROR, "VaGrabSurface failed" );
 			return -1;
 		}
+
+		SurfaceWrapper *surfaceWrapper = new SurfaceWrapper();
+		surfaceWrapper->pDec =va ;
+		surfaceWrapper->pPic=p_ff_pic;
+		////surfaceWrapper->sample = pSample;
+		//surfaceWrapper->surface = surface->d3d;
+		//surfaceWrapper->surface->AddRef();
+
+		
+		p_ff_pic->buf[0] = av_buffer_create(NULL, 0, ffmpeg_ReleaseFrameBuf, surfaceWrapper, 0);
 		return 0;
 	}
 	else if( /*!p_sys->b_direct_rendering*/ 1 )
@@ -749,31 +788,11 @@ static int  ffmpeg_ReGetFrameBuf( struct AVCodecContext *p_context, AVFrame *p_f
 
 	return 0;
 	/* We always use default reget function, it works perfectly fine */
+	//return avcodec_
 	//return avcodec_default_release_buffer( p_context, p_ff_pic );
 }
 
-static void ffmpeg_ReleaseFrameBuf( struct AVCodecContext *p_context,
-	AVFrame *p_ff_pic )
-{
-	//return 0;
-	//vlc_va_dxva2_t *va = (vlc_va_dxva2_t *)p_context->opaque;
 
-	//if( va )
-	//{
-	//	Release( va, p_ff_pic );
-	//}
-	//else if( !p_ff_pic->opaque )
-	//{
-	//	/* We can end up here without the AVFrame being allocated by
-	//	* avcodec_default_get_buffer() if VA is used and the frame is
-	//	* released when the decoder is closed
-	//	*/
-	//	if( p_ff_pic->pict_type== _FF_BUFFER_TYPE_INTERNAL )
-	//		avcodec_default_release_buffer( p_context, p_ff_pic );
-	//}
-	//for( int i = 0; i < 4; i++ )
-	//	p_ff_pic->data[i] = NULL;
-}
 
 static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
 	const enum AVPixelFormat *pi_fmt )
@@ -1106,7 +1125,7 @@ static int dxva_Extract(vlc_va_dxva2_t *va, AVFrame *src)
 		ret = av_frame_copy_props(va->tmp_frame, src);
 		
 
-		av_frame_unref(src);
+		//av_frame_unref(src);
 		av_frame_move_ref(src, va->tmp_frame);
 	}
 	IDirect3DSurface9_UnlockRect(d3d);
@@ -1258,9 +1277,14 @@ int BindDxva2Module(	AVCodecContext  *pCodecCtx)
 	
 	pCodecCtx->opaque = dxva;
 	pCodecCtx->get_format = ffmpeg_GetFormat;
-	//pCodecCtx->get_buffer2 = ffmpeg_GetFrameBuf;
+	
+	
+
+	pCodecCtx->get_buffer2 = ffmpeg_GetFrameBuf;
 	//pCodecCtx->reget_buffer2 = ffmpeg_ReGetFrameBuf;
 	//pCodecCtx->release_buffer2 = ffmpeg_ReleaseFrameBuf;
 	pCodecCtx->thread_count = 1;
+
+	pCodecCtx->slice_flags    |= SLICE_FLAG_ALLOW_FIELD;
 	return 0;
 }

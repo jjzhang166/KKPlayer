@@ -103,7 +103,7 @@ class KKPlayer
 			//显示视频追踪信息,返回1成功
 			int ShowTraceAV(bool Show);
 
-			/******设置实时流媒体最小延迟**********/
+			/******设置实时流媒体最小延迟,最小值2，单位秒**********/
 			int SetMinRealtimeDelay(int Delay);
 			/*******************插件可是分析*********************/
 			int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);

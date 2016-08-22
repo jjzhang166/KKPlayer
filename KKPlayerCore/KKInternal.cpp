@@ -462,7 +462,7 @@ DELXXX:
 	     is->audio_clock = af->pts + ll;
 		 if(data_size>0&&!is->abort_request&&is->realtime)
 		 {
-			 Ade-=ll;
+			 Ade-=ll;is->nMinRealtimeDelay=3;
 			 if(Ade>is->nMinRealtimeDelay)
 			 {
 				 goto DELXXX;
@@ -691,7 +691,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	{
        #ifdef WIN32
 		       avctx->codec_id=codec->id;
-			  // is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
+			 //  is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0)
 				   {
@@ -704,17 +704,13 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	//打开解码器
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
+	
 		if(is->bTraceAV)
 		LOGE("avcodec_open2 %d",avctx->codec_type);  
 		//失败
 		assert(0);
 	}
-   	//aCodecCtx = avcodec_alloc_context3(codec);
-	//if(avcodec_copy_context(aCodecCtx, avctx) != 0) {
-	//	fprintf(stderr, "Couldn't copy codec context");
-	//	return -1; // Error copying codec context
-	//}
-	//avcodec_flush_buffers(avctx);
+  
     is->eof = 0;
     ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
     switch (avctx->codec_type)
@@ -1048,7 +1044,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	       DWORD t_end = GetTickCount();
 	       int ll=t_end-t_start;
            PixelFormat xxx=(PixelFormat)(pFrame->format);
-	}
+	}/**/
 #endif
 		if( vp->buffer==NULL || is->viddec_height!=pFrame->height ||is->viddec_width!=pFrame->width)
 		{
@@ -1196,141 +1192,6 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 
 
 //解码音频
-int audio_decode_frame3( SKK_VideoState *pVideoInfo,AVFrame* frame) 
-{  
-    int n=0;
-	//AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
-	SKK_Decoder *d=&pVideoInfo->auddec;
-    int audio_pkt_size = 0;
-	
-    int64_t dec_channel_layout;
-	int len1, resampled_data_size, data_size = 0;
-    int wanted_nb_samples;
-
-    int got_frame = 0;
-	do
-	{
-		//从队列获取数据
-		if(packet_queue_get(&pVideoInfo->audioq, &d->pkt_temp, 1,&pVideoInfo->auddec.pkt_serial) <= 0&&!pVideoInfo->abort_request) 
-		{
-			av_usleep(2000);
-		}else if(pVideoInfo->abort_request)
-		{
-			break;
-		}else{
-
-			if(pVideoInfo->audioq.serial!=pVideoInfo->auddec.pkt_serial)
-			{
-				AVPacket pkt;
-				av_packet_unref(&d->pkt);
-				d->pkt_temp = d->pkt = pkt;
-			}
-
-			if (d->pkt_temp.data == pVideoInfo->pflush_pkt->data)
-			{
-				avcodec_flush_buffers(pVideoInfo->auddec.avctx);
-				pVideoInfo->auddec.Isflush=1;
-				pVideoInfo->auddec.finished = 0;
-				continue;
-				
-			}else{
-				audio_pkt_size=d->pkt_temp.size;
-		        len1 = avcodec_decode_audio4(d->avctx, frame, &got_frame, &d->pkt_temp);
-				frame->pts = d->pkt_temp.pts;
-				if(got_frame>0)
-				{
-					AVRational tb = {1, frame->sample_rate};
-					if (frame->pts != AV_NOPTS_VALUE)
-						frame->pts = av_rescale_q(frame->pts, d->avctx->time_base, tb);
-					else if (frame->pkt_pts != AV_NOPTS_VALUE)
-						frame->pts = av_rescale_q(frame->pkt_pts, av_codec_get_pkt_timebase(d->avctx), tb);
-				}
-			}	
-		}
-		if(got_frame&&pVideoInfo->audioq.serial==pVideoInfo->auddec.pkt_serial)
-		{
-              break;
-		}
-
-		
-	}while(pVideoInfo->audioq.serial!=pVideoInfo->auddec.pkt_serial);
-
-
-
-	return got_frame;
-}
-
-int audio_decode_frame2( SKK_VideoState *pVideoInfo,AVFrame* frame) 
-{  
-	int got_frame = 0;
-
-	SKK_Decoder *d=&pVideoInfo->auddec;
-	do {
-		int ret = -1;
-
-		if (pVideoInfo->abort_request)
-			return -1;
-
-		if (!d->packet_pending || pVideoInfo->audioq.serial != d->pkt_serial) {
-			AVPacket pkt;
-			do {
-						if (packet_queue_get(&pVideoInfo->audioq, &pkt, 1, &d->pkt_serial) < 0)
-						{
-							av_usleep(5000);
-							continue;
-						}
-						if (pkt.data == pVideoInfo->pflush_pkt->data) {
-							avcodec_flush_buffers(d->avctx);
-							d->finished = 0;
-							d->next_pts = d->start_pts;
-							d->next_pts_tb = d->start_pts_tb;
-						}
-					} while ((pkt.data == pVideoInfo->pflush_pkt->data || pVideoInfo->audioq.serial != d->pkt_serial)&&!pVideoInfo->abort_request);
-					av_packet_unref(&d->pkt);
-					d->pkt_temp = d->pkt = pkt;
-					d->packet_pending = 1;
-		   }
-
-		
-				ret = avcodec_decode_audio4(d->avctx, frame, &got_frame, &d->pkt_temp);
-				if (got_frame) {
-					AVRational tb = {1, frame->sample_rate};
-					if (frame->pts != AV_NOPTS_VALUE)
-						frame->pts = av_rescale_q(frame->pts, d->avctx->time_base, tb);
-					else if (frame->pkt_pts != AV_NOPTS_VALUE)
-						frame->pts = av_rescale_q(frame->pkt_pts, av_codec_get_pkt_timebase(d->avctx), tb);
-					else if (d->next_pts != AV_NOPTS_VALUE)
-						frame->pts = av_rescale_q(d->next_pts, d->next_pts_tb, tb);
-					if (frame->pts != AV_NOPTS_VALUE) {
-						d->next_pts = frame->pts + frame->nb_samples;
-						d->next_pts_tb = tb;
-					}
-				}
-
-		
-
-		if (ret < 0) {
-			d->packet_pending = 0;
-		} else {
-			d->pkt_temp.dts =
-				d->pkt_temp.pts = AV_NOPTS_VALUE;
-			if (d->pkt_temp.data) {
-				d->pkt_temp.data += ret;
-				d->pkt_temp.size -= ret;
-				if (d->pkt_temp.size <= 0)
-					d->packet_pending = 0;
-			} else {
-				if (!got_frame) {
-					d->packet_pending = 0;
-					d->finished = d->pkt_serial;
-				}
-			}
-		}
-	} while (!got_frame && !d->finished);
-
-	return got_frame;
-}
-//解码音频
 int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame) 
 {  
 	int n=0;
@@ -1350,50 +1211,37 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0&&!pVideoInfo->abort_request) 
 		{
 			av_usleep(2000);
-		}else if(pVideoInfo->abort_request)
-		{
-			break;
-		}else{
-
-			if (pkt.data == pVideoInfo->pflush_pkt->data)
-			{
-				avcodec_flush_buffers(pVideoInfo->auddec.avctx);
-				pVideoInfo->auddec.Isflush=1;
-				pVideoInfo->auddec.finished = 0;
-				continue;
-
-			}else{
-				audio_pkt_size=pkt.size;
-				len1 = avcodec_decode_audio4(aCodecCtx, frame, &got_frame, &pkt);	
-				frame->pts = pkt.pts;
-			}	
-				
-					if(got_frame>0)
-					{
-						AVRational tb =pVideoInfo->audio_st->time_base;
-						if (frame->pts != AV_NOPTS_VALUE)
-							frame->pts = av_rescale_q(frame->pts,tb , aCodecCtx->time_base);
-						else if (frame->pkt_pts != AV_NOPTS_VALUE)
-							frame->pts = av_rescale_q(frame->pkt_pts, av_codec_get_pkt_timebase(aCodecCtx), tb);
-					}
-			
 		}
-		if(got_frame&&pVideoInfo->audioq.serial==pVideoInfo->auddec.pkt_serial)
-		{
-			break;
-		}else if(got_frame)
-		{
-			av_free_packet(&pkt);
-			got_frame=0;
-		}
-
 	}while(pVideoInfo->audioq.serial!=pVideoInfo->auddec.pkt_serial);
+		
+	if(pkt.data == pVideoInfo->pflush_pkt->data)
+	{
+		avcodec_flush_buffers(pVideoInfo->auddec.avctx);
+		pVideoInfo->auddec.Isflush=1;
+		pVideoInfo->auddec.finished = 0;
+
+	}else{
+		audio_pkt_size=pkt.size;
+		len1 = avcodec_decode_audio4(aCodecCtx, frame, &got_frame, &pkt);	
+		frame->pts = pkt.pts;
+
+		if(got_frame>0)
+		{
+			AVRational tb =pVideoInfo->audio_st->time_base;
+			if (frame->pts != AV_NOPTS_VALUE&&!pVideoInfo->realtime)
+				frame->pts = av_rescale_q(frame->pts,tb , aCodecCtx->time_base);
+			else if (frame->pkt_pts != AV_NOPTS_VALUE)
+				frame->pts = av_rescale_q(frame->pkt_pts, av_codec_get_pkt_timebase(aCodecCtx), tb);
+			else
+				frame->pts=pkt.pts;
+		}
+	}	
+	
 	if(pkt.data)
 	{
 		av_free_packet(&pkt);
 		pkt.data=NULL;
 	}
-
 	return got_frame;
 }
 static int configure_filtergraph(AVFilterGraph *graph, const char *filtergraph,
@@ -1646,7 +1494,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				}
 			}
 		
-				if (reconfigure&&!is->realtime) 
+				if (reconfigure&&!is->realtime)// 
 				{
 
 					char buf1[1024], buf2[1024];
@@ -1682,7 +1530,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 
 		    if(!is->realtime)
 			{
-				 int64_t srcpts =frame->pts;
+				// int64_t srcpts =frame->pts;
 				if ((ret = av_buffersrc_add_frame(is->InAudioSrc, frame)) < 0)
 				{
 					     goto the_end;
@@ -1703,9 +1551,9 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					af->pos = av_frame_get_pkt_pos(frame);
 					af->serial = is->auddec.pkt_serial;
 
-					char abcdxf[1024]="";
+				/*	char abcdxf[1024]="";
 					sprintf_s(abcdxf,1024,"pts:%f,%ld,%d \n",af->pts,frame->pts,tb.den);
-					OutputDebugStringA(abcdxf);
+					OutputDebugStringA(abcdxf);*/
 
 					AVRational avr={frame->nb_samples, frame->sample_rate};
 					af->duration = av_q2d(avr);

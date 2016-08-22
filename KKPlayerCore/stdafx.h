@@ -15,9 +15,11 @@
 			#endif
 			#include <process.h>
 			#include <assert.h>
+            void WindowsLOGE(const char* format,...);
             typedef CRITICAL_SECTION KKCRITICAL_SECTION;
 			//void __cdecl LOGE(const char* _Format,...);
-             #define  LOGE(...)  ;
+            #define  LOGE WindowsLOGE
+			//__android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 	#else
             #include "platforms.h"
 	#endif

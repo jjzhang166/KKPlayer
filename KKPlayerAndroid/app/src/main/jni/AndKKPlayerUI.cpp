@@ -483,6 +483,10 @@ int  CAndKKPlayerUI::GetRealtimeDelay()
 {
     return m_player.GetRealtimeDelay();
 }
+int  CAndKKPlayerUI::SetMinRealtimeDelay(int value)
+{
+    return  m_player.SetMinRealtimeDelay(value);
+}
 //强制刷新Que
 void  CAndKKPlayerUI::ForceFlushQue()
 {
