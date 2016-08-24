@@ -222,8 +222,8 @@ int get_master_sync_type(SKK_VideoState *is)
 	{
 		if (is->audio_st)
 			return AV_SYNC_AUDIO_MASTER;
-		else if(is->video_st)
-			return AV_SYNC_VIDEO_MASTER;
+		/*else if(is->video_st)
+			return AV_SYNC_VIDEO_MASTER;*/
 		else
 			return AV_SYNC_EXTERNAL_CLOCK;
 	} else 
@@ -466,10 +466,10 @@ DELXXX:
 		// pVideoInfo->audio_clock =af->pts+ (double)data_size/(double)(n * pVideoInfo->auddec.avctx->sample_rate);/**/
 		 double ll=(double) af->frame->nb_samples / af->frame->sample_rate;
 	     is->audio_clock = af->pts + ll;
-		 if(data_size>0&&!is->abort_request&&is->realtime)
+		 if(data_size>0&&!is->abort_request&&is->realtime&&!is->abort_request)
 		 {
 			 Ade-=ll;
-			 is->nMinRealtimeDelay=3;
+			 //is->nMinRealtimeDelay=3;
 			 if(Ade>is->nMinRealtimeDelay)
 			 {
 				 goto DELXXX;

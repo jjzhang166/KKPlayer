@@ -39,7 +39,7 @@ public class CPlayerActivity extends Activity {
     private boolean m_bSeekPlayer=false;
     Activity m_PlayerActivity=null;
     boolean m_bNecState=true;
-    int m_MinRealtimeDelay=3;
+    int m_MinRealtimeDelay=2;
     String CurTimeStr = new String();
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {

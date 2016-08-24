@@ -433,6 +433,7 @@ SYSTEMTIME Time_tToSystemTime(time_t t)
 }
 #endif
 //http://120.25.236.44:9999/1/test.m3u8
+//rtmp://117.135.131.98/771/003 live=1
 void KKPlayer::video_image_refresh(SKK_VideoState *is)
 {
 	double  Ade=pVideoInfo->nRealtimeDelay;
@@ -478,15 +479,22 @@ retry:
 			
 			/**********获取包位置**********/
 			vp = frame_queue_peek(&is->pictq);
-			
-			if(is->realtime&&is->audio_st==NULL){
-				Ade=get_master_clock(pVideoInfo)-vp->pts;
-				is->nMinRealtimeDelay=3;
-				if(Ade>is->nMinRealtimeDelay)
+			is->video_clock=vp->pts;
+			if(is->realtime&&is->audio_st==NULL&&!is->abort_request){
+				if(Ade>0)
 				{
-					frame_queue_next(&is->pictq,true);
-					goto retry;
-					//goto retry:
+				
+					Ade-=(vp->pts-lastvp->pts);
+					//is->nMinRealtimeDelay=3;
+					if(Ade>is->nMinRealtimeDelay)
+					{
+						frame_queue_next(&is->pictq,true);
+						goto retry;
+						//goto retry:
+					}
+				}else if(Ade<0){
+					is->remaining_time = 0.01;
+					return;
 				}
 			}
 			
@@ -1458,7 +1466,7 @@ void KKPlayer::ReadAV()
 			
 
 			int64_t  OpenTime2= av_gettime ()/1000/1000;
-			pVideoInfo->nRealtimeDelay=OpenTime2-OpenTime-get_master_clock(pVideoInfo);
+			pVideoInfo->nRealtimeDelay=OpenTime2-OpenTime-pVideoInfo->video_clock;
 
 			if(pVideoInfo->bTraceAV)
 				LOGE("de %d,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);

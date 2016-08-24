@@ -222,6 +222,7 @@ typedef struct SKK_VideoState
 	int av_sync_type;
 
 	double audio_clock;
+	double video_clock;
 	double Baseaudio_clock;
 	int audio_clock_serial;
 	/*********“Ù∆µ ±º‰**************/
