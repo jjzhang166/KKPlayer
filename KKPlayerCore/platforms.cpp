@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include <stdio.h>
+#ifdef WIN32
 void WindowsLOGE(const char* format,...)
 {
+	//return;
 	char buf[1024]="";
 	
 	va_list ap;  
@@ -11,6 +13,7 @@ void WindowsLOGE(const char* format,...)
 	OutputDebugStringA(buf);  
 
 }
+#endif
 #ifndef Platforms_H_
 	#ifndef WIN32_KK
 		#ifndef WIN32

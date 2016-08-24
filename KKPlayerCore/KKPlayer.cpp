@@ -202,18 +202,10 @@ void KKPlayer::CloseMedia()
 				,pVideoInfo->subdec.decoder_tid.ThOver
 				);
 			 av_usleep(50000);
-			 //pVideoInfo->videoq.m_pWaitCond->SetCond();
-			 //pVideoInfo->audioq.m_pWaitCond->SetCond();
-			 //pVideoInfo->subtitleq.m_pWaitCond->SetCond();
-
-			 //pVideoInfo->pictq.m_pWaitCond->SetCond();
-			 //pVideoInfo->sampq.m_pWaitCond->SetCond();
-			 //pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
-
 		}
 	}
 
-	LOGE("thread Over 2");
+	LOGE("thread Over 2 \n");
 	
 #ifdef WIN32_KK
 	//SDL_CloseAudio();
@@ -268,8 +260,10 @@ void KKPlayer::CloseMedia()
 	
 	swr_free(&pVideoInfo->swr_ctx);
 	pVideoInfo->swr_ctx=NULL;
+	
 	sws_freeContext(pVideoInfo->img_convert_ctx);
 	pVideoInfo->img_convert_ctx=NULL;
+
 	sws_freeContext(pVideoInfo->sub_convert_ctx);
 	pVideoInfo->sub_convert_ctx=NULL;
 
@@ -277,36 +271,22 @@ void KKPlayer::CloseMedia()
 	avfilter_free(pVideoInfo->InAudioSrc);
 	avfilter_free(pVideoInfo->OutAudioSink);
 	avfilter_graph_free(&pVideoInfo->AudioGraph);
-
-	/*if(pVideoInfo->pFormatCtx)
-	   
-	else*/
-	{
-		if(pVideoInfo->auddec.avctx!=NULL){
-			avcodec_flush_buffers(pVideoInfo->auddec.avctx);
-			avcodec_close(pVideoInfo->auddec.avctx);
-		}
-		
-		if(pVideoInfo->subdec.avctx!=NULL){
-		 avcodec_flush_buffers(pVideoInfo->subdec.avctx);
-		avcodec_close(pVideoInfo->subdec.avctx);
-		}
-
-		if(pVideoInfo->viddec.avctx!=NULL){
-		avcodec_flush_buffers(pVideoInfo->viddec.avctx);
-		avcodec_close(pVideoInfo->viddec.avctx);
-		}
+	
+	if(pVideoInfo->auddec.avctx!=NULL){
+		avcodec_close(pVideoInfo->auddec.avctx);
 	}
 	
-	
+	if(pVideoInfo->subdec.avctx!=NULL)
+	{
+	   avcodec_close(pVideoInfo->subdec.avctx);
+	}
 
-	 avformat_close_input(&pVideoInfo->pFormatCtx);
-//	avformat_free_context(pVideoInfo->pFormatCtx);
-	
-	
-
-
-
+	if(pVideoInfo->viddec.avctx!=NULL)
+	{
+	  LOGE("avcodec_close(pVideoInfo->viddec.avctx); \n");
+	  avcodec_close(pVideoInfo->viddec.avctx);
+	}
+	avformat_close_input(&pVideoInfo->pFormatCtx);
 	av_free(pVideoInfo);
 	pVideoInfo=NULL;
 
@@ -315,7 +295,7 @@ void KKPlayer::CloseMedia()
 	m_bOpen=false;
 	m_CloseLock.Unlock();
 
-	LOGE("thread Over Ok \n");
+	LOGE("KKplay Over\n");
 }
 
 //获取媒体播放的信息
@@ -452,11 +432,18 @@ SYSTEMTIME Time_tToSystemTime(time_t t)
 	return st;
 }
 #endif
-
+//http://120.25.236.44:9999/1/test.m3u8
 void KKPlayer::video_image_refresh(SKK_VideoState *is)
 {
-	m_CurTime=is->audio_clock;
+	double  Ade=pVideoInfo->nRealtimeDelay;
+	
     double time=0,duration=0;
+	if(is->audio_st)
+	    m_CurTime=is->audio_clock;
+	else if(is->video_st)
+		m_CurTime=is->vidclk.pts;
+	else
+		m_CurTime=get_master_clock(is);
 	if (0&&is->audio_st) {
 		time = av_gettime_relative() / 1000000.0;
 		if (is->force_refresh || is->last_vis_time + rdftspeed < time)
@@ -479,15 +466,31 @@ retry:
 			   goto display;
 			}
 			
-				
+			
+			
+
 			SKK_Frame *vp;
 			
 		
 			//获取上一次的读取位置
 			SKK_Frame *lastvp = frame_queue_peek_last(&is->pictq);
+
+			
 			/**********获取包位置**********/
 			vp = frame_queue_peek(&is->pictq);
 			
+			if(is->realtime&&is->audio_st==NULL){
+				Ade=get_master_clock(pVideoInfo)-vp->pts;
+				is->nMinRealtimeDelay=3;
+				if(Ade>is->nMinRealtimeDelay)
+				{
+					frame_queue_next(&is->pictq,true);
+					goto retry;
+					//goto retry:
+				}
+			}
+			
+
 			if (vp->serial != is->videoq.serial) {
 				frame_queue_next(&is->pictq,true);
 				is->redisplay=0;

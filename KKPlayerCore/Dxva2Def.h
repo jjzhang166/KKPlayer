@@ -17,9 +17,11 @@ extern "C" {
 #define H264_I		1 /*∆’Õ®I÷°*/
 
 typedef struct {
+	int index;
+	bool used;
 	LPDIRECT3DSURFACE9 d3d;
-	int                refcount;
-	unsigned int       order;
+	uint64_t age;
+    uint64_t usedCount;
 } vlc_va_surface_t;
 
 typedef struct
@@ -28,14 +30,11 @@ typedef struct
 	int          width;
 	int          height;
     int          vendorId;
-	/* DLL */
-	HINSTANCE             hd3d9_dll;
-	HINSTANCE             hdxva2_dll;
+	
 
 	/* Direct3D */
-	D3DPRESENT_PARAMETERS  d3dpp;
+	//D3DPRESENT_PARAMETERS  d3dpp;
 	LPDIRECT3D9            d3dobj;
-	D3DADAPTER_IDENTIFIER9 d3dai;
 	LPDIRECT3DDEVICE9      d3ddev;
 
 	/* Device manager */
@@ -66,8 +65,10 @@ typedef struct
 
 	vlc_va_surface_t surface[VA_DXVA2_MAX_SURFACE_COUNT];
 	LPDIRECT3DSURFACE9 hw_surface[VA_DXVA2_MAX_SURFACE_COUNT];
-	AVFrame * tmp_frame;
-} vlc_va_dxva2_t;
+	AVFrame* tmp_frame;
+	 bool Okxx;
+} kk_va_dxva2_t;
+
 typedef struct {
 	const char   *name;
 	D3DFORMAT    format;
@@ -287,62 +288,5 @@ typedef enum {
     RET_SKIP_NEXT_COPY  = 2,
     RET_COPY_NEXT_FIELD = 3,
 } CopyRet;
-
-typedef struct OpaqueList {
-    struct OpaqueList *next;
-    uint64_t fake_timestamp;
-    uint64_t reordered_opaque;
-    uint8_t pic_type;
-} OpaqueList;
-
-typedef struct {
-    AVClass *av_class;
-    AVCodecContext *avctx;
-    AVFrame pic;
-    HANDLE dev;
-
-    uint8_t *orig_extradata;
-    uint32_t orig_extradata_size;
-
-    AVBitStreamFilterContext *bsfc;
-    AVCodecParserContext *parser;
-
-    uint8_t is_70012;
-    uint8_t *sps_pps_buf;
-    uint32_t sps_pps_size;
-    uint8_t is_nal;
-    uint8_t output_ready;
-    uint8_t need_second_field;
-    uint8_t skip_next_output;
-    uint64_t decode_wait;
-
-    uint64_t last_picture;
-
-    OpaqueList *head;
-    OpaqueList *tail;
-
-    /* Options */
-    uint32_t sWidth;
-    uint8_t bframe_bug;
-} CHDContext;
-
-static int D3dCreateDevice(vlc_va_dxva2_t *);
-static void D3dDestroyDevice(vlc_va_dxva2_t *);
-//static char *DxDescribe(vlc_va_dxva2_t *);
-
-static int D3dCreateDeviceManager(vlc_va_dxva2_t *);
-static void D3dDestroyDeviceManager(vlc_va_dxva2_t *);
-
-static int DxCreateVideoService(vlc_va_dxva2_t *);
-static void DxDestroyVideoService(vlc_va_dxva2_t *);
-static int DxFindVideoServiceConversion(vlc_va_dxva2_t *, GUID *input, D3DFORMAT *output);
-
-static int DxCreateVideoDecoder(vlc_va_dxva2_t *, int codec_id, const video_format_t *fmt);
-static void DxDestroyVideoDecoder(vlc_va_dxva2_t *);
-static int DxResetVideoDecoder(vlc_va_dxva2_t *);
-
-static void DxCreateVideoConversion(vlc_va_dxva2_t *);
-static void DxDestroyVideoConversion(vlc_va_dxva2_t *);
-
-
+void Close_Kk_Va_Dxva2(kk_va_dxva2_t *external,bool bFull);
 #endif

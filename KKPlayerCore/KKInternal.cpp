@@ -9,15 +9,17 @@
 #include <math.h>
 #include <assert.h>
 #include <time.h>
+
 //#include "rtmp/AV_FLv.h"
 
 #define PixelFormat AVPixelFormat
 #ifdef WIN32
-      AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;//
+      //AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;////AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
 	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
-#else
-      AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
+	  void FroceClose_Kk_Va_Dxva2(void *kk_va);
 #endif
+	  
+AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;
 	 // AVPixelFormat DstAVff=AV_PIX_FMT_BGRA;
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
@@ -153,7 +155,9 @@ void packet_queue_flush(SKK_PacketQueue *q)
 //时钟操作
 double get_clock(SKK_Clock *c)
 {
-	if (*c->queue_serial < c->serial&&*c->queue_serial>0&& c->serial>0)
+	/*if (*c->queue_serial <c->serial&&*c->queue_serial>0&& c->serial>0)
+		return NAN;*/
+	if (*c->queue_serial !=c->serial)
 		return NAN;
 	if (c->paused) 
 	{
@@ -218,6 +222,8 @@ int get_master_sync_type(SKK_VideoState *is)
 	{
 		if (is->audio_st)
 			return AV_SYNC_AUDIO_MASTER;
+		else if(is->video_st)
+			return AV_SYNC_VIDEO_MASTER;
 		else
 			return AV_SYNC_EXTERNAL_CLOCK;
 	} else 
@@ -462,7 +468,8 @@ DELXXX:
 	     is->audio_clock = af->pts + ll;
 		 if(data_size>0&&!is->abort_request&&is->realtime)
 		 {
-			 Ade-=ll;is->nMinRealtimeDelay=3;
+			 Ade-=ll;
+			 is->nMinRealtimeDelay=3;
 			 if(Ade>is->nMinRealtimeDelay)
 			 {
 				 goto DELXXX;
@@ -638,8 +645,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
         return -1;
     avctx = ic->streams[stream_index]->codec;
 
-	//if(avctx->codec_type==AVMEDIA_TYPE_VIDEO&&avctx->codec_id==AV_CODEC_ID_NONE)
-	//    avctx->codec_id=AV_CODEC_ID_H264;
+	
     codec = avcodec_find_decoder(avctx->codec_id);
 
     switch(avctx->codec_type)
@@ -1005,7 +1011,7 @@ double compute_target_delay(double delay, SKK_VideoState *is)
 
 struct SwsContext *BMPimg_convert_ctx=NULL;
 
-int DxPictureCopy(struct AVCodecContext *avctx,AVFrame *src);
+int DxPictureCopy(struct AVCodecContext *avctx,AVFrame *src,AVFrame **Out);
 
 //图片队列 图片
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
@@ -1035,18 +1041,24 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
     //is->viddec_height=pFrame->height;
 	
 
+	AVFrame *pOutAV=NULL;
 //AV_PIX_FMT_NV12
 #ifdef WIN32
+//	return 0;
 	 if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA)
 	 {
 	       DWORD t_start = GetTickCount();
-	       DxPictureCopy(is->viddec.avctx,pFrame);
+	       DxPictureCopy(is->viddec.avctx,pFrame,&pOutAV);
 	       DWORD t_end = GetTickCount();
 	       int ll=t_end-t_start;
-           PixelFormat xxx=(PixelFormat)(pFrame->format);
-	}/**/
+           PixelFormat xxx=(PixelFormat)(pFrame->format);	   
+	 }else{
+           pOutAV=pFrame;
+	 }
+#else
+       pOutAV=pFrame;
 #endif
-		if( vp->buffer==NULL || is->viddec_height!=pFrame->height ||is->viddec_width!=pFrame->width)
+		if( vp->buffer==NULL || is->viddec_height!=pOutAV->height ||is->viddec_width!=pOutAV->width)
 		{
 			vp->allocated = 1;
 			if(vp->BmpLock==NULL)
@@ -1054,8 +1066,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			
 			vp->BmpLock->Lock();
 			{
-				 int sw=pFrame->width; //FFALIGN(pFrame->width, 64);
-				 int sh=pFrame->height;//FFALIGN(pFrame->height, 2);
+				 int sw=pOutAV->width; //FFALIGN(pFrame->width, 64);
+				 int sh=pOutAV->height;//FFALIGN(pFrame->height, 2);
 				 is->viddec_height=sh;
 				 is->viddec_width=sw;
 			     int numBytes=avpicture_get_size(DstAVff, sw,sh); //pFrame->width,pFrame->height
@@ -1069,8 +1081,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
         //
          
 		 is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
-			 pFrame->width,  pFrame->height ,(PixelFormat)(pFrame->format) ,
-			 pFrame->width,       pFrame->height,               DstAVff,                
+			 pOutAV->width,  pOutAV->height ,(PixelFormat)(pOutAV->format) ,
+			 pOutAV->width,       pOutAV->height,               DstAVff,                
 			 SWS_FAST_BILINEAR,
 			 NULL, NULL, NULL);
 		 if (is->img_convert_ctx == NULL) 
@@ -1084,13 +1096,14 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		
 		int  OpenTime= av_gettime ()/1000;
 		vp->BmpLock->Lock();
-		sws_scale(is->img_convert_ctx, pFrame->data, pFrame->linesize,0,pFrame->height,vp->Bmp.data, vp->Bmp.linesize);
+		sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
 		vp->BmpLock->Unlock();/**/
 	
+		
 		int  OpenTime2= av_gettime ()/1000-OpenTime;
 
 		if(is->bTraceAV)
-		LOGE("dex:%d ,%d,%d\n",OpenTime2,pFrame->width,pFrame->height );
+		LOGE("dex:%d ,%d,%d\n",OpenTime2,pOutAV->width,pOutAV->height );
    
 	frame_queue_push(&is->pictq);
 	return 0;
@@ -1120,7 +1133,6 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			do
 			{
 				//av_free_packet(packet); 
-				//从队列获取数据
 				if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) <= 0&&!is->abort_request) 
 				{
 					continue;
@@ -1133,7 +1145,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 				}
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
 
-
+ 
 
 			SKK_Decoder* d=&is->viddec;
 			d->pts=packet->pts;
@@ -1169,8 +1181,9 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 						{  
 							//break;  
 						}  
-						av_frame_unref(pFrame);
+						
 					}
+					av_frame_unref(pFrame);
 			}else
 			{
 				avcodec_flush_buffers(d->avctx);
@@ -1184,8 +1197,16 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 
 	avcodec_flush_buffers(is->viddec.avctx);
 	av_frame_free(&pFrame);
-	LOGE("Video_thread Over");
 
+#ifdef WIN32
+	 if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA)
+	 {
+	        FroceClose_Kk_Va_Dxva2(is->viddec.avctx->opaque);
+	        is->viddec.avctx->opaque=NULL;
+	        is->viddec.avctx->hwaccel_context=NULL;
+	 }
+#endif
+	LOGE("Video_thread Over");
 	is->viddec.decoder_tid.ThOver=true;
 	return 0;
 }
@@ -1592,6 +1613,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 		}
 	} while ((ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)&&!is->abort_request);
 the_end:
+   avcodec_flush_buffers(is->auddec.avctx);
 	av_frame_free(&frame);
 	
 	is->auddec.decoder_tid.ThOver=true;
