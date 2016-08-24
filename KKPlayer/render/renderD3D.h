@@ -18,7 +18,7 @@ public:
     void  WinSize(unsigned int w, unsigned int h);
     bool LostDeviceRestore();
     
-    void render(char *pBuf,int width,int height);
+    void render(char *pBuf,int width,int height,int imgwidth);
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
 	void SetWaitPic(unsigned char* buf,int len);
@@ -31,7 +31,7 @@ public:
 	
 private:
 	CKKLock m_lock;
-	bool UpdateTexture(char *pBuf,int w,int h);
+	bool UpdateTexture(char *pBuf,int w,int h,int imgwidth);
 	void ResetTexture();
 	bool UpdateLeftPicTexture();
 	

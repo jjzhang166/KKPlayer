@@ -31,12 +31,6 @@ typedef struct
 	int          height;
     int          vendorId;
 	
-
-	/* Direct3D */
-	//D3DPRESENT_PARAMETERS  d3dpp;
-	LPDIRECT3D9            d3dobj;
-	LPDIRECT3DDEVICE9      d3ddev;
-
 	/* Device manager */
 	UINT                     token;
 	IDirect3DDeviceManager9  *devmng;

@@ -55,8 +55,9 @@ typedef struct SKK_PacketQueue
 	SKK_AVPacketList *first_pkt, *last_pkt;/***********包首，包尾*************/
 	/******包数******/
 	int nb_packets;
-	/***包大小***/
-	volatile int size;
+	/***包格式***/
+	int size;
+	int PktMemSize;
 	int abort_request;
 	/*******序列号*********/
 	int serial;
@@ -143,8 +144,8 @@ enum EKK_AV_SYNC
 typedef struct SKK_Decoder 
 {
 
-	AVPacket pkt;
-	AVPacket pkt_temp;
+	/*AVPacket pkt;
+	AVPacket pkt_temp;*/
 
 	//与队列中的serial对应
 	int pkt_serial;
@@ -307,7 +308,7 @@ typedef struct SKK_VideoState
 	/*******视频大小信息********/
 	int viddec_width;                /**********解码后的宽度**********/
 	int viddec_height;               /**********解码后的高度**********/
-	
+	int video_width;
 	int step;
 
 	

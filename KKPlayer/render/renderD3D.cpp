@@ -398,9 +398,8 @@ void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 		return;// S_FALSE;
 	}
 }
-void CRenderD3D::render(char *pBuf,int width,int height)
+void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 {
-
   m_lock.Lock();
   if (!LostDeviceRestore())
   {
@@ -418,7 +417,7 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 		{
 			if(pBuf!=NULL)
 			{
-                UpdateTexture(pBuf,width,height);	
+                UpdateTexture(pBuf,width,height,Imgwidth);	
 
 #ifdef VFYUY420P
 			
@@ -432,12 +431,12 @@ void CRenderD3D::render(char *pBuf,int width,int height)
 						int h=dh,w=dw;
 						//if(dw>width)
 						{
-                            dh=dw*height/width;
+                            dh=dw*height/Imgwidth;
 						}
 						if(dh>h)
 						{
 							dh=h;
-							dw=width*dh/height;
+							dw=Imgwidth*dh/height;
 						}
                         if(dw<w)
 						{
@@ -659,7 +658,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 	}
 	return 1;
 }
-bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
+bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 {
 	
 #ifdef VFYUY420P	
@@ -675,7 +674,7 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 			}
 
 			HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
-				w, h,
+				imgwidth, h,
 				(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),
 				D3DPOOL_DEFAULT,
 				&m_pYUVAVTexture,
@@ -734,16 +733,17 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h)
 						  //Y
 						  for(i = 0;i < pixel_h;i ++)
 						  {  
-							  memcpy(pDest + i * stride,pSrc + i * pixel_w, pixel_w);  
+							  memcpy(pDest + i * stride,pSrc + i * pixel_w, imgwidth);  
 						  } 
 						  //U
 						  for(i = 0;i < pixel_h/2;i ++)
 						  {  
-							  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, pixel_w / 2);  
+							  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, imgwidth / 2);  
 						  }  
+						  //V
 						  for(i = 0;i < pixel_h/2;i ++)
 						  {  
-							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, pixel_w / 2);  
+							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, imgwidth / 2);  
 						  } /**/
 				 }
 				 m_pYUVAVTexture->UnlockRect();

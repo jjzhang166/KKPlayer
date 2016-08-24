@@ -55,7 +55,7 @@ void CRenderGDI::LoadCenterLogo(unsigned char* buf,int len)
 	m_CenterLogoBuf=buf;
 	m_CenterLogoBufLen=len;
 }
-void CRenderGDI::render(char* buf,int width,int height)
+void CRenderGDI::render(char* buf,int width,int height,int Imgwidth)
 {
 	if (m_pixels == NULL||m_Picwidth!= width&&m_Picheight!=height)
 		createBitmap(width,height);
