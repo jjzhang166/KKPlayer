@@ -153,6 +153,25 @@ void packet_queue_flush(SKK_PacketQueue *q)
 
 	q->pLock->Unlock();
 }
+
+
+
+void Packet_Queue_All_Flush(SKK_VideoState *pVideoInfo)
+{
+	if (pVideoInfo->video_stream >= 0) 
+	{
+		packet_queue_put(&pVideoInfo->videoq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt);
+	}
+
+	if (pVideoInfo->audio_st!=NULL&&pVideoInfo->audio_stream >= 0) 
+	{
+		packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
+	}
+	if (pVideoInfo->subtitle_stream >= 0) 
+	{
+		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt);
+	}
+}
 //Ê±ÖÓ²Ù×÷
 double get_clock(SKK_Clock *c)
 {
@@ -319,8 +338,9 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 int audio_fill_frame( SKK_VideoState *pVideoInfo) 
 { 
 
-	double  Ade=pVideoInfo->nRealtimeDelay;
+	
 DELXXX:
+	double  Ade=pVideoInfo->nRealtimeDelay;
 	int n=0;
 	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
 	SKK_VideoState *is=pVideoInfo;
@@ -353,6 +373,7 @@ DELXXX:
 		  return -1;
 
 	   frame_queue_next(&is->sampq,true);
+	   pVideoInfo->audio_clock_serial=af->serial;
    } while (af->serial!=is->auddec.pkt_serial&&!is->abort_request);
 	
 	frame=af->frame;
@@ -470,10 +491,12 @@ DELXXX:
 		 if(data_size>0&&!is->abort_request&&is->realtime&&!is->abort_request)
 		 {
 			 Ade-=ll;
-			 //is->nMinRealtimeDelay=3;
 			 if(Ade>is->nMinRealtimeDelay)
 			 {
+				 is->nRealtimeDelayCount++;
 				 goto DELXXX;
+			 }else{
+				 is->nRealtimeDelayCount=0;
 			 }
 		 }
 		 
@@ -1268,9 +1291,9 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 			AVRational tb =pVideoInfo->audio_st->time_base;
 			if (frame->pts != AV_NOPTS_VALUE&&!pVideoInfo->realtime)
 				frame->pts = av_rescale_q(frame->pts,tb , aCodecCtx->time_base);
-			else if (frame->pkt_pts != AV_NOPTS_VALUE)
+			else /*if (frame->pkt_pts != AV_NOPTS_VALUE)
 				frame->pts = av_rescale_q(frame->pkt_pts, av_codec_get_pkt_timebase(aCodecCtx), tb);
-			else
+			else*/
 				frame->pts=pkt.pts;
 		}
 	}	

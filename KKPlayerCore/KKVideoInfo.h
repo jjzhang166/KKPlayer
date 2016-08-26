@@ -330,9 +330,11 @@ typedef struct SKK_VideoState
 	KKPluginInfo *pKKPluginInfo;
 
 	/***********实时流媒体延迟值，单位秒************/
-	int nRealtimeDelay;
+	double nRealtimeDelay;
 	/********最小延迟********/
 	int nMinRealtimeDelay;
+	/********最小延迟********/
+	int nRealtimeDelayCount;
 	//硬件解码方式
 	enum HARDCODE
 	{

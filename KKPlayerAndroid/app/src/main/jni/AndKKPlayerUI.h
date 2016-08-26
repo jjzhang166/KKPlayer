@@ -24,7 +24,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              void destroy();
              void resize(unsigned int w, unsigned int h);
              void WinSize(unsigned int w, unsigned int h);
-             void render(char* buf,int width,int height);
+             void render(char* buf,int width,int height,int imgwith);
              //呈现背景图片
              void renderBk(unsigned char* buf,int len);
              void AVRender();

@@ -530,7 +530,7 @@ void  CAndKKPlayerUI::AVRender()
    // m_player.RenderImage(this, false);
 }
 
-void CAndKKPlayerUI::render(char* buf,int width,int height)
+void CAndKKPlayerUI::render(char* buf,int width,int height,int imgwith)
 {
    // return;
     if(buf!=NULL&&width!=0&&height!=0)

@@ -39,7 +39,7 @@ public class CPlayerActivity extends Activity {
     private boolean m_bSeekPlayer=false;
     Activity m_PlayerActivity=null;
     boolean m_bNecState=true;
-    int m_MinRealtimeDelay=2;
+    int m_MinRealtimeDelay=3;
     String CurTimeStr = new String();
     Timer timer = new Timer();
     TimerTask task = new TimerTask() {
@@ -77,7 +77,14 @@ public class CPlayerActivity extends Activity {
                 {
                     //PlayerStata=EnumPlayerStata.Play;
                 }
-
+                if(true)
+                {
+                    int ll=m_KKPlayer.GetRealtimeDelay() ;
+                    TextView xxll=( TextView) findViewById(R.id.TxtDelay);
+                    String lllxx="延迟:";
+                    lllxx=lllxx+ll+"s";
+                    xxll.setText(lllxx);
+                }
                 //System.out.println( m_KKPlayer.GetPlayerState() + "==="+m_OpenCouner);
                 if(   m_KKPlayer.GetPlayerState()==-2 &&m_OpenCouner==0&&  PlayerStata==EnumPlayerStata.Play)
                     { /*********文件打开失败***********/

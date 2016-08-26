@@ -8,19 +8,26 @@ extern "C"
     typedef char (*fKKDownAVFile)(char *strUrl);
 	/********停止下载函数**********/
 	typedef char (*fKKStopDownAVFile)(char *str);
+	
+	
 	/************下载速度回调函数*********/
-//	typedef char (*fKKDownAVFileSpeed)(char *str,int DownSpeed);
+    //typedef char (*fKKDownAVFileSpeed)(char *str,int DownSpeed);
+
+	typedef void (*fFlushPlayerQue)(void *opaque);
 	typedef int  (*fIo_read_packet)(void *opaque, uint8_t *buf, int buf_size);
+    //文件seek
 	typedef int64_t  (*fIo_seek)(void *opaque, int64_t offset, int whence);
+	//
 	typedef int  (*fKKIRQ)(void *opaque);  //强制中断函数
 
 	typedef struct __KKPlugin
 	{
-        void *opaque;                 //指向一个插件实例对象   pointer a instance of KKPlugin.
+        void *opaque;                 //用户数据
 		fIo_read_packet kkread;
 		fIo_seek kkseek;
-		fKKIRQ kkirq;                //外部填入
-        void *kkirqOpaque;   
+		fFlushPlayerQue FlushQue;    //参数填入 kkirqOpaque
+		fKKIRQ kkirq;                //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
+        void *kkirqOpaque;           //外部调用
 		char *URL;
 	}KKPlugin;
 	

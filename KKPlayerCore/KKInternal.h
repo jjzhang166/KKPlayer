@@ -40,3 +40,4 @@ double vp_duration(SKK_VideoState *is, SKK_Frame *vp, SKK_Frame *nextvp);
 /****ÒôÆµ»Øµ÷º¯Êý*****/
 void audio_callback(void *userdata, char *stream, int len);
 void RaiseVolume(char* buf, int size, int uRepeat, double vol);
+void Packet_Queue_All_Flush(SKK_VideoState *pVideoInfo);

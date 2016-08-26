@@ -1,5 +1,5 @@
 include Android_config.mak
-objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o md5.o
+objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -55,7 +55,13 @@ SqliteOp.o: sqlite/sqlite3.h SqlOp/SqliteOp.h SqlOp/SqliteOp.cpp
 	$(CXX) -c $(CFLAGS) SqlOp/SqliteOp.cpp
 AVInfomanage.o:	KKVideoInfo.h SqlOp/SqliteOp.h SqlOp/AVInfomanage.h SqlOp/AVInfomanage.cpp
 	$(CXX) -c $(CFLAGS) SqlOp/AVInfomanage.cpp
-KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h SqlOp/AVInfomanage.h
+srs_librtmp.o: srs_librtmp.h srs_librtmp.cpp
+	$(CXX) -c $(CFLAGS) srs_librtmp.cpp
+SrsRtmpPlugin.o: srs_librtmp.h rtmp/SrsRtmpPlugin.h rtmp/SrsRtmpPlugin.cpp
+	$(CXX) -c $(CFLAGS) rtmp/SrsRtmpPlugin.cpp
+FlvEncode.o: rtmp/FlvEncode.h rtmp/FlvEncode.cpp
+	$(CXX) -c $(CFLAGS) rtmp/FlvEncode.cpp
+KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h SqlOp/AVInfomanage.h rtmp/SrsRtmpPlugin.h
 	$(CXX) -c $(CFLAGS) KKPlayer.cpp
 
 install:
