@@ -7,6 +7,7 @@ extern "C"{
 		{
 			KKPlugin* srs_rtmp_plugin =(KKPlugin* ) ::malloc(sizeof(KKPlugin));
 			memset(srs_rtmp_plugin,0,sizeof(KKPlugin));
+            srs_rtmp_plugin->RealTime=1;
 			srs_rtmp_plugin->kkread=Srs_read_packet;
 			return  srs_rtmp_plugin;
 

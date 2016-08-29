@@ -331,10 +331,13 @@ typedef struct SKK_VideoState
 
 	/***********实时流媒体延迟值，单位秒************/
 	double nRealtimeDelay;
-	/********最小延迟********/
-	int nMinRealtimeDelay;
+	/********最大延迟********/
+	int nMaxRealtimeDelay;
 	/********最小延迟********/
 	int nRealtimeDelayCount;
+
+	//用于减少延迟用
+	double  OpenTime;
 	//硬件解码方式
 	enum HARDCODE
 	{

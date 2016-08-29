@@ -144,6 +144,7 @@ void CAndKKAudio::SetAudioCallBack(pfun fun)
 /***********初始化音频设备*********/
 int CAndKKAudio::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels,int &wanted_sample_rate)
 {
+    LOGE("OpenAudio ");
     SLresult result;
     int lll=1024*4;
 	SetCond();
@@ -255,7 +256,8 @@ int CAndKKAudio::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels,
     {
         LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
     }
-    (void)result;
+    m_AudioClose=0;
+    m_nReadWait= false;
     return 0;
     // ignore unsuccessful result codes for environmental reverb, as it is optional for this example
 }
@@ -326,6 +328,9 @@ void CAndKKAudio::Start()
        m_AudioClose=0;
        m_ReadLock.Unlock();
        SLresult result= (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
+   }else
+   {
+       LOGI("m_bqPlayerPlay==NULL\n");
    }
 }
 void CAndKKAudio::Stop()

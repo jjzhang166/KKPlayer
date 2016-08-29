@@ -115,11 +115,17 @@ int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial)
 			break;
 		} else 
 		{
+			ret = -1;
 			break;
 		}
 	}
 	q->pLock->Unlock();
 
+	if(pkt->data==NULL)
+	{
+          int xx=0;
+		  xx++;
+	}
 	return ret;
 }
 
@@ -160,16 +166,16 @@ void Packet_Queue_All_Flush(SKK_VideoState *pVideoInfo)
 {
 	if (pVideoInfo->video_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->videoq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt);
+		pVideoInfo->videoq.serial++;
 	}
 
 	if (pVideoInfo->audio_st!=NULL&&pVideoInfo->audio_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt);
+		pVideoInfo->videoq.serial++;
 	}
 	if (pVideoInfo->subtitle_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt);
+		pVideoInfo->videoq.serial++;
 	}
 }
 //时钟操作
@@ -340,7 +346,6 @@ int audio_fill_frame( SKK_VideoState *pVideoInfo)
 
 	
 DELXXX:
-	double  Ade=pVideoInfo->nRealtimeDelay;
 	int n=0;
 	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
 	SKK_VideoState *is=pVideoInfo;
@@ -490,9 +495,10 @@ DELXXX:
 	     is->audio_clock = af->pts + ll;
 		 if(data_size>0&&!is->abort_request&&is->realtime&&!is->abort_request)
 		 {
-			 Ade-=ll;
-			 if(Ade>is->nMinRealtimeDelay)
-			 {
+			
+			 if(pVideoInfo->nRealtimeDelay>is->nMaxRealtimeDelay)
+			 { 
+				 pVideoInfo->nRealtimeDelay-=ll;
 				 is->nRealtimeDelayCount++;
 				 goto DELXXX;
 			 }else{
@@ -1165,17 +1171,21 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			}	
 			do
 			{
-				//av_free_packet(packet); 
-				if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) <= 0) 
-				{
-					continue;
-				}else if(is->abort_request){
+LXXXX:
+				if(is->abort_request){
 					break;
+				}else if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) <= 0) 
+				{
+					av_usleep(5000);
+					goto LXXXX;
 				}
+				
+				
 				if(is->videoq.serial!=is->viddec.pkt_serial)
 				{
                     av_free_packet(packet); 
 				}
+				
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
 
  
@@ -1183,7 +1193,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			SKK_Decoder* d=&is->viddec;
 			d->pts=packet->pts;
 			d->dts=packet->dts;
-			if (packet->data != is->pflush_pkt->data&&is->videoq.serial==is->viddec.pkt_serial) 
+			if (packet->data != is->pflush_pkt->data) //&&is->videoq.serial==is->viddec.pkt_serial
 			{
 					pts = 0; 
 					
@@ -1214,12 +1224,13 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 						{  
 							//break;  
 						}  
-						
+						av_frame_unref(pFrame);
 					}
-					av_frame_unref(pFrame);
+					
 			}else
 			{
-				av_frame_unref(pFrame);
+				//av_frame_unref(pFrame);
+				LOGE("avcodec_flush_buffers video \n");
 				avcodec_flush_buffers(d->avctx);
 				d->finished = 0;
 				d->next_pts = d->start_pts;
@@ -1263,15 +1274,21 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame)
 	int got_frame = 0;
 	do
 	{
+LOXXXX:
 		//从队列获取数据
-		if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0&&!pVideoInfo->abort_request) 
+		if(pVideoInfo->abort_request)
 		{
-			av_usleep(2000);
+			break;
+		}else if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0) 
+		{
+		
+			av_usleep(5000);
+			goto LOXXXX;
 		}
+		
 		if(pVideoInfo->audioq.serial!=pVideoInfo->auddec.pkt_serial)
 		{
 			av_packet_unref(&pkt);
-           //av_free_packet();
 		}
 	}while(pVideoInfo->audioq.serial!=pVideoInfo->auddec.pkt_serial);
 		

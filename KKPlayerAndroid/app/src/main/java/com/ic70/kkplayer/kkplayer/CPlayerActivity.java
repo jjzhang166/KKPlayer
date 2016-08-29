@@ -152,7 +152,8 @@ public class CPlayerActivity extends Activity {
 
                 if(m_OpenCouner>20)
                 {
-                    m_KKPlayer.NeedReOpenMedia();
+                   // m_KKPlayer.clo
+                    m_KKPlayer.OpenMedia(MoviePathStr);
                     m_OpenCouner=0;
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     ImageV.setVisibility(View.GONE);
@@ -333,8 +334,7 @@ public class CPlayerActivity extends Activity {
                 {
                     FunPalyState();
                 }
-                int ll=var1.getProgress()-m_CurTime;
-                m_CurTime+=ll;
+                int ll=var1.getProgress();
                 m_KKPlayer.Seek(ll);
                 m_bSeekPlayer=false;
             }

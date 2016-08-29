@@ -158,7 +158,7 @@ void  CAndKKPlayerUI::Pause()
 }
 void  CAndKKPlayerUI::Seek(int value)
 {
-    m_player.KKSeek(Left,value);
+    m_player.AVSeek(value);
 }
 
 
@@ -339,6 +339,8 @@ MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
 }
 int  CAndKKPlayerUI::OpenMedia(char *str)
 {
+    CloseMedia();
+    m_Audio.CloseAudio();
     LOGI(" CAndKKPlayerUI %s,%d\n",str, m_playerState);
     if( m_playerState<=-1)
     {
@@ -485,7 +487,7 @@ int  CAndKKPlayerUI::GetRealtimeDelay()
 }
 int  CAndKKPlayerUI::SetMinRealtimeDelay(int value)
 {
-    return  m_player.SetMinRealtimeDelay(value);
+    return  m_player.SetMaxRealtimeDelay(value);
 }
 //强制刷新Que
 void  CAndKKPlayerUI::ForceFlushQue()

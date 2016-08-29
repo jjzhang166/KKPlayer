@@ -934,7 +934,9 @@ int BindDxva2Module(	AVCodecContext  *pCodecCtx)
 	if(NULL == dxva)
 		return -1;
 	pCodecCtx->opaque = dxva;
-	vlc_va_NewDxva2(pCodecCtx->codec_id,dxva);
+	kk_va_dxva2_t * dxs=vlc_va_NewDxva2(pCodecCtx->codec_id,dxva);
+	if(dxs==NULL)
+           return -1;
 
 	dxva->tmp_frame= av_frame_alloc();
 	pCodecCtx->get_format = ffmpeg_GetFormat;

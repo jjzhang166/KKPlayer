@@ -65,10 +65,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         return  info;
     }
     boolean m_ReOpen=false;
-    public void NeedReOpenMedia()
-    {
-        m_ReOpen=true;
-    }
+
     public int OpenMedia(String str)
     {
         m_url=str;
@@ -141,12 +138,12 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
             /*if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1&& !m_ReOpen&&m_JniKKPlayer.KKIsReady(m_nKKPlayer)==1)
             {
                 OpenMedia(m_url);
-            }else*/
+            }else
             if(m_ReOpen)
             {
                 m_ReOpen=false;
                 OpenMedia(m_url);
-            }
+            }*/
             m_JniKKPlayer.GlRender(m_nKKPlayer);
         }
     }
