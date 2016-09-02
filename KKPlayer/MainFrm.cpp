@@ -499,7 +499,7 @@ void CMainFrame::CloseMedia()
 }
 int CMainFrame::PktSerial()
 {
-  return m_pPlayerInstance->PktSerial();
+  return m_pPlayerInstance->GetPktSerial();
 }
 void  CMainFrame::OnDecelerate()
 {

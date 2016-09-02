@@ -604,7 +604,7 @@ display:
 	}
 	is->force_refresh=0;
 }
-int KKPlayer::PktSerial()
+int KKPlayer::GetPktSerial()
 {
 	return m_PktSerial;
 }

@@ -936,7 +936,10 @@ int BindDxva2Module(	AVCodecContext  *pCodecCtx)
 	pCodecCtx->opaque = dxva;
 	kk_va_dxva2_t * dxs=vlc_va_NewDxva2(pCodecCtx->codec_id,dxva);
 	if(dxs==NULL)
-           return -1;
+	{
+        dxva =NULL;
+		return -1;
+	}
 
 	dxva->tmp_frame= av_frame_alloc();
 	pCodecCtx->get_format = ffmpeg_GetFormat;
@@ -946,8 +949,12 @@ int BindDxva2Module(	AVCodecContext  *pCodecCtx)
 	
 	int res = Setup(dxva, &pCodecCtx->hwaccel_context, &pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height);
 
-	if (res < 0) 
+	if (res < 0)
+	{
+		free(dxva);
+		dxva=NULL;
 		return res;
+	}
 
 	
 	

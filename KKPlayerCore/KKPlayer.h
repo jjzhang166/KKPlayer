@@ -49,9 +49,11 @@ class KKPlayer
     public:
 	        KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound);
 	        ~KKPlayer(void);
+			/******Windows平台调用**********/
 			void SetWindowHwnd(HWND hwnd);
 			/*********打开媒体.成功返回0，失败返回-1.************/
 			int OpenMedia(char* fileName,char* FilePath="C:\\"); 
+			/*********关闭播放器*********/
 			void CloseMedia(); 
     		
 			//获取播放的时间
@@ -78,8 +80,12 @@ class KKPlayer
 			//单位时间秒
 			void AVSeek(int value);
 			void InitSound();
+			
+			//获取播放信息
 			MEDIA_INFO GetMediaInfo();
-			int PktSerial();	
+			
+			//得到包序列号
+			int GetPktSerial();	
 			//UTF-8
 			void SetDbPath(char *strPath);
 
@@ -91,48 +97,55 @@ class KKPlayer
 
 			//解码成BGRA格式
 			void SetBGRA();
-			/**********添加插件**********/
-			static void AddKKPluginInfo(KKPluginInfo &info);
+			
 			/******是否准备好了,准备好返回1，否则返回0，没有open返回-1*******/
 			int GetIsReady();
 			
 			//得到延迟
 			int GetRealtimeDelay();
-			//强制刷新Que
+			//强制刷新播放器Que
 			void ForceFlushQue();
+		
+			/******设置实时流媒体最小延迟,最小值2，单位秒**********/
+			int SetMaxRealtimeDelay(int Delay);
+            
 			//显示视频追踪信息,返回1成功
 			int ShowTraceAV(bool Show);
 
-			/******设置实时流媒体最小延迟,最小值2，单位秒**********/
-			int SetMaxRealtimeDelay(int Delay);
-			/*******************插件可是分析*********************/
+
+			/*******************插件分析,返回1有对应的插件*********************/
 			int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
+			/**********添加插件**********/
+			static void AddKKPluginInfo(KKPluginInfo &info);
 private:
 	       
-	        void ReadAV();
-	       
-	        //视频刷线程
-			void VideoRefresh();
-			  //视频信息
-			SKK_VideoState *pVideoInfo; 
 	        /*********视频刷新线程********/
 	        static unsigned __stdcall VideoRefreshthread(LPVOID lpParameter);
 			//音频回调线程
 			static unsigned __stdcall Audio_Thread(LPVOID lpParameter);
 			//文件读取线程
 	        static unsigned __stdcall  ReadAV_thread(LPVOID lpParameter);
+			
+			//数据读取
+	        void ReadAV();
+	        //视频刷线程
+			void VideoRefresh();
 	        /*******显示视频**********/
 		    void video_image_refresh(SKK_VideoState *is);
-private:
-	        /********流媒体这是刷新函数**********/
-	        void Avflush(int64_t seek_target); 
+
+			/********流媒体这是刷新函数**********/
+			void Avflush(int64_t seek_target); 
 			void AvflushRealTime(int Avtype);
 			//读音频
-	        void ReadAudioCall();
+			void ReadAudioCall();
 			void PacketQueuefree();
 
+private:
+	        //插件信息
+	        static std::list<KKPluginInfo>  KKPluginInfoList;
 			
-	       
+	        //视频信息
+	        SKK_VideoState *pVideoInfo; 
 			//记录播放信息用
 			CAVInfoManage* m_pAVInfomanage;
 
@@ -163,8 +176,7 @@ private:
             //音频数据回调线程
 			SKK_ThreadInfo m_AudioCallthreadInfo;
 			
-			//插件信息
-			static std::list<KKPluginInfo>  KKPluginInfoList;
+			
 			void *m_PicBuf;
 			int m_PicBufLen;
 			int64_t m_lstPts;
