@@ -27,9 +27,6 @@ struct SWaitPicInfo
 #define  WM_OpenErr     WM_USER+101
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
-	/*public CUpdateUI<CMainFrame>,
-	public CMessageFilter, 
-	public CIdleHandler,*/
 	public IKKPlayUI,
 	public sigslot::has_slots<>
 {
@@ -37,15 +34,9 @@ public:
 	CMainFrame();
 	~CMainFrame();
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
-	//BEGIN_UPDATE_UI_MAP(CMainFrame)
-	//END_UPDATE_UI_MAP()
-
 	BEGIN_MSG_MAP(CMainFrame)
 			MESSAGE_HANDLER(WM_CREATE, OnCreate)
 			MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-			/*CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
-			CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)*/
-
 			MESSAGE_HANDLER(WM_PAINT,OnPaint);
 			MESSAGE_HANDLER(WM_ERASEBKGND,OnEraseBkgnd);
 			MESSAGE_HANDLER(WM_SIZE,OnSize);
@@ -53,9 +44,7 @@ public:
 			MESSAGE_HANDLER(WM_KEYDOWN,OnKeyDown);
 			MESSAGE_HANDLER(WM_CLOSE,OnClose);
 			MESSAGE_HANDLER(WM_MediaClose,OnMediaClose);
-
 			MESSAGE_HANDLER(WM_OpenErr,OnOpenMediaErr);
-            //WM_OpenErr
 			MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove);
 			MESSAGE_HANDLER(WM_RBUTTONUP,OnRbuttonUp);
 			MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLbuttonDown);
@@ -104,8 +93,6 @@ private:
 
 		UINT m_AVwTimerRes;
 		UINT m_AVtimerID;
-public:
-		WTL::CString m_TabName;
 public:
 	    MEDIA_INFO GetMediaInfo();
 		void SetVolume(long value);

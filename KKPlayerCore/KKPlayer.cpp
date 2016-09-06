@@ -1584,7 +1584,7 @@ void KKPlayer::ReadAV()
 			}
 		}
 
-		
+			
         /********¶ÁÈ¡Ò»¸öpkt**********/
 		ret = av_read_frame(pFormatCtx, pkt);
 		//LOGE("de %d,que audioq:%d,videoq:%d,subtitleq:%d",pVideoInfo->m_RealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
@@ -1601,34 +1601,42 @@ void KKPlayer::ReadAV()
 		{
 			 if(pVideoInfo->bTraceAV)
 			 LOGE("readAV ret=%d \n",ret);
-			 if (((ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof)&& !pFormatCtx->pb->error)
+			 if ((ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof)
 			 {
 			        if(pVideoInfo->bTraceAV) 
 				    LOGE("ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof \n");
                     pVideoInfo->eof=1;
 					if(pVideoInfo->realtime)
-					{
+					{ 
+						
 						pVideoInfo->nRealtimeDelay=0;
 						pVideoInfo->abort_request=1;
 						pVideoInfo->IsReady=0;
 						m_pPlayUI->AutoMediaCose(-1);
 						
 					}
-			 }else if (pFormatCtx->pb && pFormatCtx->pb->error)
+			 }else if (pFormatCtx->pb && pFormatCtx->pb->error&&ret != AVERROR_EOF)
 			 {
-				 pVideoInfo->eof=1;
-				 pVideoInfo->abort_request=1;
-				 pVideoInfo->nRealtimeDelay=0;
-				 if(pVideoInfo->realtime)
-				 {
-					 pVideoInfo->IsReady=0;
-					 m_pPlayUI->AutoMediaCose(-2);
-				 }else{
-				     m_pPlayUI->AutoMediaCose(-3);
-				 }
-				if(pVideoInfo->bTraceAV)
-				 LOGE("pFormatCtx->pb && pFormatCtx->pb->error \n");
+				 int xxx=AVERROR_EOF;
+				 xxx=-541478725;
+				
+					 pVideoInfo->eof=1;
+					 pVideoInfo->abort_request=1;
+					 pVideoInfo->nRealtimeDelay=0;
+					 if(pVideoInfo->realtime)
+					 {
+						 pVideoInfo->IsReady=0;
+						 m_pPlayUI->AutoMediaCose(-2);
+					 }else {
+						 m_pPlayUI->AutoMediaCose(-3);
+					 }
+					 
+				 
+				 int ll=AVERROR(ENOMEM); 
+				 if(pVideoInfo->bTraceAV)
+					 LOGE("pFormatCtx->pb && pFormatCtx->pb->error \n");
 				 break;
+				
 			 }
 			av_usleep(10000);
 			continue;

@@ -37,7 +37,7 @@ namespace SOUI
 			char urlx[1024];
 			CChineseCode::wcharTochar(url.GetBuffer(1024),urlx,1024);
 			url.ReleaseBuffer();
-            m_pDlgMain->OpenMedia(urlx);
+            m_pDlgMain->DownMedia(urlx);
             ShowWindow(SW_HIDE);
 		}
 	}

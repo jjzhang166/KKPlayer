@@ -3,7 +3,9 @@ typedef long long          int64_t;
 #ifndef KKPlugin_H_
 #define KKPlugin_H_
 extern "C"
-{   typedef char (*fGetPtlHeader)(char *buf,char len);
+{  
+	//得到协议头
+	typedef char (*fGetPtlHeader)(char *buf,char len);
     /****下载函数****/
     typedef char (*fKKDownAVFile)(char *strUrl);
 	/********停止下载函数**********/
@@ -24,15 +26,15 @@ extern "C"
 
 	typedef struct __KKPlugin
 	{
-        void *opaque;                 //用户数据
+        void *opaque;                        //用户数据
 		fIo_read_packet kkread;
 		fIo_seek kkseek;
-		fFlushPlayerQue FlushQue;    //参数填入 kkirqOpaque,刷新队列
-		fCalPlayerDelay CalPlayerDelay;
-		fKKIRQ kkirq;                //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
-        void *PlayerOpaque;          //播放器环境
-		char *URL;                   //去掉协议头的地址
-		int RealTime;                //1 为实时，否则因为0
+		fFlushPlayerQue FlushQue;           //参数填入 kkirqOpaque,刷新队列
+		fCalPlayerDelay CalPlayerDelay;     //外部回调函数，Player填入
+		fKKIRQ kkirq;                       //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
+        void *PlayerOpaque;                 //播放器环境
+		char *URL;                          //去掉协议头的地址
+		int RealTime;                       //1为实时，否则因为0
 	}KKPlugin;
 	
 	//创建一个插件实例

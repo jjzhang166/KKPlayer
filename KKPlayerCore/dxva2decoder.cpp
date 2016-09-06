@@ -884,8 +884,8 @@ static int dxva_Extract(kk_va_dxva2_t *va, AVFrame *src,AVFrame **Out)
 	{
 		if(!va->Okxx)
 		{
-			va->tmp_frame->width  =FFALIGN(va->width, 64);
-			va->tmp_frame->height =FFALIGN(va->height, 2);
+			va->tmp_frame->width  =lock.Pitch;//FFALIGN(va->width, 64);
+			va->tmp_frame->height =va->height;//FFALIGN(va->height, 2);
 			va->tmp_frame->format = AV_PIX_FMT_NV12;
 
 			va->Okxx=true;
@@ -902,8 +902,8 @@ static int dxva_Extract(kk_va_dxva2_t *va, AVFrame *src,AVFrame **Out)
 	{
 		if(!va->Okxx)
 		{
-			va->tmp_frame->width  =FFALIGN(va->width, 64);
-			va->tmp_frame->height =FFALIGN(va->height, 2);
+			va->tmp_frame->width  =lock.Pitch;//FFALIGN(va->width, 64);
+			va->tmp_frame->height =va->height;//FFALIGN(va->height, 2);
 			va->tmp_frame->format = AV_PIX_FMT_NV12;
 
 			va->Okxx=true;
