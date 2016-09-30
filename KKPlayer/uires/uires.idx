@@ -14,7 +14,15 @@
 	<SMENUEX>
              <file name="avmenuex" path="xml\AVMenu.xml"/>
     </SMENUEX>
+	<ICON>
+		<file name="ICON_LOGO"  path="image\KKPlayer.ico"    />
+	</ICON>
 	<png>
+	   <file name="ID_PNG_KKLOGO" path="image\kklogo.png" />
+	   <file name="ID_PNG_KKLOGO16" path="image\kklogo16.png" />
+	   <file name="ID_PNG_KKLOGO20" path="image\kklogo20.png" />
+	   <file name="ID_PNG_KKDOWN" path="image\down.png" />
+	   
 	   <file name="ID_PNG_SHADOW" path="image\shadow.png" />
 	   <file name="ID_PNG_BG_GRAY" path="image\bg_gray.png" />
 	   <file name="ID_PNG_BG_BUTTON" path="image\button.png" />

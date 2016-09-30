@@ -300,6 +300,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	
 	std::wstring path=GetModulePath();
 	
+	SOUI::SStringT str;
 	SOUI::CMainDlg dlgMain;
 	m_pDlgMain=&dlgMain;
 	dlgMain.Create(NULL,WS_POPUP|WS_MINIMIZEBOX | WS_MAXIMIZEBOX&~WS_CAPTION,0,0,0,0,0);

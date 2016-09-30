@@ -36,9 +36,12 @@
 		<imgframe name="_skin.Pro_Play" src="PNG:ID_PNG_PRO_PLAY"/>
 		
 		<imglist name="_skin.Folder" src="PNG:ID_PNG_FOLDER"  states="3"/>
+		<imglist name="_skin.KKdown" src="PNG:ID_PNG_KKDOWN"  states="3"/>
 		<imgframe name="_skin.Vol_Bg" src="PNG:ID_PNG_VolBg"/>
 		<imgframe name="_skin.Vol_Pre" src="PNG:ID_PNG_VolPre" margin-x="3"/>
-		
+	    <imgframe name="_skin.KK_LOGO" src="PNG:ID_PNG_KKLOGO" />
+		<imgframe name="_skin.KK_LOGO16" src="PNG:ID_PNG_KKLOGO16" />
+	    <imgframe name="_skin.KK_LOGO20" src="PNG:ID_PNG_KKLOGO20" />
 	
 	    <scrollbar name="_skin.Scrollbar" src="PNG:ID_PNG_SCROLLBAR" margin="3" hasgripper="0"/>
 		

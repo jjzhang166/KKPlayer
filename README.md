@@ -8,4 +8,6 @@ Android:android studio1.5 编译通过。
 		 KKPlayerAndroid项目是基于KKPlayerCore写的android例子
          Windows版本：生成的正式文件在release下，调试的在debug下。界面库采用SOUI2
 		 IOS版本正在筹划中.
+		 
+rtmpt延迟格式控制请使用以下格式srs:rtmp:xxxxxxxxxxxxxxxxxxxxxx
 		
