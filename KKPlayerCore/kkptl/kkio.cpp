@@ -37,6 +37,7 @@ AVIOContext * CreateKKIo(SKK_VideoState *kkAV)
 	pKKP->FlushQue= Queue_All_Flush;
 	pKKP->CalPlayerDelay=CalPlayerDelay;
 	pKKP->kkirq=kkAV->pFormatCtx->interrupt_callback.callback;
+	pKKP->FirstRead=1;
 	AVIOContext *avio=avio_alloc_context(aviobuffer, len,0,pKKP, pKKP->kkread,NULL,pKKP->kkseek); 
 
 	if(pKKP->RealTime==1)

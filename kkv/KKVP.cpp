@@ -106,6 +106,7 @@ LOOP1:
 	std::string strGuid;
 	CreatStrGuid(strGuid);
 
+
 	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
 	IPC_DATA_INFO xxda={buf,0,hRead};
 	
@@ -131,6 +132,13 @@ LOOP1:
 	tempBuf+=4;
 	len+=4;
 
+	//¶Á×´Ì¬
+	int FirstRead=KKP->FirstRead;
+	KKP->FirstRead=0;
+	memcpy(tempBuf,&FirstRead,4);
+	tempBuf+=4;
+	len+=4;
+
 	int FileURlSize=strlen(KKP->URL);                              //FileURlSize 4
 	memcpy(tempBuf,&FileURlSize,4);
 	tempBuf+=4;
@@ -148,7 +156,7 @@ LOOP1:
 	G_pInstance->WritePipe(IPCbuf,len,0);
 	while(1)
 	{
-		DWORD ret=::WaitForSingleObject( hRead,500);
+		DWORD ret=::WaitForSingleObject( hRead,20);
         if(ret==WAIT_OBJECT_0)
 		{
 			break;
@@ -177,6 +185,7 @@ LOOP1:
 		int ret=OutInfo.DataSize;
 		if(ret==-1000)
 		{
+			
 			goto LOOP1;
 		}
 		return ret;
@@ -365,7 +374,7 @@ char __declspec(dllexport)KKCloseAVFile(char *strUrl)
 {
 	if(G_pInstance==NULL)
 	{
-		InitIPC();
+		return 0;
 	}
 
 	char *IPCbuf=(char*)::malloc(1024);

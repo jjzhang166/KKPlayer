@@ -157,7 +157,7 @@ void KKPlayer::CloseMedia()
 		LOGE("thread Over1 m_ReadThreadInfo%d,m_VideoRefreshthreadInfo%d \n",m_ReadThreadInfo.ThOver
 			,m_VideoRefreshthreadInfo.ThOver
 			);
-		 av_usleep(50000);
+		 av_usleep(10000);
 	}
 
 
@@ -193,7 +193,7 @@ void KKPlayer::CloseMedia()
 				,pVideoInfo->auddec.decoder_tid.ThOver
 				,pVideoInfo->subdec.decoder_tid.ThOver
 				);
-			 av_usleep(50000);
+			 av_usleep(10000);
 		}
 	}
 

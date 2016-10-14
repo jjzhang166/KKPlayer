@@ -35,6 +35,7 @@ extern "C"
         void *PlayerOpaque;                 //播放器环境
 		char *URL;                          //去掉协议头的地址
 		int RealTime;                       //1为实时，否则因为0
+		int FirstRead;                      //第一次读，1,读后为0，需手动
 	}KKPlugin;
 	
 	//创建一个插件实例
