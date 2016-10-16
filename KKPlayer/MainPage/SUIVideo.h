@@ -13,6 +13,7 @@ namespace SOUI
 	  public:
 		  CSuiVideo(void);
 		  ~CSuiVideo(void);
+		   void SetAVVisible(BOOL bVisible);
 		  int OpenMedia(const char *str);
 		  int DownMedia(char *KKVURL);
 		  void Close();

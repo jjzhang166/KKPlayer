@@ -9,7 +9,7 @@
 		<file name="XML_AVINFO" path="xml\AvInfo.xml"/>
 		<file name="XML_AVOPENURL" path="xml\AvOpenUrl.xml"/>
 		<file name="XML_AVNETDOWN" path="xml\AvNetDown.xml"/>
-		
+		<file name="XML_AVPlayer" path="xml\AVPlayer.xml"/>
 	</LAYOUT>
 	<SMENUEX>
              <file name="avmenuex" path="xml\AVMenu.xml"/>
@@ -18,6 +18,9 @@
 		<file name="ICON_LOGO"  path="image\KKPlayer.ico"    />
 	</ICON>
 	<png>
+	   <file name="ID_PNG_Search2" path="image\Search2.png" />
+	   <file name="ID_PNG_Search1" path="image\Search1.png" />
+	   <file name="ID_PNG_TOU" path="image\tou.png" />
 	   <file name="ID_PNG_KKLOGO" path="image\kklogo.png" />
 	   <file name="ID_PNG_KKLOGO16" path="image\kklogo16.png" />
 	   <file name="ID_PNG_KKLOGO20" path="image\kklogo20.png" />

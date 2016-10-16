@@ -14,6 +14,16 @@ namespace SOUI
 	{
 
 	}
+	void CSuiVideo::SetAVVisible(BOOL bVisible)
+	{
+		if(bVisible==TRUE)
+		{
+			::ShowWindow(m_VideoWnd.m_hWnd,SW_SHOW);
+		}else
+		{
+			::ShowWindow(m_VideoWnd.m_hWnd,SW_HIDE);
+		}
+	}
 	//获取放播的历史信息
 	void CSuiVideo::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 	{
@@ -33,7 +43,7 @@ namespace SOUI
 		HWND h=GetContainer()->GetHostHwnd();
 		RECT rt={0,100,200,300};
 		//m_VideoWnd.Create()
-		if(m_VideoWnd.CreateEx(h,rt, WS_CHILDWINDOW| WS_VISIBLE|WS_CLIPCHILDREN ) == NULL)//| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
+		if(m_VideoWnd.CreateEx(h,rt, WS_CHILDWINDOW| WS_CLIPCHILDREN ) == NULL)//WS_VISIBLE|| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
 		{
 				return 0;
 		}/**/

@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\skia\include;..\skia\include\core;..\skia\include\config"
+				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\skia\include;..\skia\include\core;..\skia\include\config;..\wke\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -336,6 +336,14 @@
 			</File>
 			<File
 				RelativePath=".\MainPage\AVOpenUrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\KKWkeWebkit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\KKWkeWebkit.h"
 				>
 			</File>
 			<File

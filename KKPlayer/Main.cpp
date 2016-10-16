@@ -9,6 +9,7 @@
 #include <Gdiplusinit.h>
 #include "MainPage/MainDlg.h"
 #include "MainPage/SUIVideo.h"
+#include "MainPage/KKWkeWebkit.h"
 #include "Dir/Dir.hpp"
 #include "../KKPlayerCore/KKPlugin.h"
 #include "../KKPlayerCore/KKPlayer.h"
@@ -271,6 +272,12 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	
 	SApplication *theApp=new SApplication(pRenderFactory,hInstance);
     theApp->RegisterWndFactory(TplSWindowFactory<CSuiVideo>());
+
+	 KKWkeLoader wkeLoader;
+	 if(wkeLoader.Init(_T("wke.dll")))
+	 {
+	   theApp->RegisterWndFactory(TplSWindowFactory<KKWkeWebkit>());
+	 }
 
 	CAutoRefPtr<ITranslatorMgr> trans;
 	pComMgr->CreateTranslator((IObjRef**)&trans);

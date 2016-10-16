@@ -8,7 +8,10 @@
   </string>
 
   <skin>
-        <imgframe name="_skin.shadow" src="PNG:ID_PNG_SHADOW"  left="5" top="3" right="5" bottom="7"/>
+        <imgframe name="_skin.shadow" src="PNG:ID_PNG_SHADOW"   left="5" top="3" right="5" bottom="7"/>
+		<imglist name="_skin.Search2" src="PNG:ID_PNG_Search2" states="3" />
+		<imglist name="_skin.Search1" src="PNG:ID_PNG_Search1" />
+		<imglist name="_skin.TOU" src="PNG:ID_PNG_TOU"/>
 		<imglist name="_skin.TittleBg" src="PNG:ID_PNG_BG_GRAY"/>
 		<imglist name="_skin.ButtonBg" src="PNG:ID_PNG_BG_BUTTON"/>
 		<imglist name="_skin.PLAY" src="PNG:ID_PNG_PLAY" states="3" />
