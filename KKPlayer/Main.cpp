@@ -193,13 +193,26 @@ SOUI::CMainDlg *m_pDlgMain=NULL;
 //F:\ProgramTool\OpenPro\KKPlayer\KKPlayer>uiresbuilder.exe -iuires/uires.idx -puires -rres/KK_res.rc2
 std::basic_string<char> GetModulePathA();
 void skpngZhuc();
+
+
+
+CreateRender pfnCreateRender = NULL;
+DelRender pfnDelRender=NULL;
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
 	int SDL_WindowStyle=WS_POPUP  | WS_VISIBLE|WS_CLIPCHILDREN;
-		//WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX;
-	skpngZhuc(); //0x80000000L|0x10000000L| 0x02000000L
     DeclareDumpFile();
+
+
+	HMODULE hRender = LoadLibraryA("Render.dll");
+	if(hRender)
+	{
+
+          pfnCreateRender = (CreateRender)GetProcAddress(hRender, "CreateRender");
+		  pfnDelRender = (DelRender)GetProcAddress(hRender, "DelRender");
+	}
 	//в╟ть
 	std::string strPath= GetModulePathA();
 	strPath+="\\Plugin";

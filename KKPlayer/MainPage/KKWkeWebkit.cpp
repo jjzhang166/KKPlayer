@@ -121,7 +121,7 @@ namespace SOUI
 	std::map<wkeWebView,KKWkeWebkit*> GUpdateViewMap;
 	void AddWkeViewToMap(wkeWebView p,KKWkeWebkit* w)
 	{
-		if(p!=NULL)
+		/*if(p!=NULL)
 		{
 			GwkeViewLock.Lock();
 			if(GUpdateViewMap.find(p)==GUpdateViewMap.end())
@@ -130,11 +130,11 @@ namespace SOUI
 			}
 
 			GwkeViewLock.Unlock();
-		}
+		}*/
 	}
 	void DelWkeViewToMap(wkeWebView p)
 	{
-		if(p!=NULL)
+		/*if(p!=NULL)
 		{
 			GwkeViewLock.Lock();
 			std::map<wkeWebView,KKWkeWebkit*>::iterator It=GUpdateViewMap.find(p);
@@ -143,7 +143,7 @@ namespace SOUI
 				GUpdateViewMap.erase(It);
 			}
 			GwkeViewLock.Unlock();
-		}
+		}*/
 	}
 
 	DWORD WINAPI KKWkeLoader::UpdateWkeWebViewTh(LPVOID lpThreadParameter)
@@ -152,14 +152,14 @@ namespace SOUI
 		while(pIns->m_Exit==0)
 		{
 			Sleep(20);
-			GwkeViewLock.Lock();
-			std::map<wkeWebView,KKWkeWebkit*>::iterator It=GUpdateViewMap.begin();
-			for(;It!=GUpdateViewMap.end();++It)
-			{
-				It->first->setDirty(true);
-			//	It->second->onUpdated();
-			}
-			GwkeViewLock.Unlock();
+			//GwkeViewLock.Lock();
+			//std::map<wkeWebView,KKWkeWebkit*>::iterator It=GUpdateViewMap.begin();
+			//for(;It!=GUpdateViewMap.end();++It)
+			//{
+			//	It->first->setDirty(true);
+			////	It->second->onUpdated();
+			//}
+			//GwkeViewLock.Unlock();
 		}
 		return 0;
 	}
@@ -212,11 +212,9 @@ namespace SOUI
 
     void KKWkeWebkit::OnSize( UINT nType, CSize size )
     {
-        __super::OnSize(nType,size);
-		GwkeViewLock.Lock();
+        __super::OnSize(nType,size);		
         m_pWebView->resize(size.cx,size.cy);
         m_pWebView->tick();
-		GwkeViewLock.Unlock();
     }
 
     int KKWkeWebkit::OnCreate( void * )

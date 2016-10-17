@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\skia\include;..\skia\include\core;..\skia\include\config;..\wke\include"
+				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\wke\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="D3dx9.lib ..\Debug\libx86\KKPlayerCore.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib Usp10.lib"
+				AdditionalDependencies="D3dx9.lib ..\Debug\libx86\KKPlayerCore.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -116,7 +116,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\skia\include;..\skia\include\core;..\skia\include\config"
+				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\wke\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="D3dx9.lib ..\Release\libx86\KKPlayerCore.lib ..\WinUI\lib\Release\soui.lib ..\WinUI\lib\Release\utilities.lib Usp10.lib"
+				AdditionalDependencies="..\Release\libx86\KKPlayerCore.lib ..\WinUI\lib\Release\soui.lib ..\WinUI\lib\Release\utilities.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -270,22 +270,6 @@
 		<Filter
 			Name="Render"
 			>
-			<File
-				RelativePath=".\render\renderD3D.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\render\renderD3D.h"
-				>
-			</File>
-			<File
-				RelativePath=".\render\renderGDI.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\render\renderGDI.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="MainPage"

@@ -30,7 +30,7 @@ extern CAppModule _Module;
 #include <process.h>
 #include <Windows.h>
 #include <assert.h>
-#endif
+
 
 //soui包含文件
 #include <souistd.h>
@@ -43,4 +43,8 @@ extern CAppModule _Module;
 #include <unknown/obj-ref-i.h>
 #include <interface/SResProvider-i.h>
 #include "resource.h"
+
+typedef void *(*CreateRender)(HWND h,char *Oput);
+typedef char (*DelRender)(void *p,char RenderType);
+#endif
 // TODO: 在此处引用程序需要的其他头文件

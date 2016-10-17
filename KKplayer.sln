@@ -22,6 +22,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AVTest", "AVTest\AVTest.vcp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kkv", "kkv\kkv.vcproj", "{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Render", "Render\Render.vcproj", "{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -83,6 +85,12 @@ Global
 		{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}.Release|Win32.Build.0 = Release|Win32
 		{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}.Debug|Win32.Build.0 = Debug|Win32
+		{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}.Release|Win32.ActiveCfg = Release|Win32
+		{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}.Release|Win32.Build.0 = Release|Win32
+		{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

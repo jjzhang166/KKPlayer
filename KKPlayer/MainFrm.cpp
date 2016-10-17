@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "MainPage/MainDlg.h"
 #include "MainFrm.h"
-#include "render/renderD3D.h"
-#include "render/renderGDI.h"
 #include <ObjIdl.h>
 #include "KKSound.h"
 #include "Tool/cchinesecode.h"
@@ -10,6 +8,8 @@
 #pragma comment(lib, "winmm.lib")
 //#include <Windows.h>
 extern SOUI::CMainDlg* m_pDlgMain;
+extern CreateRender pfnCreateRender;
+extern DelRender pfnDelRender;
 //#define QY_GDI
 Gdiplus::Bitmap* CoverPic(int destWidth,int destHeight,Gdiplus::Image* srcBmp)
 {
@@ -205,6 +205,8 @@ CMainFrame::CMainFrame():m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NUL
 CMainFrame::~CMainFrame()
 {
     m_pPlayerInstance->CloseMedia();
+	pfnDelRender(m_pRender,0);
+	m_pRender=NULL;
 	delete m_pSound;
 	delete m_pPlayerInstance;
 }
@@ -277,8 +279,8 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 
 	 if(m_pRender!=NULL)
 	 {
-		     CRenderD3D *pRender=( CRenderD3D *)m_pRender;
-			 pRender->SetLeftPicStr(_T(""));
+		     //CRenderD3D *pRender=( CRenderD3D *)m_pRender;
+			 //pRender->SetLeftPicStr(_T(""));
 	 }
 	  
 	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
@@ -316,22 +318,14 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	this->EnableWindow(true);
 	::SetTimer(this->m_hWnd,10010,40,NULL);
 
-
-
-
-
-	#ifdef QY_GDI
-	         m_pRender =new CRenderGDI(); //new  CRenderD3D();
-    #else
-	         m_pRender =new  CRenderD3D();
-    #endif
-	if(!m_pRender->init(this->m_hWnd))
+	char Out=0;
+	m_pRender=(CRender*) pfnCreateRender(m_hWnd,&Out);
+	if(Out==0)
 	{
-		delete m_pRender;
-        m_pRender =new CRenderGDI();
-		m_pPlayerInstance->SetBGRA();
-		m_pRender->init(this->m_hWnd);
-	};
+         m_pPlayerInstance->SetBGRA();
+	}
+	
+	
 
 	 m_pPlayerInstance->InitSound();
 	 m_pPlayerInstance->SetWindowHwnd(m_hWnd);
@@ -506,21 +500,21 @@ void  CMainFrame::OnDecelerate()
    m_pPlayerInstance->OnDecelerate();
 
     int Rate=m_pPlayerInstance->GetAVRate();
-    CRenderD3D *pRender=( CRenderD3D *)m_pRender;
+   /* CRenderD3D *pRender=( CRenderD3D *)m_pRender;
 	wchar_t abcd[256]=L"";
 	float aa=(float)Rate/100;
 	swprintf(abcd,L"%.1f±¶",aa);
-    pRender->SetLeftPicStr(abcd);
+    pRender->SetLeftPicStr(abcd);*/
 }
 void  CMainFrame::OnAccelerate()
 {
    m_pPlayerInstance->OnAccelerate();
    int Rate=m_pPlayerInstance->GetAVRate();
-   CRenderD3D *pRender=( CRenderD3D *)m_pRender;
+  /* CRenderD3D *pRender=( CRenderD3D *)m_pRender;
    wchar_t abcd[256]=L"";
    float aa=(float)Rate/100;
    swprintf(abcd,L"%.1f±¶",aa);
-   pRender->SetLeftPicStr(abcd);
+   pRender->SetLeftPicStr(abcd);*/
 }
 void CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
