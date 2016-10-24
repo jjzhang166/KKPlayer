@@ -392,18 +392,13 @@ MEDIA_INFO KKPlayer::GetMediaInfo()
 //获取放播的历史信息
 void KKPlayer::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
-   if( m_pAVInfomanage!=NULL)
-   {
+   if( m_pAVInfomanage!=NULL){
 	    m_pAVInfomanage->GetAVHistoryInfo(slQue);
    }
 }
 KKPlayer::~KKPlayer(void)
 {
-	/*if(m_pAVInfomanage!=NULL)
-	{
-       delete m_pAVInfomanage;
-	   m_pAVInfomanage=NULL;
-	}*/
+	
 }
 
 void KKPlayer::SetWindowHwnd(HWND hwnd)
@@ -426,12 +421,6 @@ unsigned __stdcall  KKPlayer::ReadAV_thread(LPVOID lpParameter)
 }
 
 
-void KKPlayer::SetDbPath(char *strPath)
-{
-	m_pAVInfomanage->SetPath(strPath);
-	m_pAVInfomanage->InitDb();
-	//m_pAVInfomanage->GetAVHistoryInfo();
-}
 #ifdef WIN32_KK
 int index=0;
 SYSTEMTIME Time_tToSystemTime(time_t t)

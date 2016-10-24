@@ -1,6 +1,6 @@
 <SOUI name="mainWindow" title="KKplayer" 
-width="800" height="500"  margin="5,5,5,5"  resizable="1"
-appWnd="1" minsize="560,350"  bigIcon="ICON_LOGO:32"
+width="1000" height="600"  margin="5,5,5,5"  resizable="1"
+appWnd="1" minsize="800,500"  bigIcon="ICON_LOGO:32"
 translucent="0"
 >
 	<root skin="_skin.shadow" >
@@ -32,7 +32,7 @@ translucent="0"
 				   <imgbtn name="btn_More" skin="_skin.KKdown" pos="-130,10" tip="更多" animate="0" />
 				   
 			</caption>
-			<!------视频区域------->
+			<!------视频区域grfaiusc------->
 			<window name="WinAVPlayer" pos="0,50,-0,-0" colorBkgnd="#000000" >
 			      <include src="layout:XML_AVPlayer" />
 			</window>

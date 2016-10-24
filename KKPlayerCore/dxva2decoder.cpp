@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "Dxva2Def.h"
-#include "dxva2decoder.h"
+//#include "dxva2decoder.h"
 #include "libavutil/buffer.h"
 #include <strmif.h>
 /* DLL */

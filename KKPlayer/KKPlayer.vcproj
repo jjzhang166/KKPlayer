@@ -268,12 +268,28 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Render"
+			Name="DownManage"
 			>
+			<File
+				RelativePath=".\DownManage\AVDownManage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DownManage\AVDownManage.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="MainPage"
 			>
+			<File
+				RelativePath=".\MainPage\AVDownManageDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVDownManageDlg.h"
+				>
+			</File>
 			<File
 				RelativePath=".\MainPage\AVInfo.cpp"
 				>
@@ -366,6 +382,14 @@
 				RelativePath=".\Tool\CFileMgr.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Tool\CriSecLock.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Tool\CriSecLock.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Dir"
@@ -376,6 +400,18 @@
 			</File>
 			<File
 				RelativePath=".\Dir\Dir.hpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Control"
+			>
+			<File
+				RelativePath=".\Control\kkmclv.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Control\kkmclv.h"
 				>
 			</File>
 		</Filter>

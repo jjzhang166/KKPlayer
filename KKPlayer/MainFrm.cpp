@@ -5,6 +5,7 @@
 #include "KKSound.h"
 #include "Tool/cchinesecode.h"
 #include "Tool/CFileMgr.h"
+#include "DownManage/AVDownManage.h"
 #pragma comment(lib, "winmm.lib")
 //#include <Windows.h>
 extern SOUI::CMainDlg* m_pDlgMain;
@@ -260,11 +261,23 @@ int CMainFrame::DownMedia(char *KKVURL)
 		KKPluginInfo KKPl;
 		memset(&KKPl,0,sizeof(KKPl));
         int ret=m_pPlayerInstance->KKProtocolAnalyze(KKVURL,KKPl);
-		if(ret==1)
-		{
-            if(KKPl.KKDownAVFile!=NULL)
-			{
-                  return KKPl.KKDownAVFile(KKVURL);
+		if(ret==1){
+            if(KKPl.KKDownAVFile!=NULL){
+				 //kkv:e8a486a4e28480ad18bd5041c2ad34fa|mp4.cc
+				 CAVInfoManage* m_pAVInfomanage=CAVInfoManage::GetInance();
+				 if(m_pAVInfomanage!=NULL){
+
+					 char *strInfo=KKVURL;
+					 char* alias="xx";
+					 char *category="xx";
+					 int FileSize=-1;
+					 int AcSize=0;
+					 int DownOk=0;
+					 m_pAVInfomanage->UpdateDownAVinfo(strInfo,alias,category,FileSize,AcSize,DownOk);
+					 CAVDownManage* pinxx=CAVDownManage::GetInstance();
+					 pinxx->Add(KKVURL,KKPl);
+				 }
+                 return KKPl.KKDownAVFile(KKVURL);
 			}
 		}
 	}
@@ -298,19 +311,13 @@ void CALLBACK TimeProc(UINT uID,UINT uMsg,DWORD dwUsers,DWORD dw1,DWORD dw2)
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 
-	std::wstring Propath=GetModulePath();
-	Propath+=L"\\Db";
-	CFileMgr mgr;
-	mgr.CreateDirectory(Propath.c_str());
-	Propath+=L"\\mv";
-	std::string pp;
-	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);
+	
 
 	m_pSound =new CSDLSound();//
 	m_pSound->SetWindowHAND((int)m_hWnd);
 	
 	m_pPlayerInstance = new KKPlayer(this,m_pSound);
-	m_pPlayerInstance->SetDbPath((char *)pp.c_str());
+	
 
 	m_pRender=NULL;
 	

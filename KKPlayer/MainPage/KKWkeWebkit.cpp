@@ -26,35 +26,7 @@ jsValue JS_CALL  FunCallAVPlayer(jsExecState es)
 namespace SOUI
 {
 
-	/***零界值***/
-	class CriSecLock
-	{
-	public:
-		CriSecLock(DWORD dwSpinCount = 4096)
-		{
-			_ASSERTE(::InitializeCriticalSectionAndSpinCount(&m_crisec, dwSpinCount));
-		}
-		~CriSecLock()
-		{
-			::DeleteCriticalSection(&m_crisec);
-		}
-
-		void Lock()                                {::EnterCriticalSection(&m_crisec);}
-		void Unlock()                          {::LeaveCriticalSection(&m_crisec);}
-		BOOL TryLock()                         {return ::TryEnterCriticalSection(&m_crisec);}
-		DWORD SetSpinCount(DWORD dwSpinCount) {return ::SetCriticalSectionSpinCount(&m_crisec, dwSpinCount);}
-
-		CRITICAL_SECTION* GetObject()          {return &m_crisec;}
-
-	private:
-		CriSecLock(const CriSecLock& cs);
-		CriSecLock operator = (const CriSecLock& cs);
-
-	private:
-		//临界值
-		CRITICAL_SECTION m_crisec;
-	};
-
+	
     //////////////////////////////////////////////////////////////////////////
     // KKWkeLoader
     KKWkeLoader * KKWkeLoader::s_pInst=0;

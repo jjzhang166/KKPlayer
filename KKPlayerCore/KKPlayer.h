@@ -86,9 +86,8 @@ class KKPlayer
 			
 			//得到包序列号
 			int GetPktSerial();	
-			//UTF-8
-			void SetDbPath(char *strPath);
-
+			
+		
 			//获取放播的历史信息
 			void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 

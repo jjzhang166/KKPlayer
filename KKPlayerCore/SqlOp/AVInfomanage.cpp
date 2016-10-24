@@ -11,11 +11,17 @@ CAVInfoManage::CAVInfoManage()
 	m_ThStop=false;
     m_pDbOp = new CSqliteOp();
 	memset(m_strDb,0,256);
+	m_SKK_ThreadInfo.ThOver=true;
 #ifdef WIN32_KK
 	m_SKK_ThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, SqlOp_Thread, (LPVOID)this, 0,&m_SKK_ThreadInfo.Addr);
 #else
 	m_SKK_ThreadInfo.Addr = pthread_create(&m_SKK_ThreadInfo.Tid_task, NULL, (void* (*)(void*))SqlOp_Thread, (LPVOID)this);
 #endif
+	if(m_pInance!=NULL){
+        delete m_pInance;
+	}
+	
+	m_pInance=this;
 }
 void CAVInfoManage::SetPath(char *Path)
 {
@@ -24,22 +30,19 @@ void CAVInfoManage::SetPath(char *Path)
 CAVInfoManage::~CAVInfoManage()
 {
 	m_ThStop=true;
-::av_free(m_Destbuffer);
+    ::av_free(m_Destbuffer);
 	while(!m_SKK_ThreadInfo.ThOver)
 	{
-		
+		Sleep(10);
 	}
     CSqliteOp *DbOp =(CSqliteOp *)m_pDbOp;
     delete DbOp;
+	m_pInance=NULL;
 
 }
 
 CAVInfoManage *CAVInfoManage::GetInance()
 {
-	if(m_pInance==NULL)
-	{
-		m_pInance= new CAVInfoManage();
-	}
 	return m_pInance;
 }
 CAVInfoManage *CAVInfoManage::m_pInance=NULL;
@@ -53,6 +56,12 @@ void CAVInfoManage::InitDb()
 	  if(pDbOp->IsTableExt(pDb,"AVinfoMap")!=1)
 	  {
 		  char *str= "CREATE table AVinfoMap(FilePath TEXT NOT NULL, FileMd5  TEXT,Img BLOB,Width INTEGER,Height INTEGER,lstTime INTEGER,TotalTime INTEGER,primary key(FilePath));";
+		  pDbOp->CreateTable(pDb,str);
+	  }
+
+	  if(pDbOp->IsTableExt(pDb,"AVDownInfoMap")!=1)
+	  {
+		  char *str= "CREATE table AVDownInfoMap(FileInfo TEXT NOT NULL,Alias TEXT,Category TEXT, FileSize INTEGER,AcSize INTEGER,DownOK INTEGER,primary key(FileInfo));";
 		  pDbOp->CreateTable(pDb,str);
 	  }
 }
@@ -100,6 +109,39 @@ void CAVInfoManage::UpDataAVinfo(char *strpath,int curtime,int totaltime,unsigne
 }
 
 
+
+void CAVInfoManage::UpdateDownAVinfo(char *strInfo,char* alias,char *category,unsigned int FileSize,unsigned int AcSize,int DownOk)
+{
+	SQL_LITE__ *sl =(SQL_LITE__ *)::malloc(sizeof(SQL_LITE__));
+	memset(sl,0,sizeof(SQL_LITE__));
+	sl->SqlType=1;
+
+	char *str="replace into AVDownInfoMap(FileInfo,Alias,Category,FileSize,AcSize,DownOK) values (";
+	memcpy(sl->strSql,str,strlen(str));
+
+	char temp[512]="";
+	snprintf(temp,512,"\"%s\",",strInfo);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"\"%s\",",alias);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"\"%s\",",category);
+    strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"%u,",FileSize);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"%u,",AcSize);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"%d)", DownOk);
+	strcat(sl->strSql,temp);
+
+	m_LockQue.Lock();
+	m_sqlQue.push(sl);
+	m_LockQue.Unlock();
+}
 unsigned __stdcall CAVInfoManage::SqlOp_Thread(LPVOID lpParameter)
 {
 
@@ -162,21 +204,98 @@ void  CAVInfoManage::UpDataAVinfo(_SQL_LITE *sl)
 	
 	::free(sl->pBuffer);
 	::free(sl);
-    
-	
-	
-	
+}
+
+int CAVInfoManage::NoSelectSql(char *sqltxt)
+{
+	sqlite3* pDb=( sqlite3* )m_pDb;
+	char** pResult;
+	int nRow=-1;
+	int nColumn=-1;
+	int nIndex = nColumn;
+
+	//sqlite3_free_table()
+	int result= sqlite3_get_table(
+		pDb,               /* An open database */
+		sqltxt,     /* SQL to be evaluated */
+		&pResult,    /* Results of the query */
+		&nRow,           /* Number of result rows written here */
+		&nColumn,        /* Number of result columns written here */
+		NULL       /* Error msg written here */
+		);
+	sqlite3_free_table(pResult);
+	//result != SQLITE_OK
+	return result;
 }
 //获取历史信息
 void CAVInfoManage::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
 	SelectImgs(slQue);
- /*  SQL_LITE__ *sl =(SQL_LITE__ *)::malloc(sizeof(SQL_LITE__));
-   memset(sl,0,sizeof(SQL_LITE__));
-   sl->SqlType=1;
-   m_LockQue.Lock();
-   m_sqlQue.push(sl);
-   m_LockQue.Unlock();*/
+}
+
+void CAVInfoManage::GetDownAVInfo(std::vector<AV_Down_Info *> &slQue,int DownOk)
+{
+	//分析sql语句
+	sqlite3* pDb=( sqlite3* )m_pDb;
+	sqlite3_stmt* stmt2 = NULL;
+
+	char** pResult;
+	int nRow=-1;
+	int nColumn=-1;
+	std::string strOut="";
+	int nIndex = nColumn;
+	char sqlstr[256]="";
+	snprintf(sqlstr,256,"select * from AVDownInfoMap where DownOK=%d",DownOk);
+
+	m_LockDb.Lock();
+	if (sqlite3_prepare_v2(pDb,sqlstr,strlen(sqlstr),&stmt2,NULL) != SQLITE_OK) {
+		if (stmt2)
+			sqlite3_finalize(stmt2);
+		m_LockDb.Unlock();
+		return;
+	}
+
+	int result= sqlite3_get_table(
+		pDb,               /* An open database */
+		sqlstr,     /* SQL to be evaluated */
+		&pResult,    /* Results of the query */
+		&nRow,           /* Number of result rows written here */
+		&nColumn,        /* Number of result columns written here */
+		NULL       /* Error msg written here */
+		);
+
+	//读出sqlite数据
+	nIndex = nColumn;
+	//FileInfo TEXT NOT NULL,Alias TEXT,Category TEXT, FileSize INTEGER,AcSize INTEGER,DownOK
+	for(int i=0;i<nRow;i++)
+	{
+		AV_Down_Info *Item =(AV_Down_Info *)::malloc(sizeof(AV_Down_Info));
+		for(int j=0;j<nColumn;j++)
+		{
+		    
+
+			char *val=pResult[nIndex];
+			if(j==0){
+				memset(Item->FileInfo,0,sizeof(Item->FileInfo));
+				strcpy(Item->FileInfo,val);
+			}else if(j==1){
+                       memset(Item->Alias,0,32);
+					   strcpy(Item->Alias,val);
+			}else if(j==2){
+                  memset(Item->Category,0,32);
+				  strcpy(Item->Category,val);
+			}else if(j==3){
+				Item->FileSize=atoi(val);
+			}else if(j==4){
+				Item->AcSize=atoi(val);
+			}
+			nIndex++;
+		}
+		slQue.push_back(Item);
+	}
+	sqlite3_free_table(pResult);
+	m_LockDb.Unlock();
+	return;
 }
 void CAVInfoManage::SelectImgs(std::vector<_AV_Hos_Info *> &slQue)
 {
@@ -243,7 +362,8 @@ void  CAVInfoManage::SqlOpFun()
             UpDataAVinfo(sl);
 		}else if(sl!=NULL&&sl->SqlType==1)
 		{
-		   // SelectImgs();
+		     NoSelectSql(sl->strSql);
+			 ::free(sl);
 		}
 		m_LockDb.Unlock();
 		if(!sleepx)

@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
+#include "Json/json/json.h"
 Qy_IPC::Qy_Ipc_Manage *G_pInstance=NULL;
 typedef unsigned char      uint8_t;
 typedef long long          int64_t;
@@ -17,6 +18,52 @@ std::map<std::string,std::map<std::string,HANDLE>*> G_URLRequestInfoMap;
 Qy_IPC::CKKV_ReceiveData *G_pKKV_Rec=NULL;
 
 Qy_IPC::Qy_IPc_InterCriSec G_KKMapLock;
+//IPC 状态函数
+int G_IPC_Read_Write=-1;
+int OpenIPc();
+
+
+std::basic_string<TCHAR> g_strModuleFileName;
+const std::basic_string<TCHAR>& XGetModuleFilename()
+{
+
+	if (g_strModuleFileName.empty())
+	{
+		if(g_strModuleFileName.empty())
+		{
+			TCHAR filename[MAX_PATH] = { 0 };
+			::GetModuleFileName(NULL, filename, _countof(filename));
+			g_strModuleFileName = filename;
+		}
+	}
+	return g_strModuleFileName;
+}
+std::basic_string<TCHAR> GetModulePath()
+{
+	std::basic_string<TCHAR> strModuleFileName = XGetModuleFilename();
+	unsigned int index = strModuleFileName.find_last_of(L"\\");
+	if (index != std::string::npos)
+	{
+		return strModuleFileName.substr(0, index);
+	}
+	return L"";
+}
+
+DWORD WINAPI UpdateWkeWebViewTh(LPVOID lpThreadParameter)
+{
+	while(true){
+		Sleep(60000);
+		if(G_IPC_Read_Write==0)
+		{
+              OpenIPc();
+		}else if(G_IPC_Read_Write==2){
+			 Sleep(10000);
+			 G_pInstance->Stop();
+             G_pInstance->Start();
+		}
+	}
+	return 0;
+}
 
 
 void AddIPCGuid(std::string& strGuid,IPC_DATA_INFO &xxda)
@@ -39,16 +86,27 @@ void GetIPCOpRet(std::string& strGuid,bool& Ok,IPC_DATA_INFO &OutInfo)
 	}
 	G_KKMapLock.Unlock();
 }
+int OpenIPc()
+{
+	if(G_pInstance==NULL)
+		return 0;
+	bool Ok=G_pInstance->OpenServerPipe("\\\\.\\Pipe\\KKPlayer_Res_70ic");
+	if(!Ok){
+		G_IPC_Read_Write=0;
+		return 0;
+	}else{
+		G_IPC_Read_Write=1;
+	}
+	G_pInstance->Start();
+	return 1;
+}
 //消息通讯格式规定。
 //buflen+data;
-int InitIPC()
-{
-	
+int InitIPC(){
 	G_pKKV_Rec= new Qy_IPC::CKKV_ReceiveData();
 	G_pInstance = Qy_IPC::Qy_Ipc_Manage::GetInstance();
 	G_pInstance->Init(G_pKKV_Rec,Qy_IPC::EQyIpcType::Client,0);
-	bool Ok=G_pInstance->OpenServerPipe("\\\\.\\Pipe\\KKPlayer_Res_70ic");
-	G_pInstance->Start();
+	OpenIPc();
 	return 0;
 }
 
@@ -80,8 +138,55 @@ char __declspec(dllexport) GetPtlHeader(char *buf,char len)
 #define AVERROR_EOF                KKPERRTAG( 'E','O','F',' ') ///< End of file
 #define AVERROR(e) (-(e))
 
+enum IPCMSG{
+    IPCUnknown=0,
+	IPCRead=1,
+    IPCSeek=2,
+	IPCDown=3,
+	IPCClose=4,
+	IPCSpeed=5,
+};
 
-//read 1; seek 2; down 3,close 4
+void __declspec(dllexport) KKFree(void* p)
+{
+   if(p!=NULL)
+	   free(p);
+}
+
+KK_DOWN_SPEED_INFO * ParseSpeedInfo(char *jsonstr)
+{
+	int lex=sizeof(KK_DOWN_SPEED_INFO);
+	Json::Reader JsonReader;
+	Json::Value jsonvalue;
+	KK_DOWN_SPEED_INFO *PreInfo=NULL;
+	if(jsonstr!=NULL&&JsonReader.parse(jsonstr,jsonvalue))
+	{
+		if(jsonvalue.size()>0){
+			for(int i=0;i <jsonvalue.size();i++)
+			{
+				Json::Value Item=jsonvalue[i];
+				KK_DOWN_SPEED_INFO *info=(KK_DOWN_SPEED_INFO*)::malloc(lex);
+				info->Speed=Item["Speed"].asInt();
+			    info->FileSize=Item["FileSize"].asInt();
+				info->AcSize=Item["AcTotalSize"].asInt();
+				info->Tick=Item["Tick"].asInt();
+				info->Next=NULL;
+				if(PreInfo==NULL)
+				{
+					PreInfo=info;
+				}else{
+					PreInfo->Next=info;
+					PreInfo=info;
+				}
+
+			}
+		}
+
+	}
+	return PreInfo;
+}
+
+//read 1; seek 2; down 3,close 4,SpeedInfo 5
 //Send:buflen+data;
 //data:guidlen+guid+msgId+h+FileInfoSize+FileInfo+bufsize;
 
@@ -90,8 +195,6 @@ char __declspec(dllexport) GetPtlHeader(char *buf,char len)
 //data:guidlen+guid+msgId+h+FileURL+FileURL+Buf_Size
 int  __declspec(dllexport) Kkv_read_packet(void *opaque, uint8_t *buf, int buf_size)
 {
-
-
 	if(G_pInstance==NULL)
 	{
 		InitIPC();
@@ -153,6 +256,14 @@ LOOP1:
 	len+=4;
 	//
 	memcpy(IPCbuf,&len,4);
+	while(G_IPC_Read_Write!=1)
+	{
+		if(KKP->opaque==NULL&&KKP->kkirq!=NULL&&KKP->kkirq(KKP->PlayerOpaque)==1)
+		{
+			break;
+		}
+		Sleep(10);
+	}
 	G_pInstance->WritePipe(IPCbuf,len,0);
 	while(1)
 	{
@@ -255,6 +366,15 @@ LOOP1:
 
 	//
 	memcpy(IPCbuf,&len,4);
+
+	while(G_IPC_Read_Write!=1)
+	{
+		if(KKP->opaque==NULL&&KKP->kkirq!=NULL&&KKP->kkirq(KKP->PlayerOpaque)==1)
+		{
+			break;
+		}
+		Sleep(10);
+	}
 	G_pInstance->WritePipe(IPCbuf,len,0);
 
 	while(1)
@@ -300,6 +420,8 @@ LOOP1:
 	return AVERROR(errno);
 }
 
+
+//创建一个插件实例
 KKPlugin __declspec(dllexport) *CreateKKPlugin()
 {
 	KKPlugin* p= (KKPlugin*)::malloc(sizeof(KKPlugin));
@@ -308,16 +430,18 @@ KKPlugin __declspec(dllexport) *CreateKKPlugin()
 	p->opaque=NULL;
 	return p;
 }
+char __declspec(dllexport)KKStopDownAVFile(char *strUrl);
+//删除一个插件实例
 void __declspec(dllexport) DeleteKKPlugin(KKPlugin* p)
 {
-	KKCloseAVFile(p->URL);
+	KKStopDownAVFile(p->URL);
 	::free(p);
 }
 
-
+//下载文件件
 char __declspec(dllexport)KKDownAVFile(char *strUrl)
 {
-	  if(G_pInstance==NULL)
+	  if(G_pInstance==NULL||strUrl==NULL)
 	  {
 		  InitIPC();
 	  }
@@ -370,9 +494,10 @@ char __declspec(dllexport)KKDownAVFile(char *strUrl)
 	  ::CloseHandle(hRead);
 	  return 0;
   }
-char __declspec(dllexport)KKCloseAVFile(char *strUrl)
+//停止下载文件
+char __declspec(dllexport)KKStopDownAVFile(char *strUrl)
 {
-	if(G_pInstance==NULL)
+	if(G_pInstance==NULL||strUrl==NULL)
 	{
 		return 0;
 	}
@@ -397,7 +522,7 @@ char __declspec(dllexport)KKCloseAVFile(char *strUrl)
 	tempBuf+=guilen;
 	len+=guilen;                                                   //guid    32
 
-	int msgId=4;
+	int msgId=5;
 	memcpy(tempBuf,&msgId,4);          
 	tempBuf+=4;
 	len+=4;                                                        //msgId   4                             
@@ -424,5 +549,80 @@ char __declspec(dllexport)KKCloseAVFile(char *strUrl)
 	::free(IPCbuf);
 	::CloseHandle(hRead);
 	return 0;
+}
+
+KK_DOWN_SPEED_INFO __declspec(dllexport) *KKDownAVFileSpeedInfo(char *strurl,int *TotalSpeed)
+{
+	if(G_pInstance==NULL||strurl==NULL)
+	{
+		return NULL;
+	}
+
+	KK_DOWN_SPEED_INFO * pSpeedInfo=NULL;
+	char *IPCbuf=(char*)::malloc(1024);
+	char *tempBuf=IPCbuf;
+	tempBuf+=4;
+	int len=4;
+
+	std::string strGuid;
+	CreatStrGuid(strGuid);
+
+	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
+	IPC_DATA_INFO xxda={NULL,0,hRead};
+	AddIPCGuid(strGuid,xxda);
+
+	int guilen=strGuid.length();
+	memcpy(tempBuf,&guilen,4);
+	tempBuf+=4;
+	len+=4;                                                        //guilen 4
+
+	memcpy(tempBuf,strGuid.c_str(),strGuid.length());
+	tempBuf+=guilen;
+	len+=guilen;                                                   //guid    32
+
+	int msgId=IPCMSG::IPCSpeed;
+	memcpy(tempBuf,&msgId,4);          
+	tempBuf+=4;
+	len+=4;                                                        //msgId   4                             
+
+
+	memcpy(tempBuf,&hRead,4);                                      //h       4
+	tempBuf+=4;
+	len+=4;
+
+	int FileURlSize=strlen(strurl);                              //FileURlSize 4
+	memcpy(tempBuf,&FileURlSize,4);
+	tempBuf+=4;
+	len+=4;
+
+	memcpy(tempBuf,strurl,FileURlSize);                         //FileURl
+	tempBuf+=FileURlSize;
+	len+=FileURlSize;
+
+
+	//
+	memcpy(IPCbuf,&len,4);
+	G_pInstance->WritePipe(IPCbuf,len,0);
+
+	while(1&&G_IPC_Read_Write==1)
+	{
+		DWORD ret=::WaitForSingleObject( hRead,20);
+		if(ret==WAIT_OBJECT_0){
+			break;
+		}
+	}
+
+	IPC_DATA_INFO OutInfo;
+	bool RetOk=false;
+	GetIPCOpRet(strGuid,RetOk,OutInfo);
+
+	if(RetOk)
+	{
+		pSpeedInfo=ParseSpeedInfo((char*)OutInfo.pBuf);
+	}
+
+	::free(IPCbuf);
+	::CloseHandle(hRead);
+	return pSpeedInfo; 
 }
 };

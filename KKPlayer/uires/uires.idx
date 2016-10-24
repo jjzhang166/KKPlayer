@@ -1,7 +1,9 @@
 ﻿<resource>  
     <UIDEF>
 		<file name="XML_INIT" path="xml\init.xml"  />
+		
 	</UIDEF>
+	
 	<LAYOUT>
 		<file name="XML_MAINWND" path="xml\dlg_main.xml"  />
 		<file name="XML_MINI_TITTLE" path="xml\MiniTittle.xml"/>
@@ -10,6 +12,7 @@
 		<file name="XML_AVOPENURL" path="xml\AvOpenUrl.xml"/>
 		<file name="XML_AVNETDOWN" path="xml\AvNetDown.xml"/>
 		<file name="XML_AVPlayer" path="xml\AVPlayer.xml"/>
+		<file name="XML_AVDownManage" path="xml\AvDownManage.xml"/>
 	</LAYOUT>
 	<SMENUEX>
              <file name="avmenuex" path="xml\AVMenu.xml"/>

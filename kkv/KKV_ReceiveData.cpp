@@ -5,12 +5,19 @@
 #include <string>
 #include <queue>
 #include <process.h>
-
-#pragma comment (lib,"QyIPC\\DebugMt\\QyIPC.lib")
+#include "Json/json/json.h"
+#include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
+#ifdef _DEBUG
+    #pragma comment (lib,"QyIPC\\Debug\\QyIPC.lib")
+#else
+    #pragma comment (lib,"QyIPC\\Release\\QyIPC.lib")
+#endif
 typedef unsigned char      uint8_t;
 typedef long long          int64_t;
 
 extern std::map<std::string,IPC_DATA_INFO> G_guidBufMap;
+extern int G_IPC_Read_Write;
+
 namespace Qy_IPC
 {
 	CKKV_DisConnect::CKKV_DisConnect()
@@ -23,8 +30,9 @@ namespace Qy_IPC
 	}
 	void CKKV_DisConnect::DisConnct(HANDLE hPipeInst)
 	{
-
+            G_IPC_Read_Write=2;
 	}
+
 	CKKV_ReceiveData::CKKV_ReceiveData()
 	{
 		 m_hTheard=INVALID_HANDLE_VALUE;
@@ -99,6 +107,42 @@ namespace Qy_IPC
 				It->second.DataSize=SizeDate;
 			}
 		}else if(msgId==3){//down message
+
+		}else if(msgId==4){//stop down
+
+		}else if(msgId==5){//speed
+			
+			int FileInfoLen=0;
+			memcpy(&FileInfoLen,TempBuf,4);
+			TempBuf+=4;
+			dataLen-=4;
+            if(FileInfoLen>256 ||FileInfoLen<=0)
+				return;
+
+			char FileInfo[256]="";
+			memcpy( FileInfo,TempBuf,FileInfoLen);
+			TempBuf+=FileInfoLen;
+			dataLen-=FileInfoLen;
+
+			
+			int DataSize=0;
+			memcpy(&DataSize,TempBuf,4);
+			TempBuf+=4;
+			dataLen-=4;
+			
+			if(DataSize>256||DataSize<=0)
+				return;
+			char *strchr=(char*)::malloc(DataSize);
+			memset(strchr,0,DataSize);
+			memcpy(strchr,TempBuf,DataSize);
+			
+			std::string guis(guidstr);
+			std::map<std::string,IPC_DATA_INFO>::iterator It= G_guidBufMap.find(guis);
+			if(It!=G_guidBufMap.end()){
+				It->second.DataSize=DataSize;
+				It->second.pBuf=strchr;
+			}
+
 
 		}
 	}

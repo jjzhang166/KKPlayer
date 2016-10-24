@@ -10,13 +10,19 @@
 #include "MainPage/MainDlg.h"
 #include "MainPage/SUIVideo.h"
 #include "MainPage/KKWkeWebkit.h"
+#include "control/kkmclv.h"
+#include "DownManage/AVDownManage.h"
 #include "Dir/Dir.hpp"
+#include "Tool/CFileMgr.h"
+#include "Tool/cchinesecode.h"
+
 #include "../KKPlayerCore/KKPlugin.h"
 #include "../KKPlayerCore/KKPlayer.h"
-#pragma comment (lib,"Gdiplus.lib")
+#include "../KKPlayerCore/SqlOp/AVInfomanage.h"
 
 #include < Dbghelp.h>
 #pragma comment(lib, "Dbghelp.lib")
+#pragma comment (lib,"Gdiplus.lib")
 namespace NSDumpFile
 { 
 	void CreateDumpFile(LPCWSTR lpstrDumpFilePathName, EXCEPTION_POINTERS *pException)  
@@ -110,11 +116,8 @@ std::basic_string<TCHAR> g_strModuleFileName;
 SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
 const std::basic_string<TCHAR>& XGetModuleFilename()
 {
-	
-	if (g_strModuleFileName.empty())
-	{
-		if(g_strModuleFileName.empty())
-		{
+	if (g_strModuleFileName.empty()){
+		if(g_strModuleFileName.empty()){
 			TCHAR filename[MAX_PATH] = { 0 };
 			::GetModuleFileName(NULL, filename, _countof(filename));
 			g_strModuleFileName = filename;
@@ -206,10 +209,20 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
     DeclareDumpFile();
 
 
-	HMODULE hRender = LoadLibraryA("Render.dll");
-	if(hRender)
-	{
+	std::wstring Propath=GetModulePath();
+	Propath+=L"\\Db";
+	CFileMgr mgr;
+	mgr.CreateDirectory(Propath.c_str());
+	Propath+=L"\\mv";
+	std::string pp;
+	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);
 
+	CAVInfoManage AVInfoManage;
+	AVInfoManage.SetPath((char *)pp.c_str());
+	AVInfoManage.InitDb();
+
+	HMODULE hRender = LoadLibraryA("Render.dll");
+	if(hRender){
           pfnCreateRender = (CreateRender)GetProcAddress(hRender, "CreateRender");
 		  pfnDelRender = (DelRender)GetProcAddress(hRender, "DelRender");
 	}
@@ -223,23 +236,40 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	int Lenxx=sizeof( __KKPluginInfo);
 	for (;It!=DllPathInfoList.end();++It)
 	{
+
+		//char ptl[32];
+		///******创建一个插件******/
+		//fCreateKKPlugin CreKKP;
+		///**********删除一个插件**************/
+		//fDeleteKKPlugin DelKKp;
+		///***********下载文件*****************/
+		//fKKDownAVFile   KKDownAVFile;
+		///************停止下载*****************/
+		//fKKStopDownAVFile KKStopDownAVFile;
+		//fKKDownAVFileSpeedInfo KKDownAVFileSpeed;
+		//fFree KKFree;
+
 		HMODULE	hdll= LoadLibraryA((*It).c_str());
 		fCreateKKPlugin pfn = (fCreateKKPlugin)GetProcAddress(hdll, "CreateKKPlugin");
 		fGetPtlHeader pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
-		fDeleteKKPlugin pFree=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
+		fDeleteKKPlugin pDel=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
         fKKDownAVFile pKKDownAVFile=(fKKDownAVFile)GetProcAddress(hdll, "KKDownAVFile");
 		fKKStopDownAVFile pKKStopDownAVFile=(fKKStopDownAVFile)GetProcAddress(hdll, "KKStopDownAVFile");
-		
-		if(pfn!=NULL&&pfGetPtl!=NULL&& pFree!=NULL)
+		fFree pKKFree=(fFree)GetProcAddress(hdll, "KKFree");
+        fKKDownAVFileSpeedInfo pKKDownAVFileSpeedInfo=(fKKDownAVFileSpeedInfo)GetProcAddress(hdll, "KKDownAVFileSpeedInfo");
+
+		if(pfn!=NULL&&pfGetPtl!=NULL&& pDel!=NULL)
 		{
 			
 				KKPluginInfo Info;
 				pfGetPtl(Info.ptl,32);
 				Info.CreKKP= pfn;
-				Info.DelKKp=pFree;
+				Info.DelKKp=pDel;
                 Info.Handle=hdll;
 				Info.KKDownAVFile=pKKDownAVFile;
 				Info.KKStopDownAVFile=pKKStopDownAVFile;
+				Info.KKFree=pKKFree;
+				Info.KKDownAVFileSpeedInfo=pKKDownAVFileSpeedInfo;
 				KKPlayer::AddKKPluginInfo(Info);
 			
 		}else{
@@ -285,7 +315,9 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	
 	SApplication *theApp=new SApplication(pRenderFactory,hInstance);
     theApp->RegisterWndFactory(TplSWindowFactory<CSuiVideo>());
+    theApp->RegisterWndFactory(TplSWindowFactory<CKKmclv>());
 
+	
 	 KKWkeLoader wkeLoader;
 	 if(wkeLoader.Init(_T("wke.dll")))
 	 {
@@ -317,7 +349,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		theApp->LoadSystemNamedResource(sysSesProvider);
 	}
 
-	
+	CAVDownManage Dow;
+	Dow.Start();
 	std::wstring path=GetModulePath();
 	
 	SOUI::SStringT str;

@@ -1,6 +1,7 @@
 
 #include <wke.h>
 #include "../stdafx.h"
+#include "../Tool/CriSecLock.h"
 #ifndef KKWkeWebkit_H_
 #define KKWkeWebkit_H_
 namespace SOUI
@@ -91,6 +92,7 @@ namespace SOUI
         wkeWebView m_pWebView;
         SStringW m_strUrl;
 		SStringW m_strFile;
+	
     };
 }
 #endif
