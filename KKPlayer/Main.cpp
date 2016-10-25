@@ -11,6 +11,7 @@
 #include "MainPage/SUIVideo.h"
 #include "MainPage/KKWkeWebkit.h"
 #include "control/kkmclv.h"
+#include "Control/kkseek.h"
 #include "DownManage/AVDownManage.h"
 #include "Dir/Dir.hpp"
 #include "Tool/CFileMgr.h"
@@ -166,20 +167,6 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
-
-//	CMainFrame GWndMain;
-//	std::string strErr;
-//WS_CHILD |WS_VISIBLE| WS_CLIPSIBLINGS|WS_CLIPCHILDREN
-//	RECT rt={0,100,200,300};
-//	if(GWndMain.CreateEx(G_Parent,NULL, WS_OVERLAPPEDWINDOW| WS_CLIPSIBLINGS|WS_CLIPCHILDREN) == NULL)
-//	{
-//		ATLTRACE(_T("Main window creation failed!\n"));
-//		return 0;
-//	}
-//    pWnd=&GWndMain;
-//	
-//	    GWndMain.ShowWindow(nCmdShow);
-    
 	int nRet = theLoop.Run();
     _Module.RemoveMessageLoop();
 	
@@ -316,7 +303,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	SApplication *theApp=new SApplication(pRenderFactory,hInstance);
     theApp->RegisterWndFactory(TplSWindowFactory<CSuiVideo>());
     theApp->RegisterWndFactory(TplSWindowFactory<CKKmclv>());
-
+    theApp->RegisterWndFactory(TplSWindowFactory<SAVSeekBar>());
 	
 	 KKWkeLoader wkeLoader;
 	 if(wkeLoader.Init(_T("wke.dll")))

@@ -29,6 +29,13 @@ enum SeekEnum
 	Left,
 	Right
 };
+
+struct AVCACHE_INFO
+{
+	int VideoSize;
+	int AudioSize;
+	int MaxTime;
+};
 //获取播放器信息
 struct MEDIA_INFO 
 {
@@ -42,8 +49,10 @@ struct MEDIA_INFO
 	int serial;
 	bool Open;
 	int KKState;
-	
+
+	AVCACHE_INFO CacheInfo;
 };
+
 class KKPlayer
 {
     public:
@@ -116,6 +125,8 @@ class KKPlayer
 			int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 			/**********添加插件**********/
 			static void AddKKPluginInfo(KKPluginInfo &info);
+
+			
 private:
 	       
 	        /*********视频刷新线程********/
@@ -142,7 +153,8 @@ private:
 private:
 	        //插件信息
 	        static std::list<KKPluginInfo>  KKPluginInfoList;
-			
+			//缓存信息
+			AVCACHE_INFO m_AVCacheInfo;
 	        //视频信息
 	        SKK_VideoState *pVideoInfo; 
 			//记录播放信息用
@@ -150,6 +162,7 @@ private:
 
 			/*******关闭打开锁********/
 	        CKKLock m_CloseLock;
+			
 			/*******准备文件所锁*****/
 			CKKLock m_PreFileLock;
             volatile int m_nPreFile;

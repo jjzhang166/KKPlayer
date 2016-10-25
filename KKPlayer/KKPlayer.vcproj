@@ -414,6 +414,14 @@
 				RelativePath=".\Control\kkmclv.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Control\kkseek.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Control\kkseek.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

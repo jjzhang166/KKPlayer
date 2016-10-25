@@ -47,7 +47,9 @@
 	   <file name="ID_PNG_BACK" path="image\back.png" />
 	   <file name="ID_PNG_FORWARD" path="image\forward.png" />
 	   <file name="ID_PNG_PRO_BLOCK"  path="image\pro_block.png" />
+	   
 	   <file name="ID_PNG_PRO_MASK" path="image\pro_mask.png"/>
+	   <file name="ID_PNG_PRO_BG" path="image\scroll_bg.png" />
 	   <file name="ID_PNG_PRO_PLAY" path="image\pro_play.png"/>
 	   
 	   <file name="ID_PNG_FOLDER" path="image\folder.png"/>
