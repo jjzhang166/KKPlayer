@@ -37,7 +37,7 @@ translucent="0"
 			      <include src="layout:XML_AVPlayer" />
 			</window>
 			<window name="WinWebRes" pos="0,50,-0,-0" colorBkgnd="#000000" >
-			       <kkwkewebkit pos="2,0,-2,-2" colorBkgnd="#FFF000" file="Ui/Res.html" > </kkwkewebkit>
+			       <kkwkewebkit pos="2,0,-2,-2" name="webkitRes" colorBkgnd="#FFF000" file="Ui/Res.html" > </kkwkewebkit>
 			</window>
 	</root>
 </SOUI>

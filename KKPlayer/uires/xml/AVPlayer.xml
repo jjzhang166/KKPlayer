@@ -1,5 +1,5 @@
 <include>
-    <window pos="0,0" colorBkgnd="#000000" >
+    <!--<window name="PlayWinRect" pos="0,0" colorBkgnd="#000000" >-->
 	        <splitrow name="split_row" pos="0,[0,-0,]-0">
 			     <pane minSize="400" priority="1">
                          <splitcol name="split_col"  sepSkin="_skin.AV.split.vert" pos="0,0,-0,-0" sepSize="3">
@@ -52,5 +52,5 @@
 					  pos="-30,26" focusable="0"
 					  offset="-0.5,-0.5" focusable="0" width="29" height="36" tip="播放列表" />
 			</window>
-     </window>		
+     <!--</window>-->	
 </include>

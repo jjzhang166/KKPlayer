@@ -74,8 +74,19 @@ namespace SOUI
 			RECT rt;
 			this->GetWindowRect(&rt);
 
+			int  cx   =   GetSystemMetrics(SM_CXSCREEN);   
+			int  cy   =   GetSystemMetrics(SM_CYSCREEN);
+			RECT rtx;
+			::GetWindowRect(::GetParent(m_VideoWnd.m_hWnd),&rtx);
+			int h=rtx.bottom-rtx.top;
+			int w=rtx.right-rtx.left;
+			if(w>=cx&&h>=cy)
+			{
+                ::SetWindowPos(m_VideoWnd.m_hWnd,0,0,0,cx,cy,SWP_NOZORDER);
+			}else{
+                   ::SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left,rt.top,size.cx,size.cy,SWP_NOZORDER);
+			}
 			
-			::SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left,rt.top,size.cx,size.cy,SWP_NOZORDER);
 		}
 	}
 	int CSuiVideo::PktSerial()

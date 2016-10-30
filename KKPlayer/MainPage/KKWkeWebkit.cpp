@@ -162,6 +162,12 @@ namespace SOUI
 		}
     }
 
+	void KKWkeWebkit::focus()
+	{
+		if(m_pWebView){
+			m_pWebView->focus();
+	    }
+	}
     void KKWkeWebkit::OnPaint(IRenderTarget *pRT)
     {
         CRect rcClip;

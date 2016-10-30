@@ -56,10 +56,11 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	virtual void UpdateLayout(BOOL bResizeBars = TRUE);
+	virtual unsigned char* GetErrImage(int &length,int ErrType);
 	virtual unsigned char* GetWaitImage(int &len,int curtime);
 	virtual unsigned char* GetBkImage(int &len);
 	virtual unsigned char* GetCenterLogoImage(int &length);
-	virtual void OpenMediaFailure(char* strURL);
+	virtual void OpenMediaFailure(char* strURL,int err);
 	/*******视频流结束调用*******/
 	virtual void  AutoMediaCose(int Stata);
 	int GetCurTime();
@@ -86,6 +87,10 @@ private:
 
 		unsigned char* m_pCenterLogoImage;
         int m_CenterLogoLen;
+
+		unsigned char* m_pErrOpenImage;
+		int m_ErrOpenImgLen;
+
 		std::vector<SWaitPicInfo*> m_WaitPicList;
 		SWaitPicInfo* m_CurWaitPic;
         bool m_bOpen;

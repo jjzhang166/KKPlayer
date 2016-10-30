@@ -63,7 +63,9 @@ std::basic_string<char> GetModulePathA()
 }
 
 std::basic_string<TCHAR> GetModulePath();
-CMainFrame::CMainFrame():m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL)
+CMainFrame::CMainFrame():
+m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL),
+m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 {
 	m_pSound=NULL;
 	m_pPlayerInstance=NULL;
@@ -289,16 +291,16 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
 	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
-
 	 if(m_pRender!=NULL)
 	 {
-		     //CRenderD3D *pRender=( CRenderD3D *)m_pRender;
-			 //pRender->SetLeftPicStr(_T(""));
+		   m_pRender->ShowErrPic(false);
 	 }
 	  
 	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
 	if(ret==0)
 	  m_bOpen=true;
+
+	
 	return ret;
 }
 
@@ -566,6 +568,32 @@ LRESULT  CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/*
 	return 1;
 }
 
+unsigned char*  CMainFrame::GetErrImage(int &length,int ErrType)
+{
+	if(m_pErrOpenImage==NULL)
+	{
+		std::string basePath=GetModulePathA();
+		FILE*fp=NULL;
+		std::string PicPath=basePath;
+		PicPath+="\\Skin\\ErrOpen.png";
+		fp=fopen(PicPath.c_str(),"rb");
+		if (!fp)
+		{
+			return NULL;
+		}
+		fseek(fp,0,SEEK_END); //定位到文件末 
+		length= ftell(fp); 
+
+		m_pErrOpenImage = (unsigned char*)::malloc(length);
+		memset(m_pErrOpenImage,0,length);
+		fseek(fp,0,SEEK_SET);
+		size_t tt=fread(m_pErrOpenImage,1,length,fp);
+		fclose(fp);
+		m_ErrOpenImgLen=length;
+	}
+	length=m_ErrOpenImgLen;
+	return m_pErrOpenImage;
+}
 unsigned char*  CMainFrame::GetWaitImage(int &len,int curtime)
 {
 	int t=::GetTickCount();
@@ -664,19 +692,38 @@ LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
    CloseMedia();
    return 1;
 }
-void CMainFrame::OpenMediaFailure(char* strURL)
+void CMainFrame::OpenMediaFailure(char* strURL,int err)
 {
-	char *err=(char*)::malloc(1024);
-	memset(err,0,1024);
-	std::string abcd="无法打开路径：";
-	abcd+=strURL;
-	memcpy(err,abcd.c_str(),abcd.length());
-	//::MessageBoxA(m_hWnd,abcd.c_str(),"错误",MB_ICONHAND);
-	::PostMessage(m_hWnd,WM_OpenErr ,(WPARAM )err,0);
+	//char *err=(char*)::malloc(1024);
+	//memset(err,0,1024);
+	//std::string abcd="无法打开路径：";
+	//abcd+=strURL;
+	//memcpy(err,abcd.c_str(),abcd.length());
+	////::MessageBoxA(m_hWnd,abcd.c_str(),"错误",MB_ICONHAND);
+	//::PostMessage(m_hWnd,WM_OpenErr ,(WPARAM )err,0);
+
+     int length=0;
+	 unsigned char* img=GetErrImage(length,0);
+	 if(img!=NULL&&length>0&&m_pRender!=NULL)
+	 {
+		 m_pRender->SetErrPic(img,length);
+		 m_pRender->ShowErrPic(true);
+	 }
 }
 void  CMainFrame::AutoMediaCose(int Stata)
 {
 
+	if(Stata==-109)//管道已结束。
+	{
+		int length=0;
+		unsigned char* img=GetErrImage(length,0);
+		if(img!=NULL&&length>0&&m_pRender!=NULL)
+		{
+			m_pRender->SetErrPic(img,length);
+			m_pRender->ShowErrPic(true);
+		}
+	}
+	
 }
 LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
@@ -743,15 +790,6 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 		}  
 	}
 	me.TrackPopupMenu(0,xPos,yPos,::GetParent(m_hWnd));
-	//if(m_pAVMenu==NULL)
-	//{
-	//	m_pAVMenu = new SOUI::CAVMenu(&m_pAVMenu);
-
-	//BOOL xx=	m_pAVMenu->LoadMenu(_T("smenuex:avmenuex"));
-	//	m_pAVMenu->TrackPopupMenu(0,xPos,yPos,m_hWnd);
-	//	//m_pAVMenu->Create(this->m_hWnd,WS_CHILD| WS_POPUP|WS_VISIBLE,0,xPos,yPos,150,200);
-	//	//m_pAVMenu->ShowWindow(SW_SHOWNORMAL);
-	//}
 	return 1;
 }
 

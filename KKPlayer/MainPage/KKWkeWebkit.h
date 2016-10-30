@@ -44,6 +44,8 @@ namespace SOUI
        
         wkeWebView	GetWebView(){return m_pWebView;}
 		void onUpdated();
+
+		void focus();
     protected:
         virtual void onBufUpdated (const HDC hdc,int x, int y, int cx, int cy);
         virtual BOOL OnIdle();
