@@ -12,10 +12,11 @@ class IKKPlayUI
 {
    public:
 	         virtual unsigned char* GetWaitImage(int &length,int curtime)=0;
+			 virtual unsigned char* GetErrImage(int &length,int ErrType)=0;
 		     virtual unsigned char* GetBkImage(int &length)=0;
 			 virtual unsigned char* GetCenterLogoImage(int &length)=0;
 			 //打开失败
-			 virtual void OpenMediaFailure(char* strURL)=0;
+			 virtual void OpenMediaFailure(char* strURL,int err)=0;
 			 /*******视频流结束调用*******/
 			 virtual void  AutoMediaCose(int Stata)=0;
 

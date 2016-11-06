@@ -168,7 +168,7 @@ namespace SOUI
 		 CChineseCode::charTowchar(title2.c_str(),abcd,1024);
 		 title+=abcd;
 		 m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(title.c_str());
-		  return 0;
+		  return ret;
 	 }
 	 void CSuiVideo::OnDecelerate()
 	 {

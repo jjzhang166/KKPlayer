@@ -38,13 +38,13 @@ namespace SOUI
 		if(FileSize>1024*1024)
 		{
 			dfileSize=(double)FileSize/(1024*1024);
-			sprintf(strabce,"%.2fMB/S",dfileSize);
+			sprintf(strabce,"%.2f MB/s",dfileSize);
 		}else if(FileSize>1024){
 			
-			sprintf(strabce,"%dKB/S",FileSize/1024);
+			sprintf(strabce,"%d KB/s",FileSize/1024);
 		}else{
 			dfileSize=(double)FileSize;
-            sprintf(strabce,"%dB/S",FileSize);
+            sprintf(strabce,"%d B/s",FileSize);
 		}
 		return strabce;
 	}

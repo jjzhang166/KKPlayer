@@ -474,7 +474,7 @@ unsigned char* CAndKKPlayerUI::GetBkImage(int &length)
 {
     return NULL;
 }
-void CAndKKPlayerUI::OpenMediaFailure(char *strURL)
+void CAndKKPlayerUI::OpenMediaFailure(char *strURL,int err)
 {
     LOGE("Open Err");
     m_playerState=-2;

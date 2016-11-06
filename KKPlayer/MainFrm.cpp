@@ -256,7 +256,7 @@ BOOL CMainFrame::OnIdle()
 	(((y) + (1L << 15)) >> 16))
 std::basic_string<TCHAR> GetModulePath();
 
-int CMainFrame::DownMedia(char *KKVURL)
+int CMainFrame::DownMedia(char *KKVURL,bool Down)
 {
 	if(m_pPlayerInstance!=NULL)
 	{
@@ -279,7 +279,10 @@ int CMainFrame::DownMedia(char *KKVURL)
 					 CAVDownManage* pinxx=CAVDownManage::GetInstance();
 					 pinxx->Add(KKVURL,KKPl);
 				 }
-                 return KKPl.KKDownAVFile(KKVURL);
+				 if(Down)
+                   return KKPl.KKDownAVFile(KKVURL);
+				 else
+					 return 1;
 			}
 		}
 	}
@@ -297,8 +300,15 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 	 }
 	  
 	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
-	if(ret==0)
-	  m_bOpen=true;
+	if(ret>=0){
+      m_bOpen=true;
+	  if(ret==2)
+	  {
+		  DownMedia((char*)url.c_str(),false);
+		  return 2;
+	  }
+	  
+	}
 
 	
 	return ret;

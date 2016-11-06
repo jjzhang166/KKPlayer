@@ -6,6 +6,7 @@ android {
     buildToolsVersion "23.0.2"
     sourceSets {
         main {
+           // jni.srcDirs = [ 'src/main/jni']
             jniLibs.srcDirs = ['libs']
         }
     }
@@ -19,22 +20,22 @@ android {
 
 
         ndk {
-            moduleName ="JniKKPlayer"
+            moduleName = "JniKKPlayer"
             cFlags("-I../app/src/main/jni/ffmpeg/include")
             stl "stlport_static"
-            abiFilters  "armeabi","armeabi-v7a"
+            abiFilters "armeabi", "armeabi-v7a"
             ldLibs("log")
             ldLibs("GLESv2")
             ldLibs("OpenSLES")
-           // ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libdvbcsa.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavcodec-57.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavdevice-57.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavfilter-6.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavformat-57.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libavutil-55.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libswresample-2.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libswscale-4.so")
-            ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libKKPlayerCore.so")
+            // ldLibs(getProjectDir().getParent()+"/app/libs/armeabi-v7a/libdvbcsa.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libavcodec-57.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libavdevice-57.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libavfilter-6.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libavformat-57.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libavutil-55.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libswresample-2.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libswscale-4.so")
+            ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libKKPlayerCore.so")
 
         }
 

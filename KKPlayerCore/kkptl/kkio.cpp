@@ -22,6 +22,8 @@ void CalPlayerDelay(void *opaque,int64_t Pts,int AVType)
 		  }else if(is->video_st!=NULL&& AVType==1){
 			  double cupts= Pts * av_q2d(is->video_st->time_base);
 			  is->nRealtimeDelay=cupts-is->video_clock;
+		  }else if(AVType==2){
+             is->nCacheTime= Pts;
 		  }
 
 }

@@ -22,11 +22,16 @@ public:
 	void SetWaitPic(unsigned char* buf,int len);
 	void SetBkImagePic(unsigned char* buf,int len);
     void WinSize(unsigned int w, unsigned int h);
+
+	virtual void SetErrPic(unsigned char* buf,int len);
+	virtual void ShowErrPic(bool show);
 protected:
     void createBitmap(unsigned int w, unsigned int h);
     void DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h);
     void skiaSal(char *buf,int w,int h);
 private:
+
+	bool m_bShowErrPic;
 	SkPaint  m_Paint; 
 	HWND m_hView;
 	HBITMAP m_hBitmap;
@@ -51,6 +56,8 @@ private:
 	void* m_pixels;
 	unsigned char* m_CenterLogoBuf;
 	int m_CenterLogoBufLen;
+
+	SkBitmap *m_pErrbitmap;
 };
 
 #endif

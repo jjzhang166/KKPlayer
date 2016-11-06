@@ -1,28 +1,4 @@
 #include "com_ic70_kkplayer_kkplayer_CJniKKPlayer.h"
-/*#include "ffmpeg2.8.6/include/libavutil/avstring.h"
-#include "ffmpeg2.8.6/include/libavutil/eval.h"
-#include "ffmpeg2.8.6/include/libavutil/mathematics.h"
-#include "ffmpeg2.8.6/include/libavutil/pixdesc.h"
-#include "ffmpeg2.8.6/include/libavutil/imgutils.h"
-#include "ffmpeg2.8.6/include/libavutil/dict.h"
-#include "ffmpeg2.8.6/include/libavutil/parseutils.h"
-#include "ffmpeg2.8.6/include/libavutil/samplefmt.h"
-#include "ffmpeg2.8.6/include/libavutil/avassert.h"
-#include "ffmpeg2.8.6/include/libavutil/time.h"
-#include "ffmpeg2.8.6/include/libavformat/avformat.h"
-#include "ffmpeg2.8.6/include/libavdevice/avdevice.h"
-#include "ffmpeg2.8.6/include/libswscale/swscale.h"
-#include "ffmpeg2.8.6/include/libavutil/opt.h"
-#include "ffmpeg2.8.6/include/libavcodec/avfft.h"
-#include "ffmpeg2.8.6/include/libswresample/swresample.h"
-#include "ffmpeg2.8.6/include/libavfilter/avfilter.h"
-
-# include "ffmpeg2.8.6/include/libavfilter/avcodec.h"
-# include "ffmpeg2.8.6/include/libavfilter/avfilter.h"
-# include "ffmpeg2.8.6/include/libavfilter/buffersink.h"
-# include "ffmpeg2.8.6/include/libavfilter/buffersrc.h"
-#include  "ffmpeg2.8.6/include/libavutil/mathematics.h"*/
-
 #include <pthread.h>
 #include <string>
 #include <stdlib.h>

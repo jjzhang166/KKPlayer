@@ -103,7 +103,7 @@ public:
 		void SetVolume(long value);
 		void AvSeek(int value);
 	    int OpenMedia(std::string url,std::string FilePath="c:\\xx.mp4");
-		int DownMedia(char *KKVURL);
+		int DownMedia(char *KKVURL,bool Down=true);
 	    void CloseMedia();
 		LRESULT OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 		{

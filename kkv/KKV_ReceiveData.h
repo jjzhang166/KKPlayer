@@ -6,6 +6,7 @@ typedef struct __IPC_DATA_INFO{
 	void *pBuf;
 	unsigned int DataSize;
 	HANDLE hWait;
+	unsigned int CacheTime;
 }IPC_DATA_INFO;
 namespace Qy_IPC
 {

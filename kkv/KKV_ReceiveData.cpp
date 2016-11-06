@@ -16,6 +16,7 @@ typedef unsigned char      uint8_t;
 typedef long long          int64_t;
 
 extern std::map<std::string,IPC_DATA_INFO> G_guidBufMap;
+extern std::map<std::string,unsigned int> G_CacheTimeMap;
 extern int G_IPC_Read_Write;
 
 namespace Qy_IPC
@@ -60,6 +61,11 @@ namespace Qy_IPC
 			TempBuf+=FileInfoLen;
 			dataLen-=FileInfoLen;
 
+			unsigned int CacheeTime=0;
+			memcpy(&CacheeTime,TempBuf,4);
+			TempBuf+=4;
+			dataLen-=4;
+
 			int DataSize=0;
 			memcpy(&DataSize,TempBuf,4);
 			TempBuf+=4;
@@ -70,6 +76,7 @@ namespace Qy_IPC
 			if(It!=G_guidBufMap.end())
 			{
 				It->second.DataSize=DataSize;
+				It->second.CacheTime=CacheeTime;
 				if(DataSize==-1)//暂时没有数据
 				{
 
@@ -142,8 +149,34 @@ namespace Qy_IPC
 				It->second.DataSize=DataSize;
 				It->second.pBuf=strchr;
 			}
+		}else if(msgId==6){
+
+			int FileInfoLen=0;
+			memcpy(&FileInfoLen,TempBuf,4);
+			TempBuf+=4;
+			dataLen-=4;
+			if(FileInfoLen>256 ||FileInfoLen<=0)
+				return;
+
+			char FileInfo[256]="";
+			memcpy( FileInfo,TempBuf,FileInfoLen);
+			TempBuf+=FileInfoLen;
+			dataLen-=FileInfoLen;
 
 
+			unsigned int DataSize=0;
+			memcpy(&DataSize,TempBuf,4);
+			TempBuf+=4;
+			dataLen-=4;
+
+			std::string xxcc(FileInfo);
+			std::map<std::string,unsigned int>::iterator Itxx=G_CacheTimeMap.find(xxcc);
+            if(Itxx!=G_CacheTimeMap.end())
+			{
+                 Itxx->second=DataSize;
+			}else{
+				G_CacheTimeMap.insert(std::pair<std::string,unsigned int>(xxcc,DataSize));
+			}
 		}
 	}
 	void CKKV_ReceiveData::HandelReceiveData(char *buf,int Len,std::string strId)

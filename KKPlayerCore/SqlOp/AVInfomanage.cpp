@@ -3,6 +3,7 @@
 #include "SqliteOp.h"
 #include "../stdafx.h"
 #include "../Includeffmpeg.h"
+#include <string>
 extern AVPixelFormat DstAVff;
 CAVInfoManage::CAVInfoManage()
 {

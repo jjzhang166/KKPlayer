@@ -89,6 +89,10 @@ CRenderD3D::CRenderD3D()
 	,m_pLeftPicTexture(NULL)
 	,m_pYUVAVTexture(NULL)
 	,m_pBackBuffer(NULL)
+	,m_bShowErrPic(FALSE)
+	,m_ErrTexture(NULL)
+	,m_ErrBufImg(NULL)
+    ,m_ErrBufImgLen(0)
 {
 
 }
@@ -387,9 +391,13 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 		m_CenterLogVertex[3].u = 1.f;
 		m_CenterLogVertex[3].v = 1.f;
 	}
+	
 	WinSize(w,h);
 }
-
+void CRenderD3D::ShowErrPic(bool show)
+{
+   m_bShowErrPic=show;
+}
 void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
 
@@ -411,6 +419,63 @@ void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 		return;// S_FALSE;
 	}
 }
+
+void CRenderD3D::SetErrPic(unsigned char* buf,int len)
+{
+	m_ErrBufImg=buf;
+	m_ErrBufImgLen=len;
+	if (!LostDeviceRestore())
+		return;
+	
+	SAFE_RELEASE(m_ErrTexture);
+	if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_ErrTexture)))
+	{
+		//assert(0);
+		return;// S_FALSE;
+	}
+	D3DSURFACE_DESC rc;
+
+	m_ErrTexture->GetLevelDesc(0,&rc);
+	int w=rc.Width;
+	int h=rc.Height;
+	
+	AdJustErrPos(w,h);
+}
+void CRenderD3D::AdJustErrPos(int picw,int pich)
+{
+	int w=picw;
+	int h=pich;
+	int yx=m_w/2-w/2;
+	int yy=m_h/2-h/2;
+	m_ErrPicVertex[0].x =yx -0.5f;  //A     A(leftTop)->B(rightTop)->C(leftBu)->D->(rightBu)
+	m_ErrPicVertex[0].y =yy -0.5f;
+	m_ErrPicVertex[0].z = 0.0f;
+	m_ErrPicVertex[0].w = 1.f;
+	m_ErrPicVertex[0].u = 0.f;
+	m_ErrPicVertex[0].v = 0.f;
+
+	m_ErrPicVertex[1].x = yx+w - 0.5f;  //B
+	m_ErrPicVertex[1].y = yy-0.5f;
+	m_ErrPicVertex[1].z = 0.0f;
+	m_ErrPicVertex[1].w = 1.f;
+	m_ErrPicVertex[1].u = 1.f;
+	m_ErrPicVertex[1].v = 0.f;
+
+	m_ErrPicVertex[2].x =yx -0.5f;   //C
+	m_ErrPicVertex[2].y =yy+h - 0.5f;
+	m_ErrPicVertex[2].z = 0.0f;
+	m_ErrPicVertex[2].w = 1.f;
+	m_ErrPicVertex[2].u = 0.f;
+	m_ErrPicVertex[2].v = 1.f;
+
+	m_ErrPicVertex[3].x =yx+ w - 0.5f; //D
+	m_ErrPicVertex[3].y =yy+ h - 0.5f;
+	m_ErrPicVertex[3].z = 0.f;
+	m_ErrPicVertex[3].w = 1.f;
+	m_ErrPicVertex[3].u = 1.f;
+	m_ErrPicVertex[3].v = 1.f;
+
+}
 void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 {
   m_lock.Lock();
@@ -428,7 +493,7 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 	    m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		if( SUCCEEDED(m_pDevice->BeginScene()) )
 		{
-			if(pBuf!=NULL)
+			if(pBuf!=NULL&&m_bShowErrPic==false)
 			{
                 UpdateTexture(pBuf,width,height,Imgwidth);	
 #ifdef VFYUY420P
@@ -486,7 +551,7 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 				}
 				
 
-			}else if(pBuf==NULL&&m_pWaitPicTexture!=NULL)
+			}else if(pBuf==NULL&&m_pWaitPicTexture!=NULL&&m_bShowErrPic==false)
 			{
 				m_pDevice->SetTexture(0,  m_pWaitPicTexture);
 				m_pDevice->SetFVF(Vertex::FVF);
@@ -498,6 +563,24 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 	
 			}
 			
+			if(m_bShowErrPic==true)
+			{
+				if(m_ErrTexture==NULL&&m_ErrBufImg!=NULL)
+				{
+					SetErrPic(m_ErrBufImg,m_ErrBufImgLen);
+				}
+				if(m_ErrTexture!=NULL)
+				{
+		                m_pDevice->SetTexture(0, m_ErrTexture);
+						m_pDevice->SetFVF(Vertex::FVF);
+						m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+						m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+						m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+						m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+						m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_ErrPicVertex, sizeof(Vertex));/**/
+				}
+				
+			}
 			
 			m_pDevice->EndScene();
 			m_pDevice->Present(NULL, NULL, NULL, NULL);
@@ -517,6 +600,7 @@ void CRenderD3D::ResetTexture()
 	SAFE_RELEASE(m_pWaitPicTexture);
 	SAFE_RELEASE(m_pLeftPicTexture);
 	SAFE_RELEASE(m_pBackBuffer);
+	SAFE_RELEASE(m_ErrTexture);
 }
 bool CRenderD3D::LostDeviceRestore()
 {
@@ -784,6 +868,17 @@ void CRenderD3D::renderBk(unsigned char* buf,int len)
 				 m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 				 m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 				 m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2,  m_CenterLogVertex, sizeof(Vertex));/**/
+		}
+
+		if(m_bShowErrPic==true&&m_ErrTexture!=NULL)
+		{
+			m_pDevice->SetTexture(0, m_ErrTexture);
+			m_pDevice->SetFVF(Vertex::FVF);
+			m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+			m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+			m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+			m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_ErrPicVertex, sizeof(Vertex));/**/
 		}
 
 		m_pDevice->EndScene();

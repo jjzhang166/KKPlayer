@@ -12,8 +12,8 @@ CRenderGDI::CRenderGDI():m_hView(NULL)
 ,m_WaitLen(NULL)
 ,m_CenterLogoBuf(NULL)
 ,m_CenterLogoBufLen(NULL)
-
-
+,m_bShowErrPic(false)
+,m_pErrbitmap(NULL)
 
 {
 }
@@ -155,6 +155,25 @@ void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h)
 		canvas.drawBitmapRect(AVSkbit,destRt,&m_Paint);
 	}
 }
+void CRenderGDI::SetErrPic(unsigned char* buf,int len)
+{
+
+	if(buf!=NULL)
+	{
+		delete m_pErrbitmap;
+	    m_pErrbitmap = new SkBitmap();
+		SkMemoryStream stream(m_BkLen);
+		stream.read(buf,len);
+		//SkFILEStream ff("F:\\Pro\\ProcLectureRoom\\KKPlayer\\KKdebug\\Skin\\wait3.png");
+		SkImageDecoder::DecodeStream(&stream,m_pErrbitmap);
+	}
+
+}
+void CRenderGDI::ShowErrPic(bool show)
+{
+
+	
+}
 
 void  CRenderGDI::skiaSal(char *buf,int w,int h)
 {
@@ -183,10 +202,10 @@ void  CRenderGDI::skiaSal(char *buf,int w,int h)
 	}
 
 
+    if(m_bShowErrPic==false)
+	    DrawSkVideo(canvas,buf,w,h);
 
-	DrawSkVideo(canvas,buf,w,h);
-
-	if(buf==NULL&&m_WaitBuffer!=NULL&&m_WaitLen>0)
+	if(buf==NULL&&m_WaitBuffer!=NULL&&m_WaitLen>0&&m_bShowErrPic==false)
 	{
 		SkBitmap Bkbitmap;
 		SkMemoryStream stream(m_WaitBuffer,m_WaitLen,true);
@@ -205,7 +224,22 @@ void  CRenderGDI::skiaSal(char *buf,int w,int h)
 		destRt.fBottom=poxy+45;
 
 		canvas.drawBitmapRect(Bkbitmap,destRt,&m_Paint);
+	}else if(m_bShowErrPic&&m_pErrbitmap!=NULL)
+	{
+		
 
+		int w=m_pErrbitmap->width();
+		int h=m_pErrbitmap->height();
+		int yx=m_width/2-w/2;
+		int yy=m_height/2-h/2;
+
+		SkRect destRt;
+		destRt.fLeft=yx;
+		destRt.fTop=yy;
+		destRt.fRight=destRt.fLeft+w;
+		destRt.fBottom=destRt.fTop+h;
+
+		canvas.drawBitmapRect(*m_pErrbitmap,destRt,&m_Paint);
 	}
 }
 

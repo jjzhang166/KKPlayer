@@ -24,15 +24,17 @@ $(ObjTARGET):$(objects)
 	$(CXX) $(LDFLAGS) -o $(ObjTARGET) $(objects) \
 	$(LDFLAGS) \
 	-L$(BASELib) \
-	-l$(BASELib)/liblog.so \
-	-l$(STLLib)/libstlport_static.a \
-	-l$(FFMPEGLib)libavcodec-57.so \
-	-l$(FFMPEGLib)libavdevice-57.so \
-	-l$(FFMPEGLib)libavfilter-6.so \
-	-l$(FFMPEGLib)libavformat-57.so \
-	-l$(FFMPEGLib)libavutil-55.so \
-	-l$(FFMPEGLib)libswresample-2.so \
-	-l$(FFMPEGLib)libswscale-4.so;
+	-L$(FFMPEGLib) \
+	-L$(STLLib) \
+	-llog \
+	-lstlport_static \
+	-lavcodec-57 \
+	-lavdevice-57 \
+	-lavfilter-6 \
+	-lavformat-57 \
+	-lavutil-55 \
+	-lswresample-2 \
+	-lswscale-4;
 	$(AR) rcs $(ObjLib) $(objects) 
 
 md5.o: MD5/md5.c MD5/md5.h

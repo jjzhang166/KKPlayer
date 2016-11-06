@@ -19,6 +19,9 @@ public:
 	virtual void SetWaitPic(unsigned char* buf,int len)=0;
 
 	virtual void LoadCenterLogo(unsigned char* buf,int len)=0;
+
+	virtual void SetErrPic(unsigned char* buf,int len)=0;
+	virtual void ShowErrPic(bool show)=0;
 	//void SetLeftPicStr(wchar_t *str);
 };
 

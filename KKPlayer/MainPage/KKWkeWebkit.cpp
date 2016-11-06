@@ -89,7 +89,7 @@ namespace SOUI
         return TRUE;
     }
 
-	CriSecLock GwkeViewLock;
+	//CriSecLock GwkeViewLock;
 	std::map<wkeWebView,KKWkeWebkit*> GUpdateViewMap;
 	void AddWkeViewToMap(wkeWebView p,KKWkeWebkit* w)
 	{

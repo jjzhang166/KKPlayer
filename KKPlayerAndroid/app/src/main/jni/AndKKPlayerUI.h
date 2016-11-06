@@ -46,7 +46,7 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
    public:
             virtual unsigned char* GetWaitImage(int &length,int curtime);
             virtual unsigned char* GetBkImage(int &length);
-            virtual void OpenMediaFailure(char* strURL);
+            virtual void OpenMediaFailure(char* strURL,int err);
             virtual void  AutoMediaCose(int Stata);
             void LoadCenterLogo(unsigned char* buf,int len);
             bool GetNeedReconnect();

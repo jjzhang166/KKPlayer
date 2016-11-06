@@ -250,20 +250,46 @@ void KKPlayer::CloseMedia()
 	pVideoInfo->sampq.mutex=NULL;
 
 	
-	LOGE("swr_free OK \n");
-	swr_free(&pVideoInfo->swr_ctx);
-	pVideoInfo->swr_ctx=NULL;
+	if(pVideoInfo->swr_ctx!=NULL)
+	{
+	   swr_free(&pVideoInfo->swr_ctx);
+	   pVideoInfo->swr_ctx=NULL;
+	   LOGE("swr_free OK \n");
+	}
+
+	if(pVideoInfo->img_convert_ctx!=NULL)
+	{
+		sws_freeContext(pVideoInfo->img_convert_ctx);
+		pVideoInfo->img_convert_ctx=NULL;
+		LOGE("pVideoInfo->img_convert_ctx \n");
+	}
 	
-	sws_freeContext(pVideoInfo->img_convert_ctx);
-	pVideoInfo->img_convert_ctx=NULL;
-
-	sws_freeContext(pVideoInfo->sub_convert_ctx);
-	pVideoInfo->sub_convert_ctx=NULL;
 
 
-	avfilter_free(pVideoInfo->InAudioSrc);
-	avfilter_free(pVideoInfo->OutAudioSink);
-	avfilter_graph_free(&pVideoInfo->AudioGraph);
+	if(pVideoInfo->sub_convert_ctx!=NULL)
+	{
+		sws_freeContext(pVideoInfo->sub_convert_ctx);
+		pVideoInfo->sub_convert_ctx=NULL;
+		LOGE("sub_convert_ctx \n");
+	}
+	
+
+
+	if(pVideoInfo->InAudioSrc!=NULL)
+	{
+	    avfilter_free(pVideoInfo->InAudioSrc);
+        LOGE("InAudioSrc \n");
+	}
+	if(pVideoInfo->OutAudioSink!=NULL)
+	{
+	    avfilter_free(pVideoInfo->OutAudioSink);
+	    LOGE("OutAudioSink \n");
+	}
+	if(pVideoInfo->AudioGraph!=NULL)
+	{
+		avfilter_graph_free(&pVideoInfo->AudioGraph);
+		LOGE("pVideoInfo->AudioGraph \n");
+	}
 	
 	if(pVideoInfo->auddec.avctx!=NULL){
 		 LOGE("avcodec_close(pVideoInfo->auddec.avctx); OK \n");
@@ -295,9 +321,12 @@ void KKPlayer::CloseMedia()
 		FreeKKIo(pVideoInfo);
 		pVideoInfo->pFormatCtx->pb=NULL;
 	}
+
+	LOGE("pVideoInfo->pFormatCtx\n");
 	avformat_close_input(&pVideoInfo->pFormatCtx);
 
 
+	LOGE("pVideoInfo->pKKPluginInfo\n");
 	av_free(pVideoInfo->pKKPluginInfo);
 
     av_packet_unref(pVideoInfo->pflush_pkt);
@@ -1023,9 +1052,6 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	pVideoInfo->sampq.m_pWaitCond=new CKKCond_t();
     pVideoInfo->sampq.m_pWaitCond->SetCond();
 
-
-	
-
 	m_pSound->SetAudioCallBack(audio_callback);
 	m_pSound->SetUserData(pVideoInfo);
 	pVideoInfo->pKKAudio=m_pSound;
@@ -1037,7 +1063,6 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	float aa=(float)pVideoInfo->AVRate/100;
 	snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),"atempo=%f",aa);
 
-
 	pVideoInfo->InAudioSrc=NULL;
 	pVideoInfo->OutAudioSink=NULL;
 	pVideoInfo->AudioGraph=NULL;
@@ -1045,17 +1070,11 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
 	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
     m_AudioCallthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, Audio_Thread, (LPVOID)this, 0,&m_AudioCallthreadInfo.Addr);
-
-	
 #else
-
-	
-
 	m_ReadThreadInfo.Addr = pthread_create(&m_ReadThreadInfo.Tid_task, NULL, (void* (*)(void*))ReadAV_thread, (LPVOID)this);
 	LOGE("m_ReadThreadInfo.Addr =%d\n",m_ReadThreadInfo.Addr);
 	LOGE("VideoRefreshthread XX");
 	m_VideoRefreshthreadInfo.Addr = pthread_create(&m_VideoRefreshthreadInfo.Tid_task, NULL, (void* (*)(void*))VideoRefreshthread, (LPVOID)this);
-	
 	m_AudioCallthreadInfo.Addr =pthread_create(&m_AudioCallthreadInfo.Tid_task, NULL, (void* (*)(void*))Audio_Thread, (LPVOID)this);
 #endif
 	m_lstPts=-1;
@@ -1303,7 +1322,7 @@ void KKPlayer::ReadAV()
 
         if(m_pPlayUI!=NULL)
 		{
-			m_pPlayUI->OpenMediaFailure(urlx);
+			m_pPlayUI->OpenMediaFailure(urlx,err);
 		}else
 		{
 			 //if(m_bTrace)
@@ -1336,7 +1355,7 @@ void KKPlayer::ReadAV()
 		//m_CloseLock.Unlock();
 		if(m_pPlayUI!=NULL)
 		{
-			m_pPlayUI->OpenMediaFailure(urlx);
+			m_pPlayUI->OpenMediaFailure(urlx,err);
 		}else
 		{
 			//if(m_bTrace)
@@ -1520,7 +1539,10 @@ void KKPlayer::ReadAV()
 
 		m_PktSerial=pVideoInfo->viddec.pkt_serial;
 
+		
+
 		/******缓存满了*******/
+		int countxx=0;
 		while(1)
 		{
 			if(pVideoInfo->abort_request)
@@ -1529,6 +1551,20 @@ void KKPlayer::ReadAV()
 			}else if(pVideoInfo->audioq.size + pVideoInfo->videoq.size + pVideoInfo->subtitleq.size > MAX_QUEUE_SIZE){
 				// LOGE("catch full");
 				 av_usleep(5000);;//等待一会
+				 countxx++;
+				 if(pFormatCtx->flags == AVFMT_FLAG_CUSTOM_IO&&pVideoInfo->pKKPluginInfo!=NULL&&countxx%200==0){
+					AVIOContext *KKIO=pFormatCtx->pb;
+					if(KKIO!=NULL){
+                         KKPlugin* kk= (KKPlugin*)KKIO->opaque;
+						 if(kk->GetCacheTime!=NULL){
+                                pVideoInfo->nCacheTime=kk->GetCacheTime(kk);
+							    if(pVideoInfo->nCacheTime>0&&pVideoInfo->nCacheTime>m_AVCacheInfo.MaxTime)
+								      m_AVCacheInfo.MaxTime=pVideoInfo->nCacheTime;
+						 }
+                    }
+					countxx=0;
+				 }
+				 continue;
 			}else{
 				break;
 			}
@@ -1538,6 +1574,9 @@ void KKPlayer::ReadAV()
         /********读取一个pkt**********/
 		ret = av_read_frame(pFormatCtx, pkt);
 		
+		if(pVideoInfo->nCacheTime>0&&pVideoInfo->nCacheTime>m_AVCacheInfo.MaxTime)
+			m_AVCacheInfo.MaxTime=pVideoInfo->nCacheTime;
+
 		if(pVideoInfo->realtime&&pVideoInfo->nRealtimeDelayCount>1000){	
 			 pVideoInfo->OpenTime+=pVideoInfo->nRealtimeDelay;
 			 pVideoInfo->nRealtimeDelayCount=0;
@@ -1561,9 +1600,9 @@ void KKPlayer::ReadAV()
 						
 					}
 			 }else if (pFormatCtx->pb && pFormatCtx->pb->error&&ret != AVERROR_EOF){
-				 int xxx=AVERROR_EOF;
+				/* int xxx=AVERROR_EOF;
 				 xxx=-541478725;
-				
+				*/
 					 pVideoInfo->eof=1;
 					 pVideoInfo->abort_request=1;
 					 pVideoInfo->nRealtimeDelay=0;
@@ -1572,11 +1611,8 @@ void KKPlayer::ReadAV()
 						 pVideoInfo->IsReady=0;
 						 m_pPlayUI->AutoMediaCose(-2);
 					 }else {
-						 m_pPlayUI->AutoMediaCose(-3);
+						 m_pPlayUI->AutoMediaCose(pFormatCtx->pb->error);
 					 }
-					 
-				 
-				 int ll=AVERROR(ENOMEM); 
 				 if(pVideoInfo->bTraceAV)
 					 LOGE("pFormatCtx->pb && pFormatCtx->pb->error \n");
 				 break;
@@ -1602,6 +1638,7 @@ void KKPlayer::ReadAV()
 			a1 * a2-(double)(start_time != AV_NOPTS_VALUE ? start_time : 0) / 1000000 <= ((double)duration / 1000000);
 		pkt_in_play_range =1;
 
+		
 
 		//音频
 		if (pkt->stream_index == pVideoInfo->audio_stream && pkt_in_play_range&&pkt->data!=NULL) {

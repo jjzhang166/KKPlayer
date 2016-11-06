@@ -21,7 +21,12 @@ public:
     void render(char *pBuf,int width,int height,int imgwidth);
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
+	
+
 	void SetWaitPic(unsigned char* buf,int len);
+	
+	void SetErrPic(unsigned char* buf,int len);
+	void ShowErrPic(bool show);
 	
 	void DrawFontInfo();
 
@@ -34,7 +39,8 @@ private:
 	bool UpdateTexture(char *pBuf,int w,int h,int imgwidth);
 	void ResetTexture();
 	bool UpdateLeftPicTexture();
-	
+	void AdJustErrPos(int picw,int pich);
+	bool m_bShowErrPic;
     HWND m_hView;
 	//Ã· æ◊÷ÃÂ
 
@@ -43,6 +49,9 @@ private:
     IDirect3DTexture9* m_pDxTexture;
 	IDirect3DTexture9* Fontexture;
 
+	unsigned char* m_ErrBufImg;
+	int m_ErrBufImgLen;
+	IDirect3DTexture9* m_ErrTexture;
 	IDirect3DTexture9* m_CenterLogoTexture;
 	IDirect3DTexture9* m_pWaitPicTexture;
 	IDirect3DTexture9* m_pLeftPicTexture;
@@ -69,6 +78,7 @@ private:
 	Vertex m_WaitVertex[4];
 	Vertex m_CenterLogVertex[4];
 	Vertex m_LeftPicVertex[4];
+	Vertex m_ErrPicVertex[4];
 
 };
 
