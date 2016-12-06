@@ -45,6 +45,7 @@ namespace SOUI
 		}else{
 			dfileSize=(double)FileSize;
             sprintf(strabce,"%d B/s",FileSize);
+			
 		}
 		return strabce;
 	}

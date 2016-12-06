@@ -138,7 +138,7 @@ namespace SOUI
 		 {
 			 m_VideoWnd.CloseMedia();
 			 ret= m_VideoWnd.OpenMedia(str);
-			 if(ret!=0)
+			 if(ret<0)
 				 return -1;
 			
 		 }

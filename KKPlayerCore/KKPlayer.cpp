@@ -908,6 +908,7 @@ int KKPlayer::KKProtocolAnalyze(char* StrfileName,KKPluginInfo &KKPl)
 				if(len>0)
 				{
 					strcpy(ProName,pos+1);
+					//strcpy(ProName,"");
 					memset(StrfileName,0,1024);
 					strcpy(StrfileName,ProName);
 					KKPl=*It;/**/
