@@ -501,13 +501,6 @@ LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 	{
           AVRender();
 	}
-	/*#ifndef QY_GDI
-         AVRender();
-    #else
-	    RECT rcWindow;
-	    ::GetClientRect(m_hWnd,&rcWindow);
-	    this->InvalidateRect(&rcWindow);
-    #endif*/
 	bHandled=true;
 	return 1;
 }
@@ -711,14 +704,6 @@ LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
 }
 void CMainFrame::OpenMediaFailure(char* strURL,int err)
 {
-	//char *err=(char*)::malloc(1024);
-	//memset(err,0,1024);
-	//std::string abcd="无法打开路径：";
-	//abcd+=strURL;
-	//memcpy(err,abcd.c_str(),abcd.length());
-	////::MessageBoxA(m_hWnd,abcd.c_str(),"错误",MB_ICONHAND);
-	//::PostMessage(m_hWnd,WM_OpenErr ,(WPARAM )err,0);
-
      int length=0;
 	 unsigned char* img=GetErrImage(length,0);
 	 if(img!=NULL&&length>0&&m_pRender!=NULL)
