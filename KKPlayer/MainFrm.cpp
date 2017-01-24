@@ -262,6 +262,7 @@ int CMainFrame::DownMedia(char *KKVURL,bool Down)
 	{
 		KKPluginInfo KKPl;
 		memset(&KKPl,0,sizeof(KKPl));
+		std::string urlx=KKVURL;
         int ret=m_pPlayerInstance->KKProtocolAnalyze(KKVURL,KKPl);
 		if(ret==1){
             if(KKPl.KKDownAVFile!=NULL){
@@ -280,9 +281,13 @@ int CMainFrame::DownMedia(char *KKVURL,bool Down)
 					 pinxx->Add(KKVURL,KKPl);
 				 }
 				 if(Down)
-                   return KKPl.KKDownAVFile(KKVURL);
-				 else
+				 {
+                     KKPl.KKDownAVFile(KKVURL);
 					 return 1;
+				 }
+                   
+				 else
+					 return 2;
 			}
 		}
 	}
@@ -301,13 +306,15 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 	  
 	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
 	if(ret>=0){
-      m_bOpen=true;
-	  if(ret==2)
-	  {
-		  DownMedia((char*)url.c_str(),false);
-		  return 2;
-	  }
-	  
+          m_bOpen=true;
+		  char abcd[1024]="";
+		  strcpy(abcd,(char*)url.c_str());
+		 int Retx= DownMedia(abcd,false);
+		 if(Retx==2)
+		 {
+		   return Retx;
+		 }
+		 
 	}
 
 	
@@ -494,13 +501,6 @@ LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 	{
           AVRender();
 	}
-	/*#ifndef QY_GDI
-         AVRender();
-    #else
-	    RECT rcWindow;
-	    ::GetClientRect(m_hWnd,&rcWindow);
-	    this->InvalidateRect(&rcWindow);
-    #endif*/
 	bHandled=true;
 	return 1;
 }
@@ -704,14 +704,6 @@ LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
 }
 void CMainFrame::OpenMediaFailure(char* strURL,int err)
 {
-	//char *err=(char*)::malloc(1024);
-	//memset(err,0,1024);
-	//std::string abcd="无法打开路径：";
-	//abcd+=strURL;
-	//memcpy(err,abcd.c_str(),abcd.length());
-	////::MessageBoxA(m_hWnd,abcd.c_str(),"错误",MB_ICONHAND);
-	//::PostMessage(m_hWnd,WM_OpenErr ,(WPARAM )err,0);
-
      int length=0;
 	 unsigned char* img=GetErrImage(length,0);
 	 if(img!=NULL&&length>0&&m_pRender!=NULL)
@@ -811,13 +803,12 @@ LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
    int yPos = GET_Y_LPARAM(lParam);
    
 	//迷你模式
-	if(!m_pDlgMain->GetScreenModel()&&xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y)
+	if(!m_pDlgMain->GetScreenModel()&&xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y&&xPos>1&&yPos>1)
 	{
 		int ll=0x8000 &GetAsyncKeyState(VK_LBUTTON);
 		if(!ll)
 		{
 			m_pDlgMain->ShowMiniUI(true);
-
 		}else
 		{
 			m_pDlgMain->ShowMiniUI(false);

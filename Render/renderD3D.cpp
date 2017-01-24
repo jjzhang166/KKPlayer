@@ -41,19 +41,6 @@ typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 #include <core\SkCanvas.h>
 #include <core\SkBitmap.h>
 #include <core\SkTypeface.h>
-#ifdef _DEBUG
-     #pragma comment (lib,"..\\debug\\libx86\\zlibstat.lib")
-     #pragma comment (lib,"..\\debug\\libx86\\pngd.lib") 
-     #pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
-#else
-    #pragma comment (lib,"..\\Release\\libx86\\zlibstat.lib")
-    #pragma comment (lib,"..\\Release\\libx86\\png.lib");
-    #pragma comment (lib,"..\\Release\\libx86\\skia.lib")
-#endif
-
-#pragma comment (lib,"D3dx9.lib")
-#pragma comment (lib,"Usp10.lib")
-#pragma comment (lib,"Opengl32.lib")
 
 #define VFYUY420P
 LPFN_ISWOW64PROCESS fnIsWow64Process;  
