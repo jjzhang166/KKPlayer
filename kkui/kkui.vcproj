@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Render"
-	ProjectGUID="{0C3297DC-2DCE-41C7-82F7-867FB95F7F9B}"
-	RootNamespace="Render"
+	Name="kkui"
+	ProjectGUID="{CB1CCC61-2CC7-44E8-B3B0-A25DDCFE8361}"
+	RootNamespace="kkui"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,8 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(KKWinDx9Path)\include&quot;;..\skia\include;..\skia\include\core;..\skia\include\config"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RENDER_EXPORTS;ZLIB_WINAPI"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KKUI_EXPORTS;KK_RESOURCE_DLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +61,6 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(KKWinDx9Path)\Lib\x86"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -91,7 +89,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\Release\"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -116,8 +114,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\skia\include;..\skia\include\core;..\skia\include\config;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RENDER_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KKUI_EXPORTS;KK_RESOURCE_DLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -196,19 +193,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Render.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\renderD3D.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\renderGDI.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RendLock.cpp"
+				RelativePath=".\kkui.cpp"
 				>
 			</File>
 			<File
@@ -238,19 +223,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Render.h"
+				RelativePath=".\kkui.h"
 				>
 			</File>
 			<File
-				RelativePath=".\renderD3D.h"
-				>
-			</File>
-			<File
-				RelativePath=".\renderGDI.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RendLock.h"
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
@@ -267,6 +244,14 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\kkui.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\res\ui_res.rc"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

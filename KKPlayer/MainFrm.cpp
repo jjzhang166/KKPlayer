@@ -5,7 +5,6 @@
 #include "KKSound.h"
 #include "Tool/cchinesecode.h"
 #include "Tool/CFileMgr.h"
-#include "DownManage/AVDownManage.h"
 #pragma comment(lib, "winmm.lib")
 //#include <Windows.h>
 extern SOUI::CMainDlg* m_pDlgMain;
@@ -277,8 +276,7 @@ int CMainFrame::DownMedia(char *KKVURL,bool Down)
 					 int AcSize=0;
 					 int DownOk=0;
 					 m_pAVInfomanage->UpdateDownAVinfo(strInfo,alias,category,FileSize,AcSize,DownOk);
-					 CAVDownManage* pinxx=CAVDownManage::GetInstance();
-					 pinxx->Add(KKVURL,KKPl);
+					
 				 }
 				 if(Down)
 				 {

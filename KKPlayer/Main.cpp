@@ -12,7 +12,7 @@
 #include "MainPage/KKWkeWebkit.h"
 #include "control/kkmclv.h"
 #include "Control/kkseek.h"
-#include "DownManage/AVDownManage.h"
+//#include "DownManage/AVDownManage.h"
 #include "Dir/Dir.hpp"
 #include "Tool/CFileMgr.h"
 #include "Tool/cchinesecode.h"
@@ -319,12 +319,15 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	}
 
 
-	CAutoRefPtr<IResProvider>   pResProvider;
-	CreateResProvider(RES_PE,(IObjRef**)&pResProvider);
-	BOOL ret=pResProvider->Init((WPARAM)hInstance,0);
-
-
-	theApp->AddResProvider(pResProvider);
+	HMODULE hui=LoadLibrary(_T("kkui.dll"));
+	if(hui){
+		CAutoRefPtr<IResProvider>   pResProvider;
+		CreateResProvider(RES_PE,(IObjRef**)&pResProvider);
+		BOOL ret=pResProvider->Init((WPARAM)hui,0);
+		theApp->AddResProvider(pResProvider);
+	}else{
+       assert(0);
+	}
 
 	//加载系统资源
 	HMODULE hSysResource=LoadLibrary(SYS_NAMED_RESOURCE);
@@ -336,8 +339,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		theApp->LoadSystemNamedResource(sysSesProvider);
 	}
 
-	CAVDownManage Dow;
-	Dow.Start();
+	//CAVDownManage Dow;
+	//Dow.Start();
 	std::wstring path=GetModulePath();
 	
 	SOUI::SStringT str;
@@ -351,7 +354,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	//int nRet =  Run(lpstrCmdLine, nCmdShow);
 	int 	nRet = theApp->Run(dlgMain.m_hWnd);
 
-    Dow.Stop();
+   // Dow.Stop();
 	Gdiplus::GdiplusShutdown(m_gdiplusToken);
 	_Module.Term();
 	::CoUninitialize();

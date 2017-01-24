@@ -4,7 +4,6 @@
 #include "control/SMCListView.h"
 #include "../Tool/cchinesecode.h"
 #include "../control/kkmclv.h"
-#include "../DownManage/AVDownManage.h"
 #include "../../KKPlayerCore/SqlOp/AVInfomanage.h"
 extern SOUI::CMainDlg *m_pDlgMain;
 namespace SOUI

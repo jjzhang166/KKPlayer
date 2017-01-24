@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\wke\include"
+				AdditionalIncludeDirectories="&quot;$(KKWinDx9Path)\include&quot;;..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\wke\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,8 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="D3dx9.lib ..\Debug\libx86\KKPlayerCore.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib"
+				AdditionalDependencies="..\Debug\libx86\KKPlayerCore.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="$(KKWinDx9Path)\Lib\x86"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -251,10 +252,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\res\KK_res.rc2"
-				>
-			</File>
-			<File
 				RelativePath=".\KKPlayer.ico"
 				>
 			</File>
@@ -270,26 +267,10 @@
 		<Filter
 			Name="DownManage"
 			>
-			<File
-				RelativePath=".\DownManage\AVDownManage.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\DownManage\AVDownManage.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="MainPage"
 			>
-			<File
-				RelativePath=".\MainPage\AVDownManageDlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MainPage\AVDownManageDlg.h"
-				>
-			</File>
 			<File
 				RelativePath=".\MainPage\AVInfo.cpp"
 				>
