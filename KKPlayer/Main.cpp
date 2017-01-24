@@ -331,8 +331,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	//加载系统资源
 	HMODULE hSysResource=LoadLibrary(SYS_NAMED_RESOURCE);
-	if(hSysResource)
-	{
+	if(hSysResource){
 		CAutoRefPtr<IResProvider> sysSesProvider;
 		CreateResProvider(RES_PE,(IObjRef**)&sysSesProvider);
 		sysSesProvider->Init((WPARAM)hSysResource,0);
