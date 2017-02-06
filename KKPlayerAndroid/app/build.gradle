@@ -6,7 +6,7 @@ android {
     buildToolsVersion "23.0.2"
     sourceSets {
         main {
-           // jni.srcDirs = [ 'src/main/jni']
+         //   jni.srcDirs = [ 'src/main/jni']
             jniLibs.srcDirs = ['libs']
         }
     }
@@ -19,7 +19,7 @@ android {
         ext.FFlib = "this is property1"
 
 
-        ndk {
+     /*   ndk {
             moduleName = "JniKKPlayer"
             cFlags("-I../app/src/main/jni/ffmpeg/include")
             stl "stlport_static"
@@ -37,7 +37,7 @@ android {
             ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libswscale-4.so")
             ldLibs(getProjectDir().getParent() + "/app/libs/armeabi-v7a/libKKPlayerCore.so")
 
-        }
+        }*/
 
     }
 

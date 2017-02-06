@@ -5,8 +5,8 @@
 #include <android/log.h>
 #include "AndKKAudio.h"
 
-#include "../../../../../KKPlayerCore/IKKPlayUI.h"
-#include "../../../../../KKPlayerCore/KKPlayer.h"
+#include "../IKKPlayUI.h"
+#include "../KKPlayer.h"
 #ifndef AndKKPlayerUI_H_
 #define AndKKPlayerUI_H_
 class CAndKKPlayerUI :public  IKKPlayUI,CRender
@@ -45,6 +45,9 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
     /***********UI调用***********/
    public:
             virtual unsigned char* GetWaitImage(int &length,int curtime);
+			virtual unsigned char* GetErrImage(int &length,int ErrType);
+			virtual void SetErrPic(unsigned char* buf,int len);
+			virtual void ShowErrPic(bool show);
             virtual unsigned char* GetBkImage(int &length);
             virtual void OpenMediaFailure(char* strURL,int err);
             virtual void  AutoMediaCose(int Stata);

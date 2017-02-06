@@ -1,5 +1,5 @@
 #include "AndKKPlayerUI.h"
-#include "ffmpeg/include/libavutil/common.h"
+#include "libavutil/common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -465,6 +465,19 @@ unsigned char* CAndKKPlayerUI::GetWaitImage(int &length,int curtime)
 unsigned char*  CAndKKPlayerUI::GetCenterLogoImage(int &length)
 {
     return NULL;
+}
+unsigned char* CAndKKPlayerUI::GetErrImage(int &length,int ErrType)
+{
+	length=0;
+	return NULL;
+}
+void CAndKKPlayerUI::SetErrPic(unsigned char* buf,int len)
+{
+	
+}
+void CAndKKPlayerUI::ShowErrPic(bool show)
+{
+				
 }
 void CAndKKPlayerUI::LoadCenterLogo(unsigned char* buf,int len)
 {

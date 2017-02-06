@@ -1,5 +1,7 @@
 include Android_config.mak
-objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o AVInfomanage.o KKPlayer.o sqlite3.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o
+objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o \
+	AVInfomanage.o KKPlayer.o sqlite3.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o \
+	AndKKAudio.o AndKKPlayerUI.o JNIKKCPP.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -27,6 +29,8 @@ $(ObjTARGET):$(objects)
 	-L$(FFMPEGLib) \
 	-L$(STLLib) \
 	-llog \
+	-lGLESv2 \
+	-lOpenSLES \
 	-lstlport_static \
 	-lavcodec-57 \
 	-lavdevice-57 \
@@ -66,6 +70,12 @@ FlvEncode.o: rtmp/FlvEncode.h rtmp/FlvEncode.cpp
 KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h SqlOp/AVInfomanage.h rtmp/SrsRtmpPlugin.h
 	$(CXX) -c $(CFLAGS) KKPlayer.cpp
 
+AndKKAudio.o: Android/AndKKAudio.cpp Android/AndKKAudio.h KKCond_t.h KKLock.h IKKAudio.h
+	$(CXX) -c $(CFLAGS) Android/AndKKAudio.cpp
+AndKKPlayerUI.o: Android/AndKKPlayerUI.cpp Android/AndKKPlayerUI.h
+	$(CXX) -c $(CFLAGS) Android/AndKKPlayerUI.cpp
+JNIKKCPP.o: Android/JNIKKCPP.cpp Android/com_ic70_kkplayer_kkplayer_CJniKKPlayer.h
+	$(CXX) -c $(CFLAGS) Android/JNIKKCPP.cpp
 install:
 	cp -f $(ObjTARGET) ../KKPlayerAndroid/app/libs/armeabi-v7a
 clean:

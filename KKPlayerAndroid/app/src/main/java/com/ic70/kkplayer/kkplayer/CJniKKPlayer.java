@@ -27,7 +27,6 @@ public class CJniKKPlayer {
         System.loadLibrary("avfilter-6");
         System.loadLibrary("avdevice-57");/**/
         System.loadLibrary("KKPlayerCore");
-        System.loadLibrary("JniKKPlayer");
     }
     //初始化一个KKplayer实例
     public native int IniKK();

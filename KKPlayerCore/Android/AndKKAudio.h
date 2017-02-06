@@ -1,9 +1,9 @@
 //
 // Created by saint on 2016/3/10.
 //
-#include "../../../../../KKPlayerCore/IKKAudio.h"
-#include "../../../../../KKPlayerCore/KKLock.h"
-#include "../../../../../KKPlayerCore/KKCond_t.h"
+#include "../IKKAudio.h"
+#include "../KKLock.h"
+#include "../KKCond_t.h"
 #include <android/log.h>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
