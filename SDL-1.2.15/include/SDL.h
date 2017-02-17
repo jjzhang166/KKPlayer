@@ -92,6 +92,7 @@ extern DECLSPEC Uint32 SDLCALL SDL_WasInit(Uint32 flags);
  */
 extern DECLSPEC void SDLCALL SDL_Quit(void);
 
+extern DECLSPEC void SDLCALL  SDL_HandleAudio(int h);
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
 }

@@ -245,11 +245,11 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\kkui.rc"
+				RelativePath=".\res\KK_res.rc"
 				>
 			</File>
 			<File
-				RelativePath=".\res\ui_res.rc"
+				RelativePath=".\kkui.rc"
 				>
 			</File>
 		</Filter>

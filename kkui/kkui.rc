@@ -57,7 +57,7 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE 4, 2
 #pragma code_page(936)
-#include "res\ui_res.rc"
+#include "res\KK_res.rc"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

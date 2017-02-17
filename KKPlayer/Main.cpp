@@ -196,6 +196,12 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
     DeclareDumpFile();
 
 
+	FARPROC spdpia = GetProcAddress(GetModuleHandle(TEXT("user32")), "SetProcessDPIAware");  
+	if(spdpia!=NULL)
+	{
+	   spdpia();
+	}
+
 	std::wstring Propath=GetModulePath();
 	Propath+=L"\\Db";
 	CFileMgr mgr;
