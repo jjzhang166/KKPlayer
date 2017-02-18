@@ -1,0 +1,3 @@
+#tar -xjf all.tar.bz2
+xz -d file
+tar -xvf дЦ╣днд╪Ч.tar.xz 

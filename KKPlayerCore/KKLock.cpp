@@ -62,3 +62,11 @@ BOOL CKKLock::TryLock()
 		return FALSE;
 	#endif
 }
+void*  CKKLock::operator new(size_t size )
+{
+	return KK_Malloc_(size);
+}
+void   CKKLock::operator delete(void *ptr)
+{
+	KK_Free_(ptr);
+}

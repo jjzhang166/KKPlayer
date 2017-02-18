@@ -1,5 +1,6 @@
 #include "KKCond_t.h"
-
+void *KK_Malloc_(size_t size);
+void  KK_Free_(void *ptr);
 CKKCond_t::CKKCond_t(void)
 {
 #ifdef WIN32_KK
@@ -45,18 +46,6 @@ int CKKCond_t::SetCond()
 int CKKCond_t::WaitCond(int ms)
 {
 	#ifdef WIN32_KK
-	/*while(1)
-	{
-		if(WAIT_TIMEOUT!=::WaitForSingleObject(m_hWait, 1))
-		{
-			break;
-		}else
-		{
-			int i=0;
-			i++;
-		}
-	}
-	return 0;*/
 	return 	::WaitForSingleObject(m_hWait, INFINITE);
 	#else
 
@@ -73,4 +62,12 @@ int CKKCond_t::WaitCond(int ms)
 		m_Mutex.UnLock();*/
 		return 0;// m_hWait;
 	#endif
+}
+void*  CKKCond_t::operator new(size_t size )
+{
+	return KK_Malloc_(size);
+}
+void   CKKCond_t::operator delete(void *ptr)
+{
+     KK_Free_(ptr);
 }

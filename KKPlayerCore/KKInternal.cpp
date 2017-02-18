@@ -11,7 +11,17 @@
 #include <time.h>
 
 //#include "rtmp/AV_FLv.h"
-
+void *KK_Malloc_(size_t size)
+{
+    size=size+128-size%64;
+	void *p= av_malloc(size);
+	memset(p,0,size);
+	return p;
+}
+void  KK_Free_(void *ptr)
+{
+	av_free(ptr);
+}
 #define PixelFormat AVPixelFormat
 #ifdef WIN32
       //AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;////AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
@@ -738,8 +748,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 		       avctx->codec_id=codec->id;
 			   is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
-				   if(BindDxva2Module(avctx)<0)
-				   {
+				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
 				   }
 			   }

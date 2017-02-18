@@ -330,8 +330,8 @@ void KKPlayer::CloseMedia()
 	av_free(pVideoInfo->pKKPluginInfo);
 
     av_packet_unref(pVideoInfo->pflush_pkt);
-	av_free(pVideoInfo->pflush_pkt);
-	av_free(pVideoInfo);
+	KK_Free_(pVideoInfo->pflush_pkt);
+	KK_Free_(pVideoInfo);
 	pVideoInfo=NULL;
 
 	start_time=AV_NOPTS_VALUE;
@@ -963,12 +963,12 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	m_nPreFile=1;
 	m_PreFileLock.Unlock();
 	
-	pVideoInfo = (SKK_VideoState*)av_mallocz(sizeof(SKK_VideoState));
-	memset(pVideoInfo,0,sizeof(SKK_VideoState));
+	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
+	
 
 	pVideoInfo->nMaxRealtimeDelay=3600;//µ¥Î»s
-	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)av_mallocz(sizeof(KKPluginInfo));
-	pVideoInfo->pflush_pkt =(AVPacket*)av_mallocz(sizeof(AVPacket));
+	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
+	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
 
     m_PktSerial=0;
 	
@@ -984,7 +984,7 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	RECT rt;
 	::GetClientRect(m_hwnd,&rt);
 	
-	memset(pVideoInfo->pflush_pkt,0,sizeof(AVPacket));
+	
 	av_init_packet(pVideoInfo->pflush_pkt);
 	flush_pkt.data = (uint8_t *)pVideoInfo->pflush_pkt;
 

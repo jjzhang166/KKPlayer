@@ -26,6 +26,9 @@
 	#endif
 
 	#ifdef WIN32
-	#define snprintf _snprintf
+	       #define snprintf _snprintf
 	#endif
+    //统一分配内存
+    void *KK_Malloc_(size_t size);
+	void  KK_Free_(void *ptr);
 #endif

@@ -149,7 +149,9 @@ private:
 			//∂¡“Ù∆µ
 			void ReadAudioCall();
 			void PacketQueuefree();
-
+private:
+	 KKPlayer(const CKKLock& cs);
+	 KKPlayer operator = (const CKKLock& cs);
 private:
 	        //≤Âº˛–≈œ¢
 	        static std::list<KKPluginInfo>  KKPluginInfoList;

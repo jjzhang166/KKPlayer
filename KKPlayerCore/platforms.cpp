@@ -77,3 +77,4 @@ void WindowsLOGE(const char* format,...)
 	  
 #endif
 #endif
+

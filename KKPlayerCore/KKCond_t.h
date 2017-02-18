@@ -13,6 +13,8 @@ class CKKCond_t
 		   int SetCond();
 		   int WaitCond(int ms);
 
+		   void* operator new(size_t size );
+		   void  operator delete(void *ptr);
     private:
 #ifdef WIN32_KK
 		HANDLE m_hWait;

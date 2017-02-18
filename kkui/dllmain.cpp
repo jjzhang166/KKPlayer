@@ -1,6 +1,6 @@
 // dllmain.cpp : 定义 DLL 应用程序的入口点。
 #include "stdafx.h"
-//uiresbuilder.exe -iuires/uires.idx -puires -rres/KK_res.rc2
+//uiresbuilder.exe -iuires/uires.idx -puires -rres/ui_res.rc
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
                        LPVOID lpReserved

@@ -18,10 +18,11 @@ public:
     void Lock();
     void Unlock();
     BOOL TryLock();
+	void* operator new(size_t size );
+	void  operator delete(void *ptr);
 private:
 		CKKLock(const CKKLock& cs);
 		CKKLock operator = (const CKKLock& cs);
- 
 private:
         //¡ŸΩÁ÷µ
         KKCRITICAL_SECTION m_crisec;
