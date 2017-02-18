@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayerCore", "KKPlayerCore\KKPlayerCore.vcproj", "{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "librtmp", "librtmp\librtmp.vcproj", "{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlibstat", "zlib\contrib\vstudio\vc9\zlibstat.vcproj", "{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayer", "KKPlayer\KKPlayer.vcproj", "{B82462F3-0004-4E0E-BB50-F0DBBB168F61}"
 	ProjectSection(ProjectDependencies) = postProject
 		{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B} = {84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}
@@ -17,8 +13,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "png", "png\png.vcproj", "{56476EA3-21CB-3578-B986-9A2A160FEF06}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL", "SDL-1.2.15\VisualC\SDL\SDL.vcproj", "{81CE8DAF-EBB2-4761-8E45-B71ABCCA8C68}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AVTest", "AVTest\AVTest.vcproj", "{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kkv", "kkv\kkv.vcproj", "{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}"
 EndProject
@@ -39,18 +33,6 @@ Global
 		{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}.Release|Win32.Build.0 = Release|Win32
 		{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
-		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.Debug|Win32.Build.0 = Debug|Win32
-		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.Release|Win32.ActiveCfg = Release|Win32
-		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.Release|Win32.Build.0 = Release|Win32
-		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
-		{5A2DD82A-DB1B-4873-AB9C-417AA8F8DE97}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug|Win32.ActiveCfg = Debug|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Debug|Win32.Build.0 = Debug|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|Win32.ActiveCfg = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.Release|Win32.Build.0 = Release|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.ReleaseWithoutAsm|Win32.ActiveCfg = ReleaseWithoutAsm|Win32
-		{745DEC58-EBB3-47A9-A9B8-4C6627C01BF8}.ReleaseWithoutAsm|Win32.Build.0 = ReleaseWithoutAsm|Win32
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.Debug|Win32.Build.0 = Debug|Win32
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.Release|Win32.ActiveCfg = Release|Win32
@@ -75,12 +57,6 @@ Global
 		{81CE8DAF-EBB2-4761-8E45-B71ABCCA8C68}.Release|Win32.Build.0 = Release|Win32
 		{81CE8DAF-EBB2-4761-8E45-B71ABCCA8C68}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{81CE8DAF-EBB2-4761-8E45-B71ABCCA8C68}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
-		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.Debug|Win32.Build.0 = Debug|Win32
-		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.Release|Win32.ActiveCfg = Release|Win32
-		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.Release|Win32.Build.0 = Release|Win32
-		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
-		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD970}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}.Debug|Win32.ActiveCfg = Debug|Win32
 		{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}.Debug|Win32.Build.0 = Debug|Win32
 		{FE1A3B1B-1EF7-4047-A36A-1A1F360D5C16}.Release|Win32.ActiveCfg = Release|Win32

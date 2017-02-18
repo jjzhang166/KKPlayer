@@ -37,12 +37,17 @@ std::basic_string<TCHAR> GetModulePath()
 
 //#define VFYUY420P
 typedef IDirect3D9* (WINAPI* LPDIRECT3DCREATE9)( UINT );
+
+
+typedef HRESULT (WINAPI *DX9CTFromFileInMemory)(LPDIRECT3DDEVICE9 pDevice,LPCVOID pSrcData,UINT  SrcDataSize,LPDIRECT3DTEXTURE9*  ppTexture);
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);  
 #include <core\SkCanvas.h>
 #include <core\SkBitmap.h>
 #include <core\SkTypeface.h>
 
 #define VFYUY420P
+
+DX9CTFromFileInMemory fpDX9CTFromFileInMemory=NULL;
 LPFN_ISWOW64PROCESS fnIsWow64Process;  
 BOOL IsWow64()  
 {  
@@ -151,6 +156,14 @@ bool CRenderD3D::init(HWND hView)
 	if (hModD3D9)
 	{
 
+		HMODULE hD3dx9_43 = LoadLibraryA("D3dx9_43.dll");
+		if(hD3dx9_43)
+		{
+			fpDX9CTFromFileInMemory= (DX9CTFromFileInMemory)GetProcAddress(hD3dx9_43, "D3DXCreateTextureFromFileInMemory");
+		}
+		
+		
+
 		LPDIRECT3DCREATE9 pfnDirect3DCreate9 = (LPDIRECT3DCREATE9)GetProcAddress(hModD3D9, "Direct3DCreate9");
 		if(pfnDirect3DCreate9==NULL)
 		{
@@ -197,7 +210,7 @@ bool CRenderD3D::init(HWND hView)
 			hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,hView, BehaviorFlags, &PresentParams, &m_pDevice);
 			if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 			{
-				assert(0);
+				return false;
 			}
 			//::MessageBox(hView,L"d3d创建错误",L"提示",MB_ICONHAND);
 			return false;
@@ -399,11 +412,15 @@ void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 		return;
 	// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
 	SAFE_RELEASE(m_pWaitPicTexture);
-	if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_pWaitPicTexture)))
+	if(fpDX9CTFromFileInMemory!=NULL)
 	{
-		//assert(0);
-		return;// S_FALSE;
+	    fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, &m_pWaitPicTexture);
 	}
+	//if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_pWaitPicTexture)))
+	//{
+	//	//assert(0);
+	//	return;// S_FALSE;
+	//}
 }
 
 void CRenderD3D::SetErrPic(unsigned char* buf,int len)
@@ -414,10 +431,13 @@ void CRenderD3D::SetErrPic(unsigned char* buf,int len)
 		return;
 	
 	SAFE_RELEASE(m_ErrTexture);
-	if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_ErrTexture)))
-	{
-		//assert(0);
-		return;// S_FALSE;
+	//if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_ErrTexture)))
+	//{
+	//	//assert(0);
+	//	return;// S_FALSE;
+	//}
+	if ( FAILED(fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, &m_ErrTexture))){
+	   return;
 	}
 	D3DSURFACE_DESC rc;
 
@@ -879,12 +899,16 @@ void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 
 	if(m_CenterLogoTexture==NULL)
 	{
+
+		if ( FAILED(fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, & m_CenterLogoTexture))){
+	   return;
+	}
 		// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
-		if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, & m_CenterLogoTexture))){
-			//assert(0);
-			int i=0;
-			i++;
-			return;// S_FALSE;
-		}
+		//if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, & m_CenterLogoTexture))){
+		//	//assert(0);
+		//	int i=0;
+		//	i++;
+		//	return;// S_FALSE;
+		//}
 	}
 }

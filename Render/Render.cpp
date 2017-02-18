@@ -19,7 +19,7 @@ void skpngZhuc();
 #pragma comment (lib,"..\\Release\\libx86\\skia.lib")
 #endif
 #pragma comment (lib,"Windowscodecs.lib")
-#pragma comment (lib,"D3dx9.lib")
+//#pragma comment (lib,"D3dx9.lib")
 #pragma comment (lib,"Usp10.lib")
 #pragma comment (lib,"Opengl32.lib")
 

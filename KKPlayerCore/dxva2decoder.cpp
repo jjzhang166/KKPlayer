@@ -163,6 +163,11 @@ static int D3dCreateDevice(kk_va_dxva2_t *va)
 	if(G_pD3Ddev==NULL)
 	{
          G_pD3D9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetShellWindow(), D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED | D3DCREATE_FPU_PRESERVE,&d3dpp, &G_pD3Ddev);
+	    if (!G_pD3Ddev) {
+			av_log(NULL, AV_LOG_ERROR, "Direct3DCreate9 failed");
+			return -1;
+		}
+	
 	}
 	
 	/*if (FAILED(IDirect3D9_CreateDevice(G_pD3D9, D3DADAPTER_DEFAULT,

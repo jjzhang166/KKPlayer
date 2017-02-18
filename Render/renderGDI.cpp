@@ -124,7 +124,7 @@ void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h)
 		{
 			offx=(m_width-m_Picwidth)/2;
 		}
-		if(m_width>m_Picheight)
+		if(m_height>m_Picheight)
 		{
 			offy=(m_height-m_Picheight)/2;
 		}
@@ -147,7 +147,7 @@ void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h)
 			destRt.fRight=offx+w;
 
 		}
-		if(m_width>m_Picheight)
+		if(m_height>m_Picheight)
 		{
 			destRt.fBottom=offy+h;
 		}
