@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Render", "Render\Render.vcp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kkui", "kkui\kkui.vcproj", "{CB1CCC61-2CC7-44E8-B3B0-A25DDCFE8361}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmfx", "libmfx\libmfx2008.vcproj", "{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -75,6 +77,12 @@ Global
 		{CB1CCC61-2CC7-44E8-B3B0-A25DDCFE8361}.Release|Win32.Build.0 = Release|Win32
 		{CB1CCC61-2CC7-44E8-B3B0-A25DDCFE8361}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{CB1CCC61-2CC7-44E8-B3B0-A25DDCFE8361}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}.Debug|Win32.Build.0 = Debug|Win32
+		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}.Release|Win32.ActiveCfg = Release|Win32
+		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}.Release|Win32.Build.0 = Release|Win32
+		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
