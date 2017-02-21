@@ -6,7 +6,10 @@
 #include <queue>
 #include <process.h>
 #include "Json/json/json.h"
+#include "Base64/Base64.h"
+#include "md5/md5.h"
 #include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
+#include "KKVP.h"
 #ifdef _DEBUG
     #pragma comment (lib,"QyIPC.lib")
 #else
@@ -45,73 +48,42 @@ namespace Qy_IPC
 		CloseHandle(m_hTheard);
 	}
 
-	void HandleIPCMsg(char* guidstr,int msgId,char *TempBuf,int dataLen)
+	void HandleIPCMsg(std::string guidstr,int msgId,unsigned char *dataBuf,int dataLen,unsigned int CacheTime)
 	{
 		//read消息
-		if(msgId==1)
+		if(msgId==IPCRead)
 		{
-			//data:guidlen+guid+msgId+h+FileInfoSize+FileInfo+datasize+data; 
-			int FileInfoLen=0;
-			memcpy(&FileInfoLen,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-
-			char FileInfo[256]="";
-			memcpy( FileInfo,TempBuf,FileInfoLen);
-			TempBuf+=FileInfoLen;
-			dataLen-=FileInfoLen;
-
-			unsigned int CacheeTime=0;
-			memcpy(&CacheeTime,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-
-			int DataSize=0;
-			memcpy(&DataSize,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-
-			std::string guis(guidstr);
-			std::map<std::string,IPC_DATA_INFO>::iterator It= G_guidBufMap.find(guis);
+			std::map<std::string,IPC_DATA_INFO>::iterator It= G_guidBufMap.find(guidstr);
 			if(It!=G_guidBufMap.end())
 			{
-				It->second.DataSize=DataSize;
-				It->second.CacheTime=CacheeTime;
-				if(DataSize==-1)//暂时没有数据
+				if(dataLen>It->second.BufLen)
+				{
+				    int i=0;
+					i++;
+				}
+				It->second.DataSize=dataLen;
+				It->second.CacheTime=CacheTime;
+				if(dataLen==-1)//暂时没有数据
 				{
 
-				}else if(DataSize==-2){ //数据已经读取完了
+				}else if(dataLen==-2){ //数据已经读取完了
 
-				}else if(DataSize==-1000){ //还未准备好
+				}else if(dataLen==-1000){ //还未准备好
 
-				}else if(DataSize>0){
-					memcpy(It->second.pBuf, TempBuf,DataSize);
+				}else if(dataLen=-1001){
+				
+				}else if(dataLen>0){
+					memcpy(It->second.pBuf, dataBuf, dataLen);
 				}
-				DataSize++;
+				
 			}
 
-		}else if(msgId==2){//seek 消息
+		}else if(msgId==IPCSeek){//seek 消息
 
-			int FileLen=0;
-			memcpy(&FileLen,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-
-			char FileMD[32]="";
-			memcpy( FileMD,TempBuf,4);
-			TempBuf+=FileLen;
-			dataLen-=FileLen;
-
-			int SizeDate=0;
-			memcpy(&SizeDate,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-
-			std::string guis(guidstr);
-			std::map<std::string,IPC_DATA_INFO>::iterator It= G_guidBufMap.find(guis);
+			std::map<std::string,IPC_DATA_INFO>::iterator It= G_guidBufMap.find(guidstr);
 			if(It!=G_guidBufMap.end())
 			{
-				It->second.DataSize=SizeDate;
+				It->second.DataSize=dataLen;
 			}
 		}else if(msgId==3){//down message
 
@@ -119,64 +91,10 @@ namespace Qy_IPC
 
 		}else if(msgId==5){//speed
 			
-			int FileInfoLen=0;
-			memcpy(&FileInfoLen,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-            if(FileInfoLen>256 ||FileInfoLen<=0)
-				return;
-
-			char FileInfo[256]="";
-			memcpy( FileInfo,TempBuf,FileInfoLen);
-			TempBuf+=FileInfoLen;
-			dataLen-=FileInfoLen;
-
 			
-			int DataSize=0;
-			memcpy(&DataSize,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-			
-			if(DataSize>256||DataSize<=0)
-				return;
-			char *strchr=(char*)::malloc(DataSize);
-			memset(strchr,0,DataSize);
-			memcpy(strchr,TempBuf,DataSize);
-			
-			std::string guis(guidstr);
-			std::map<std::string,IPC_DATA_INFO>::iterator It= G_guidBufMap.find(guis);
-			if(It!=G_guidBufMap.end()){
-				It->second.DataSize=DataSize;
-				It->second.pBuf=strchr;
-			}
 		}else if(msgId==6){
 
-			int FileInfoLen=0;
-			memcpy(&FileInfoLen,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-			if(FileInfoLen>256 ||FileInfoLen<=0)
-				return;
-
-			char FileInfo[256]="";
-			memcpy( FileInfo,TempBuf,FileInfoLen);
-			TempBuf+=FileInfoLen;
-			dataLen-=FileInfoLen;
-
-
-			unsigned int DataSize=0;
-			memcpy(&DataSize,TempBuf,4);
-			TempBuf+=4;
-			dataLen-=4;
-
-			std::string xxcc(FileInfo);
-			std::map<std::string,unsigned int>::iterator Itxx=G_CacheTimeMap.find(xxcc);
-            if(Itxx!=G_CacheTimeMap.end())
-			{
-                 Itxx->second=DataSize;
-			}else{
-				G_CacheTimeMap.insert(std::pair<std::string,unsigned int>(xxcc,DataSize));
-			}
+			
 		}
 	}
 	void CKKV_ReceiveData::HandelReceiveData(char *buf,int Len,void* strId)
@@ -184,51 +102,44 @@ namespace Qy_IPC
 
 		Json::Reader JsReader;
 		Json::Value JsValue;
-		if(JsReader.parse(buf,JsValue))
-		{
+		if(JsReader.parse(buf,JsValue)){
 			int IPCMSG=0;
+			int DataLen=0;
+			unsigned int CacheTime=0;
 			if(JsValue["IPCMSG"].isInt())
 				IPCMSG=JsValue["IPCMSG"].asInt();
-			HANDLE HRW=JsValue["HRW"].asInt();
-		}
-		char *TempBuf=buf;
-		if(Len>4){
-				int dataLen=0;
-				memcpy(&dataLen,TempBuf,4);
-				TempBuf+=4;
-				dataLen-=4;
-				if(dataLen>36){
-									  int guidlen=0;
-									  memcpy(&guidlen,TempBuf,4);
-									  TempBuf+=4;
-									  dataLen-=4;
+			HANDLE HRW=(HANDLE)JsValue["HRW"].asInt();
+			std::string guidstr=JsValue["Guid"].asString();
 
-									  char guidstr[64]="";
-									  memcpy(guidstr,TempBuf,guidlen);
-									  TempBuf+=guidlen;
-									  dataLen-=guidlen;
+			if(IPCMSG==IPCRead){
+					DataLen=JsValue["DataLen"].asInt();
+					std::string DataHexStr=JsValue["DataHex"].asString();
+					int DataBufLen=DataLen*2;
+					unsigned char* DataBuf=NULL;
+					if(DataBufLen>0){
+					    DataBuf=(unsigned char*)::malloc(DataBufLen);
+						unsigned long uOutLen=DataBufLen;
+					    bool DecOk=CBase64::Decode(DataHexStr,DataBuf,&uOutLen);
 
-									  if(dataLen>4){
-												   //获取消息id
-												   int msgId=0;
-												   memcpy(&msgId,TempBuf,4);
-												   TempBuf+=4;
-												   dataLen-=4;
-												   if(dataLen>4){
-													   //获取事件
-													   int h=0;
-													   memcpy(&h,TempBuf,4);
-													   TempBuf+=4;
-													   dataLen-=4;
-													   if(dataLen>4){
-														   HandleIPCMsg(guidstr,msgId,TempBuf,dataLen);
-													   }
-													   ::SetEvent((HANDLE)h);
-												   }
-										  
-									  }
-				}
+						 char md5buf[512]="";
+					     MD5Data (DataBuf,uOutLen, md5buf);
+						 std::string DataMd5=JsValue["datamd5"].asString();
+						 if(DataMd5!=md5buf)
+						 {
+						    int ii=0;
+							ii++;
+						 }
+						 
+					}
+					HandleIPCMsg(guidstr,IPCMSG,DataBuf,DataLen, CacheTime);
+					if(DataBuf!=NULL)
+						free(DataBuf);
+					DataBuf=NULL;
+			}else if(IPCMSG==IPCSeek){
+				   DataLen=JsValue["Ret"].asInt();
+			       HandleIPCMsg(guidstr,IPCMSG,0,DataLen, CacheTime);
 			}
-		
+			::SetEvent(HRW);
+		}
 	}
 }

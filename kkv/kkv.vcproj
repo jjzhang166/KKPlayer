@@ -191,6 +191,10 @@
 				RelativePath=".\KKV_ReceiveData.h"
 				>
 			</File>
+			<File
+				RelativePath=".\KKVP.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="资源文件"
@@ -253,6 +257,30 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="Base64"
+			>
+			<File
+				RelativePath=".\Base64\Base64.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Base64\Base64.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="md"
+			>
+			<File
+				RelativePath=".\MD5\md5.c"
+				>
+			</File>
+			<File
+				RelativePath=".\MD5\md5.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

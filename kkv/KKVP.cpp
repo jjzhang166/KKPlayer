@@ -1,3 +1,4 @@
+#include "KKVP.h"
 #include "../../QyIPC/Qy_Ipc_Manage.h"
 #include "KKV_ReceiveData.h"
 #include <map>
@@ -13,15 +14,7 @@
 #define AVERROR_EOF                       KKPERRTAG( 'E','O','F',' ') ///< End of file
 #define AVERROR(e)                       (-(e))
 #define AVERROR_HTTP_NOT_FOUND           FFERRTAG(0xF8,'4','0','4')
-enum IPCMSG{
-	IPCUnknown=0,
-	IPCRead=1,
-	IPCSeek=2,
-	IPCDown=3,
-	IPCClose=4,
-	IPCSpeed=5,
-	IPCCacheTime=6,
-};
+
 
 Qy_IPC::Qy_Ipc_Manage *G_pInstance=NULL;
 typedef unsigned char      uint8_t;
@@ -310,6 +303,9 @@ LOOP1:
 	jsonValue["Guid"]=strGuid;
 	jsonValue["Url"]=KKP->URL;
     jsonValue["HRW"]=(int)hRead;
+	if(buf_size>32768)
+		 jsonValue["BufLen"]=32768;
+	else
     jsonValue["BufLen"]=buf_size;
 
 	strGuid=jsonValue.toStyledString();
@@ -346,16 +342,19 @@ LOOP1:
 	
 	IPC_DATA_INFO OutInfo;
 	bool RetOk=false;
+	strGuid=jsonValue["Guid"].asString();
 	GetIPCOpRet(strGuid,RetOk,OutInfo);
 	if(RetOk)
 	{
 		int ret=OutInfo.DataSize;
+		//还未准备好
 		if(ret==-1000)
 		{
-			
 			goto LOOP1;
+		}else if(ret==-1001){
+		    return AVERROR_EOF;
 		}
-
+			
 			if(KKP->CalPlayerDelay!=NULL)
 			{
 				KKP->CalPlayerDelay(KKP->PlayerOpaque,OutInfo.CacheTime,2);
@@ -428,6 +427,7 @@ LOOP1:
 
 	IPC_DATA_INFO OutInfo;
 	bool RetOk=false;
+	strGuid=jsonValue["Guid"].asString();
 	GetIPCOpRet(strGuid,RetOk,OutInfo);
 	if(RetOk)
 	{
