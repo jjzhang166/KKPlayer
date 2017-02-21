@@ -8,9 +8,9 @@
 #include "Json/json/json.h"
 #include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
 #ifdef _DEBUG
-    #pragma comment (lib,"QyIPC\\Debug\\QyIPC.lib")
+    #pragma comment (lib,"QyIPC.lib")
 #else
-    #pragma comment (lib,"QyIPC\\Release\\QyIPC.lib")
+    #pragma comment (lib,"QyIPC.lib")
 #endif
 typedef unsigned char      uint8_t;
 typedef long long          int64_t;
@@ -179,8 +179,18 @@ namespace Qy_IPC
 			}
 		}
 	}
-	void CKKV_ReceiveData::HandelReceiveData(char *buf,int Len,std::string strId)
+	void CKKV_ReceiveData::HandelReceiveData(char *buf,int Len,void* strId)
 	{
+
+		Json::Reader JsReader;
+		Json::Value JsValue;
+		if(JsReader.parse(buf,JsValue))
+		{
+			int IPCMSG=0;
+			if(JsValue["IPCMSG"].isInt())
+				IPCMSG=JsValue["IPCMSG"].asInt();
+			HANDLE HRW=JsValue["HRW"].asInt();
+		}
 		char *TempBuf=buf;
 		if(Len>4){
 				int dataLen=0;

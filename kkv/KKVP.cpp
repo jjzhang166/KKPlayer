@@ -187,8 +187,8 @@ int InitIPC(){
 		G_pInstance=NULL;
 	}
 	
-	G_pInstance = Qy_IPC::Qy_Ipc_Manage::GetInstance();
-	G_pInstance->Init(G_pKKV_Rec,Qy_IPC::EQyIpcType::Client,G_pKKV_Dis);
+	G_pInstance =new Qy_IPC::Qy_Ipc_Manage();
+	G_pInstance->Init(G_pKKV_Rec,Qy_IPC::QyIpcClient,G_pKKV_Dis);
 	int lx=OpenIPc();
 	if(lx==0){
 		delete G_pInstance;
@@ -209,7 +209,7 @@ void  CreatStrGuid(std::string &strGuid)
 	strGuid=abcd;
 }
 
-int KKVWritePipe(char *pBuf,int Len,HANDLE hPipeInst)
+int KKVWritePipe(unsigned char *pBuf,int Len,HANDLE hPipeInst)
 {
 	int lx=0;
 	G_KKMapLock.Lock();
@@ -281,74 +281,43 @@ KK_DOWN_SPEED_INFO * ParseSpeedInfo(char *jsonstr)
 	return PreInfo;
 }
 
-//read 1; seek 2; down 3,close 4,SpeedInfo 5
-//Send:buflen+data;
-//data:guidlen+guid+msgId+h+FileInfoSize+FileInfo+bufsize;
-
-
-//Reply:buflen+data;
-//data:guidlen+guid+msgId+h+FileURL+FileURL+Buf_Size
+//json格式
+//{
+//    "IPCMSG":1,
+//	"Url":"md5",
+//	"Guid":"Guid",
+//	"HRW":"hRead",
+//	
+//	"BufLen":1000
+//}
 int  __declspec(dllexport) Kkv_read_packet(void *opaque, uint8_t *buf, int buf_size)
 {
 	
 LOOP1:
 	KKPlugin* KKP=(KKPlugin*)opaque;
-	char *IPCbuf=(char*)::malloc(1024);
-	char *tempBuf=IPCbuf;
-	tempBuf+=4;
-	int len=4;
+	
 
 	std::string strGuid;
 	CreatStrGuid(strGuid);
 
 
 	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
-	IPC_DATA_INFO xxda={buf,0,hRead};
-	
-
+	IPC_DATA_INFO xxda={buf, buf_size,0,hRead};
 	AddIPCGuid(strGuid,xxda);
 
-	int guilen=strGuid.length();
-	memcpy(tempBuf,&guilen,4);
-	tempBuf+=4;
-	len+=4;                                                        //guilen 4
-	
-	memcpy(tempBuf,strGuid.c_str(),strGuid.length());
-	tempBuf+=guilen;
-	len+=guilen;                                                   //guid    32
+	Json::Value jsonValue;
+	jsonValue["IPCMSG"]=IPCRead;
+	jsonValue["Guid"]=strGuid;
+	jsonValue["Url"]=KKP->URL;
+    jsonValue["HRW"]=(int)hRead;
+    jsonValue["BufLen"]=buf_size;
 
-	int msgId=1;//read
-	memcpy(tempBuf,&msgId,4);          
-	tempBuf+=4;
-	len+=4;                                                        //msgId   4                             
+	strGuid=jsonValue.toStyledString();
+	unsigned char *IPCbuf=(unsigned char*)::malloc(1024);
+	memset(IPCbuf,0,1024);
+	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
 
-	
-	memcpy(tempBuf,&hRead,4);                                      //h       4
-	tempBuf+=4;
-	len+=4;
-
-	//读状态
-	int FirstRead=KKP->FirstRead;
-	KKP->FirstRead=0;
-	memcpy(tempBuf,&FirstRead,4);
-	tempBuf+=4;
-	len+=4;
-
-	int FileURlSize=strlen(KKP->URL);                              //FileURlSize 4
-	memcpy(tempBuf,&FileURlSize,4);
-	tempBuf+=4;
-	len+=4;
-
-	memcpy(tempBuf,KKP->URL,FileURlSize);                         //FileURl
-	tempBuf+=FileURlSize;
-	len+=FileURlSize;
-
-	memcpy(tempBuf,&buf_size,4);                                  //buf_size    4
-	tempBuf+=4;
-	len+=4;
-	//
-	memcpy(IPCbuf,&len,4);
-	int rext=KKVWritePipe(IPCbuf,len,0);
+	int rext=KKVWritePipe(IPCbuf,1024,0);
 	while(1&&G_IPC_Read_Write==1&&rext==1)
 	{
 		DWORD ret=::WaitForSingleObject( hRead,20);
@@ -406,61 +375,30 @@ int64_t  __declspec(dllexport) Kkv_seek(void *opaque, int64_t offset, int whence
 {
 LOOP1:
 	KKPlugin* KKP=(KKPlugin*)opaque;
-
-	char *IPCbuf=(char*)::malloc(1024);
-	char *tempBuf=IPCbuf;
-	tempBuf+=4;
-	int len=0;
-	len+=4;
+	
 
 	std::string strGuid;
 	CreatStrGuid(strGuid);
 
+
 	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
-	IPC_DATA_INFO xxda={0,0,hRead,0};
-	
+	IPC_DATA_INFO xxda={0,0,0,hRead};
 	AddIPCGuid(strGuid,xxda);
 
-	int guilen=strGuid.length();
-	memcpy(tempBuf,&guilen,4);
-	tempBuf+=4;
-	len+=4;
+	Json::Value jsonValue;
+	jsonValue["IPCMSG"]=IPCSeek;
+	jsonValue["Guid"]=strGuid;
+	jsonValue["Url"]=KKP->URL;
+    jsonValue["HRW"]=(int)hRead;
+    jsonValue["offset"]=(int)offset;
+    jsonValue["whence"]=whence;
 
-	memcpy(tempBuf,strGuid.c_str(),strGuid.length());
-	tempBuf+=guilen;
-	len+=guilen;
+	strGuid=jsonValue.toStyledString();
+	unsigned char *IPCbuf=(unsigned char*)::malloc(1024);
+	memset(IPCbuf,0,1024);
+	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
 
-	int msgId=2;//seek
-	memcpy(tempBuf,&msgId,4);
-	tempBuf+=4;
-	len+=4;
-
-	memcpy(tempBuf,&hRead,4);
-	tempBuf+=4;
-	len+=4;
-
-	int FileInfoSize=strlen(KKP->URL);
-	memcpy(tempBuf,&FileInfoSize,4);
-	tempBuf+=4;
-	len+=4;
-
-	memcpy(tempBuf,KKP->URL,FileInfoSize);
-	tempBuf+=FileInfoSize;
-	len+=FileInfoSize;
-
-	memcpy(tempBuf,&offset,8);
-	tempBuf+=8;
-	len+=8;
-
-	memcpy(tempBuf,&whence,4);
-	tempBuf+=4;
-	len+=4;
-
-	//
-	memcpy(IPCbuf,&len,4);
-
-
-	int rext=KKVWritePipe(IPCbuf,len,0);
+    int rext=KKVWritePipe(IPCbuf,1024,0);
 	while(1&&G_IPC_Read_Write==1&&rext==1)
 	{
 		DWORD ret=::WaitForSingleObject( hRead,500);
@@ -511,63 +449,7 @@ LOOP1:
 unsigned int  Kkv_GetCacheTime(void *opaque)//guidlen+guid+msgId+h+FileURL+FileURL+Buf_Size
 {
 
-	KKPlugin* KKP=(KKPlugin*)opaque;
-	if(G_pInstance==NULL||KKP==NULL)
-	{
-		return 0;
-	}
-
-	char *IPCbuf=(char*)::malloc(1024);
-	char *tempBuf=IPCbuf;
-	tempBuf+=4;
-	int len=4;
-
-	std::string strGuid;
-	CreatStrGuid(strGuid);
-
-	HANDLE hRead=INVALID_HANDLE_VALUE;
-	IPC_DATA_INFO xxda={NULL,0,hRead};
-
-	int guilen=strGuid.length();
-	memcpy(tempBuf,&guilen,4);
-	tempBuf+=4;
-	len+=4;                                                        //guilen 4
-
-	memcpy(tempBuf,strGuid.c_str(),strGuid.length());
-	tempBuf+=guilen;
-	len+=guilen;                                                   //guid    32
-
-	int msgId=IPCCacheTime;
-	memcpy(tempBuf,&msgId,4);          
-	tempBuf+=4;
-	len+=4;                                                        //msgId   4                             
-
-
-	memcpy(tempBuf,&hRead,4);                                      //h       4
-	tempBuf+=4;
-	len+=4;
-
-	int FileURlSize=strlen(KKP->URL);                              //FileURlSize 4
-	memcpy(tempBuf,&FileURlSize,4);
-	tempBuf+=4;
-	len+=4;
-
-	memcpy(tempBuf,KKP->URL,FileURlSize);                         //FileURl
-	tempBuf+=FileURlSize;
-	len+=FileURlSize;
-
-
-	//
-	memcpy(IPCbuf,&len,4);
-	KKVWritePipe(IPCbuf,len,0);
-	::free(IPCbuf);
-
-	std::string xxcc(KKP->URL);
-	std::map<std::string,unsigned int>::iterator Itxx=G_CacheTimeMap.find(xxcc);
-	if(Itxx!=G_CacheTimeMap.end())
-	{
-		return Itxx->second;
-	}
+	return 0;
 }
 //创建一个插件实例
 KKPlugin __declspec(dllexport) *CreateKKPlugin()
@@ -591,173 +473,19 @@ void __declspec(dllexport) DeleteKKPlugin(KKPlugin* p)
 //下载文件件
 char __declspec(dllexport)KKDownAVFile(char *strUrl)
 {
-	  char *IPCbuf=(char*)::malloc(1024);
-	  char *tempBuf=IPCbuf;
-	  tempBuf+=4;
-	  int len=4;
-
-	  std::string strGuid;
-	  CreatStrGuid(strGuid);
-
-	  HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
-	  IPC_DATA_INFO xxda={NULL,0,hRead};
-
-	  int guilen=strGuid.length();
-	  memcpy(tempBuf,&guilen,4);
-	  tempBuf+=4;
-	  len+=4;                                                        //guilen 4
-
-	  memcpy(tempBuf,strGuid.c_str(),strGuid.length());
-	  tempBuf+=guilen;
-	  len+=guilen;                                                   //guid    32
-
-	  int msgId=3;
-	  memcpy(tempBuf,&msgId,4);          
-	  tempBuf+=4;
-	  len+=4;                                                        //msgId   4                             
-
-
-	  memcpy(tempBuf,&hRead,4);                                      //h       4
-	  tempBuf+=4;
-	  len+=4;
-
-	  int FileURlSize=strlen(strUrl);                              //FileURlSize 4
-	  memcpy(tempBuf,&FileURlSize,4);
-	  tempBuf+=4;
-	  len+=4;
-
-	  memcpy(tempBuf,strUrl,FileURlSize);                         //FileURl
-	  tempBuf+=FileURlSize;
-	  len+=FileURlSize;
-
 	  
-	  //
-	  memcpy(IPCbuf,&len,4);
-	  KKVWritePipe(IPCbuf,len,0);
-	  
-	  ::free(IPCbuf);
-	  ::CloseHandle(hRead);
 	  return 0;
   }
 //停止下载文件
 char __declspec(dllexport)KKStopDownAVFile(char *strUrl)
 {
-	char *IPCbuf=(char*)::malloc(1024);
-	char *tempBuf=IPCbuf;
-	tempBuf+=4;
-	int len=4;
-
-	std::string strGuid;
-	CreatStrGuid(strGuid);
-
-	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
-	IPC_DATA_INFO xxda={NULL,0,hRead};
-
-	int guilen=strGuid.length();
-	memcpy(tempBuf,&guilen,4);
-	tempBuf+=4;
-	len+=4;                                                        //guilen 4
-
-	memcpy(tempBuf,strGuid.c_str(),strGuid.length());
-	tempBuf+=guilen;
-	len+=guilen;                                                   //guid    32
-
-	int msgId=IPCMSG::IPCClose;
-	memcpy(tempBuf,&msgId,4);          
-	tempBuf+=4;
-	len+=4;                                                        //msgId   4                             
-
-
-	memcpy(tempBuf,&hRead,4);                                      //h       4
-	tempBuf+=4;
-	len+=4;
-
-	int FileURlSize=strlen(strUrl);                              //FileURlSize 4
-	memcpy(tempBuf,&FileURlSize,4);
-	tempBuf+=4;
-	len+=4;
-
-	memcpy(tempBuf,strUrl,FileURlSize);                         //FileURl
-	tempBuf+=FileURlSize;
-	len+=FileURlSize;
-
-
-	//
-	memcpy(IPCbuf,&len,4);
-	KKVWritePipe(IPCbuf,len,0);
-
-	::free(IPCbuf);
-	::CloseHandle(hRead);
+	
 	return 0;
 }
 
 KK_DOWN_SPEED_INFO __declspec(dllexport) *KKDownAVFileSpeedInfo(char *strurl,int *TotalSpeed)
 {
-	KK_DOWN_SPEED_INFO * pSpeedInfo=NULL;
-	char *IPCbuf=(char*)::malloc(1024);
-	char *tempBuf=IPCbuf;
-	tempBuf+=4;
-	int len=4;
-
-	std::string strGuid;
-	CreatStrGuid(strGuid);
-
-	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
-	IPC_DATA_INFO xxda={NULL,0,hRead};
-	AddIPCGuid(strGuid,xxda);
-
-	int guilen=strGuid.length();
-	memcpy(tempBuf,&guilen,4);
-	tempBuf+=4;
-	len+=4;                                                        //guilen 4
-
-	memcpy(tempBuf,strGuid.c_str(),strGuid.length());
-	tempBuf+=guilen;
-	len+=guilen;                                                   //guid    32
-
-	int msgId=IPCMSG::IPCSpeed;
-	memcpy(tempBuf,&msgId,4);          
-	tempBuf+=4;
-	len+=4;                                                        //msgId   4                             
-
-
-	memcpy(tempBuf,&hRead,4);                                      //h       4
-	tempBuf+=4;
-	len+=4;
-
-	int FileURlSize=strlen(strurl);                              //FileURlSize 4
-	memcpy(tempBuf,&FileURlSize,4);
-	tempBuf+=4;
-	len+=4;
-
-	memcpy(tempBuf,strurl,FileURlSize);                         //FileURl
-	tempBuf+=FileURlSize;
-	len+=FileURlSize;
-
-
-	//
-	memcpy(IPCbuf,&len,4);
-	int rext=KKVWritePipe(IPCbuf,len,0);
-
-	while(1&&G_IPC_Read_Write==1&&rext==1)
-	{
-		DWORD ret=::WaitForSingleObject( hRead,100);
-		if(ret==WAIT_OBJECT_0){
-			break;
-		}
-	}
-
-	IPC_DATA_INFO OutInfo;
-	bool RetOk=false;
-	GetIPCOpRet(strGuid,RetOk,OutInfo);
-
-	if(RetOk)
-	{
-		pSpeedInfo=ParseSpeedInfo((char*)OutInfo.pBuf);
-	}
-
-	::free(IPCbuf);
-	::CloseHandle(hRead);
+	KK_DOWN_SPEED_INFO* pSpeedInfo;
 	return pSpeedInfo; 
 }
 };

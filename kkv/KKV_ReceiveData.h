@@ -4,6 +4,7 @@
 #define KKV_ReceiveData_H_
 typedef struct __IPC_DATA_INFO{
 	void *pBuf;
+	int BufLen;
 	unsigned int DataSize;
 	HANDLE hWait;
 	unsigned int CacheTime;
@@ -22,7 +23,7 @@ namespace Qy_IPC
 		   public:
 				  CKKV_ReceiveData();
 				  ~CKKV_ReceiveData();
-				   virtual void HandelReceiveData(char *buf,int Len,std::string strId);
+				   virtual void HandelReceiveData(char *buf,int Len,void* strId);
 	       private:
 			        UINT m_Add;
 					HANDLE m_hTheard;
