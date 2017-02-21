@@ -26,7 +26,6 @@
 			OutputDirectory="..\..\..\..\debug\libx86\"
 			IntermediateDirectory="x86\ZlibStat$(ConfigurationName)\Tmp"
 			ConfigurationType="4"
-			InheritedPropertySheets="D:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\VCProjectDefaults\UpgradeFromVC70.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -99,7 +98,7 @@
 			OutputDirectory="..\..\..\..\Release\libx86\"
 			IntermediateDirectory="x86\ZlibStat$(ConfigurationName)\Tmp"
 			ConfigurationType="4"
-			InheritedPropertySheets="D:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\VCProjectDefaults\UpgradeFromVC70.vsprops"
+			
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>
@@ -173,7 +172,7 @@
 			OutputDirectory="x86\ZlibStat$(ConfigurationName)"
 			IntermediateDirectory="x86\ZlibStat$(ConfigurationName)\Tmp"
 			ConfigurationType="4"
-			InheritedPropertySheets="D:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\VCProjectDefaults\UpgradeFromVC70.vsprops"
+			
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			>

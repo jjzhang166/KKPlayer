@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="KKPlayerCore"
-	ProjectGUID="{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}"
-	RootNamespace="KKPlayerCore"
+	Name="libmfx"
+	ProjectGUID="{7FD04E61-DB93-43A2-ADEC-8ED86D4FD97F}"
+	RootNamespace="libmfx"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\Debug\libx86\"
+			OutputDirectory="..\debug\libx86"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp;..\libmfx\include;..\libmfx\msdk"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;"
+				AdditionalIncludeDirectories="msdk;include;&quot;$(KKWinSdkPath)\Include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;MFX_VA;_ALLOW_MSC_VER_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_RUNTIME_LIBRARY_MISMATCH"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -82,7 +82,7 @@
 			Name="Release|Win32"
 			OutputDirectory="..\Release\libx86\"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -105,8 +105,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;"
+				AdditionalIncludeDirectories="msdk;include;&quot;$(KKWinSdkPath)\Include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;MFX_VA;_ALLOW_MSC_VER_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_RUNTIME_LIBRARY_MISMATCH"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -123,10 +123,19 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -136,6 +145,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -151,31 +163,47 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\dxva2decoder.cpp"
+				RelativePath=".\src\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\KKCond_t.cpp"
+				RelativePath=".\src\mfx_critical_section.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\KKInternal.cpp"
+				RelativePath=".\src\mfx_dispatcher.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\KKLock.cpp"
+				RelativePath=".\src\mfx_dispatcher_log.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\KKMutex.cpp"
+				RelativePath=".\src\mfx_dxva2_device.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\KKPlayer.cpp"
+				RelativePath=".\src\mfx_function_table.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\platforms.cpp"
+				RelativePath=".\src\mfx_library_iterator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mfx_load_dll.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mfx_load_plugin.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mfx_plugin_hive.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\mfx_win_reg_key.cpp"
 				>
 			</File>
 		</Filter>
@@ -185,59 +213,51 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Dxva2Def.h"
+				RelativePath=".\include\mfx_critical_section.h"
 				>
 			</File>
 			<File
-				RelativePath=".\IKKAudio.h"
+				RelativePath=".\include\mfx_dispatcher.h"
 				>
 			</File>
 			<File
-				RelativePath=".\IKKPlayUI.h"
+				RelativePath=".\include\mfx_dispatcher_defs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Includeffmpeg.h"
+				RelativePath=".\include\mfx_dispatcher_log.h"
 				>
 			</File>
 			<File
-				RelativePath=".\KKCond_t.h"
+				RelativePath=".\include\mfx_dxva2_device.h"
 				>
 			</File>
 			<File
-				RelativePath=".\KKInternal.h"
+				RelativePath=".\include\mfx_exposed_functions_list.h"
 				>
 			</File>
 			<File
-				RelativePath=".\KKLock.h"
+				RelativePath=".\include\mfx_library_iterator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\KKMutex.h"
+				RelativePath=".\include\mfx_load_dll.h"
 				>
 			</File>
 			<File
-				RelativePath=".\KKPlayer.h"
+				RelativePath=".\include\mfx_load_plugin.h"
 				>
 			</File>
 			<File
-				RelativePath=".\KKPlugin.h"
+				RelativePath=".\include\mfx_plugin_hive.h"
 				>
 			</File>
 			<File
-				RelativePath=".\KKVideoInfo.h"
+				RelativePath=".\include\mfx_win_reg_key.h"
 				>
 			</File>
 			<File
-				RelativePath=".\platforms.h"
-				>
-			</File>
-			<File
-				RelativePath=".\resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\stdafx.h"
+				RelativePath=".\include\mfxaudio_exposed_functions_list.h"
 				>
 			</File>
 		</Filter>
@@ -247,110 +267,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
-		<Filter
-			Name="sqlite"
-			>
-			<File
-				RelativePath=".\sqlite\sqlite3.c"
-				>
-			</File>
-			<File
-				RelativePath=".\sqlite\sqlite3.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sqlite\sqlite3ext.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="SqlOp"
-			>
-			<File
-				RelativePath=".\SqlOp\AVInfomanage.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SqlOp\AVInfomanage.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SqlOp\SqliteOp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SqlOp\SqliteOp.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="MD5"
-			>
-			<File
-				RelativePath=".\MD5\md5.c"
-				>
-			</File>
-			<File
-				RelativePath=".\MD5\md5.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="kkptl"
-			>
-			<File
-				RelativePath=".\kkptl\kkio.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Rtmp"
-			>
-			<File
-				RelativePath=".\rtmp\FlvEncode.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\rtmp\FlvEncode.h"
-				>
-			</File>
-			<File
-				RelativePath=".\rtmp\rtmpPush.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\srs_librtmp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\srs_librtmp.h"
-				>
-			</File>
-			<File
-				RelativePath=".\rtmp\SrsRtmpPlugin.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\rtmp\SrsRtmpPlugin.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Qsv"
-			>
-			<File
-				RelativePath=".\Qsv\kkQsvDecoder.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Qsv\kkQsvDecoder.h"
-				>
-			</File>
-		</Filter>
-		<File
-			RelativePath=".\ClassDiagram1.cd"
-			>
-		</File>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>
