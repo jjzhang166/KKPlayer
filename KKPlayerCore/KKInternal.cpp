@@ -25,8 +25,12 @@ void  KK_Free_(void *ptr)
 #define PixelFormat AVPixelFormat
 #ifdef WIN32
       //AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;////AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
+      //DXV2
 	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
 	  void FroceClose_Kk_Va_Dxva2(void *kk_va);
+
+	  //inter QSV½âÂë¡£
+	  int BindQsvModule(AVCodecContext  *pCodecCtx);
 #endif
 	  
 AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;
@@ -749,6 +753,10 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 			   is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
+					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
+				   }
+			   }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){
+			        if(BindQsvModule(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
 				   }
 			   }

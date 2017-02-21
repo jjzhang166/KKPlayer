@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp"
+				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp;..\libmfx\include;..\libmfx\msdk"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -332,6 +332,18 @@
 			</File>
 			<File
 				RelativePath=".\rtmp\SrsRtmpPlugin.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Qsv"
+			>
+			<File
+				RelativePath=".\Qsv\kkQsvDecoder.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Qsv\kkQsvDecoder.h"
 				>
 			</File>
 		</Filter>

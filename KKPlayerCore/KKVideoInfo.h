@@ -344,7 +344,7 @@ typedef struct SKK_VideoState
 	//硬件解码方式
 	enum HARDCODE
 	{
-		HARD_CODE_NONE = 0, HARD_CODE_DXVA = 1, HARD_CODE_CUDA
+		HARD_CODE_NONE = 0, HARD_CODE_DXVA = 1, HARD_CODE_QSV = 2,HARD_CODE_CUDA
 	} Hard_Code;
 } SKK_VideoState;
 #endif

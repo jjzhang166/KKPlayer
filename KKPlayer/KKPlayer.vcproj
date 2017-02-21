@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\Debug\libx86\KKPlayerCore.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib"
+				AdditionalDependencies="..\Debug\libx86\KKPlayerCore.lib ..\Debug\libx86\libmfx.lib ..\WinUI\lib\debug\souid.lib ..\WinUI\lib\debug\utilitiesd.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(KKWinDx9Path)\Lib\x86"
 				GenerateDebugInformation="true"
