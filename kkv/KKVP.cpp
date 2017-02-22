@@ -133,6 +133,8 @@ bool KillProcessFromName(std::wstring strProcessName)
 	}  
 	return false;  
 }  
+
+FILE *TestFb=NULL;
 int OpenIPc()
 {
 	if(G_pInstance==NULL)
@@ -145,8 +147,12 @@ int OpenIPc()
 		G_IPC_Read_Write=1;
 	}
 	G_pInstance->Start();
+	if(TestFb!=NULL)
+		fclose(TestFb);
+	TestFb=fopen("D:/sssssss.mp4","wb");
 	return 1;
 }
+
 //消息通讯格式规定。
 //buflen+data;
 int InitIPC(){
@@ -293,9 +299,15 @@ LOOP1:
 	std::string strGuid;
 	CreatStrGuid(strGuid);
 
-
+    memset(buf,0,buf_size);
 	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
-	IPC_DATA_INFO xxda={buf, buf_size,0,hRead};
+	IPC_DATA_INFO xxda;
+	xxda.pBuf=buf;
+	xxda.BufLen=buf_size;
+	xxda.DataSize=-1000;
+	xxda.hWait=hRead;
+	xxda.CacheTime=0;
+	
 	AddIPCGuid(strGuid,xxda);
 
 	Json::Value jsonValue;
@@ -355,10 +367,13 @@ LOOP1:
 		    return AVERROR_EOF;
 		}
 			
-			if(KKP->CalPlayerDelay!=NULL)
-			{
-				KKP->CalPlayerDelay(KKP->PlayerOpaque,OutInfo.CacheTime,2);
-			}
+		if(KKP->CalPlayerDelay!=NULL)
+		{
+			KKP->CalPlayerDelay(KKP->PlayerOpaque,OutInfo.CacheTime,2);
+		}
+		if(TestFb!=NULL&&ret>0){
+		    fwrite(buf,1,ret,TestFb);
+		}
 		return ret;
 	}
 	
@@ -381,7 +396,12 @@ LOOP1:
 
 
 	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
-	IPC_DATA_INFO xxda={0,0,0,hRead};
+	IPC_DATA_INFO xxda;
+	xxda.pBuf=0;
+	xxda.BufLen=0;
+	xxda.DataSize=-1000;
+	xxda.hWait=hRead;
+	xxda.CacheTime=0;
 	AddIPCGuid(strGuid,xxda);
 
 	Json::Value jsonValue;
@@ -467,6 +487,8 @@ char __declspec(dllexport)KKStopDownAVFile(char *strUrl);
 void __declspec(dllexport) DeleteKKPlugin(KKPlugin* p)
 {
 	KKStopDownAVFile(p->URL);
+	fclose(TestFb);
+	TestFb=NULL;
 	::free(p);
 }
 

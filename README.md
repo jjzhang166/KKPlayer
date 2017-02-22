@@ -60,3 +60,18 @@ CPU=arm
 PREFIX=$(pwd)/android/$CPU
 ADDI_CFLAGS="-marm"
 build_one
+
+
+
+
+
+windowVc(Vs2010)编译ffmpeg(https://ffmpeg.org/platform.html#Microsoft-Visual-C_002b_002b-or-Intel-C_002b_002b-Compiler-for-Windows)
+./configure的3580行修改为：
+        if [ -z "$cl_major_ver" ] || [ $cl_major_ver -ge 18 ]; then
+            cc_default="cl"
+        else
+            cc_default="c99wrap cl"
+        fi
+		cc_default="c99wrap cl"
+例如:
+./configure --toolchain=msvc --extra-cflags='-IC:/msinttypes' --enable-shared

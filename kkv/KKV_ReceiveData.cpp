@@ -70,7 +70,7 @@ namespace Qy_IPC
 
 				}else if(dataLen==-1000){ //还未准备好
 
-				}else if(dataLen=-1001){
+				}else if(dataLen==-1001){
 				
 				}else if(dataLen>0){
 					memcpy(It->second.pBuf, dataBuf, dataLen);
@@ -116,7 +116,7 @@ namespace Qy_IPC
 					std::string DataHexStr=JsValue["DataHex"].asString();
 					int DataBufLen=DataLen*2;
 					unsigned char* DataBuf=NULL;
-					if(DataBufLen>0){
+					if(DataLen>0){
 					    DataBuf=(unsigned char*)::malloc(DataBufLen);
 						unsigned long uOutLen=DataBufLen;
 					    bool DecOk=CBase64::Decode(DataHexStr,DataBuf,&uOutLen);
@@ -132,9 +132,11 @@ namespace Qy_IPC
 						 
 					}
 					HandleIPCMsg(guidstr,IPCMSG,DataBuf,DataLen, CacheTime);
+					
 					if(DataBuf!=NULL)
 						free(DataBuf);
 					DataBuf=NULL;
+
 			}else if(IPCMSG==IPCSeek){
 				   DataLen=JsValue["Ret"].asInt();
 			       HandleIPCMsg(guidstr,IPCMSG,0,DataLen, CacheTime);
