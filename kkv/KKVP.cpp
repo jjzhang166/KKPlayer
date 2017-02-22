@@ -134,7 +134,7 @@ bool KillProcessFromName(std::wstring strProcessName)
 	return false;  
 }  
 
-FILE *TestFb=NULL;
+//FILE *TestFb=NULL;
 int OpenIPc()
 {
 	if(G_pInstance==NULL)
@@ -147,9 +147,9 @@ int OpenIPc()
 		G_IPC_Read_Write=1;
 	}
 	G_pInstance->Start();
-	if(TestFb!=NULL)
+	/*if(TestFb!=NULL)
 		fclose(TestFb);
-	TestFb=fopen("D:/sssssss.mp4","wb");
+	TestFb=fopen("D:/sssssss.mp4","wb");*/
 	return 1;
 }
 
@@ -371,9 +371,9 @@ LOOP1:
 		{
 			KKP->CalPlayerDelay(KKP->PlayerOpaque,OutInfo.CacheTime,2);
 		}
-		if(TestFb!=NULL&&ret>0){
+		/*if(TestFb!=NULL&&ret>0){
 		    fwrite(buf,1,ret,TestFb);
-		}
+		}*/
 		return ret;
 	}
 	
@@ -487,8 +487,8 @@ char __declspec(dllexport)KKStopDownAVFile(char *strUrl);
 void __declspec(dllexport) DeleteKKPlugin(KKPlugin* p)
 {
 	KKStopDownAVFile(p->URL);
-	fclose(TestFb);
-	TestFb=NULL;
+	/*fclose(TestFb);
+	TestFb=NULL;*/
 	::free(p);
 }
 
