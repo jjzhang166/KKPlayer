@@ -116,7 +116,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\skia\include;..\skia\include\core;..\skia\include\config;"
+				AdditionalIncludeDirectories="&quot;$(KKWinDx9Path)\include&quot;;..\skia\include;..\skia\include\core;..\skia\include\config"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RENDER_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

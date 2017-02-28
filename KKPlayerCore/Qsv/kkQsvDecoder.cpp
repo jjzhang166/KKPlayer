@@ -2,9 +2,8 @@
 #include <tchar.h>
 #include "kkQsvDecoder.h"
 
-#include <mfxdefs.h>
-#include <mfxdefs.h>
-#include <mfxvideo.h>
+#include <mfx/mfxdefs.h>
+#include <mfx/mfxvideo.h>
 #include <libavcodec/qsv.h>
 void *KK_Malloc_(size_t size);
 void  KK_Free_(void *ptr);
