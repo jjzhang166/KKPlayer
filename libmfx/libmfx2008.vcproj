@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="msdk;include;&quot;$(KKWinSdkPath)\Include&quot;"
+				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;include\mfx;include"
 				PreprocessorDefinitions="WIN_TRESHOLD_MOBILE;WIN32;_DEBUG;_LIB;MFX_VA;_ALLOW_MSC_VER_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_RUNTIME_LIBRARY_MISMATCH"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="msdk;include;&quot;$(KKWinSdkPath)\Include&quot;"
+				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;include;include\mfx"
 				PreprocessorDefinitions="WIN_TRESHOLD_MOBILE;WIN32;_LIB;MFX_VA;_ALLOW_MSC_VER_MISMATCH;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;_ALLOW_RUNTIME_LIBRARY_MISMATCH"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

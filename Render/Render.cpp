@@ -66,6 +66,7 @@ extern "C"{
 				  delete px;
 			  }
 			  m_Rendermap.erase(It);
+			  pIn=NULL;
 		  }
 		 
 		 delete pIn;

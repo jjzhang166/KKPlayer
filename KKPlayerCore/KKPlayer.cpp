@@ -940,7 +940,7 @@ int is_realtime2(char *name)
 		return 1;
 	return 0;
 }
-int KKPlayer::OpenMedia(char* fileName,char* FilePath)
+int KKPlayer::OpenMedia(char* URL,char* Other)
 {
 	m_PreFileLock.Lock();
 	if(m_nPreFile!=0)
@@ -973,7 +973,7 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
     m_PktSerial=0;
 	
 	LOGE("Movie Path：\n");
-	LOGE(fileName);
+	LOGE(URL);
 	LOGE("\n");
 	pVideoInfo->viddec.decoder_tid.ThOver=true;
 	pVideoInfo->auddec.decoder_tid.ThOver=true;
@@ -988,9 +988,9 @@ int KKPlayer::OpenMedia(char* fileName,char* FilePath)
 	av_init_packet(pVideoInfo->pflush_pkt);
 	flush_pkt.data = (uint8_t *)pVideoInfo->pflush_pkt;
 
-	av_strlcpy(pVideoInfo->filename, fileName, strlen(fileName)+1);
+	memcpy(pVideoInfo->filename, URL, strlen(URL));
 
-	pVideoInfo->realtime = is_realtime2(fileName);
+	pVideoInfo->realtime = is_realtime2(URL);
 
 	//初始化队列
 	packet_queue_init(&pVideoInfo->videoq);

@@ -60,6 +60,7 @@ private:
 
 	IDirect3DSurface9 * m_pBackBuffer;
     RECT m_rtViewport; 
+	//‰÷»æ«¯”Ú∏ﬂ∂»
     unsigned int m_w;
 	unsigned int m_h;
     struct Vertex
@@ -73,7 +74,7 @@ private:
         };
     };
 
-    Vertex m_Vertex[4];
+    Vertex m_VideoVertex[4];
 	Vertex m_FontVertex[4];
 	Vertex m_WaitVertex[4];
 	Vertex m_CenterLogVertex[4];

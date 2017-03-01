@@ -219,10 +219,7 @@ int CMainFrame::GetRealtime()
 
 	return 0;
 }
-void CMainFrame::UpdateLayout(BOOL bResizeBars)
-{
-   	   
-}
+
 void  CMainFrame::AvSeek(int value)
 {
 	m_pPlayerInstance->AVSeek(value);
@@ -239,17 +236,7 @@ int CMainFrame::GetCurTime()
 {
 	return m_pPlayerInstance->GetCurTime();
 }
-BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
-{
-	if(CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
-		return TRUE;
-	return FALSE;
-}
 
-BOOL CMainFrame::OnIdle()
-{
-	return FALSE;
-}
 
 #   define mad_f_mul(x, y)	((((x) + (1L << 11)) >> 12) *  \
 	(((y) + (1L << 15)) >> 16))
@@ -292,7 +279,7 @@ int CMainFrame::DownMedia(char *KKVURL,bool Down)
 	
     return -1;
 }
-int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
+int  CMainFrame::OpenMedia(std::string url)
 {
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
@@ -302,7 +289,7 @@ int  CMainFrame::OpenMedia(std::string url,std::string FilePath)
 		   m_pRender->ShowErrPic(false);
 	 }
 	  
-	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),(char*)FilePath.c_str());
+	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());
 	if(ret>=0){
           m_bOpen=true;
 		  char abcd[1024]="";
@@ -394,25 +381,6 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 	 bHandled=true;
 	 if(!m_bOpen)
 	 {
-		 /*PAINTSTRUCT ps = { 0 };
-		 ::BeginPaint(m_hWnd, &ps);
-
-		 HDC MemDC=::CreateCompatibleDC(ps.hdc);
-		 RECT rcWindow;
-		 ::GetClientRect(m_hWnd,&rcWindow);
-		 HBITMAP bmp;
-		 bmp=::CreateCompatibleBitmap(ps.hdc,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top);
-		 ::SelectObject(MemDC,bmp);
-		 ::SetBkColor(MemDC,RGB(0,0,0));
-		 ::SetBkMode(MemDC,TRANSPARENT);
-         #ifdef QY_GDI
-		 OnDraw(MemDC,rcWindow); 
-         #endif
-		 ::BitBlt(ps.hdc,0,0,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top,MemDC,0,0,SRCCOPY); 
-		 ::DeleteObject(bmp);
-		 ::DeleteDC(MemDC);*/
-
-		 //::InvalidateRect(m_hWnd,NULL,FALSE);
 		 PAINTSTRUCT ps = { 0 };
 		 ::BeginPaint(m_hWnd, &ps);
 		 ::EndPaint(m_hWnd, &ps);
@@ -431,13 +399,6 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 
 #ifdef QY_GDI
 		 OnDraw(MemDC,rcWindow);
-//#else
-		/* Gdiplus::Graphics graphics(MemDC);
-		 {  
-			 // 使用高质量模式(相对比较耗时)，可以查看msdn，替换为其他mode   
-			 //graphics(SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);  
-			 graphics.DrawImage(m_BkGidPulsBitmap, 0, 0, rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top);  
-		 }  */
 #endif
 
          ::BitBlt(ps.hdc,0,0,rcWindow.right-rcWindow.left,rcWindow.bottom-rcWindow.top,MemDC,0,0,SRCCOPY);
@@ -450,13 +411,8 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 		  ::BeginPaint(m_hWnd, &ps);
 		  ::EndPaint(m_hWnd, &ps);
 		  m_pPlayerInstance->RenderImage(m_pRender,true);
-		
-		 //::ValidateRect(m_hWnd,NULL);
-		// ::InvalidateRect(m_hWnd,NULL,NULL);
 	 }
 	
-      //m_pPlayerInstance->RenderImage(m_pRender);
-	// return ::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
 	return 1;
 }
 
@@ -691,6 +647,12 @@ unsigned char*  CMainFrame::GetBkImage(int &len)
 	return m_pBkImage;
 }
 
+
+LRESULT CMainFrame::OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+            CloseMedia();
+			return 1;
+}
 LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
    bHandled=true;

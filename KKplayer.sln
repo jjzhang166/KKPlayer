@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayerCore", "KKPlayerCore\KKPlayerCore.vcproj", "{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayer", "KKPlayer\KKPlayer.vcproj", "{B82462F3-0004-4E0E-BB50-F0DBBB168F61}"
-	ProjectSection(ProjectDependencies) = postProject
-		{84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B} = {84C7B630-A27D-41C4-92E0-DE9B1B1A1D0B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skia", "skia\skia.vcproj", "{022D2356-8EF6-3EA3-A0D2-F1786190B6E1}"
 EndProject

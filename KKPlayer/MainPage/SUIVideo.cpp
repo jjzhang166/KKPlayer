@@ -36,6 +36,7 @@ namespace SOUI
 	void CSuiVideo::OnDestroy()
 	{
           m_VideoWnd.CloseMedia();
+		  ::DestroyWindow(m_VideoWnd.m_hWnd);
 	}
 	int  CSuiVideo::OnCreate(void* p)
 	{
@@ -104,6 +105,7 @@ namespace SOUI
 	void CSuiVideo::Close()
 	{
 		m_VideoWnd.CloseMedia();
+		//GetContainer()->GetHostHwnd();
 		m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(L"KK”∞“Ù");
 	}
 

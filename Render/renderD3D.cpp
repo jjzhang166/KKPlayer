@@ -35,7 +35,7 @@ std::basic_string<TCHAR> GetModulePath()
 }
 
 
-//#define VFYUY420P
+#define VFYUV420P
 typedef IDirect3D9* (WINAPI* LPDIRECT3DCREATE9)( UINT );
 
 
@@ -44,8 +44,6 @@ typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 #include <core\SkCanvas.h>
 #include <core\SkBitmap.h>
 #include <core\SkTypeface.h>
-
-#define VFYUY420P
 
 DX9CTFromFileInMemory fpDX9CTFromFileInMemory=NULL;
 LPFN_ISWOW64PROCESS fnIsWow64Process;  
@@ -261,35 +259,38 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 	    m_LeftPicVertex[3].u = 1.f;
 	    m_LeftPicVertex[3].v = 1.f;
    }
+//没有定义 YUV420p
+#ifndef VFYUV420P
    {
-		m_Vertex[0].x = -0.5f;
-		m_Vertex[0].y = -0.5f;
-		m_Vertex[0].z = 0.f;
-		m_Vertex[0].w = 1.f;
-		m_Vertex[0].u = 0.f;
-		m_Vertex[0].v = 0.f;
+		m_VideoVertex[0].x = -0.5f;
+		m_VideoVertex[0].y = -0.5f;
+		m_VideoVertex[0].z = 0.f;
+		m_VideoVertex[0].w = 1.f;
+		m_VideoVertex[0].u = 0.f;
+		m_VideoVertex[0].v = 0.f;
 
-		m_Vertex[1].x = w - 0.5f;
-		m_Vertex[1].y = -0.5f;
-		m_Vertex[1].z = 0.f;
-		m_Vertex[1].w = 1.f;
-		m_Vertex[1].u = 1.f;
-		m_Vertex[1].v = 0.f;
+		m_VideoVertex[1].x = w - 0.5f;
+		m_VideoVertex[1].y = -0.5f;
+		m_VideoVertex[1].z = 0.f;
+		m_VideoVertex[1].w = 1.f;
+		m_VideoVertex[1].u = 1.f;
+		m_VideoVertex[1].v = 0.f;
 
-		m_Vertex[2].x = -0.5f;
-		m_Vertex[2].y = h - 0.5f;
-		m_Vertex[2].z = 0.f;
-		m_Vertex[2].w = 1.f;
-		m_Vertex[2].u = 0.f;
-		m_Vertex[2].v = 1.f;
+		m_VideoVertex[2].x = -0.5f;
+		m_VideoVertex[2].y = h - 0.5f;
+		m_VideoVertex[2].z = 0.f;
+		m_VideoVertex[2].w = 1.f;
+		m_VideoVertex[2].u = 0.f;
+		m_VideoVertex[2].v = 1.f;
 
-		m_Vertex[3].x = w - 0.5f;
-		m_Vertex[3].y = h - 0.5f;
-		m_Vertex[3].z = 0.f;
-		m_Vertex[3].w = 1.f;
-		m_Vertex[3].u = 1.f;
-		m_Vertex[3].v = 1.f;
+		m_VideoVertex[3].x = w - 0.5f;
+		m_VideoVertex[3].y = h - 0.5f;
+		m_VideoVertex[3].z = 0.f;
+		m_VideoVertex[3].w = 1.f;
+		m_VideoVertex[3].u = 1.f;
+		m_VideoVertex[3].v = 1.f;
     }
+#endif
     {
 		w=200;
 		h=100;
@@ -323,6 +324,7 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 		m_FontVertex[3].u = 1.f;
 		m_FontVertex[3].v = 1.f;
 	}
+
 	{
 		w=44;
 		h=46;
@@ -397,7 +399,7 @@ void CRenderD3D::ShowErrPic(bool show)
 {
    m_bShowErrPic=show;
 }
-void  CRenderD3D::WinSize(unsigned int w, unsigned int h)
+void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
 
 	m_lock.Lock();
@@ -502,7 +504,7 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 			if(pBuf!=NULL&&m_bShowErrPic==false)
 			{
                 UpdateTexture(pBuf,width,height,Imgwidth);	
-#ifdef VFYUY420P
+#ifdef VFYUV420P
 			
 				if(m_pYUVAVTexture!=NULL)
 				{
@@ -538,12 +540,69 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 					
 				}/**/
 #else
+
+
+				        int dw=m_w;
+						int dh=m_h;
+						int h=dh,w=dw;
+					    int cx=0;
+						int cy=0;
+						int cw=m_w;
+						int ch=m_h;
+						//if(dw>width)
+						{
+                            dh=dw*height/Imgwidth;
+						}
+						if(dh>h)
+						{
+							dh=h;
+							dw=Imgwidth*dh/height;
+						}
+                        if(dw<w)
+						{
+							cx+=(w-dw)/2;
+							cw=cx+dw;
+						}
+						if(dh<h)
+						{
+							cy+=(h-dh)/2;
+							ch=cy+dh;
+						}
+
+						m_VideoVertex[0].x = cx;
+						m_VideoVertex[0].y = cy;
+						m_VideoVertex[0].z = 0.f;
+						m_VideoVertex[0].w = 1.f;
+						m_VideoVertex[0].u = 0.f;
+						m_VideoVertex[0].v = 0.f;
+
+						m_VideoVertex[1].x = cw - 0.5f;
+						m_VideoVertex[1].y = cy-0.5f;
+						m_VideoVertex[1].z = 0.f;
+						m_VideoVertex[1].w = 1.f;
+						m_VideoVertex[1].u = 1.f;
+						m_VideoVertex[1].v = 0.f;
+
+						m_VideoVertex[2].x = cx;
+						m_VideoVertex[2].y = ch - 0.5f;
+						m_VideoVertex[2].z = 0.f;
+						m_VideoVertex[2].w = 1.f;
+						m_VideoVertex[2].u = 0.f;
+						m_VideoVertex[2].v = 1.f;
+
+						m_VideoVertex[3].x = cw;  //右下角
+						m_VideoVertex[3].y = ch;
+						m_VideoVertex[3].z = 0.f;
+						m_VideoVertex[3].w = 1.f;
+						m_VideoVertex[3].u = 1.f;
+						m_VideoVertex[3].v = 1.f;
+
 				m_pDevice->SetTexture(0, m_pDxTexture);
 				m_pDevice->SetFVF(Vertex::FVF);
 				m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_Vertex, sizeof(Vertex));
+				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_VideoVertex, sizeof(Vertex));
 #endif
 				if(m_pLeftPicTexture!=NULL)
 				{
@@ -753,7 +812,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 {
 	
-#ifdef VFYUY420P	
+#ifdef VFYUV420P	
    if (m_pYUVAVTexture == NULL)
     {
         RECT rect2;
@@ -803,7 +862,7 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 #endif
    
       D3DLOCKED_RECT rect;
-		#ifdef VFYUY420P
+		#ifdef VFYUV420P
 				 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
 				 if(rect.pBits!=NULL)
 				 {

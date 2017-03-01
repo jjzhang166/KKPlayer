@@ -61,7 +61,7 @@ class KKPlayer
 			/******Windows平台调用**********/
 			void SetWindowHwnd(HWND hwnd);
 			/*********打开媒体.成功返回0，失败返回-1.************/
-			int OpenMedia(char* fileName,char* FilePath="C:\\"); 
+			int OpenMedia(char* URL,char* Other=""); 
 			/*********关闭播放器*********/
 			void CloseMedia(); 
     		
