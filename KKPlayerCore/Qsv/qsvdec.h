@@ -1,18 +1,29 @@
-#ifndef kk_QsvDecH_
-#define kk_QsvDecH_
-#include "../Includeffmpeg.h"
-//typedef unsigned char	Uint8;
+#ifndef KK_AVCODEC_QSVDEC_H
+#define KK_AVCODEC_QSVDEC_H
+#include <stdint.h>
+#include <sys/types.h>
 extern "C"{
-    #include <mfx/mfxvideo.h>
-	#include "libavutil/common.h"
-	#include "libavutil/fifo.h"
-	#include "libavutil/opt.h"
-	#include <libavcodec/qsv.h>
-}
+#include <mfx/mfxvideo.h>
+#include "libavutil/fifo.h"
+#include "libavutil/frame.h"
+#include "libavutil/pixfmt.h"
 
-typedef struct QSVContext {
+#include "libavcodec/avcodec.h"
+}
+#include "qsv_internal.h"
+
+typedef struct KKQSVContext {
     // the session used for decoding
     mfxSession session;
+
+    // the session we allocated internally, in case the caller did not provide
+    // one
+    KKQSVSession internal_qs;
+
+    /**
+     * a linked list of frames currently being used by QSV
+     */
+    KKQSVFrame *work_frames;
 
     AVFifoBuffer *async_fifo;
     AVFifoBuffer *input_fifo;
@@ -37,7 +48,19 @@ typedef struct QSVContext {
     int iopattern;
 
     char *load_plugins;
+
     mfxExtBuffer **ext_buffers;
     int         nb_ext_buffers;
-} QSVContext;
-#endif
+} KKQSVContext;
+
+int ff_qsv_map_pixfmt(enum AVPixelFormat format);
+
+int ff_qsv_decode(AVCodecContext *s, KKQSVContext *q,
+                  AVFrame *frame, int *got_frame,
+                  AVPacket *avpkt);
+
+void ff_qsv_decode_reset(AVCodecContext *avctx, KKQSVContext *q);
+
+int ff_qsv_decode_close(KKQSVContext *q);
+
+#endif /* AVCODEC_QSVDEC_H */
