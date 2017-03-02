@@ -2,9 +2,12 @@
 #include <tchar.h>
 #include "kkQsvDecoder.h"
 
+
+extern "C"{
 #include <mfx/mfxdefs.h>
 #include <mfx/mfxvideo.h>
 #include <libavcodec/qsv.h>
+}
 void *KK_Malloc_(size_t size);
 void  KK_Free_(void *ptr);
 
@@ -15,6 +18,9 @@ void  KK_Free_(void *ptr);
 #define MSDK_PRINT_RET_MSG(ERR) {msdk_printf(MSDK_STRING("\nReturn on error: error code %d,\t%s\t%d\n\n"), (int)ERR, MSDK_STRING(__FILE__), __LINE__);}
 #define MSDK_CHECK_ERROR(P, X, ERR)              {if ((X) == (P)) {MSDK_PRINT_RET_MSG(ERR); return ERR;}}
 #define MSDK_SAFE_DELETE_ARRAY(P)                {if (P) {KK_Free_(P); P = NULL;}}
+
+
+
 //QSV硬解码环境
 typedef struct KKQSVDecCtx
 {
@@ -35,11 +41,36 @@ typedef struct KKQSVDecCtx
 
 	mfxFrameAllocator     frame_allocator;
 	bool                  de_header;
-	AVQSVContext          hw_ctx;
+	int                   picw;
+	int                   pich;
+	AVQSVContext          *hw_ctx;
 	
 }KKQSVDecCtx;
 
 
+//ffmpeg 没有提供
+static int Qsv_h264_start_frame(AVCodecContext *avctx,
+                                  av_unused const uint8_t *buffer,
+                                  av_unused uint32_t size)
+{
+    //const H264Context *h = avctx->priv_data;
+    AVQSVContext  *QSVContext =(AVQSVContext  *) avctx->hwaccel_context;
+    return 0;
+}
+
+static int  Qsv_h264_decode_slice(AVCodecContext *avctx,
+                                   const uint8_t *buffer,
+                                   uint32_t size)
+{
+ 
+	return 0;
+}
+
+static int  Qsv_h264_end_frame(AVCodecContext *avctx)
+{
+    
+    return 0;
+}
 
 static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *req,
                              mfxFrameAllocResponse *resp)
@@ -158,22 +189,63 @@ static mfxStatus InitMfxBitstream(mfxBitstream* pBitstream, mfxU32 nSize)
 }
 
 
-static enum AVPixelFormat Qsv_GetFormat( AVCodecContext *p_context,const enum AVPixelFormat *pi_fmt )
+static enum AVPixelFormat Qsv_GetFormat( AVCodecContext *p_context,const enum AVPixelFormat *pix_fmts )
 {
 	
-	return avcodec_default_get_format( p_context, pi_fmt );
+	
+	 while (*pix_fmts != AV_PIX_FMT_NONE)
+	 {
+        if(*pix_fmts == AV_PIX_FMT_QSV)
+		{
+            return AV_PIX_FMT_QSV;
+		}
+        pix_fmts++;
+    }
+
+	return avcodec_default_get_format( p_context,pix_fmts );
 }
 
 static int Qsv_GetFrameBuf( struct AVCodecContext *p_context, AVFrame *p_ff_pic,int flags)
 {
-	
+	int i=0;
+	i++;
 	return -1;
 }
 
+
+
+
+//void av_fifo_reset(AVFifoBuffer *f)
+//{
+//	if(f){
+//    f->wptr = f->rptr = f->buffer;
+//    f->wndx = f->rndx = 0;
+//	}
+//}
+
 int BindQsvModule(AVCodecContext  *pCodecCtx)
 {
+
+	//0x5105e930 "h264_qsv"
+	
+//	AVHWAccel *hwaccel=av_hwaccel_next(NULL);
+//	//LOGE("AVInputFormatList \n");
+//#ifdef WIN32
+//	while(hwaccel!=NULL)
+//	{
+//		const char *aa=hwaccel->name;
+//		if(strcmp(aa,"h264_qsv")==0){
+//		   hwaccel-> start_frame   = Qsv_h264_start_frame;
+//           hwaccel->decode_slice   = Qsv_h264_decode_slice;
+//           hwaccel->end_frame      = Qsv_h264_end_frame;
+//		}
+//
+//		hwaccel=av_hwaccel_next(hwaccel);
+//	}
+//#endif
 	if(pCodecCtx->codec_id==AV_CODEC_ID_H264)
 	{
+		//pCodecCtx->codec_id=
 		pCodecCtx->get_format         = Qsv_GetFormat;
 	    pCodecCtx->get_buffer2        = Qsv_GetFrameBuf;
 	    pCodecCtx->thread_count       = 1;
@@ -182,13 +254,15 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		//硬解
 		mfxIMPL impl =MFX_IMPL_HARDWARE;
 		KKQSVDecCtx *decCtx=(KKQSVDecCtx*)::KK_Malloc_(sizeof(KKQSVDecCtx));
-		pCodecCtx->hwaccel_context=&decCtx->hw_ctx;
+		
+		decCtx->hw_ctx =av_qsv_alloc_context();// av_mallocz(sizeof(AVQSVContext));//
+		pCodecCtx->hwaccel_context=decCtx->hw_ctx;
 		pCodecCtx->opaque=decCtx;
+
+		decCtx->picw=pCodecCtx->width;
+		decCtx->pich=pCodecCtx->height;
 		//h264
 		decCtx->dec_param.mfx.CodecId=MFX_CODEC_AVC;
-       
-
-
 		decCtx->mfx_ver.Major = 1;
 	    decCtx->mfx_ver.Minor = 0;
 	    mfxStatus sts=MFXInit(impl,&decCtx->mfx_ver, &decCtx->mfx_session); 
@@ -226,9 +300,10 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		    }
          }
 
-		 decCtx->hw_ctx.iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
-		 decCtx->hw_ctx.session=decCtx->mfx_session;
-		 return 0;
+		 decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
+		 decCtx->hw_ctx->session=decCtx->mfx_session;
+		 decCtx->hw_ctx->iopattern = MFX_IOPATTERN_OUT_VIDEO_MEMORY;
+		return 0;
 		sts = MFXVideoDECODE_DecodeHeader(decCtx->mfx_session, &decCtx->mfx_enc_bs, &decCtx->dec_param);
 		if (!sts){
             //m_bVppIsUsed = IsVppRequired(pParams);
@@ -263,3 +338,5 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 	return -1;
 
 }
+
+
