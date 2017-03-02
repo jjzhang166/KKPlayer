@@ -11,10 +11,10 @@ extern "C"{
 
 #include "libavcodec/avcodec.h"
 
-
+int av_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
+int av_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);
 }
-int ff_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
-int ff_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);
+
 //#include "internal.h"
 #include "qsv.h"
 #include "qsv_internal.h"
@@ -40,7 +40,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
                                        AV_PIX_FMT_NV12,
                                        AV_PIX_FMT_NONE };
 
-    ret = ff_get_format(avctx, pix_fmts);
+    ret = av_get_format(avctx, pix_fmts);
     if (ret < 0)
         return ret;
 
@@ -149,7 +149,7 @@ static int alloc_frame(AVCodecContext *avctx, KKQSVFrame *frame)
 {
     int ret;
 
-    ret = ff_get_buffer(avctx, frame->frame, AV_GET_BUFFER_FLAG_REF);
+    ret = av_get_buffer(avctx, frame->frame, AV_GET_BUFFER_FLAG_REF);
     if (ret < 0)
         return ret;
 
