@@ -339,6 +339,14 @@
 			Name="Qsv"
 			>
 			<File
+				RelativePath=".\Qsv\kk_QsvDec.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Qsv\kk_QsvDec_h2645.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Qsv\kkQsvDecoder.cpp"
 				>
 			</File>
