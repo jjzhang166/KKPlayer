@@ -224,26 +224,11 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *p_context, AVFrame *p_ff_pic,
 //	}
 //}
 
+void Registerkk_h264_qsv_decoder();
 int BindQsvModule(AVCodecContext  *pCodecCtx)
 {
 
-	//0x5105e930 "h264_qsv"
-	
-//	AVHWAccel *hwaccel=av_hwaccel_next(NULL);
-//	//LOGE("AVInputFormatList \n");
-//#ifdef WIN32
-//	while(hwaccel!=NULL)
-//	{
-//		const char *aa=hwaccel->name;
-//		if(strcmp(aa,"h264_qsv")==0){
-//		   hwaccel-> start_frame   = Qsv_h264_start_frame;
-//           hwaccel->decode_slice   = Qsv_h264_decode_slice;
-//           hwaccel->end_frame      = Qsv_h264_end_frame;
-//		}
-//
-//		hwaccel=av_hwaccel_next(hwaccel);
-//	}
-//#endif
+    Registerkk_h264_qsv_decoder();
 	if(pCodecCtx->codec_id==AV_CODEC_ID_H264)
 	{
 		//pCodecCtx->codec_id=

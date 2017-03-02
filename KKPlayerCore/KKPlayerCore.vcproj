@@ -355,6 +355,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Qsv\qsv_api.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Qsv\qsvdec.cpp"
 				>
 			</File>

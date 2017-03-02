@@ -761,12 +761,12 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				  
 				  /* avcodec_free_context(&avctx);
 				   avctx = avcodec_alloc_context3(codec);*/
-				   codec = avcodec_find_decoder_by_name("h264_qsv"); 
+				   
 			       if(BindQsvModule(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
 					  
 				   }
-					
+					codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
 					
 			   }
        #endif

@@ -10,10 +10,11 @@ extern "C"{
 #include "libavutil/time.h"
 
 #include "libavcodec/avcodec.h"
-int ff_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
-int ff_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);
+
 
 }
+int ff_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
+int ff_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);
 //#include "internal.h"
 #include "qsv.h"
 #include "qsv_internal.h"
