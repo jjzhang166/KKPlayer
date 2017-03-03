@@ -19,7 +19,7 @@ int av_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);
 #include "qsv.h"
 #include "qsv_internal.h"
 #include "qsvdec.h"
-
+#include <assert.h>
 int ff_qsv_map_pixfmt(enum AVPixelFormat format)
 {
     switch (format) {
@@ -56,14 +56,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
         q->nb_ext_buffers = qsv->nb_ext_buffers;
     }
     if (!q->session) {
-        if (!q->internal_qs.session) {
-            ret = ff_qsv_init_internal_session(avctx, &q->internal_qs,
-                                               q->load_plugins);
-            if (ret < 0)
-                return ret;
-        }
-
-        q->session = q->internal_qs.session;
+        assert(0);
     }
 
     if (avpkt->size) {
@@ -98,6 +91,8 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     param.NumExtParam = q->nb_ext_buffers;
     param.mfx.FrameInfo.BitDepthLuma   = 8;
     param.mfx.FrameInfo.BitDepthChroma = 8;
+
+    mfxStatus sts=MFXVideoDECODE_Query(q->session,&param, &param);
 
     ret = MFXVideoDECODE_Init(q->session, &param);
     if (ret < 0) {

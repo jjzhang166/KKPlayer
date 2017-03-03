@@ -216,14 +216,6 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *p_context, AVFrame *p_ff_pic,
 
 
 
-//void av_fifo_reset(AVFifoBuffer *f)
-//{
-//	if(f){
-//    f->wptr = f->rptr = f->buffer;
-//    f->wndx = f->rndx = 0;
-//	}
-//}
-
 void Registerkk_h264_qsv_decoder();
 int BindQsvModule(AVCodecContext  *pCodecCtx)
 {

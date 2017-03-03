@@ -33,11 +33,8 @@ typedef struct KKQSVH2645Context {
 static av_cold int qsv_decode_close(AVCodecContext *avctx)
 {
     KKQSVH2645Context *s = ( KKQSVH2645Context*)avctx->priv_data;
-
     ff_qsv_decode_close(&s->qsv);
-
     av_bitstream_filter_close(s->bsf);
-
     return 0;
 }
 
