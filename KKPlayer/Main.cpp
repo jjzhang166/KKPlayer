@@ -22,8 +22,9 @@
 #include "../KKPlayerCore/SqlOp/AVInfomanage.h"
 
 #include < Dbghelp.h>
-#pragma comment(lib, "Dbghelp.lib")
+#pragma comment (lib, "Dbghelp.lib")
 #pragma comment (lib,"Gdiplus.lib")
+#pragma comment (lib,"Kernel32.lib")
 namespace NSDumpFile
 { 
 	void CreateDumpFile(LPCWSTR lpstrDumpFilePathName, EXCEPTION_POINTERS *pException)  

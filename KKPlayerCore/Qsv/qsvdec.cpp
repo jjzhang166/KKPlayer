@@ -31,35 +31,37 @@ int ff_qsv_map_pixfmt(enum AVPixelFormat format)
     }
 }
 
+mfxStatus ExtendMfxBitstream(mfxBitstream* pBitstream, mfxU32 nSize);
+mfxStatus InitMfxBitstream(mfxBitstream* pBitstream, mfxU32 nSize);
 static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avpkt)
 {
-    mfxVideoParam param = { { 0 } };
-    mfxBitstream bs   = { { { 0 } } };
+
+	if (!avctx->hwaccel_context){
+	    assert(0);
+	}
+	KK_AVQSVContext *qsv = ( KK_AVQSVContext *)avctx->hwaccel_context;
+	q->session        = qsv->session;
+    q->iopattern      = qsv->iopattern;
+    q->ext_buffers    = qsv->ext_buffers;
+    q->nb_ext_buffers = qsv->nb_ext_buffers;
+    //q->iopattern  = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_SYSTEM_MEMORY
+	mfxVideoParam param = { { 0 } };
+	mfxBitstream bs   = { { { 0 } } };
+	//mfxBitstream&    bs   = qsv->mfx_enc_bs;
     int ret;
-    enum AVPixelFormat pix_fmts[3] = { AV_PIX_FMT_QSV,
-                                       AV_PIX_FMT_NV12,
-                                       AV_PIX_FMT_NONE };
+    enum AVPixelFormat pix_fmts[3] = { AV_PIX_FMT_QSV,AV_PIX_FMT_NV12,AV_PIX_FMT_NONE };
 
     ret = av_get_format(avctx, pix_fmts);
     if (ret < 0)
         return ret;
 
     avctx->pix_fmt      = (AVPixelFormat)ret;
-
-    q->iopattern  = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
-    if (avctx->hwaccel_context) {
-        KK_AVQSVContext *qsv = ( KK_AVQSVContext *)avctx->hwaccel_context;
-
-        q->session        = qsv->session;
-        q->iopattern      = qsv->iopattern;
-        q->ext_buffers    = qsv->ext_buffers;
-        q->nb_ext_buffers = qsv->nb_ext_buffers;
-    }
+	
     if (!q->session) {
         assert(0);
     }
 
-    if (avpkt->size) {
+	if (avpkt->size) {
         bs.Data       = avpkt->data;
         bs.DataLength = avpkt->size;
         bs.MaxLength  = bs.DataLength;
@@ -67,14 +69,34 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     } else
         return AVERROR_INVALIDDATA;
 
+   /* if (avpkt->size) {
+
+		 if (bs.MaxLength == bs.DataLength){
+               ret = ExtendMfxBitstream(&bs, bs.MaxLength * 2);
+         }
+         if(bs.DataLength>0)
+		 memmove(bs.Data, bs.Data + bs.DataOffset,bs.DataLength);
+         bs.DataOffset = 0;
+		 memcpy(bs.Data+ bs.DataLength,avpkt->data,avpkt->size);
+         bs.DataLength += avpkt->size;
+         bs.TimeStamp  = avpkt->pts;
+		 FILE * bd=::fopen("F:/BaiduNetdiskDownload/test10.h26","wb");
+		 fwrite(bs.Data,1,bs.DataLength,bd);
+		 fclose(bd);
+    } else
+        return AVERROR_INVALIDDATA;*/
+
+	 
     ret = ff_qsv_codec_id_to_mfx(avctx->codec_id);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Unsupported codec_id %08x\n", avctx->codec_id);
         return ret;
     }
-
+    int xc=MFX_FOURCC_NV12;
     param.mfx.CodecId = ret;
 
+
+	
     ret = MFXVideoDECODE_DecodeHeader(q->session, &bs, &param);
     if (MFX_ERR_MORE_DATA==ret) {
         /* this code means that header not found so we return packet size to skip
@@ -85,15 +107,29 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
         av_log(avctx, AV_LOG_ERROR, "Decode header error %d\n", ret);
         return ff_qsv_error(ret);
     }
-    param.IOPattern   = q->iopattern;
-    param.AsyncDepth  = q->async_depth;
+
+	
+
+    mfxStatus sts=MFXVideoDECODE_Query(q->session,&param, &param);
+	
+	 if (sts < 0) {
+		return ff_qsv_error(sts);
+	 }
+	
+	param.IOPattern   = q->iopattern;
+    param.AsyncDepth  = 4;//q->async_depth;
     param.ExtParam    = q->ext_buffers;
     param.NumExtParam = q->nb_ext_buffers;
     param.mfx.FrameInfo.BitDepthLuma   = 8;
     param.mfx.FrameInfo.BitDepthChroma = 8;
+    param.mfx.Rotation = 0;
+	qsv->param=param;
 
-    mfxStatus sts=MFXVideoDECODE_Query(q->session,&param, &param);
-
+	mfxFrameAllocRequest request;
+	memset(&request,0,sizeof(request));
+	ret=MFXVideoDECODE_QueryIOSurf(q->session, &param,&request);
+	/**/
+	 //sts=MFXVideoDECODE_Query(decCtx->mfx_session,&decCtx->dec_param, &decCtx->dec_param);
     ret = MFXVideoDECODE_Init(q->session, &param);
     if (ret < 0) {
         if (MFX_ERR_INVALID_VIDEO_PARAM==ret) {
@@ -106,12 +142,16 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
         return ff_qsv_error(ret);
     }
 
+	
+
     avctx->profile      = param.mfx.CodecProfile;
     avctx->level        = param.mfx.CodecLevel;
     avctx->coded_width  = param.mfx.FrameInfo.Width;
     avctx->coded_height = param.mfx.FrameInfo.Height;
-    avctx->width        = param.mfx.FrameInfo.CropW - param.mfx.FrameInfo.CropX;
-    avctx->height       = param.mfx.FrameInfo.CropH - param.mfx.FrameInfo.CropY;
+	int w=param.mfx.FrameInfo.CropW - param.mfx.FrameInfo.CropX;
+	int h=param.mfx.FrameInfo.CropH - param.mfx.FrameInfo.CropY;
+	avctx->width        = w==0 ? avctx->coded_width:w;
+	avctx->height       = h==0 ? avctx->coded_height:h;
 
     /* maximum decoder latency should be not exceed max DPB size for h.264 and
        HEVC which is 16 for both cases.
@@ -296,14 +336,79 @@ static void close_decoder(KKQSVContext *q)
     q->reinit_pending = 0;
 }
 
+
+mfxStatus WriteNextFrameI420(mfxFrameSurface1 *pSurface)
+{
+  
+    mfxFrameInfo &pInfo = pSurface->Info;
+    mfxFrameData &pData = pSurface->Data;
+
+    mfxU32 i, j, h, w;
+    mfxU32 vid = pInfo.FrameId.ViewId;
+
+    FILE * fd=::fopen("D://ttt.yuv","wb");
+    // Write Y
+    switch (pInfo.FourCC)
+    {
+        case MFX_FOURCC_YV12:
+        case MFX_FOURCC_NV12:
+        {
+            
+			 fwrite(pData.Y + (pInfo.CropY * pData.Pitch + pInfo.CropX)+ i * pData.Pitch, 1, pInfo.CropW,fd);
+            break;
+        }
+        default:
+        {
+           
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+
+    // Write U and V
+    switch (pInfo.FourCC)
+    {
+        case MFX_FOURCC_YV12:
+        {
+           
+            break;
+        }
+        case MFX_FOURCC_NV12:
+        {
+            h = pInfo.CropH / 2;
+            w = pInfo.CropW;
+            for (i = 0; i < h; i++){
+                for (j = 0; j < w; j += 2){
+                   
+                    fwrite(pData.UV + (pInfo.CropY * pData.Pitch / 2 + pInfo.CropX) + i * pData.Pitch + j, 1, 1, fd);
+                }
+            }
+            for (i = 0; i < h; i++)
+            {
+                for (j = 1; j < w; j += 2)
+                {
+                   fwrite(pData.UV + (pInfo.CropY * pData.Pitch / 2 + pInfo.CropX)+ i * pData.Pitch + j, 1, 1, fd);
+                }
+            }
+            break;
+        }
+        default:
+        {
+           // msdk_printf(MSDK_STRING("ERROR: I420 output is accessible only for NV12 and YV12.\n"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+	::fclose(fd);
+    return MFX_ERR_NONE;
+}
+
 static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
                   AVFrame *frame, int *got_frame,
                   AVPacket *avpkt)
 {
-    KKQSVFrame *out_frame;
-    mfxFrameSurface1 *insurf;
-    mfxFrameSurface1 *outsurf;
-    mfxSyncPoint *sync;
+    KKQSVFrame *out_frame=NULL;
+    mfxFrameSurface1 *insurf=NULL;
+    mfxFrameSurface1 *outsurf=NULL;
+  
     mfxBitstream bs = { { { 0 } } };
     int ret;
     int n_out_frames;
@@ -317,6 +422,7 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
     }
 
     if (!flush) {
+		//bs.DataOffset=av_fifo_size(q->input_fifo);
         if (av_fifo_size(q->input_fifo)) {
             /* we have got rest of previous packet into buffer */
             if (av_fifo_space(q->input_fifo) < avpkt->size) {
@@ -336,89 +442,65 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
         bs.TimeStamp  = avpkt->pts;
     }
 
-    sync = (mfxSyncPoint *)av_mallocz(sizeof(*sync));
-    if (!sync) {
-        av_freep(&sync);
-        return AVERROR(ENOMEM);
-    }
+   
 
-    while (1) {
+   
         ret = get_surface(avctx, q, &insurf);
         if (ret < 0)
             return ret;
         do {
-            ret = MFXVideoDECODE_DecodeFrameAsync(q->session, flush ? NULL : &bs,
-                                                  insurf, &outsurf, sync);
+             ret = MFXVideoDECODE_DecodeFrameAsync(q->session,&bs,insurf, &outsurf, &q->sync);
+			 if (MFX_WRN_VIDEO_PARAM_CHANGED==ret) {
+				/* TODO: handle here minor sequence header changing */
+				 continue;
+			 }
+			if(ret==MFX_ERR_MORE_DATA)
+			{
+			    av_fifo_generic_write(q->input_fifo, avpkt->data,avpkt->size, NULL);
+			}
             if (ret != MFX_WRN_DEVICE_BUSY)
                 break;
             av_usleep(500);
         } while (1);
 
-        if (MFX_WRN_VIDEO_PARAM_CHANGED==ret) {
-            /* TODO: handle here minor sequence header changing */
-        } else if (MFX_ERR_INCOMPATIBLE_VIDEO_PARAM==ret) {
-            av_fifo_reset(q->input_fifo);
-            flush = q->reinit_pending = 1;
-            continue;
+        
+		//解码成功
+        if (ret==MFX_ERR_NONE) {
+			qsv_fifo_relocate(q->input_fifo, bs.DataOffset);
+			ret = MFXVideoCORE_SyncOperation(q->session, q->sync, 1000);
+			if (MFX_ERR_NONE == ret) { 
+				KKQSVFrame *out_frame = find_frame(q, outsurf);
+				if (!out_frame) {
+					av_log(avctx, AV_LOG_ERROR,
+						   "The returned surface does not correspond to any frame\n");
+					return AVERROR_BUG;
+				}
+
+				out_frame->queued = 1;
+				av_fifo_generic_write(q->async_fifo, &out_frame, sizeof(out_frame), NULL);
+			}
         }
-
-        if (*sync) {
-            KKQSVFrame *out_frame = find_frame(q, outsurf);
-
-            if (!out_frame) {
-                av_freep(&sync);
-                av_log(avctx, AV_LOG_ERROR,
-                       "The returned surface does not correspond to any frame\n");
-                return AVERROR_BUG;
-            }
-
-            out_frame->queued = 1;
-            av_fifo_generic_write(q->async_fifo, &out_frame, sizeof(out_frame), NULL);
-            av_fifo_generic_write(q->async_fifo, &sync,      sizeof(sync),      NULL);
-
-            continue;
-        } else {
-            av_freep(&sync);
-        }
-        if (MFX_ERR_MORE_SURFACE != ret && ret < 0)
-            break;
-    }
-
-    /* make sure we do not enter an infinite loop if the SDK
-     * did not consume any data and did not return anything */
-    if (!*sync && !bs.DataOffset && !flush) {
-        av_log(avctx, AV_LOG_WARNING, "A decode call did not consume any data\n");
-        bs.DataOffset = avpkt->size;
-    }
-
-    if (buffered) {
-        qsv_fifo_relocate(q->input_fifo, bs.DataOffset);
-    } else if (bs.DataOffset!=avpkt->size) {
-        /* some data of packet was not consumed. store it to local buffer */
-        av_fifo_generic_write(q->input_fifo, avpkt->data+bs.DataOffset,
-                              avpkt->size - bs.DataOffset, NULL);
-    }
-
+  
+   
     if (MFX_ERR_MORE_DATA!=ret && ret < 0) {
-        av_freep(&sync);
+      
         av_log(avctx, AV_LOG_ERROR, "Error %d during QSV decoding.\n", ret);
         return ff_qsv_error(ret);
     }
-    n_out_frames = av_fifo_size(q->async_fifo) / (sizeof(out_frame)+sizeof(sync));
 
+    //获取解码的数据
+    n_out_frames = av_fifo_size(q->async_fifo) / (sizeof(out_frame));
     if (n_out_frames > q->async_depth || (flush && n_out_frames) ) {
         AVFrame *src_frame;
 
         av_fifo_generic_read(q->async_fifo, &out_frame, sizeof(out_frame), NULL);
-        av_fifo_generic_read(q->async_fifo, &sync,      sizeof(sync),      NULL);
         out_frame->queued = 0;
 
         do {
-            ret = MFXVideoCORE_SyncOperation(q->session, *sync, 1000);
+			ret = MFXVideoCORE_SyncOperation(q->session, q->sync, 1000);
         } while (ret == MFX_WRN_IN_EXECUTION);
 
-        av_freep(&sync);
-
+      
         src_frame = out_frame->frame;
 
         ret = av_frame_ref(frame, src_frame);
@@ -427,6 +509,8 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
 
         outsurf = out_frame->surface;
 
+		
+        WriteNextFrameI420(out_frame->surface);
         frame->pkt_pts = frame->pts = outsurf->Data.TimeStamp;
 
         frame->repeat_pict =

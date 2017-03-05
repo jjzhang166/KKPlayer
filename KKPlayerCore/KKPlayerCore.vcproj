@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp;..\libmfx\include;..\libmfx\msdk"
+				AdditionalIncludeDirectories="..\INTInclude;..\ffmpeg\include;..\librtmp;..\libmfx\include;..\libmfx\include\mfx"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

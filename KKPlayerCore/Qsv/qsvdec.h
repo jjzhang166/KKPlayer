@@ -15,7 +15,7 @@ extern "C"{
 typedef struct KKQSVContext {
     // the session used for decoding
     mfxSession session;
-
+    mfxSyncPoint sync;
     // the session we allocated internally, in case the caller did not provide
     // one
     KKQSVSession internal_qs;
@@ -26,6 +26,7 @@ typedef struct KKQSVContext {
     KKQSVFrame *work_frames;
 
     AVFifoBuffer *async_fifo;
+	// ˝æ› ‰»Îª∫¥Ê
     AVFifoBuffer *input_fifo;
 
     // we should to buffer input packets at some cases

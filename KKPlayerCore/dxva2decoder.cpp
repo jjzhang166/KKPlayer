@@ -782,8 +782,7 @@ static void ffmpeg_ReleaseFrameBuf( void *p1,
 * It is used for direct rendering as well as to get the right PTS for each
 * decoded picture (even in indirect rendering mode).
 *****************************************************************************/
-static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,
-	AVFrame *p_ff_pic,int flags)
+static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,AVFrame *p_ff_pic,int flags)
 {
 	kk_va_dxva2_t *va = (kk_va_dxva2_t *)p_context->opaque;
 	AVPixelFormat chroma;
@@ -849,14 +848,10 @@ static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
 				av_log(NULL, AV_LOG_ERROR, "Failed to open DXVA2\n" );
 		}
 
-		if( va &&
-			p_context->width > 0 && p_context->height > 0 )
+		if( va && p_context->width > 0 && p_context->height > 0 )
 		{
 			
-			if( Setup( va,
-				&p_context->hwaccel_context,
-				&p_context->pix_fmt,
-				p_context->width, p_context->height ) )
+			if( Setup( va,&p_context->hwaccel_context,&p_context->pix_fmt,p_context->width, p_context->height ) )
 			{
 				Close_Kk_Va_Dxva2( va,false);
 				va = NULL;

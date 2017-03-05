@@ -1145,10 +1145,12 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			}
 			vp->BmpLock->Unlock();
 		}
-        //
-         
-		 is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
-			 pOutAV->width,  pOutAV->height ,(PixelFormat)(pOutAV->format) ,
+        
+		//
+         PixelFormat xx=(PixelFormat)(pOutAV->format);
+		 xx=AV_PIX_FMT_YUV420P;
+		is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
+			 pOutAV->width,  pOutAV->height ,xx ,
 			 pOutAV->width,       pOutAV->height,               DstAVff,                
 			 SWS_FAST_BILINEAR,
 			 NULL, NULL, NULL);
