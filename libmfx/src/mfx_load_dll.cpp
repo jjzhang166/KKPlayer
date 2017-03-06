@@ -167,19 +167,19 @@ mfxModuleHandle mfx_dll_load(const msdk_disp_char *pFileName)
 
     // set the silent error mode
     DWORD prevErrorMode = 0;
-//#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
-//    SetThreadErrorMode(SEM_FAILCRITICALERRORS, &prevErrorMode);
-//#else
-//    prevErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
-//#endif
+#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
+    SetThreadErrorMode(SEM_FAILCRITICALERRORS, &prevErrorMode);
+#else
+    prevErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+#endif
     // load the library's module
     hModule = LoadLibraryExW(pFileName,NULL,0);
     // set the previous error mode
-//#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
-//    SetThreadErrorMode(prevErrorMode, NULL);
-//#else
-//    SetErrorMode(prevErrorMode);
-//#endif
+#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
+    SetThreadErrorMode(prevErrorMode, NULL);
+#else
+    SetErrorMode(prevErrorMode);
+#endif
 
     return hModule;
 
@@ -219,19 +219,19 @@ mfxModuleHandle mfx_get_dll_handle(const msdk_disp_char *pFileName)
 
     // set the silent error mode
     DWORD prevErrorMode = 0;
-//#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
-//    SetThreadErrorMode(SEM_FAILCRITICALERRORS, &prevErrorMode); 
-//#else
-//    prevErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
-//#endif
+#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
+    SetThreadErrorMode(SEM_FAILCRITICALERRORS, &prevErrorMode); 
+#else
+    prevErrorMode = SetErrorMode(SEM_FAILCRITICALERRORS);
+#endif
     // load the library's module
     GetModuleHandleExW(0, pFileName, (HMODULE*) &hModule);
     // set the previous error mode
-//#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
-//    SetThreadErrorMode(prevErrorMode, NULL);
-//#else
-//    SetErrorMode(prevErrorMode);
-//#endif
+#if (_WIN32_WINNT >= 0x0600) && !(__GNUC__) && !defined(WIN_TRESHOLD_MOBILE)
+    SetThreadErrorMode(prevErrorMode, NULL);
+#else
+    SetErrorMode(prevErrorMode);
+#endif
     return hModule;
 }
 

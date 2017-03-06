@@ -33,9 +33,9 @@ typedef struct KKQSVDecCtx
     mfxSession            mfx_session;
 	
 	//work surfaces
-    mfxFrameSurface1     *surfaces;
-    mfxMemId             *surface_ids;
-    int                  *surface_used;
+    mfxFrameSurface1     surfaces[17];
+    mfxMemId             MemIds[17];
+    int                  surface_used[17];
 
     int                   nb_surfaces;
 	//解码参数
@@ -58,10 +58,7 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
     KKQSVDecCtx *decode = (KKQSVDecCtx *)pthis;
     int err, i;
 
-    if (decode->surfaces) {
-        fprintf(stderr, "Multiple allocation requests.\n");
-        return MFX_ERR_MEMORY_ALLOC;
-    }
+    
     /*if (!(req->Type & MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET)) {
         fprintf(stderr, "Unsupported surface type: %d\n", req->Type);
         return MFX_ERR_UNSUPPORTED;
@@ -72,11 +69,8 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
         return MFX_ERR_UNSUPPORTED;
     }
 
-    decode->surfaces     = (mfxFrameSurface1*)av_malloc_array (request->NumFrameSuggested, sizeof(mfxFrameSurface1));
-    decode->surface_ids  = (mfxMemId*)av_malloc_array (request->NumFrameSuggested, sizeof(mfxMemId));
-    decode->surface_used = (int*)av_mallocz_array(request->NumFrameSuggested, sizeof(int));
-    if (!decode->surfaces || !decode->surface_ids || !decode->surface_used)
-        goto fail;
+   
+
     decode->nb_surfaces = request->NumFrameSuggested;
 
 
@@ -125,15 +119,19 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
     }
 
 	int tx=nbytes+MSDK_ALIGN32(sizeof(mfxFrameData));
-    for (i = 0; i < decode->nb_surfaces; i++){
-			
-			 MSDK_MEMCPY_VAR(decode->surfaces[i].Info, &( request->Info), sizeof(mfxFrameInfo));
-
+    for (i = 0; i < decode->nb_surfaces; i++){ 
+		     //分配帧内存
+			 decode->MemIds[i]=(mfxMemId   *)malloc(tx);
+			 
+			 mfxFrameSurface1* sur=&decode->surfaces[i];
+			 MSDK_MEMCPY_VAR(sur->Info, &( request->Info), sizeof(mfxFrameInfo)); 
 			 mfxFrameData *ptr=&decode->surfaces[i].Data;
-			 //分配帧内存
-			 decode->surface_ids[i]=(mfxMemId*)KK_Malloc_(tx);
-			 ptr->B = ptr->Y =(mfxU8   *)decode->surface_ids[i];
-
+             
+			 
+			
+			 ptr->B = ptr->Y =(mfxU8   *)decode->MemIds[i];
+			 ptr->MemType=MFX_MEMTYPE_SYSTEM_MEMORY;
+			 ptr->MemId=ptr->B;
 			 switch (decode->surfaces[i].Info.FourCC){
 					case MFX_FOURCC_NV12:
 						ptr->U = ptr->Y + Width2 * Height2;
@@ -193,14 +191,14 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
    
 	}
 
-    resp->mids           = decode->surface_ids;
+	resp->mids           = decode->MemIds;
     resp->NumFrameActual = decode->nb_surfaces;
-    decode->frame_info = request->Info;
-
+    decode->frame_info =   request->Info;
+//decode->nb_surfaces=
     return MFX_ERR_NONE;
 fail:
     av_freep(&decode->surfaces);
-    av_freep(&decode->surface_ids);
+	av_freep(&decode->MemIds);
     av_freep(&decode->surface_used);
 
     return MFX_ERR_MEMORY_ALLOC;
@@ -215,33 +213,31 @@ static mfxStatus frame_free(mfxHDL pthis, mfxFrameAllocResponse *resp)
 
 static mfxStatus frame_lock(mfxHDL pthis, mfxMemId mid, mfxFrameData *ptr)
 {
+	ptr->Locked=1;
     return MFX_ERR_UNSUPPORTED;
 }
 
 static mfxStatus frame_unlock(mfxHDL pthis, mfxMemId mid, mfxFrameData *ptr)
 {
+	ptr->Locked=0;
     return MFX_ERR_UNSUPPORTED;
 }
 
 static mfxStatus frame_get_hdl(mfxHDL pthis, mfxMemId mid, mfxHDL *hdl)
 {
+	return MFX_ERR_UNSUPPORTED;
     *hdl = mid;
     return MFX_ERR_NONE;
 }
 
 static void free_surfaces( KKQSVDecCtx *decode)
 {
-    
-    av_freep(&decode->surfaces);
-    av_freep(&decode->surface_ids);
-    av_freep(&decode->surface_used);
+
     decode->nb_surfaces = 0;
 }
 
 static enum AVPixelFormat Qsv_GetFormat( AVCodecContext *p_context,const enum AVPixelFormat *pix_fmts )
 {
-	
-	
 	 while (*pix_fmts != AV_PIX_FMT_NONE)
 	 {
         if(*pix_fmts == AV_PIX_FMT_QSV)
@@ -264,18 +260,25 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 {
 	KKQSVDecCtx *decode = (KKQSVDecCtx*)avctx->opaque;
 
-	/*if(decode->nb_surfaces==0){
-	       MFXVideoDECODE_QueryIOSurf(decode->mfx_session, &decode->hw_ctx->param, &decode->request);
-		   frame_alloc(decode, &decode->request,&decode->resp);
-	}*/
-
     mfxFrameSurface1 *surf;
     AVBufferRef *surf_buf;
-    int idx;
+    int idx=0;
 
+	/*if(decode->nb_surfaces==0)
+	{
+        mfxVideoParam param = { { 0 } };
+		mfxFrameAllocRequest request;
+	    memset(&request,0,sizeof(request));
+	    param =decode->hw_ctx->param;
+	    int ret=MFXVideoDECODE_QueryIOSurf(decode->hw_ctx->session, &param,&request);
+	    mfxFrameAllocResponse resp;
+	             frame_alloc((mfxHDL)decode, &request,&resp);
+	}*/
+	
     for (idx = 0; idx < decode->nb_surfaces; idx++) {
-        if (!decode->surface_used[idx])
-		{
+		int     surface_used=decode->surface_used[idx];
+        if (!surface_used)
+		{ 
             break;
 		}
     }
@@ -286,6 +289,7 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 
 	
     surf =&decode->surfaces[idx]; //( mfxFrameSurface1 *)av_mallocz(sizeof(*surf));
+	
     if (!surf)
         return AVERROR(ENOMEM);
 
@@ -353,9 +357,9 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		}
 
 
-		decCtx->frame_allocator.pthis = decCtx;
-        decCtx->frame_allocator.Alloc = frame_alloc;
-        decCtx->frame_allocator.Lock  = frame_lock;
+		decCtx->frame_allocator.pthis  = decCtx;
+        decCtx->frame_allocator.Alloc  = frame_alloc;
+        decCtx->frame_allocator.Lock   = frame_lock;
         decCtx->frame_allocator.Unlock = frame_unlock;
         decCtx->frame_allocator.GetHDL = frame_get_hdl;
         decCtx->frame_allocator.Free   = frame_free;
@@ -373,7 +377,7 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		    }
          }*/
 
-		 decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
+		 decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_VIDEO_MEMORY
 		 decCtx->hw_ctx->session=decCtx->mfx_session;
 		return 0;
 		//sts = MFXVideoDECODE_DecodeHeader(decCtx->mfx_session, &decCtx->mfx_enc_bs, &decCtx->dec_param);

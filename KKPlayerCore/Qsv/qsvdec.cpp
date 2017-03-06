@@ -128,8 +128,9 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
 	mfxFrameAllocRequest request;
 	memset(&request,0,sizeof(request));
 	ret=MFXVideoDECODE_QueryIOSurf(q->session, &param,&request);
+	
 	/**/
-	 //sts=MFXVideoDECODE_Query(decCtx->mfx_session,&decCtx->dec_param, &decCtx->dec_param);
+	//sts=MFXVideoDECODE_Query(decCtx->mfx_session,&decCtx->dec_param, &decCtx->dec_param);
     ret = MFXVideoDECODE_Init(q->session, &param);
     if (ret < 0) {
         if (MFX_ERR_INVALID_VIDEO_PARAM==ret) {
