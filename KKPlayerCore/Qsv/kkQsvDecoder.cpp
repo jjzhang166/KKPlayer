@@ -53,7 +53,7 @@ typedef struct KKQSVDecCtx
 	mfxFrameAllocRequest request;
 }KKQSVDecCtx;
 
-static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *req,mfxFrameAllocResponse *resp)
+static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFrameAllocResponse *resp)
 {
     KKQSVDecCtx *decode = (KKQSVDecCtx *)pthis;
     int err, i;
@@ -66,32 +66,136 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *req,mfxFrameAll
         fprintf(stderr, "Unsupported surface type: %d\n", req->Type);
         return MFX_ERR_UNSUPPORTED;
     }*/
-    if (req->Info.BitDepthLuma != 8 || req->Info.BitDepthChroma != 8 ||req->Info.Shift || req->Info.FourCC != MFX_FOURCC_NV12 ||req->Info.ChromaFormat != MFX_CHROMAFORMAT_YUV420) 
+    if (request->Info.BitDepthLuma != 8 || request->Info.BitDepthChroma != 8 ||request->Info.Shift || request->Info.FourCC != MFX_FOURCC_NV12 ||request->Info.ChromaFormat != MFX_CHROMAFORMAT_YUV420) 
 	{
         fprintf(stderr, "Unsupported surface properties.\n");
         return MFX_ERR_UNSUPPORTED;
     }
 
-    decode->surfaces     = (mfxFrameSurface1*)av_malloc_array (req->NumFrameSuggested, sizeof(mfxFrameSurface1));
-    decode->surface_ids  = (mfxMemId*)av_malloc_array (req->NumFrameSuggested, sizeof(mfxMemId));
-    decode->surface_used = (int*)av_mallocz_array(req->NumFrameSuggested, sizeof(int));
+    decode->surfaces     = (mfxFrameSurface1*)av_malloc_array (request->NumFrameSuggested, sizeof(mfxFrameSurface1));
+    decode->surface_ids  = (mfxMemId*)av_malloc_array (request->NumFrameSuggested, sizeof(mfxMemId));
+    decode->surface_used = (int*)av_mallocz_array(request->NumFrameSuggested, sizeof(int));
     if (!decode->surfaces || !decode->surface_ids || !decode->surface_used)
         goto fail;
-
-   
-    decode->nb_surfaces = req->NumFrameSuggested;
+    decode->nb_surfaces = request->NumFrameSuggested;
 
 
+	mfxU32 numAllocated = 0;
+
+	//计算存储空间大小
+    mfxU32 Width2 = MSDK_ALIGN32(request->Info.Width);
+    mfxU32 Height2 = MSDK_ALIGN32(request->Info.Height);
+    mfxU32 nbytes=0;
+
+    switch (request->Info.FourCC)
+    {
+		case MFX_FOURCC_YV12:
+		case MFX_FOURCC_NV12:
+			nbytes = Width2*Height2 + (Width2>>1)*(Height2>>1) + (Width2>>1)*(Height2>>1);
+			break;
+		case MFX_FOURCC_NV16:
+			nbytes = Width2*Height2 + (Width2>>1)*(Height2) + (Width2>>1)*(Height2);
+			break;
+		case MFX_FOURCC_RGB3:
+			nbytes = Width2*Height2 + Width2*Height2 + Width2*Height2;
+			break;
+		case MFX_FOURCC_RGB4:
+			nbytes = Width2*Height2 + Width2*Height2 + Width2*Height2 + Width2*Height2;
+			break;
+		case MFX_FOURCC_UYVY:
+		case MFX_FOURCC_YUY2:
+			nbytes = Width2*Height2 + (Width2>>1)*(Height2) + (Width2>>1)*(Height2);
+			break;
+		case MFX_FOURCC_R16:
+			nbytes = 2*Width2*Height2;
+			break;
+		case MFX_FOURCC_P010:
+			nbytes = Width2*Height2 + (Width2>>1)*(Height2>>1) + (Width2>>1)*(Height2>>1);
+			nbytes *= 2;
+			break;
+		case MFX_FOURCC_A2RGB10:
+			nbytes = Width2*Height2*4; // 4 bytes per pixel
+			break;
+		case MFX_FOURCC_P210:
+			nbytes = Width2*Height2 + (Width2>>1)*(Height2) + (Width2>>1)*(Height2);
+			nbytes *= 2; // 16bits
+			break;
+		default:
+			return MFX_ERR_UNSUPPORTED;
+    }
+
+	int tx=nbytes+MSDK_ALIGN32(sizeof(mfxFrameData));
     for (i = 0; i < decode->nb_surfaces; i++){
-		/*mfxMemId iix=resp->mids[i];
-		decode->surface_ids[i] =resp->mids[i];*/
-		MSDK_MEMCPY_VAR(decode->surfaces[i].Info, &( req->Info), sizeof(mfxFrameInfo));
+			
+			 MSDK_MEMCPY_VAR(decode->surfaces[i].Info, &( request->Info), sizeof(mfxFrameInfo));
+
+			 mfxFrameData *ptr=&decode->surfaces[i].Data;
+			 //分配帧内存
+			 decode->surface_ids[i]=(mfxMemId*)KK_Malloc_(tx);
+			 ptr->B = ptr->Y =(mfxU8   *)decode->surface_ids[i];
+
+			 switch (decode->surfaces[i].Info.FourCC){
+					case MFX_FOURCC_NV12:
+						ptr->U = ptr->Y + Width2 * Height2;
+						ptr->V = ptr->U + 1;
+						ptr->Pitch = Width2;
+						break;
+					case MFX_FOURCC_NV16:
+						ptr->U = ptr->Y + Width2 * Height2;
+						ptr->V = ptr->U + 1;
+						ptr->Pitch = Width2;
+						break;
+					case MFX_FOURCC_YV12:
+						ptr->V = ptr->Y + Width2 * Height2;
+						ptr->U = ptr->V + (Width2 >> 1) * (Height2 >> 1);
+						ptr->Pitch = Width2;
+						break;
+					case MFX_FOURCC_UYVY:
+						ptr->U = ptr->Y;
+						ptr->Y = ptr->U + 1;
+						ptr->V = ptr->U + 2;
+						ptr->Pitch = 2 * Width2;
+						break;
+					case MFX_FOURCC_YUY2:
+						ptr->U = ptr->Y + 1;
+						ptr->V = ptr->Y + 3;
+						ptr->Pitch = 2 * Width2;
+						break;
+					case MFX_FOURCC_RGB3:
+						ptr->G = ptr->B + 1;
+						ptr->R = ptr->B + 2;
+						ptr->Pitch = 3 * Width2;
+						break;
+					case MFX_FOURCC_RGB4:
+					case MFX_FOURCC_A2RGB10:
+						ptr->G = ptr->B + 1;
+						ptr->R = ptr->B + 2;
+						ptr->A = ptr->B + 3;
+						ptr->Pitch = 4 * Width2;
+						break;
+					 case MFX_FOURCC_R16:
+						ptr->Y16 = (mfxU16 *)ptr->B;
+						ptr->Pitch = 2 * Width2;
+						break;
+					case MFX_FOURCC_P010:
+						ptr->U = ptr->Y + Width2 * Height2 * 2;
+						ptr->V = ptr->U + 2;
+						ptr->Pitch = Width2 * 2;
+						break;
+					case MFX_FOURCC_P210:
+						ptr->U = ptr->Y + Width2 * Height2 * 2;
+						ptr->V = ptr->U + 2;
+						ptr->Pitch = Width2 * 2;
+						break;
+					default:
+						return MFX_ERR_UNSUPPORTED;
+				}
    
 	}
 
     resp->mids           = decode->surface_ids;
     resp->NumFrameActual = decode->nb_surfaces;
-    decode->frame_info = req->Info;
+    decode->frame_info = request->Info;
 
     return MFX_ERR_NONE;
 fail:
