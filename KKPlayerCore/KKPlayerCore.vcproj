@@ -339,11 +339,31 @@
 			Name="Qsv"
 			>
 			<File
+				RelativePath=".\Qsv\base_allocator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Qsv\base_allocator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Qsv\kkQsvDecoder.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Qsv\kkQsvDecoder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Qsv\mfx_defs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Qsv\mfx_utils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Qsv\mfx_utils.h"
 				>
 			</File>
 			<File
@@ -370,6 +390,26 @@
 				RelativePath=".\Qsv\qsvdec_h2645.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\Qsv\sysmem_allocator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Qsv\sysmem_allocator.h"
+				>
+			</File>
+			<Filter
+				Name="VM"
+				>
+				<File
+					RelativePath=".\Qsv\vm\strings_defs.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Qsv\vm\time_defs.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"

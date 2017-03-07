@@ -44,6 +44,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     q->iopattern      = qsv->iopattern;
     q->ext_buffers    = qsv->ext_buffers;
     q->nb_ext_buffers = qsv->nb_ext_buffers;
+	q->async_depth=     qsv->param.AsyncDepth;
     //q->iopattern  = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_SYSTEM_MEMORY
 	mfxVideoParam param = { { 0 } };
 	mfxBitstream bs   = { { { 0 } } };
@@ -117,7 +118,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
 	 }
 	
 	param.IOPattern   = q->iopattern;
-    param.AsyncDepth  = 4;//q->async_depth;
+    param.AsyncDepth  = q->async_depth;
     param.ExtParam    = q->ext_buffers;
     param.NumExtParam = q->nb_ext_buffers;
     param.mfx.FrameInfo.BitDepthLuma   = 8;
@@ -214,8 +215,8 @@ static void qsv_clear_unused_frames(KKQSVContext *q)
     KKQSVFrame *cur = (KKQSVFrame *)q->work_frames;
     while (cur) {
         if (cur->surface && !cur->surface->Data.Locked && !cur->queued) {
-            cur->surface = NULL;
-            av_frame_unref(cur->frame);
+            //cur->surface = NULL;
+            //av_frame_unref(cur->frame);
         }
         cur = cur->next;
     }
@@ -423,7 +424,6 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
     }
 
     if (!flush) {
-		//bs.DataOffset=av_fifo_size(q->input_fifo);
         if (av_fifo_size(q->input_fifo)) {
             /* we have got rest of previous packet into buffer */
             if (av_fifo_space(q->input_fifo) < avpkt->size) {
@@ -452,7 +452,7 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
         do {
              ret = MFXVideoDECODE_DecodeFrameAsync(q->session,&bs,insurf, &outsurf, &q->sync);
 			 if (MFX_WRN_VIDEO_PARAM_CHANGED==ret) {
-				/* TODO: handle here minor sequence header changing */
+				 /* TODO: handle here minor sequence header changing */
 				 continue;
 			 }
 			if(ret==MFX_ERR_MORE_DATA)

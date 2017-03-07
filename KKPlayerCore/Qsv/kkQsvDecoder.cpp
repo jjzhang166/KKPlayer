@@ -53,6 +53,18 @@ typedef struct KKQSVDecCtx
 	mfxFrameAllocRequest request;
 }KKQSVDecCtx;
 
+static const mfxU32 MEMTYPE_FROM_MASK = MFX_MEMTYPE_FROM_ENCODE | MFX_MEMTYPE_FROM_DECODE | MFX_MEMTYPE_FROM_VPPIN | MFX_MEMTYPE_FROM_VPPOUT | MFX_MEMTYPE_FROM_ENC | MFX_MEMTYPE_FROM_PAK;
+static mfxStatus CheckRequestType(mfxFrameAllocRequest *request)
+{
+    if (0 == request)
+        return MFX_ERR_NULL_PTR;
+
+    // check that Media SDK component is specified in request
+    if ((request->Type & MEMTYPE_FROM_MASK) != 0)
+        return MFX_ERR_NONE;
+    else
+        return MFX_ERR_UNSUPPORTED;
+}
 static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFrameAllocResponse *resp)
 {
     KKQSVDecCtx *decode = (KKQSVDecCtx *)pthis;
@@ -70,7 +82,9 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
     }
 
    
+	request->Type |= MFX_MEMTYPE_SYSTEM_MEMORY;
 
+	mfxStatus sts =CheckRequestType(request);
     decode->nb_surfaces = request->NumFrameSuggested;
 
 
@@ -264,7 +278,7 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
     AVBufferRef *surf_buf;
     int idx=0;
 
-	/*if(decode->nb_surfaces==0)
+	if(decode->nb_surfaces==0)
 	{
         mfxVideoParam param = { { 0 } };
 		mfxFrameAllocRequest request;
@@ -272,8 +286,8 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 	    param =decode->hw_ctx->param;
 	    int ret=MFXVideoDECODE_QueryIOSurf(decode->hw_ctx->session, &param,&request);
 	    mfxFrameAllocResponse resp;
-	             frame_alloc((mfxHDL)decode, &request,&resp);
-	}*/
+	    frame_alloc((mfxHDL)decode, &request,&resp);
+	}/**/
 	
     for (idx = 0; idx < decode->nb_surfaces; idx++) {
 		int     surface_used=decode->surface_used[idx];
@@ -312,6 +326,8 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 
 
 void Registerkk_h264_qsv_decoder();
+
+//绑定环境
 int BindQsvModule(AVCodecContext  *pCodecCtx)
 {
 
@@ -364,8 +380,9 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
         decCtx->frame_allocator.GetHDL = frame_get_hdl;
         decCtx->frame_allocator.Free   = frame_free;
 		decCtx->de_header=false;/**/
-	 //   MFXVideoCORE_SetHandle(decCtx->mfx_session, MFX_HANDLE_VA_DISPLAY, decode.va_dpy);
-		MFXVideoCORE_SetFrameAllocator(decCtx->mfx_session, &decCtx->frame_allocator);
+	    //MFXVideoCORE_SetHandle(decCtx->mfx_session, MFX_HANDLE_VA_DISPLAY, decode.va_dpy);
+		//只有使用 
+		//MFXVideoCORE_SetFrameAllocator(decCtx->mfx_session, &decCtx->frame_allocator);
         if(sts!= MFX_ERR_NONE){
 		       return sts;
 		}
@@ -376,7 +393,7 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		       return sts;
 		    }
          }*/
-
+		decCtx->hw_ctx->param.AsyncDepth=10;
 		 decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_VIDEO_MEMORY
 		 decCtx->hw_ctx->session=decCtx->mfx_session;
 		return 0;
