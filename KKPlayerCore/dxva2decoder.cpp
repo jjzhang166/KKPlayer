@@ -747,12 +747,10 @@ template <class T> void SafeRelease(T **ppT)
 		*ppT = NULL;
 	}
 }
-static void ffmpeg_ReleaseFrameBuf( void *p1,
-	uint8_t *p2 )
+static void ffmpeg_ReleaseFrameBuf( void *p1,uint8_t *p2 )
 {
 	
 	 SurfaceWrapper *sw=(SurfaceWrapper *)p1;
-
 	AVFrame *p_ff_pic=(AVFrame *)sw->pPic;
 	kk_va_dxva2_t *va = (kk_va_dxva2_t *)sw->pDec;
 

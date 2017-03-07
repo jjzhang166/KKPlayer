@@ -51,6 +51,9 @@ typedef struct KKQSVDecCtx
 	
 	mfxFrameAllocResponse resp;
 	mfxFrameAllocRequest request;
+
+	AVFrame* tmp_frame;
+	bool Okxx;
 }KKQSVDecCtx;
 
 static const mfxU32 MEMTYPE_FROM_MASK = MFX_MEMTYPE_FROM_ENCODE | MFX_MEMTYPE_FROM_DECODE | MFX_MEMTYPE_FROM_VPPIN | MFX_MEMTYPE_FROM_VPPOUT | MFX_MEMTYPE_FROM_ENC | MFX_MEMTYPE_FROM_PAK;
@@ -135,7 +138,7 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
 	int tx=nbytes+MSDK_ALIGN32(sizeof(mfxFrameData));
     for (i = 0; i < decode->nb_surfaces; i++){ 
 		     //分配帧内存
-			 decode->MemIds[i]=(mfxMemId   *)malloc(tx);
+		     decode->MemIds[i]=(mfxMemId   *)::KK_Malloc_(tx);
 			 
 			 mfxFrameSurface1* sur=&decode->surfaces[i];
 			 MSDK_MEMCPY_VAR(sur->Info, &( request->Info), sizeof(mfxFrameInfo)); 
@@ -211,10 +214,7 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
 //decode->nb_surfaces=
     return MFX_ERR_NONE;
 fail:
-    av_freep(&decode->surfaces);
-	av_freep(&decode->MemIds);
-    av_freep(&decode->surface_used);
-
+   
     return MFX_ERR_MEMORY_ALLOC;
 }
 
@@ -266,9 +266,8 @@ static enum AVPixelFormat Qsv_GetFormat( AVCodecContext *p_context,const enum AV
 
 static void free_buffer(void *opaque, uint8_t *data)
 {
-    int *used = (int *)opaque;
-    *used = 0;
-    av_freep(&data);
+    int *i=(int *)opaque;
+	*i=0;
 }
 static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int flags)
 {
@@ -289,8 +288,9 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 	    frame_alloc((mfxHDL)decode, &request,&resp);
 	}/**/
 	
-    for (idx = 0; idx < decode->nb_surfaces; idx++) {
-		int     surface_used=decode->surface_used[idx];
+    for (idx = 0; idx < decode->nb_surfaces; idx++) 
+	{
+		int  surface_used=decode->surface_used[idx];
         if (!surface_used)
 		{ 
             break;
@@ -306,8 +306,8 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 	
     if (!surf)
         return AVERROR(ENOMEM);
-
-    surf_buf = av_buffer_create((uint8_t*)surf, sizeof(*surf), free_buffer,&decode->surface_used[idx], AV_BUFFER_FLAG_READONLY);
+	int *i=&decode->surface_used[idx];
+    surf_buf = av_buffer_create(0,NULL, free_buffer,i, AV_BUFFER_FLAG_READONLY);
     if (!surf_buf) {
         av_freep(&surf);
         return AVERROR(ENOMEM);
@@ -318,7 +318,6 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
     frame->data[3] = (uint8_t*)surf;
 
     decode->surface_used[idx] = 1;
-
 	return 0;
 }
 
@@ -326,6 +325,8 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 
 
 void Registerkk_h264_qsv_decoder();
+
+
 
 //绑定环境
 int BindQsvModule(AVCodecContext  *pCodecCtx)
@@ -344,6 +345,9 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		mfxIMPL impl =MFX_IMPL_HARDWARE;
 		
 		KKQSVDecCtx *decCtx=(KKQSVDecCtx*)::KK_Malloc_(sizeof(KKQSVDecCtx));
+
+		decCtx->tmp_frame=0;
+	    decCtx->Okxx=0;
 		decCtx->hw_ctx =kk_av_qsv_alloc_context();
 		pCodecCtx->hwaccel_context=decCtx->hw_ctx;
 		pCodecCtx->opaque=decCtx;
@@ -393,39 +397,9 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		       return sts;
 		    }
          }*/
-		decCtx->hw_ctx->param.AsyncDepth=10;
+		decCtx->hw_ctx->param.AsyncDepth=4;
 		 decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_VIDEO_MEMORY
 		 decCtx->hw_ctx->session=decCtx->mfx_session;
-		return 0;
-		//sts = MFXVideoDECODE_DecodeHeader(decCtx->mfx_session, &decCtx->mfx_enc_bs, &decCtx->dec_param);
-		//if (!sts){
-  //          //m_bVppIsUsed = IsVppRequired(pParams);
-		//	 decCtx->de_header=true;
-		//}else{
-		//     decCtx->de_header=false;
-		//}
-		//
-		////视频是否旋转
-		//decCtx->dec_param.mfx.Rotation =0;// MFX_ROTATION_0;
-
-		//decCtx->dec_param.IOPattern =MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
-
-		//decCtx->dec_param.AsyncDepth=4;
-
-		// sts=MFXVideoDECODE_Query(decCtx->mfx_session,&decCtx->dec_param, &decCtx->dec_param);
-
-		// mfxFrameAllocRequest Request;
-		// // calculate number of surfaces required for decoder
-  //       sts = MFXVideoDECODE_QueryIOSurf(decCtx->mfx_session,&decCtx->dec_param,&Request);
-  //       //初始化解码器
-		// sts =MFXVideoDECODE_Init(decCtx->mfx_session,&decCtx->dec_param);
-
-		// sts =MFXVideoDECODE_GetVideoParam(decCtx->mfx_session,&decCtx->dec_param);
-
-
-		// mfxFrameSurface1     *CurSurface=NULL;
-		// mfxFrameSurface1     *pOutSurface = NULL;
-		//  MFXVideoDECODE_DecodeFrameAsync(decCtx->mfx_session,&decCtx->mfx_enc_bs,CurSurface,&pOutSurface,&decCtx->syncp);
 		return 0;
 	}
 	return -1;

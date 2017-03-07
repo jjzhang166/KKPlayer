@@ -750,7 +750,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	{
        #ifdef WIN32
 		       avctx->codec_id=codec->id;
-			  //is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
+			//  is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
 			   is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
@@ -762,11 +762,12 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				  /* avcodec_free_context(&avctx);
 				   avctx = avcodec_alloc_context3(codec);*/
 				   
-			       if(BindQsvModule(avctx)<0){
-					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
-					  
+			       if(BindQsvModule(avctx)>-1){
+					   codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
+				   }else{
+				       is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
 				   }
-					codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
+					
 					
 			   }
        #endif
@@ -1148,7 +1149,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
         
 		//
          PixelFormat xx=(PixelFormat)(pOutAV->format);
-		 xx=AV_PIX_FMT_YUV420P;
+		//xx=AV_PIX_FMT_NV12;
+		pOutAV->format=xx;
 		is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			 pOutAV->width,  pOutAV->height ,xx ,
 			 pOutAV->width,       pOutAV->height,               DstAVff,                

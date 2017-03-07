@@ -17,14 +17,11 @@ typedef struct KK_AVQSVContext {
     int opaque_alloc;
     int nb_opaque_surfaces;
 
-    AVBufferRef *opaque_surfaces;
-
+   
     int opaque_alloc_type;
 
 	//解码参数
 	mfxVideoParam param;
-	//输入数据
-	mfxBitstream          mfx_enc_bs; // contains encoded data
 } KK_AVQSVContext;
 KK_AVQSVContext *kk_av_qsv_alloc_context(void);
 

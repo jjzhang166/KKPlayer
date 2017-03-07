@@ -70,24 +70,6 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     } else
         return AVERROR_INVALIDDATA;
 
-   /* if (avpkt->size) {
-
-		 if (bs.MaxLength == bs.DataLength){
-               ret = ExtendMfxBitstream(&bs, bs.MaxLength * 2);
-         }
-         if(bs.DataLength>0)
-		 memmove(bs.Data, bs.Data + bs.DataOffset,bs.DataLength);
-         bs.DataOffset = 0;
-		 memcpy(bs.Data+ bs.DataLength,avpkt->data,avpkt->size);
-         bs.DataLength += avpkt->size;
-         bs.TimeStamp  = avpkt->pts;
-		 FILE * bd=::fopen("F:/BaiduNetdiskDownload/test10.h26","wb");
-		 fwrite(bs.Data,1,bs.DataLength,bd);
-		 fclose(bd);
-    } else
-        return AVERROR_INVALIDDATA;*/
-
-	 
     ret = ff_qsv_codec_id_to_mfx(avctx->codec_id);
     if (ret < 0) {
         av_log(avctx, AV_LOG_ERROR, "Unsupported codec_id %08x\n", avctx->codec_id);
@@ -159,12 +141,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
        HEVC which is 16 for both cases.
        So weare  pre-allocating fifo big enough for 17 elements:
      */
-    if (!q->async_fifo) {
-        q->async_fifo = av_fifo_alloc((1 + 16) *
-                                      (sizeof(mfxSyncPoint*) + sizeof(KKQSVFrame*)));
-        if (!q->async_fifo)
-            return AVERROR(ENOMEM);
-    }
+   
 
     if (!q->input_fifo) {
         q->input_fifo = av_fifo_alloc(1024*16);
@@ -210,13 +187,24 @@ static int alloc_frame(AVCodecContext *avctx, KKQSVFrame *frame)
     return 0;
 }
 
+static void qsv_unlock_used_frames(KKQSVContext *q)
+{
+    KKQSVFrame *cur = (KKQSVFrame *)q->work_frames;
+    while (cur) {
+        if (cur->surface&& !cur->queued) {
+			cur->surface->Data.Locked=0;
+        }
+        cur = cur->next;
+    }
+}
+
 static void qsv_clear_unused_frames(KKQSVContext *q)
 {
     KKQSVFrame *cur = (KKQSVFrame *)q->work_frames;
     while (cur) {
         if (cur->surface && !cur->surface->Data.Locked && !cur->queued) {
-            //cur->surface = NULL;
-            //av_frame_unref(cur->frame);
+            cur->surface = NULL;
+            av_frame_unref(cur->frame);
         }
         cur = cur->next;
     }
@@ -227,8 +215,8 @@ static int get_surface(AVCodecContext *avctx, KKQSVContext *q, mfxFrameSurface1 
     KKQSVFrame *frame, **last;
     int ret;
 
+   
     qsv_clear_unused_frames(q);
-
     frame = q->work_frames;
     last  = &q->work_frames;
     while (frame) {
@@ -316,15 +304,7 @@ static void close_decoder(KKQSVContext *q)
     if (q->session)
         MFXVideoDECODE_Close(q->session);
 
-    while (q->async_fifo && av_fifo_size(q->async_fifo)) {
-        KKQSVFrame *out_frame;
-        mfxSyncPoint *sync;
-
-        av_fifo_generic_read(q->async_fifo, &out_frame, sizeof(out_frame), NULL);
-        av_fifo_generic_read(q->async_fifo, &sync,      sizeof(sync),      NULL);
-
-        av_freep(&sync);
-    }
+  
 
     cur = q->work_frames;
     while (cur) {
@@ -355,8 +335,10 @@ mfxStatus WriteNextFrameI420(mfxFrameSurface1 *pSurface)
         case MFX_FOURCC_YV12:
         case MFX_FOURCC_NV12:
         {
-            
-			 fwrite(pData.Y + (pInfo.CropY * pData.Pitch + pInfo.CropX)+ i * pData.Pitch, 1, pInfo.CropW,fd);
+            for (i = 0; i < pInfo.CropH; i++)
+            {
+			   fwrite(pData.Y + (pInfo.CropY * pData.Pitch + pInfo.CropX)+ i * pData.Pitch, 1, pInfo.CropW,fd);
+			}
             break;
         }
         default:
@@ -451,10 +433,12 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
             return ret;
         do {
              ret = MFXVideoDECODE_DecodeFrameAsync(q->session,&bs,insurf, &outsurf, &q->sync);
+			
 			 if (MFX_WRN_VIDEO_PARAM_CHANGED==ret) {
 				 /* TODO: handle here minor sequence header changing */
 				 continue;
-			 }
+			 } 
+			 insurf->Data.Locked=1;
 			if(ret==MFX_ERR_MORE_DATA)
 			{
 			    av_fifo_generic_write(q->input_fifo, avpkt->data,avpkt->size, NULL);
@@ -466,20 +450,45 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
 
         
 		//解码成功
-        if (ret==MFX_ERR_NONE) {
-			qsv_fifo_relocate(q->input_fifo, bs.DataOffset);
-			ret = MFXVideoCORE_SyncOperation(q->session, q->sync, 1000);
-			if (MFX_ERR_NONE == ret) { 
-				KKQSVFrame *out_frame = find_frame(q, outsurf);
-				if (!out_frame) {
-					av_log(avctx, AV_LOG_ERROR,
-						   "The returned surface does not correspond to any frame\n");
-					return AVERROR_BUG;
-				}
+        if (ret==MFX_ERR_NONE){
+				qsv_fifo_relocate(q->input_fifo, bs.DataOffset);
+				ret = MFXVideoCORE_SyncOperation(q->session, q->sync, 1000);
+				if (MFX_ERR_NONE == ret) { 
+					 
+							KKQSVFrame *out_frame = find_frame(q, outsurf);
+							if (!out_frame) {
+								av_log(avctx, AV_LOG_ERROR,
+									   "The returned surface does not correspond to any frame\n");
+								return AVERROR_BUG;
+							}
+							AVFrame *src_frame = out_frame->frame;
 
-				out_frame->queued = 1;
-				av_fifo_generic_write(q->async_fifo, &out_frame, sizeof(out_frame), NULL);
-			}
+							ret = av_frame_ref(frame, src_frame);
+							if (ret < 0)
+								return ret;
+							outsurf = out_frame->surface;
+
+							
+						  //  WriteNextFrameI420(out_frame->surface);
+							frame->data[0]=out_frame->surface->Data.Y;
+							frame->data[1]=out_frame->surface->Data.UV;
+
+							frame->format=AV_PIX_FMT_NV12;
+							frame->linesize[0]=frame->width;
+							frame->linesize[1]=frame->width;
+							frame->pkt_pts = frame->pts = outsurf->Data.TimeStamp;
+
+							frame->repeat_pict =outsurf->Info.PicStruct & MFX_PICSTRUCT_FRAME_TRIPLING ? 4 :
+								outsurf->Info.PicStruct & MFX_PICSTRUCT_FRAME_DOUBLING ? 2 :
+								outsurf->Info.PicStruct & MFX_PICSTRUCT_FIELD_REPEATED ? 1 : 0;
+							frame->top_field_first =
+								outsurf->Info.PicStruct & MFX_PICSTRUCT_FIELD_TFF;
+							frame->interlaced_frame =
+								!(outsurf->Info.PicStruct & MFX_PICSTRUCT_PROGRESSIVE);
+							*got_frame = 1;
+							//解锁
+							qsv_unlock_used_frames(q);
+				 }	
         }
   
    
@@ -487,43 +496,6 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
       
         av_log(avctx, AV_LOG_ERROR, "Error %d during QSV decoding.\n", ret);
         return ff_qsv_error(ret);
-    }
-
-    //获取解码的数据
-    n_out_frames = av_fifo_size(q->async_fifo) / (sizeof(out_frame));
-    if (n_out_frames > q->async_depth || (flush && n_out_frames) ) {
-        AVFrame *src_frame;
-
-        av_fifo_generic_read(q->async_fifo, &out_frame, sizeof(out_frame), NULL);
-        out_frame->queued = 0;
-
-        do {
-			ret = MFXVideoCORE_SyncOperation(q->session, q->sync, 1000);
-        } while (ret == MFX_WRN_IN_EXECUTION);
-
-      
-        src_frame = out_frame->frame;
-
-        ret = av_frame_ref(frame, src_frame);
-        if (ret < 0)
-            return ret;
-
-        outsurf = out_frame->surface;
-
-		
-        WriteNextFrameI420(out_frame->surface);
-        frame->pkt_pts = frame->pts = outsurf->Data.TimeStamp;
-
-        frame->repeat_pict =
-            outsurf->Info.PicStruct & MFX_PICSTRUCT_FRAME_TRIPLING ? 4 :
-            outsurf->Info.PicStruct & MFX_PICSTRUCT_FRAME_DOUBLING ? 2 :
-            outsurf->Info.PicStruct & MFX_PICSTRUCT_FIELD_REPEATED ? 1 : 0;
-        frame->top_field_first =
-            outsurf->Info.PicStruct & MFX_PICSTRUCT_FIELD_TFF;
-        frame->interlaced_frame =
-            !(outsurf->Info.PicStruct & MFX_PICSTRUCT_PROGRESSIVE);
-
-        *got_frame = 1;
     }
 
     return avpkt->size;
@@ -627,7 +599,8 @@ void ff_qsv_decode_reset(AVCodecContext *avctx, KKQSVContext *q)
         if (ret < 0) {
             av_log(avctx, AV_LOG_ERROR, "MFX decode reset error %d\n", ret);
         }
-
+//解锁
+		qsv_unlock_used_frames(q);
         /* Free all frames*/
         cur = q->work_frames;
         while (cur) {
@@ -638,9 +611,6 @@ void ff_qsv_decode_reset(AVCodecContext *avctx, KKQSVContext *q)
         }
     }
 
-    /* Reset output surfaces */
-	if(q->async_fifo!=NULL)
-    av_fifo_reset(q->async_fifo);
 
     /* Reset input packets fifo */
 	if(q->pkt_fifo)
@@ -662,8 +632,7 @@ int ff_qsv_decode_close(KKQSVContext *q)
 
     ff_qsv_close_internal_session(&q->internal_qs);
 
-    av_fifo_free(q->async_fifo);
-    q->async_fifo = NULL;
+  
 
     av_fifo_free(q->input_fifo);
     q->input_fifo = NULL;
