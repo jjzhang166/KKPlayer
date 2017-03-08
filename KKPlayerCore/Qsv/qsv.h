@@ -15,7 +15,7 @@ typedef struct KK_AVQSVContext {
     mfxExtBuffer                  **ext_buffers;
     int                           nb_ext_buffers;
     int opaque_alloc;
-    int nb_opaque_surfaces;
+    int                           nb_opaque_surfaces;
 
    
     int opaque_alloc_type;

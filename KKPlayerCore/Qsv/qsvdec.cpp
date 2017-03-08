@@ -45,10 +45,10 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     q->ext_buffers    = qsv->ext_buffers;
     q->nb_ext_buffers = qsv->nb_ext_buffers;
 	q->async_depth=     qsv->param.AsyncDepth;
-    //q->iopattern  = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_SYSTEM_MEMORY
+   
+
 	mfxVideoParam param = { { 0 } };
 	mfxBitstream bs   = { { { 0 } } };
-	//mfxBitstream&    bs   = qsv->mfx_enc_bs;
     int ret;
     enum AVPixelFormat pix_fmts[3] = { AV_PIX_FMT_QSV,AV_PIX_FMT_NV12,AV_PIX_FMT_NONE };
 
@@ -92,7 +92,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     }
 
 	
-
+    
     mfxStatus sts=MFXVideoDECODE_Query(q->session,&param, &param);
 	
 	 if (sts < 0) {
@@ -154,6 +154,11 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
         if (!q->pkt_fifo)
             return AVERROR(ENOMEM);
     }
+	if(!q->sequence_fifo){
+	q->sequence_fifo = av_fifo_alloc(1024*16);
+	//avctx->codec->
+	av_fifo_generic_write(q->sequence_fifo, bs.Data, bs.DataLength, NULL);
+	}
     q->engine_ready = 1;
 
     return 0;
@@ -438,7 +443,7 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
 				 /* TODO: handle here minor sequence header changing */
 				 continue;
 			 } 
-			 insurf->Data.Locked=1;
+			insurf->Data.Locked=1;
 			if(ret==MFX_ERR_MORE_DATA)
 			{
 			    av_fifo_generic_write(q->input_fifo, avpkt->data,avpkt->size, NULL);
@@ -621,7 +626,16 @@ void ff_qsv_decode_reset(AVCodecContext *avctx, KKQSVContext *q)
 
     /* Reset input bitstream fifo */
 	if(q->input_fifo)
-    av_fifo_reset(q->input_fifo);
+	{
+      av_fifo_reset(q->input_fifo);
+	  if(q->engine_ready)
+	  {
+		  int sziex= av_fifo_size(q->sequence_fifo);
+	      av_fifo_generic_write(q->input_fifo, q->sequence_fifo->rptr, sziex, NULL);
+	  }
+	}
+
+	
 }
 
 int ff_qsv_decode_close(KKQSVContext *q)
@@ -640,5 +654,7 @@ int ff_qsv_decode_close(KKQSVContext *q)
     av_fifo_free(q->pkt_fifo);
     q->pkt_fifo = NULL;
 
+	av_fifo_free(q->sequence_fifo);
+    q->sequence_fifo = NULL;
     return 0;
 }

@@ -25,7 +25,8 @@ typedef struct KKQSVContext {
      */
     KKQSVFrame *work_frames;
 
-    AVFifoBuffer *async_fifo;
+	//序列头
+    AVFifoBuffer *sequence_fifo;
 	//数据输入缓存
     AVFifoBuffer *input_fifo;
 
@@ -46,6 +47,7 @@ typedef struct KKQSVContext {
 
     // options set by the caller
     int async_depth;
+
     int iopattern;
 
     char *load_plugins;

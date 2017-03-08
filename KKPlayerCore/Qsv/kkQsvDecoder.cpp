@@ -38,6 +38,7 @@ typedef struct KKQSVDecCtx
     int                  surface_used[17];
 
     int                   nb_surfaces;
+	int                   nb_cursurId;
 	//½âÂë²ÎÊý
     mfxVideoParam         dec_param;
     mfxFrameInfo          frame_info;
@@ -288,14 +289,20 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 	    frame_alloc((mfxHDL)decode, &request,&resp);
 	}/**/
 	
-    for (idx = 0; idx < decode->nb_surfaces; idx++) 
+  for (idx = 0; idx < decode->nb_surfaces; idx++) 
 	{
 		int  surface_used=decode->surface_used[idx];
         if (!surface_used)
 		{ 
             break;
 		}
-    }
+    }/*
+	decode->nb_cursurId++;
+	if(decode->nb_cursurId>decode->nb_surfaces-1){
+	    decode->nb_cursurId=0;
+	}
+    idx =decode->nb_cursurId;*/
+	
     if (idx == decode->nb_surfaces) {
         fprintf(stderr, "No free surfaces\n");
         return AVERROR(ENOMEM);
@@ -397,7 +404,7 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		       return sts;
 		    }
          }*/
-		decCtx->hw_ctx->param.AsyncDepth=4;
+		decCtx->hw_ctx->param.AsyncDepth=10;
 		 decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_VIDEO_MEMORY
 		 decCtx->hw_ctx->session=decCtx->mfx_session;
 		return 0;
