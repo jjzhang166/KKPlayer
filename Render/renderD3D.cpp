@@ -583,8 +583,8 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 						m_VideoVertex[1].u = 1.f;
 						m_VideoVertex[1].v = 0.f;
 
-						m_VideoVertex[2].x = cx;
-						m_VideoVertex[2].y = ch - 0.5f;
+						m_VideoVertex[2].x = cx;//×óÏÂ½Ç
+						m_VideoVertex[2].y = ch;
 						m_VideoVertex[2].z = 0.f;
 						m_VideoVertex[2].w = 1.f;
 						m_VideoVertex[2].u = 0.f;
