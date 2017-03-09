@@ -323,17 +323,16 @@ static void close_decoder(KKQSVContext *q)
     q->reinit_pending = 0;
 }
 
-
-mfxStatus WriteNextFrameI420(mfxFrameSurface1 *pSurface)
+int QsvNv12toFrameI420(AVFrame *frame1,AVFrame *frame)
 {
-  
+	mfxFrameSurface1 *pSurface=(mfxFrameSurface1 *)frame1->data[4];
     mfxFrameInfo &pInfo = pSurface->Info;
     mfxFrameData &pData = pSurface->Data;
 
     mfxU32 i, j, h, w;
     mfxU32 vid = pInfo.FrameId.ViewId;
 
-    FILE * fd=::fopen("D://ttt.yuv","wb");
+   int lx=0;
     // Write Y
     switch (pInfo.FourCC)
     {
@@ -342,7 +341,8 @@ mfxStatus WriteNextFrameI420(mfxFrameSurface1 *pSurface)
         {
             for (i = 0; i < pInfo.CropH; i++)
             {
-			   fwrite(pData.Y + (pInfo.CropY * pData.Pitch + pInfo.CropX)+ i * pData.Pitch, 1, pInfo.CropW,fd);
+               
+				memcpy(frame->data[0]+i*pInfo.CropW, pData.Y + (pInfo.CropY * pData.Pitch + pInfo.CropX)+ i * pData.Pitch,pInfo.CropW);
 			}
             break;
         }
@@ -353,6 +353,8 @@ mfxStatus WriteNextFrameI420(mfxFrameSurface1 *pSurface)
         }
     }
 
+	frame->linesize[0]=frame->width;
+	frame->linesize[2]=frame->linesize[1]=frame->width/2;
     // Write U and V
     switch (pInfo.FourCC)
     {
@@ -368,14 +370,14 @@ mfxStatus WriteNextFrameI420(mfxFrameSurface1 *pSurface)
             for (i = 0; i < h; i++){
                 for (j = 0; j < w; j += 2){
                    
-                    fwrite(pData.UV + (pInfo.CropY * pData.Pitch / 2 + pInfo.CropX) + i * pData.Pitch + j, 1, 1, fd);
+                    memcpy(frame->data[1]+i + j,pData.UV + (pInfo.CropY * pData.Pitch / 2 + pInfo.CropX) + i * pData.Pitch + j,1);
                 }
             }
             for (i = 0; i < h; i++)
             {
                 for (j = 1; j < w; j += 2)
                 {
-                   fwrite(pData.UV + (pInfo.CropY * pData.Pitch / 2 + pInfo.CropX)+ i * pData.Pitch + j, 1, 1, fd);
+                   memcpy(frame->data[2]+i+j,pData.UV + (pInfo.CropY * pData.Pitch / 2 + pInfo.CropX)+ i * pData.Pitch + j, 1);
                 }
             }
             break;
@@ -386,7 +388,7 @@ mfxStatus WriteNextFrameI420(mfxFrameSurface1 *pSurface)
             return MFX_ERR_UNSUPPORTED;
         }
     }
-	::fclose(fd);
+	
     return MFX_ERR_NONE;
 }
 
@@ -477,7 +479,7 @@ static int do_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
 						  //  WriteNextFrameI420(out_frame->surface);
 							frame->data[0]=out_frame->surface->Data.Y;
 							frame->data[1]=out_frame->surface->Data.UV;
-
+                            frame->data[4]=(uint8_t *)out_frame->surface;
 							frame->format=AV_PIX_FMT_NV12;
 							frame->linesize[0]=frame->width;
 							frame->linesize[1]=frame->width;

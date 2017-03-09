@@ -11,4 +11,6 @@
 
 //是否支持QSV硬解码
 bool KKTestQsvHardWare();
+int BindQsvModule(AVCodecContext  *pCodecCtx);
+
 #endif 

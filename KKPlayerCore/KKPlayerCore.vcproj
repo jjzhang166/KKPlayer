@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\libmfx\include;..\INTInclude;..\ffmpeg\include;..\librtmp"
+				AdditionalIncludeDirectories="..\libmfx\include;..\libmfx\include\mfx;..\INTInclude;..\ffmpeg\include;..\librtmp"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

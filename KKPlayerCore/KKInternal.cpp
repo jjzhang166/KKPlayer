@@ -750,7 +750,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	{
        #ifdef WIN32
 		       avctx->codec_id=codec->id;
-			//  is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
+			  //is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
 			   is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
@@ -1081,6 +1081,7 @@ struct SwsContext *BMPimg_convert_ctx=NULL;
 
 int DxPictureCopy(struct AVCodecContext *avctx,AVFrame *src,AVFrame **Out);
 
+int QsvNv12toFrameI420(AVFrame *frame1,AVFrame *frame);
 //图片队列 图片
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
 {  
@@ -1150,28 +1151,34 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		//
          PixelFormat xx=(PixelFormat)(pOutAV->format);
 		//xx=AV_PIX_FMT_NV12;
-		pOutAV->format=xx;
-		is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
+		//pOutAV->format=xx;
+		 int  OpenTime= av_gettime ()/1000;
+		 if(0&&pOutAV->format==AV_PIX_FMT_NV12&&DstAVff==AV_PIX_FMT_YUV420P){
+               QsvNv12toFrameI420(pOutAV,(AVFrame *)&vp->Bmp);
+		 }else{
+		     is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			 pOutAV->width,  pOutAV->height ,xx ,
 			 pOutAV->width,       pOutAV->height,               DstAVff,                
 			 SWS_FAST_BILINEAR,
 			 NULL, NULL, NULL);
-		 if (is->img_convert_ctx == NULL) 
-		 {
-			 if(is->bTraceAV)
-			 fprintf(stderr, "Cannot initialize the conversion context\n");
-			 exit(1);
+			 if (is->img_convert_ctx == NULL) 
+			 {
+				 if(is->bTraceAV)
+				 fprintf(stderr, "Cannot initialize the conversion context\n");
+				 assert(0);
+				 
+			 }
+		   
+				vp->BmpLock->Lock();
+				//如果是硬件加速，转化就慢了。
+				sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
+				vp->BmpLock->Unlock();/**/
+		
 		 }
-
+         int  OpenTime2= av_gettime ()/1000-OpenTime;
 		
 		
-		int  OpenTime= av_gettime ()/1000;
-		vp->BmpLock->Lock();
-		sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
-		vp->BmpLock->Unlock();/**/
-	
 		
-		int  OpenTime2= av_gettime ()/1000-OpenTime;
 
 		if(is->bTraceAV)
 		LOGE("dex:%d ,%d,%d\n",OpenTime2,pOutAV->width,pOutAV->height );
