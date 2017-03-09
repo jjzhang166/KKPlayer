@@ -33,6 +33,63 @@ int ff_qsv_map_pixfmt(enum AVPixelFormat format)
 
 mfxStatus ExtendMfxBitstream(mfxBitstream* pBitstream, mfxU32 nSize);
 mfxStatus InitMfxBitstream(mfxBitstream* pBitstream, mfxU32 nSize);
+
+int GetNALULen(unsigned char *src,int srcLen,int *remainLen)
+{
+	int len=0;
+	int Index=0;
+	unsigned char* pdata=src;
+	while(len<srcLen)
+	{
+			
+		if(
+			(
+			*pdata==0x00&&
+			*(1+pdata)==0x00&&
+			*(2+pdata)==0x01
+			)
+			||
+			(
+				*pdata==0x00&&
+				*(1+pdata)==0x00&&
+				*(2+pdata)==0x00&&
+				*(3+pdata)==0x01
+			)
+		)
+		{
+            break;
+		}
+		len++;
+		pdata++;
+	}
+	*remainLen=srcLen-len;
+	return len;
+}
+int GetH264SeparatorLen(unsigned char *src,int srcLen)
+{
+	if(*src!=0x00)
+		return 0;
+	unsigned char* pdata=src;
+		
+	if(
+		*pdata==0x00&&
+		*(1+pdata)==0x00&&
+		*(2+pdata)==0x01
+		)
+	{
+		return 3;
+	}
+	if(
+		*pdata==0x00&&
+		*(1+pdata)==0x00&&
+		*(2+pdata)==0x00&&
+		*(3+pdata)==0x01
+		)
+	{
+		return 4;
+	}
+	return 0;
+}
 static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avpkt)
 {
 
@@ -91,8 +148,36 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
         return ff_qsv_error(ret);
     }
 
+	if(!q->sequence_fifo){
+	    q->sequence_fifo = av_fifo_alloc(1024*16);
+	}
 	
-    
+    int   RemainLen=bs.DataLength;
+	unsigned char *pDataNALU=bs.Data;
+	while(RemainLen!=0)
+	{
+			int SepLen= GetH264SeparatorLen(pDataNALU,4);
+			char H264Type=0x00;
+	
+			pDataNALU=(pDataNALU+SepLen);
+			RemainLen=RemainLen-SepLen;
+			unsigned char NALUType=*pDataNALU&0x1f;
+			unsigned char aud=0;
+
+			int NaluLen=0;
+			if(NALUType==0x07)     //sequence parameter sps.
+			{
+				NaluLen= GetNALULen(pDataNALU,RemainLen,&RemainLen);
+				av_fifo_generic_write(q->sequence_fifo, pDataNALU-SepLen,NaluLen+SepLen, NULL);
+			}else if(NALUType==0x08)     //picture parameter pps
+			{
+				NaluLen= GetNALULen(pDataNALU,RemainLen,&RemainLen);
+				av_fifo_generic_write(q->sequence_fifo, pDataNALU-SepLen,NaluLen+SepLen, NULL);
+			}else{
+				NaluLen= GetNALULen(pDataNALU,RemainLen,&RemainLen);
+			}
+			pDataNALU=(pDataNALU+NaluLen);
+	}
     mfxStatus sts=MFXVideoDECODE_Query(q->session,&param, &param);
 	
 	 if (sts < 0) {
@@ -154,11 +239,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
         if (!q->pkt_fifo)
             return AVERROR(ENOMEM);
     }
-	if(!q->sequence_fifo){
-	q->sequence_fifo = av_fifo_alloc(1024*16);
-	//avctx->codec->
-	av_fifo_generic_write(q->sequence_fifo, bs.Data, bs.DataLength, NULL);
-	}
+	
     q->engine_ready = 1;
 
     return 0;
@@ -319,6 +400,8 @@ static void close_decoder(KKQSVContext *q)
         cur = q->work_frames;
     }
 
+	MFXClose(q->session);
+   q->session=0;
     q->engine_ready   = 0;
     q->reinit_pending = 0;
 }

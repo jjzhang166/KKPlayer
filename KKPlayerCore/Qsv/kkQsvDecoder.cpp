@@ -334,12 +334,33 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 void Registerkk_h264_qsv_decoder();
 
 
+void KKFreeQsv(AVCodecContext *avct)
+{
+	KKQSVDecCtx *decCtx=(KKQSVDecCtx*)avct->opaque;
 
+	for(int i=0;i<decCtx->nb_surfaces;++i){
+	     KK_Free_(decCtx->MemIds[i]);
+		 decCtx->MemIds[i]=NULL;
+	}
+   av_free(decCtx->hw_ctx);
+	KK_Free_(decCtx);
+	avct->opaque=NULL;
+	//已在解码器中释放
+	//MFXVideoDECODE_Close(decCtx->hw_ctx->session);
+	//MFXClose(decCtx->hw_ctx->session);
+	//decCtx->hw_ctx->session=0;
+	
+	//decCtx->hw_ctx=NULL;
+	avct->hwaccel_context=0;
+
+}
 //绑定环境
 int BindQsvModule(AVCodecContext  *pCodecCtx)
 {
-
-    Registerkk_h264_qsv_decoder();
+    static int Qsv_i=1;
+	if(Qsv_i==1)
+       Registerkk_h264_qsv_decoder();
+	Qsv_i=0;
 	if(pCodecCtx->codec_id==AV_CODEC_ID_H264)
 	{
 		//pCodecCtx->codec_id=

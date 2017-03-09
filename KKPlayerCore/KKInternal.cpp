@@ -31,6 +31,7 @@ void  KK_Free_(void *ptr)
 
 	  //inter QSV½âÂë¡£
 	  int BindQsvModule(AVCodecContext  *pCodecCtx);
+	  void KKFreeQsv(AVCodecContext *avct);
 #endif
 	  
 AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;
@@ -1288,6 +1289,10 @@ LXXXX:
 	 {
 	        FroceClose_Kk_Va_Dxva2(is->viddec.avctx->opaque);
 	        is->viddec.avctx->opaque=NULL;
+	        is->viddec.avctx->hwaccel_context=NULL;
+	 }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){
+	        KKFreeQsv(is->viddec.avctx);
+			is->viddec.avctx->opaque=NULL;
 	        is->viddec.avctx->hwaccel_context=NULL;
 	 }
 #endif
