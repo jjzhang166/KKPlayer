@@ -5,9 +5,8 @@
 extern SOUI::CMainDlg *m_pDlgMain;
 namespace SOUI
 {
-	CAVOpenUrl::CAVOpenUrl(): SHostWnd(_T("LAYOUT:XML_AVOPENURL"))
+	CAVOpenUrl::CAVOpenUrl(): SDomodalwnd(_T("LAYOUT:XML_AVOPENURL"))
 	{
-           m_bMini=0;
 	}
 	CAVOpenUrl::~CAVOpenUrl()
 	{
@@ -24,7 +23,7 @@ namespace SOUI
 
 	void CAVOpenUrl::OnClose()
 	{
-		ShowWindow(SW_HIDE);
+			this->PostMessage(WM_CLOSE,0,0);
 	}
 	void CAVOpenUrl::OnOpenUrl()
 	{
@@ -32,17 +31,12 @@ namespace SOUI
 		if(url.GetLength()<2)
 		{
 			::MessageBox(m_hWnd,L"请输入有效的URL地址",L"提示",MB_ICONHAND);
-		}else
-		{
+		}else{
 			char urlx[1024];
 			CChineseCode::wcharTochar(url.GetBuffer(1024),urlx,1024);
 			url.ReleaseBuffer();
             m_pDlgMain->OpenMedia(urlx);
-           ShowWindow(SW_HIDE);
+            OnClose();
 		}
-	}
-	void CAVOpenUrl::OnMinimize()
-	{
-		
 	}
 }

@@ -4,13 +4,18 @@
 extern SOUI::CMainDlg *m_pDlgMain;
 namespace SOUI
 {
-	CAVInfo::CAVInfo(): SHostWnd(_T("LAYOUT:XML_AVINFO"))
+	CAVInfo::CAVInfo(MEDIA_INFO Info): SDomodalwnd(_T("LAYOUT:XML_AVINFO"))
+		,m_Info(Info)
 	{
-           m_bMini=0;
+           
 	}
 	CAVInfo::~CAVInfo()
 	{
         
+	}
+	void CAVInfo::Init()
+	{
+	     SetAVInfo(m_Info);
 	}
 	void  CAVInfo::SetAVInfo(MEDIA_INFO &Info)
 	{
@@ -102,7 +107,7 @@ namespace SOUI
 
 	void CAVInfo::OnClose()
 	{
-		ShowWindow(SW_HIDE);
+		this->PostMessage(WM_CLOSE,0,0);
 	}
 	void CAVInfo::OnMinimize()
 	{

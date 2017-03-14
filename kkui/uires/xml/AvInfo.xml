@@ -31,7 +31,7 @@ translucent="0"
 					    </window>
 					   <window pos="10,[20,-0,]-10" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 					          <richedit pos="0,[10,]-10,]-10" rich="1" multilines="1" colorBkgnd="#FFFFFF" vertical="1" 
-							  name="EditAVInfo"
+							  name="EditAVInfo"  readOnly="1"
 							  font="adding:-2" colorText="#243A61">
 							  </richedit>
 					   </window>

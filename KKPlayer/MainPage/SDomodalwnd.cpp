@@ -1,5 +1,5 @@
 #include "SDomodalwnd.h"
-
+#include "helper/SToolTip.h"
 extern SOUI::SApplication *theApp;
 namespace SOUI{
 	SDomodalwnd::SDomodalwnd(LPCTSTR pszResName,bool AutoClose,bool NoBKey,DWORD style):SHostWnd(pszResName),m_bAutoClose(AutoClose),m_ModelState(0)
@@ -137,7 +137,7 @@ namespace SOUI{
                    break;
 				}
 				HWND ll=::GetParent(msg.hwnd);
-				if(msg.hwnd==m_hWnd|| msg.message == WM_UITASK||m_hWnd==ll)//|| msg.hwnd==TipH 
+				if(msg.hwnd==m_hWnd|| m_hWnd==ll)//|| msg.hwnd==TipH 
 				{
 				   bInterceptOther=0;
 				}

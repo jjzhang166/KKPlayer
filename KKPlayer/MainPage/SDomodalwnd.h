@@ -1,6 +1,6 @@
 #ifndef SDomodalwnd_H_
 #define SDomodalwnd_H_
-#include "../ui.h"
+#include "../stdafx.h"
 //Ä£Ì¬´°¿Ú
 namespace SOUI{
   class SDomodalwnd : protected SHostWnd

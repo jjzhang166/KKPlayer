@@ -337,6 +337,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MainPage\SDomodalwnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\SDomodalwnd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\SUIVideo.cpp"
 				>
 			</File>

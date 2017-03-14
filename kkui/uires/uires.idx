@@ -63,4 +63,7 @@
 	   <file name="ID_PNG_SP" path="image\sp.png"/>
 	   
 	</png>
+	<translator>
+          <file name="lang_cn" path="translation\lang_cn.xml"/>
+    </translator>
 </resource>

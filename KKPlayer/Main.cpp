@@ -189,7 +189,7 @@ void skpngZhuc();
 
 CreateRender pfnCreateRender = NULL;
 DelRender pfnDelRender=NULL;
-
+SOUI::SApplication *theApp=NULL;
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
@@ -307,7 +307,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	pComMgr->CreateImgDecoder((IObjRef**)&pImgDecoderFactory);
 	pRenderFactory->SetImgDecoderFactory(pImgDecoderFactory);
 	
-	SApplication *theApp=new SApplication(pRenderFactory,hInstance);
+	theApp=new SApplication(pRenderFactory,hInstance);
     theApp->RegisterWndFactory(TplSWindowFactory<CSuiVideo>());
     theApp->RegisterWndFactory(TplSWindowFactory<CKKmclv>());
     theApp->RegisterWndFactory(TplSWindowFactory<SAVSeekBar>());
@@ -322,7 +322,14 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	pComMgr->CreateTranslator((IObjRef**)&trans);
 	if(trans)
 	{
-	
+	        theApp->SetTranslator(trans);
+            pugi::xml_document xmlLang;
+            if(theApp->LoadXmlDocment(xmlLang,_T("lang_cn"),_T("translator"))){
+                CAutoRefPtr<ITranslator> langCN;
+                trans->CreateTranslator(&langCN);
+                langCN->Load(&xmlLang.child(L"language"),1);//1=LD_XML
+                trans->InstallTranslator(langCN);
+            }
 	}
 
 
