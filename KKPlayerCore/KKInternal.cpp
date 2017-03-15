@@ -752,7 +752,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
        #ifdef WIN32
 		       avctx->codec_id=codec->id;
 			  //is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
-			   is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
+			  // is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;

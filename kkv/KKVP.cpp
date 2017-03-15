@@ -315,10 +315,13 @@ LOOP1:
 	jsonValue["Guid"]=strGuid;
 	jsonValue["Url"]=KKP->URL;
     jsonValue["HRW"]=(int)hRead;
+	jsonValue["FirstRead"]=KKP->FirstRead;
+	KKP->FirstRead=0;
 	if(buf_size>32768)
 		 jsonValue["BufLen"]=32768;
 	else
     jsonValue["BufLen"]=buf_size;
+
 
 	strGuid=jsonValue.toStyledString();
 	unsigned char *IPCbuf=(unsigned char*)::malloc(1024);

@@ -128,7 +128,7 @@ namespace Qy_IPC
 						 {
 						    int ii=0;
 							ii++;
-						 }
+						 }/**/
 						 
 					}
 					HandleIPCMsg(guidstr,IPCMSG,DataBuf,DataLen, CacheTime);
