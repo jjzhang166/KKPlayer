@@ -330,7 +330,7 @@ LOOP1:
 	int rext=KKVWritePipe(IPCbuf,1024,0);
 	while(1&&G_IPC_Read_Write==1&&rext==1)
 	{
-		DWORD ret=::WaitForSingleObject( hRead,20);
+		DWORD ret=::WaitForSingleObject( hRead,50);
         if(ret==WAIT_OBJECT_0)
 		{
 			break;
@@ -361,11 +361,7 @@ LOOP1:
 	if(RetOk)
 	{
 		int ret=OutInfo.DataSize;
-		//还未准备好
-		if(ret==-1000)
-		{
-			goto LOOP1;
-		}else if(ret==-1001){
+		if(ret==-1001){
 		    return AVERROR_EOF;
 		}
 			
@@ -373,9 +369,6 @@ LOOP1:
 		{
 			KKP->CalPlayerDelay(KKP->PlayerOpaque,OutInfo.CacheTime,2);
 		}
-		/*if(TestFb!=NULL&&ret>0){
-		    fwrite(buf,1,ret,TestFb);
-		}*/
 		return ret;
 	}
 	
@@ -422,7 +415,7 @@ LOOP1:
     int rext=KKVWritePipe(IPCbuf,1024,0);
 	while(1&&G_IPC_Read_Write==1&&rext==1)
 	{
-		DWORD ret=::WaitForSingleObject( hRead,500);
+		DWORD ret=::WaitForSingleObject( hRead,50);
 		if(ret==WAIT_OBJECT_0)
 		{
 			break;
@@ -454,10 +447,6 @@ LOOP1:
 	if(RetOk)
 	{
 		int ret=OutInfo.DataSize;
-		if(ret==-1000)
-		{
-			goto LOOP1;
-		}
 		return ret;
 	}
 
