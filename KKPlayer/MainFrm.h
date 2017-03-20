@@ -84,6 +84,7 @@ private:
 		UINT m_AVtimerID;
         bool m_bFullScreen;
 		int  m_nFullLastTick;
+		int  m_nCursorCount;
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 	BEGIN_MSG_MAP(CMainFrame)

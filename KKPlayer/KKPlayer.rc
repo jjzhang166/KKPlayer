@@ -1,11 +1,11 @@
-//Microsoft Visual C++ 生成的资源脚本。
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
-// 从 TEXTINCLUDE 2 资源生成。
+// Generated from the TEXTINCLUDE 2 resource.
 //
 #ifndef APSTUDIO_INVOKED
 #include "targetver.h"
@@ -13,48 +13,53 @@
 #define APSTUDIO_HIDDEN_SYMBOLS
 #include "windows.h"
 #undef APSTUDIO_HIDDEN_SYMBOLS
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
+/////////////////////////////////////////////////////////////////////////////
+// 中文(中华人民共和国) resources
+
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-LANGUAGE 4, 2
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 #pragma code_page(936)
+#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 图标
+// Icon
 //
 
-// ID 值最低的图标放在最前面，以确保应用程序图标
-// 在所有系统中保持一致。
-
-IDI_KKPLAYER       ICON         "KKPlayer.ico"
-IDI_SMALL               ICON         "small.ico"
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_KKPLAYER            ICON                    "KKPlayer.ico"
+IDI_SMALL               ICON                    "small.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 菜单
+// Menu
 //
 
-IDC_KKPLAYER MENU
+IDC_KKPLAYER MENU 
 BEGIN
     POPUP "文件(&F)"
     BEGIN
-        MENUITEM "退出(&X)",                IDM_EXIT
+        MENUITEM "退出(&X)",                      IDM_EXIT
     END
     POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "关于(&A) ...",           IDM_ABOUT
+        MENUITEM "关于(&A) ...",                  IDM_ABOUT
     END
 END
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 快捷键
+// Accelerator
 //
 
-IDC_KKPLAYER ACCELERATORS
+IDC_KKPLAYER ACCELERATORS 
 BEGIN
     "?",            IDM_ABOUT,              ASCII,  ALT
     "/",            IDM_ABOUT,              ASCII,  ALT
@@ -63,19 +68,20 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// 对话框
+// Dialog
 //
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "关于 KKPlayer"
-FONT 9, "MS Shell Dlg"
+FONT 9, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
+    ICON            128,IDC_STATIC,14,14,21,20
     LTEXT           "KKPlayer，1.0 版",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2015",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "确定",IDOK,113,41,50,14,WS_GROUP
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -83,7 +89,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -95,19 +101,21 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // TEXTINCLUDE
 //
-1 TEXTINCLUDE
+
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
-	"#ifndef APSTUDIO_INVOKED\r\n"
+    "#ifndef APSTUDIO_INVOKED\r\n"
     "#include ""targetver.h""\r\n"
     "#endif\r\n"
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
@@ -116,7 +124,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -124,28 +132,37 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
-// 字符串表
+// Cursor
 //
 
-STRINGTABLE
+IDC_CURSOR1             CURSOR                  "cursor1.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
 BEGIN
-   IDC_KKPLAYER   "KKPLAYER"
-   IDS_APP_TITLE       "KKPlayer"
+    IDS_APP_TITLE           "KKPlayer"
+    IDC_KKPLAYER            "KKPLAYER"
 END
 
-#endif
+#endif    // 中文(中华人民共和国) resources
 /////////////////////////////////////////////////////////////////////////////
-
 
 
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
-// 从 TEXTINCLUDE 3 资源生成。
+// Generated from the TEXTINCLUDE 3 resource.
 //
 
+
 /////////////////////////////////////////////////////////////////////////////
-#endif    // 不是 APSTUDIO_INVOKED
+#endif    // not APSTUDIO_INVOKED
+

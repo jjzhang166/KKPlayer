@@ -190,13 +190,14 @@ void skpngZhuc();
 CreateRender pfnCreateRender = NULL;
 DelRender pfnDelRender=NULL;
 SOUI::SApplication *theApp=NULL;
+HINSTANCE GhInstance;
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
 	int SDL_WindowStyle=WS_POPUP  | WS_VISIBLE|WS_CLIPCHILDREN;
     DeclareDumpFile();
 
-
+   GhInstance=hInstance;
 	FARPROC spdpia = GetProcAddress(GetModuleHandle(TEXT("user32")), "SetProcessDPIAware");  
 	if(spdpia!=NULL)
 	{

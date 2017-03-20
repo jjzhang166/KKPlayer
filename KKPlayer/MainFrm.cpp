@@ -67,7 +67,9 @@ m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL),
 m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_bFullScreen(false)
 ,m_nFullLastTick(false)
+,m_nCursorCount(0)
 {
+	//m_bFullScreen=true;
 	m_pSound=NULL;
 	m_pPlayerInstance=NULL;
 	m_CenterLogoLen=0;
@@ -339,7 +341,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	}
 	
 	
-
+	
 	 m_pPlayerInstance->InitSound();
 	 m_pPlayerInstance->SetWindowHwnd(m_hWnd);
 
@@ -450,12 +452,15 @@ LRESULT  CMainFrame::OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPara
     bHandled=true;
 	return 1;
 }
+extern HINSTANCE GhInstance;
 LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	if(m_bFullScreen){
-		if(::GetTickCount()-m_nFullLastTick>3000)
+		if(::GetTickCount()-m_nFullLastTick>2000)
 		{
-	         ShowCursor(false);
+			::SetCursor(NULL);//
+			//::SetCursor(LoadCursor (GhInstance,MAKEINTRESOURCE(IDC_CURSOR1)));//
+			 m_nFullLastTick=::GetTickCount();
 		}
 	}
 	if(wParam==10010)
@@ -471,12 +476,12 @@ void CMainFrame::FullScreen()
 {
 	if(m_bFullScreen){
 		m_bFullScreen=false;
-	}
-	else{
+	}else{
 		m_nFullLastTick=::GetTickCount();
 		m_bFullScreen=true;
+		m_nCursorCount=0;
 		
-	}
+	}/**/
 }
 void CMainFrame::CloseMedia()
 {
@@ -547,6 +552,7 @@ LRESULT  CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/*
 		case VK_RIGHT:
 			               m_pPlayerInstance->KKSeek(SeekEnum::Right,60);
 			               break;
+		
 	}
 	
 	return 1;
@@ -784,7 +790,8 @@ LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
    
    if(m_bFullScreen){
 	   m_nFullLastTick=::GetTickCount();
-       ShowCursor(true);
+	   ::SetCursor(LoadCursor(NULL,IDC_ARROW));
+	   
    }
 	//ÃÔÄãÄ£Ê½
 	if(!m_pDlgMain->GetScreenModel()&&xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y&&xPos>1&&yPos>1)
