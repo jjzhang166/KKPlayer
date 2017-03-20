@@ -65,6 +65,8 @@ std::basic_string<TCHAR> GetModulePath();
 CMainFrame::CMainFrame():
 m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL),
 m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
+,m_bFullScreen(false)
+,m_nFullLastTick(false)
 {
 	m_pSound=NULL;
 	m_pPlayerInstance=NULL;
@@ -450,13 +452,31 @@ LRESULT  CMainFrame::OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPara
 }
 LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
-
+	if(m_bFullScreen){
+		if(::GetTickCount()-m_nFullLastTick>3000)
+		{
+	         ShowCursor(false);
+		}
+	}
 	if(wParam==10010)
 	{
           AVRender();
+	}else{
+	     
 	}
 	bHandled=true;
 	return 1;
+}
+void CMainFrame::FullScreen()
+{
+	if(m_bFullScreen){
+		m_bFullScreen=false;
+	}
+	else{
+		m_nFullLastTick=::GetTickCount();
+		m_bFullScreen=true;
+		
+	}
 }
 void CMainFrame::CloseMedia()
 {
@@ -762,6 +782,10 @@ LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
    int xPos = GET_X_LPARAM(lParam); 
    int yPos = GET_Y_LPARAM(lParam);
    
+   if(m_bFullScreen){
+	   m_nFullLastTick=::GetTickCount();
+       ShowCursor(true);
+   }
 	//ÃÔÄãÄ£Ê½
 	if(!m_pDlgMain->GetScreenModel()&&xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y&&xPos>1&&yPos>1)
 	{

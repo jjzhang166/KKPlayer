@@ -52,6 +52,8 @@ public:
     int OpenMedia(std::string url);
 	int DownMedia(char *KKVURL,bool Down=true);
     void CloseMedia();
+	//х╚фа
+	void FullScreen();
 private:
 	void OnDraw(HDC& memdc,RECT& rt);
 private:
@@ -80,7 +82,8 @@ private:
 
 		UINT m_AVwTimerRes;
 		UINT m_AVtimerID;
-
+        bool m_bFullScreen;
+		int  m_nFullLastTick;
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 	BEGIN_MSG_MAP(CMainFrame)
