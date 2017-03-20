@@ -29,6 +29,14 @@ namespace SOUI
 	{
          m_VideoWnd.GetAVHistoryInfo(slQue);
 	}
+	HWND CSuiVideo::GetPlayerHwnd()
+	{
+	          return m_VideoWnd.m_hWnd;
+	}
+	void CSuiVideo::FullScreen()
+	{
+	    m_VideoWnd.FullScreen();
+	}
 	void CSuiVideo::SetPlayStat(int state)
 	{
         m_VideoWnd.Pause();

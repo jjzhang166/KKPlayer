@@ -318,6 +318,18 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	   theApp->RegisterWndFactory(TplSWindowFactory<KKWkeWebkit>());
 	 }
 
+	
+
+	HMODULE hui=LoadLibrary(_T("kkui.dll"));
+	if(hui){
+		CAutoRefPtr<IResProvider>   pResProvider;
+		CreateResProvider(RES_PE,(IObjRef**)&pResProvider);
+		BOOL ret=pResProvider->Init((WPARAM)hui,0);
+		theApp->AddResProvider(pResProvider);
+	}else{
+       assert(0);
+	}
+	
 	CAutoRefPtr<ITranslatorMgr> trans;
 	pComMgr->CreateTranslator((IObjRef**)&trans);
 	if(trans)
@@ -332,16 +344,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
             }
 	}
 
-
-	HMODULE hui=LoadLibrary(_T("kkui.dll"));
-	if(hui){
-		CAutoRefPtr<IResProvider>   pResProvider;
-		CreateResProvider(RES_PE,(IObjRef**)&pResProvider);
-		BOOL ret=pResProvider->Init((WPARAM)hui,0);
-		theApp->AddResProvider(pResProvider);
-	}else{
-       assert(0);
-	}
 
 	//加载系统资源
 	HMODULE hSysResource=LoadLibrary(SYS_NAMED_RESOURCE);

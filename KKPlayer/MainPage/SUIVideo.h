@@ -14,19 +14,21 @@ namespace SOUI
 		  CSuiVideo(void);
 		  ~CSuiVideo(void);
 		   void SetAVVisible(BOOL bVisible);
-		  int OpenMedia(const char *str);
-		  int DownMedia(char *KKVURL);
-		  void Close();
-		  void SetPlayStat(int state);
-		  MEDIA_INFO GetMeadiaInfo();
-		  void SetVolume(long value);
-		  void AvSeek(int value);
-		  int PktSerial();
+		   int OpenMedia(const char *str);
+		   int DownMedia(char *KKVURL);
+		   void Close();
+		   void SetPlayStat(int state);
+		   MEDIA_INFO GetMeadiaInfo();
+		   void SetVolume(long value);
+		   void AvSeek(int value);
+		   int PktSerial();
 
 		   void OnDecelerate();
 		   void OnAccelerate();
 		   //获取放播的历史信息
 		   void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
+		   HWND GetPlayerHwnd();
+		   void FullScreen();
 	  protected:
 		  CMainFrame m_VideoWnd;
 		  void OnDestroy();
