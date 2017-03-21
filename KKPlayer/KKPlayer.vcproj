@@ -380,6 +380,14 @@
 				RelativePath=".\Tool\CriSecLock.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Tool\FileRelation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Tool\FileRelation.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Dir"

@@ -16,7 +16,7 @@
 #include "Dir/Dir.hpp"
 #include "Tool/CFileMgr.h"
 #include "Tool/cchinesecode.h"
-
+#include "Tool/FileRelation.h"
 #include "../KKPlayerCore/KKPlugin.h"
 #include "../KKPlayerCore/KKPlayer.h"
 #include "../KKPlayerCore/SqlOp/AVInfomanage.h"
@@ -196,8 +196,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	int SDL_WindowStyle=WS_POPUP  | WS_VISIBLE|WS_CLIPCHILDREN;
     DeclareDumpFile();
-
-   GhInstance=hInstance;
+    
+    GhInstance=hInstance;
 	FARPROC spdpia = GetProcAddress(GetModuleHandle(TEXT("user32")), "SetProcessDPIAware");  
 	if(spdpia!=NULL)
 	{
@@ -216,6 +216,14 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	AVInfoManage.SetPath((char *)pp.c_str());
 	AVInfoManage.InitDb();
 
+
+	CFileRelation FileRelation;
+	bool xx=FileRelation.CheckFileRelation(L".mp4",L"KKPlayer.mp4");
+	if( 1){
+		Propath=GetModulePath();
+        Propath+=_T("\\KKplayer.exe");
+		FileRelation.RegisterFileRelation(_T(".mp4"),(LPTSTR)Propath.c_str(),_T("KKPlayer.mp4"),(LPTSTR)Propath.c_str(),_T(".mp4"));
+	}
 	HMODULE hRender = LoadLibraryA("Render.dll");
 	if(hRender){
           pfnCreateRender = (CreateRender)GetProcAddress(hRender, "CreateRender");
