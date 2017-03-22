@@ -46,7 +46,7 @@ void CFileRelation::RegisterFileRelation(LPTSTR strExt, LPTSTR strAppName,LPTSTR
     
 	HKEY RoothKey;
    int lxx= RegCreateKey(HKEY_CLASSES_ROOT,strAppKey,&hKey);
-    RegSetValue(hKey,_T(""),REG_SZ,strDescribe,lstrlen(strDescribe)+1);
+    RegSetValueW(hKey,_T(""),REG_SZ,strDescribe,lstrlen(strDescribe)+1);
     RegCloseKey(hKey);
     
     _stprintf(strTemp,_T("%s\\DefaultIcon"),strAppKey);
@@ -56,13 +56,14 @@ void CFileRelation::RegisterFileRelation(LPTSTR strExt, LPTSTR strAppName,LPTSTR
     
     _stprintf(strTemp,_T("%s\\Shell"),strAppKey);
     RegCreateKey(HKEY_CLASSES_ROOT,strTemp,&hKey);
-    RegSetValue(hKey,_T(""),REG_SZ,_T("Open"),lstrlen(_T("Open"))+1);
+	_stprintf(strTemp,_T("%s"),_T("Open"));
+   lxx= RegSetValueW(hKey,_T(""),REG_SZ,strTemp,lstrlen(strTemp)+1);
     RegCloseKey(hKey);
     
    _stprintf(strTemp,_T("%s\\Shell\\Open\\Command"),strAppKey);
     RegCreateKey(HKEY_CLASSES_ROOT,strTemp,&hKey);
     //sprintf(strTemp,_T("%s \"%%1\""),strAppName);
-	_stprintf(strTemp,_T("%s \"%%1\""),strAppName);
+	_stprintf(strTemp,_T("\"%s\" \"%%1\""),strAppName);
     RegSetValue(hKey,_T(""),REG_SZ,strTemp, lstrlen(strTemp)+1);
     RegCloseKey(hKey);
 }
