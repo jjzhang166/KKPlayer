@@ -1264,6 +1264,9 @@ void KKPlayer::ReadAV()
 		// av_dict_set(&format_opts, "rtmp_listen", "1", AV_DICT_MATCH_CASE);
 		 //av_dict_set(&format_opts, "timeout", "5", AV_DICT_MATCH_CASE);
 		av_dict_set(&format_opts, "rtmp_buffer", "0", AV_DICT_MATCH_CASE);
+	}else if(!strncmp(pVideoInfo->filename, "rtsp:",5)){
+      
+		av_dict_set(&format_opts, "rtsp_transport", "tcp", AV_DICT_MATCH_CASE);
 	}
 #else
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5))
@@ -1276,6 +1279,7 @@ void KKPlayer::ReadAV()
 	
 	pVideoInfo->OpenTime= av_gettime ()/1000/1000;
 	double Opex=0;
+//	std::string urlxx=filename;
 	//此函数是阻塞的
 	err =avformat_open_input(
 		&pVideoInfo->pFormatCtx,                    pVideoInfo->filename,
