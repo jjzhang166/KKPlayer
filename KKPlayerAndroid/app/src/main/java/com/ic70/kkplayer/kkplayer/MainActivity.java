@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
 
         txtAvUrl=( EditText)findViewById(R.id.AVeditText);
         Button btx2=(Button)findViewById(R.id.AVbutton2);
-       SurfaceRender=(CKKPlayerSurfaceRender)findViewById(R.id.surfaceView);
+        //SurfaceRender=(CKKPlayerSurfaceRender)findViewById(R.id.surfaceView);
         btx2.setOnClickListener(new Button.OnClickListener(){//创建监听
             public void onClick(View v) {
                /* SurfaceRender.CreatePlayer();

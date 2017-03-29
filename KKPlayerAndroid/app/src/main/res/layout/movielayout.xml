@@ -8,7 +8,7 @@
     <com.ic70.kkplayer.kkplayer.GLES2_0_SurfaceView
         android:layout_width="match_parent"
         android:layout_height="500px"
-        android:id="@+id/GlsurfaceView" />
+        android:id="@+id/GlsurfaceView" /><!---->
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"

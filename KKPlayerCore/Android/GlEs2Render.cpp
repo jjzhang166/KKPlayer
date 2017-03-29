@@ -103,20 +103,15 @@ static void AVVertices_reloadVertex(GLuint av4_position,const void *vertices)
     glEnableVertexAttribArray(av4_position);
 }
 
-GlEs2Render::GlEs2Render():m_pGLHandle(0),gvPositionHandle(0),m_Screen_Width(0)
+GlEs2Render::GlEs2Render(KKPlayer* pPlayer):m_pGLHandle(0),gvPositionHandle(0),m_Screen_Width(0)
 ,m_Screen_Height(0),m_nTextureID(0),m_bAdJust(false)
 ,m_RenderWidth(0),m_RenderHeight(0),m_Picwidth(0)
-,m_Picheight(0)
+,m_Picheight(0),m_pPlayer(pPlayer),m_bKeepRatio(true)
+,g_texYId(0),g_texUId(0),g_texVId(0)
+,g_glProgram(0),g_av2_texcoord(0),g_av4_position(0)
+,m_vertexShader(0),m_fragmentShader(0)
 {
-	g_texYId=0;
-    g_texUId=0;
-    g_texVId=0;
-    g_glProgram=0;
-    g_av2_texcoord=0;
-    g_av4_position=0;
-
-    m_vertexShader=0;
-    m_fragmentShader=0;
+	
 
     m_plane_textures[0]=0;
     m_plane_textures[1]=0;
@@ -153,7 +148,10 @@ GlEs2Render::~GlEs2Render()
 {
 	GLES2_Renderer_reset();
 }
-
+void  GlEs2Render::SetKeepRatio(bool keep)
+{
+	m_bKeepRatio=keep;
+}
 void GlEs2Render::GLES2_Renderer_reset()
 {
 	///gl view
@@ -351,8 +349,12 @@ void GlEs2Render::GlViewRender()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
     if(g_glProgram==0|| m_vertexShader==0||m_fragmentShader==0)
-             return;
+	{
+		 LOGE("g_glProgram=%d m_vertexShader=%d||m_fragmentShader=%d \n", g_glProgram,m_vertexShader,m_fragmentShader);
+         return;
+	}
 
+	 
     if(!m_bAdJust&&m_Picwidth!=0&& m_Picheight!=0)
     {
         float width     =m_Picwidth;
@@ -365,8 +367,10 @@ void GlEs2Render::GlViewRender()
 
 
         dd = FFMIN(dW, dH);
+		if(m_bKeepRatio){
         nW = (width  * dd / (float)m_RenderWidth);
         nH = (height * dd / (float)m_RenderHeight);
+		}
 
 
         m_AVVertices[0] = - nW;
@@ -385,7 +389,7 @@ void GlEs2Render::GlViewRender()
         m_bAdJust=true;
     }
 
-    //m_player.RenderImage(this, false);
+    m_pPlayer->RenderImage(this, false);
     if(m_Picwidth==0|| m_Picheight==0)
          return;
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -396,7 +400,7 @@ void GlEs2Render::GlViewRender()
 
 bool GlEs2Render::init(HWND hView)
 {
-	
+	IniGl();
 	return true;
 }
 void GlEs2Render::destroy()

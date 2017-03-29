@@ -76,6 +76,13 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
         }
         return 2;
     }
+    public void SetKeepRatio( int KeepRatio)
+    {
+        if(m_nKKPlayer!=0) {
+            m_JniKKPlayer.SetKeepRatio(m_nKKPlayer, KeepRatio);
+        }
+    }
+
     public void KKDel()
     {
         if(m_nKKPlayer!=0)
@@ -131,6 +138,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
     @Override
     public void onDrawFrame(GL10 gl)
     {
+       // Log.v("m_nKKPlayer", "="+m_nKKPlayer);
         if(m_nKKPlayer!=0){
             m_JniKKPlayer.GlRender(m_nKKPlayer);
         }
@@ -147,7 +155,10 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
     {
         if(m_nKKPlayer!=0) {
             String glv = gl.glGetString(GL10.GL_VERSION);
+            ///
+            Log.v("Gl", "Gl Init");
             m_nGlHandle = m_JniKKPlayer.IniGl(m_nKKPlayer);
+
         }
     }
 }

@@ -16,8 +16,9 @@ class CAndKKPlayerUI :public  IKKPlayUI
    public:
              CAndKKPlayerUI(int RenderView);
              ~CAndKKPlayerUI();
-             int Init();
+             int  Init();
 			 int  OnSize(int w,int h);
+			 void SetKeepRatio(int KeepRatio);
              void renderFrame(ANativeWindow* surface);
              int  CloseMedia();
              MEDIA_INFO GetMediaInfo();
@@ -60,7 +61,8 @@ class CAndKKPlayerUI :public  IKKPlayUI
         /*************浏览器状态***************/
         bool m_bNeedReconnect;
         int m_playerState;
-        KKPlayer m_player;
+		
+        KKPlayer m_player;///播放器
         CAndKKAudio m_Audio;
         
         int m_Screen_Width;

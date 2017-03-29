@@ -51,6 +51,11 @@ public class CJniKKPlayer {
      */
     public native int OnSize(int obj,int w, int h);
 
+    /***
+     * 是否保持视频比例
+     * @param KeepRatio 1保持比例
+     */
+    public native void SetKeepRatio(int obj,int KeepRatio);
     /**
      * glview 显示调用
      * @param obj 播放器实例

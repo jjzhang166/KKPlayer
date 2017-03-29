@@ -16,7 +16,9 @@ CAndKKPlayerUI::CAndKKPlayerUI(int RenderView):m_player(this,&m_Audio)
     
     m_player.InitSound();
     m_player.SetWindowHwnd(0);
-    m_bNeedReconnect= false;
+    m_bNeedReconnect= false; 
+    if(m_nRenderType==0)	
+	    m_pRender = new GlEs2Render(&m_player);
 }
 
 
@@ -27,17 +29,21 @@ CAndKKPlayerUI::~CAndKKPlayerUI()
     m_Audio.CloseAudio();
 	
 	if(m_nRenderType==0){
+	   LOGE("GlEs2Render Del \n");
+	   m_RenderLock.Lock();
+	   if(m_pRender!=NULL){
        delete m_pRender;
 	   m_pRender=NULL;
+	   }
+	   m_RenderLock.Unlock();
 	}
     LOGI("~CAndKKPlayerUI\n");
-
 }
 
 int CAndKKPlayerUI::Init()
 {
 	if(m_nRenderType==0){
-        m_pRender = new GlEs2Render();
+     
 		m_pRender-> init(0);
 	}
 	return 0;
@@ -50,6 +56,18 @@ int CAndKKPlayerUI::OnSize(int w,int h)
         m_pRender->resize(w,h);
 	}
 	return 0;
+}
+void CAndKKPlayerUI::SetKeepRatio(int KeepRatio)
+{
+	m_RenderLock.Lock();
+	if(m_pRender!=NULL){
+	   GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
+	    if(KeepRatio==1)
+	        pRender->SetKeepRatio(true);
+	    else
+			pRender->SetKeepRatio(false);
+	}
+	m_RenderLock.Unlock();
 }
 void  CAndKKPlayerUI::Pause()
 {
@@ -98,8 +116,12 @@ void CAndKKPlayerUI::SurfaceViewRender(ANativeWindow* surface)
 }
 void CAndKKPlayerUI::GlViewRender()
 {
+	m_RenderLock.Lock();
+	if(m_pRender!=NULL){
 	GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
 	pRender->GlViewRender();
+	}
+	m_RenderLock.Unlock();
 }
 bool CAndKKPlayerUI::GetNeedReconnect()
 {

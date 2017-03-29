@@ -27,7 +27,8 @@ import android.widget.TextView;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by saint on 2016/4/27.
  * Video UI
@@ -41,14 +42,17 @@ public class CPlayerActivity extends Activity {
     boolean m_bNecState=true;
     int m_MinRealtimeDelay=3;
     String CurTimeStr = new String();
-    Timer timer = new Timer();
+    Timer Activitytimer = new Timer();
+
+    private Lock m_Avtivitylock = new ReentrantLock();
+    int WhereInTime=0;
     TimerTask task = new TimerTask() {
 
         @Override
         public void run() {
             Message message = new Message();
             message.what = 1;
-            handler.sendMessage(message);
+            Activityhandler.sendMessage(message);
         }
     }; /* */
    public  enum  EnumPlayerStata
@@ -63,12 +67,16 @@ public class CPlayerActivity extends Activity {
     String MoviePathStr;
     int m_OpenCouner=0;
     int m_LastDisConnect=0;
-    Handler handler = new Handler()
+    Handler Activityhandler = new Handler()
     {
         public void handleMessage(Message msg)
         {
+            m_Avtivitylock.lock();
+            WhereInTime=1;
+            m_Avtivitylock.unlock();
+            if (msg.what == 1&&PlayerStata!=EnumPlayerStata.Stop)
+            {
 
-            if (msg.what == 1&&PlayerStata!=EnumPlayerStata.Stop) {
                 int llx = m_KKPlayer.GetReady();
                 if(llx==0&& m_KKPlayer.GetPlayerState() > -1&&m_OpenCouner==0)
                 {
@@ -133,9 +141,7 @@ public class CPlayerActivity extends Activity {
                                TipTxtView.setVisibility(View.GONE);
                     } else {
                           //网络断开后重连，及流断了重连打开
-                          if (
-                                  (PlayerStata == EnumPlayerStata.Play)
-                                  && m_bNecState && m_OpenCouner == 0 && m_LastDisConnect == 1)
+                          if ( (PlayerStata == EnumPlayerStata.Play) && m_bNecState && m_OpenCouner == 0 && m_LastDisConnect == 1)
                           {
                                  System.out.println(m_OpenCouner + "===状态2===");
                                  Button NetButton = (Button) findViewById(R.id.NetButton);
@@ -207,6 +213,9 @@ public class CPlayerActivity extends Activity {
 
                      CurTimetextView.setText(CurTimeStr);
                  }
+                m_Avtivitylock.lock();
+                WhereInTime=0;
+                m_Avtivitylock.unlock();
             }
             super.handleMessage(msg);
         };
@@ -218,13 +227,15 @@ public class CPlayerActivity extends Activity {
         setContentView(R.layout.movielayout);
         m_PlayerActivity=this;
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        timer.schedule(task, 500, 500);
-       // glView = new GLES2_0_SurfaceView(this);// GLSurfaceView(this);
+        Activitytimer.schedule(task, 500, 500);
+        //glView = new GLES2_0_SurfaceView(this);// GLSurfaceView(this);
         glView =  (GLES2_0_SurfaceView) findViewById(R.id.GlsurfaceView);
         glView.setRenderer(m_KKPlayer); // Use a custom renderer
+        ///不保持长宽比
+        m_KKPlayer.SetKeepRatio( 0);
         glView.getAlpha();
         FrameLayout MovieFrameLayout = (FrameLayout) findViewById(R.id.MovieFrameLayout);
-       // MovieFrameLayout.addView(glView, 0);
+        //MovieFrameLayout.addView(glView, 0);
 
         Button NetButton= ( Button) findViewById(R.id.NetButton);
 
@@ -377,9 +388,15 @@ public class CPlayerActivity extends Activity {
     {
         if (keyCode == KeyEvent.KEYCODE_BACK)
         {
-            timer.cancel();
+            Log.v("KEYCODE_BACK", "KEYCODE_BACK");
+            Activitytimer.cancel();
             PlayerStata=EnumPlayerStata.Stop;
-            timer.cancel();
+            m_Avtivitylock.lock();
+            while(WhereInTime==1)
+            {
+                ;
+            }
+            m_Avtivitylock.unlock();
             CKKPlayerGlRender KKPlayer= m_KKPlayer;
             m_KKPlayer=null;
             KKPlayer.KKDel();

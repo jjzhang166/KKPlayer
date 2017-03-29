@@ -33,9 +33,9 @@
 
     </TableLayout>
 
-    <com.ic70.kkplayer.kkplayer.CKKPlayerSurfaceRender
+   <!-- <com.ic70.kkplayer.kkplayer.GLES2_0_SurfaceView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/surfaceView" />
+        android:id="@+id/kkGlsurfaceView" />-->
 
 </LinearLayout>

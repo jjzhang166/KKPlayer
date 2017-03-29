@@ -46,7 +46,7 @@ extern "C" {
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK(JNIEnv *pEv, jobject instance, jint Render);
 
 /**
-*初始化opengl
+*初始化opengl 2.0
 */
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv *env, jobject instance, jint obj);
 /**
@@ -59,7 +59,11 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_OnSize(JNIEn
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNIEnv *env, jobject instance, jint obj);
 
 /**
-*Surface 显示
+*设置是否保持视频长宽比例
+*/
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetKeepRatio(JNIEnv *env, jobject instance, jint obj, jint KeepRatio);
+/**
+*Surface 显示,目前不支持
 */
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SurfaceRender(JNIEnv * env, jobject instance, jint obj, jobject surface);
 /**

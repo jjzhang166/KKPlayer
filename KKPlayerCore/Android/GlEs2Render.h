@@ -7,18 +7,21 @@
 class GlEs2Render: public CRender
 {
 	public:
-	        GlEs2Render();
+	        GlEs2Render(KKPlayer* pPlayer);
 			~GlEs2Render();
 	public:	
-			
-			int  IniGl();
-			
+			void  GlViewRender();
+			/***
+			*是否保持长宽比例
+			*/
+			void  SetKeepRatio(bool keep);
+	private:		
 			GLuint buildProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 			
 			void   GLES2_Renderer_reset();
             void   AVTexCoords_reset();
             void   AVTexCoords_cropRight(GLfloat cropRight);
-			void   GlViewRender();
+			int  IniGl();
 	public:
 			virtual bool init(HWND hView);
 			virtual void destroy();
@@ -34,7 +37,7 @@ class GlEs2Render: public CRender
 			virtual void SetErrPic(unsigned char* buf,int len);
 			virtual void ShowErrPic(bool show);
 	private:
-       
+        KKPlayer* m_pPlayer;
         GLuint g_texYId;
         GLuint g_texUId;
         GLuint g_texVId;
@@ -60,8 +63,8 @@ class GlEs2Render: public CRender
         int m_Screen_Width;
         int m_Screen_Height;
         unsigned int  m_nTextureID;
-
-        CKKLock m_RenderLock;
+        bool          m_bKeepRatio;
+        
 
 };
 #endif

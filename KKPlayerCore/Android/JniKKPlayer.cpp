@@ -26,7 +26,11 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv
     return pKKUI->Init();
 }
 
-
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetKeepRatio(JNIEnv *env, jobject instance, jint obj, jint KeepRatio)
+{
+	CAndKKPlayerUI *pKKUI = (CAndKKPlayerUI *)obj;
+    pKKUI->SetKeepRatio(KeepRatio);
+}
 
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_OnSize(JNIEnv *env, jobject instance, jint obj,jint w, jint h) {
     CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *)obj;
