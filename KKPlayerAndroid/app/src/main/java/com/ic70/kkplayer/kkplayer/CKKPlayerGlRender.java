@@ -14,13 +14,12 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by saint on 2016/3/9.
  */
 
-public class CKKPlayerReader implements GLSurfaceView.Renderer
+public class CKKPlayerGlRender implements GLSurfaceView.Renderer
 {
-    CMediaInfo info = new  CMediaInfo();
-    String m_url;
+
     public class CMediaInfo
     {
-        public int CurTime;
+        public  int CurTime;
         public  int TotalTime;
         public CMediaInfo()
         {
@@ -29,16 +28,15 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         }
     }
     private CJniKKPlayer m_JniKKPlayer;
-    private int m_nKKPlayer=0;
-    private int m_nGlHandle=0;
-    private Activity m_PlayerAc=null;
-    public CKKPlayerReader(Activity ac)
+    private int          m_nKKPlayer=0;
+    private int          m_nGlHandle=0;
+    private boolean      m_ReOpen=false;
+    private CMediaInfo info = new  CMediaInfo();
+    private String m_url;
+    public CKKPlayerGlRender()
     {
-        m_PlayerAc=ac;
         m_JniKKPlayer = new CJniKKPlayer();
-        m_nKKPlayer=m_JniKKPlayer.IniKK(0);
-        int ll=0;
-        ll++;
+        m_nKKPlayer   = m_JniKKPlayer.IniKK(0);
     }
     //暂停
     public void Pause()
@@ -48,10 +46,10 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         }
     }
     //
-    public void Seek(int l)
+    public void Seek(int time)
     {
         if(m_nKKPlayer!=0) {
-            m_JniKKPlayer.Seek(m_nKKPlayer, l);
+            m_JniKKPlayer.Seek(m_nKKPlayer, time);
         }
     }
     public CMediaInfo GetCMediaInfo()
@@ -64,7 +62,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
         }
         return  info;
     }
-    boolean m_ReOpen=false;
+   
 
     public int OpenMedia(String str)
     {
@@ -133,17 +131,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     @Override
     public void onDrawFrame(GL10 gl)
     {
-        if(m_nKKPlayer!=0)
-        {
-            /*if(m_JniKKPlayer.KKIsNeedReConnect(m_nKKPlayer)==1&& !m_ReOpen&&m_JniKKPlayer.KKIsReady(m_nKKPlayer)==1)
-            {
-                OpenMedia(m_url);
-            }else
-            if(m_ReOpen)
-            {
-                m_ReOpen=false;
-                OpenMedia(m_url);
-            }*/
+        if(m_nKKPlayer!=0){
             m_JniKKPlayer.GlRender(m_nKKPlayer);
         }
     }

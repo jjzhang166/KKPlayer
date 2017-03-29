@@ -1,7 +1,7 @@
 include Android_config.mak
 objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o \
 	AVInfomanage.o KKPlayer.o sqlite3.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o \
-	GlEs2Render.o AndKKAudio.o AndKKPlayerUI.o JNIKKCPP.o
+	GlEs2Render.o AndKKAudio.o AndKKPlayerUI.o JniKKPlayer.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -77,8 +77,8 @@ GlEs2Render.o: Android/GlEs2Render.cpp Android/GlEs2Render.h KKCond_t.h KKLock.h
 	$(CXX) -c $(CFLAGS) Android/GlEs2Render.cpp
 AndKKPlayerUI.o: Android/AndKKPlayerUI.cpp Android/AndKKPlayerUI.h
 	$(CXX) -c $(CFLAGS) Android/AndKKPlayerUI.cpp
-JNIKKCPP.o: Android/JNIKKCPP.cpp Android/com_ic70_kkplayer_kkplayer_CJniKKPlayer.h
-	$(CXX) -c $(CFLAGS) Android/JNIKKCPP.cpp
+JniKKPlayer.o: Android/JniKKPlayer.cpp Android/JniKKPlayer.h
+	$(CXX) -c $(CFLAGS) Android/JniKKPlayer.cpp
 install:
 	cp -f $(ObjTARGET) ../KKPlayerAndroid/app/libs/armeabi-v7a
 clean:

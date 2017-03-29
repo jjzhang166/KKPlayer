@@ -1,4 +1,4 @@
-#include "com_ic70_kkplayer_kkplayer_CJniKKPlayer.h"
+#include "JniKKPlayer.h"
 #include <jni.h>
 #include <pthread.h>
 #include <string>

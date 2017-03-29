@@ -35,7 +35,7 @@ import java.util.TimerTask;
 public class CPlayerActivity extends Activity {
     //private GLSurfaceView glView;
     private  GLES2_0_SurfaceView glView;
-    private CKKPlayerReader m_KKPlayer=null;
+    private CKKPlayerGlRender m_KKPlayer=null;
     private boolean m_bSeekPlayer=false;
     Activity m_PlayerActivity=null;
     boolean m_bNecState=true;
@@ -163,7 +163,7 @@ public class CPlayerActivity extends Activity {
 
                  if( m_KKPlayer!=null&&!m_bSeekPlayer)
                  {
-                     CKKPlayerReader.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
+                     CKKPlayerGlRender.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
                      SeekBar MovieSeekBar = ( SeekBar) findViewById(R.id.MovieSeekbar);
                      if(info.CurTime>m_CurTime&&info.CurTime-m_CurTime<20) {
                          MovieSeekBar.setProgress(info.CurTime);
@@ -369,7 +369,8 @@ public class CPlayerActivity extends Activity {
     }
     public CPlayerActivity()
     {
-        m_KKPlayer = new CKKPlayerReader(this);
+
+        m_KKPlayer = new CKKPlayerGlRender();
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
@@ -379,7 +380,7 @@ public class CPlayerActivity extends Activity {
             timer.cancel();
             PlayerStata=EnumPlayerStata.Stop;
             timer.cancel();
-            CKKPlayerReader KKPlayer= m_KKPlayer;
+            CKKPlayerGlRender KKPlayer= m_KKPlayer;
             m_KKPlayer=null;
             KKPlayer.KKDel();
             KKPlayer=null;

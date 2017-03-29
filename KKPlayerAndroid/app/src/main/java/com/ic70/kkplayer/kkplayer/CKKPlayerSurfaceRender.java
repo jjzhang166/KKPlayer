@@ -8,6 +8,7 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceHolder.Callback2;
 /**
  * Created by saint on 2017/3/28.
+ * SurfaceView 由于性能原因不支持
  */
 
 public class CKKPlayerSurfaceRender extends SurfaceView  implements Callback2
