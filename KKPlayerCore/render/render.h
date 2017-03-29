@@ -12,7 +12,8 @@ public:
     virtual bool init(HWND hView) = 0;
     virtual void destroy() = 0;
     virtual void resize(unsigned int w, unsigned int h) = 0;
-    virtual void WinSize(unsigned int w, unsigned int h) = 0;
+    //virtual void WinSize(unsigned int w, unsigned int h) = 0;
+
 	virtual void render(char* buf,int width,int height,int Imgwidth)=0;
 	//≥ œ÷±≥æ∞Õº∆¨
 	virtual void renderBk(unsigned char* buf,int len)=0;

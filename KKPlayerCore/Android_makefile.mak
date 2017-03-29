@@ -1,7 +1,7 @@
 include Android_config.mak
 objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o \
 	AVInfomanage.o KKPlayer.o sqlite3.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o \
-	AndKKAudio.o AndKKPlayerUI.o JNIKKCPP.o
+	GlEs2Render.o AndKKAudio.o AndKKPlayerUI.o JNIKKCPP.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
 #-l$(STLLib)libstlport_static.a \
@@ -30,6 +30,7 @@ $(ObjTARGET):$(objects)
 	-L$(STLLib) \
 	-llog \
 	-lGLESv2 \
+	-landroid \
 	-lOpenSLES \
 	-lstlport_static \
 	-lavcodec-57 \
@@ -72,6 +73,8 @@ KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoI
 
 AndKKAudio.o: Android/AndKKAudio.cpp Android/AndKKAudio.h KKCond_t.h KKLock.h IKKAudio.h
 	$(CXX) -c $(CFLAGS) Android/AndKKAudio.cpp
+GlEs2Render.o: Android/GlEs2Render.cpp Android/GlEs2Render.h KKCond_t.h KKLock.h IKKAudio.h
+	$(CXX) -c $(CFLAGS) Android/GlEs2Render.cpp
 AndKKPlayerUI.o: Android/AndKKPlayerUI.cpp Android/AndKKPlayerUI.h
 	$(CXX) -c $(CFLAGS) Android/AndKKPlayerUI.cpp
 JNIKKCPP.o: Android/JNIKKCPP.cpp Android/com_ic70_kkplayer_kkplayer_CJniKKPlayer.h

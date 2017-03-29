@@ -25,7 +25,11 @@ public class GLES2_0_SurfaceView extends GLSurfaceView {
         super(context);
         init(false, 0, 0);
     }
+    public GLES2_0_SurfaceView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(false, 0, 0);
 
+    }
     public GLES2_0_SurfaceView(Context context, boolean translucent, int depth, int stencil) {
         super(context);
         init(translucent, depth, stencil);

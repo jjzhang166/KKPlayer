@@ -5,7 +5,7 @@
 
     <TableLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal">
         <TableRow
@@ -30,5 +30,12 @@
                 android:id="@+id/AVbutton2"
                 android:layout_column="1" />
         </TableRow>
+
     </TableLayout>
+
+    <com.ic70.kkplayer.kkplayer.CKKPlayerSurfaceRender
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/surfaceView" />
+
 </LinearLayout>

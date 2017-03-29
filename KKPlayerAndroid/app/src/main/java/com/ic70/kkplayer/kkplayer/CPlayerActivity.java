@@ -219,12 +219,12 @@ public class CPlayerActivity extends Activity {
         m_PlayerActivity=this;
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         timer.schedule(task, 500, 500);
-        glView = new GLES2_0_SurfaceView(this);// GLSurfaceView(this);
-
+       // glView = new GLES2_0_SurfaceView(this);// GLSurfaceView(this);
+        glView =  (GLES2_0_SurfaceView) findViewById(R.id.GlsurfaceView);
         glView.setRenderer(m_KKPlayer); // Use a custom renderer
         glView.getAlpha();
         FrameLayout MovieFrameLayout = (FrameLayout) findViewById(R.id.MovieFrameLayout);
-        MovieFrameLayout.addView(glView, 0);
+       // MovieFrameLayout.addView(glView, 0);
 
         Button NetButton= ( Button) findViewById(R.id.NetButton);
 

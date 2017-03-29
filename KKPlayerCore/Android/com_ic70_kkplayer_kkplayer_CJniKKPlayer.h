@@ -7,8 +7,7 @@
 #define _Included_com_ic70_kkplayer_kkplayer_CJniKKPlayer
 
 
-JNIEXPORT jint JNICALL
-Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetCapImg(JNIEnv *env, jobject instance, jobject obj)
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetCapImg(JNIEnv *env, jobject instance, jobject obj)
 {
      jclass cls_objClass=env->GetObjectClass( obj);
      jfieldID ImgPixfmtId=env->GetFieldID(cls_objClass,"ImgPixfmt","Ljava/lang/String;");
@@ -39,14 +38,41 @@ extern "C" {
  * Method:    IniKK
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK
-  (JNIEnv *pEv, jobject);
+ 
+/**
+*初始化一个播放器核心
+*@param Render 0 openglview， 1 surfaceview
+*/
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK(JNIEnv *pEv, jobject instance, jint Render);
 
+/**
+*初始化opengl
+*/
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv *env, jobject instance, jint obj);
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Resizeint(JNIEnv *env, jobject instance, jint obj, jint w, jint h);
+/**
+*调整程序区域大小
+*/
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_OnSize(JNIEnv *env, jobject instance, jint obj, jint w, jint h);
+/**
+*Gl 呈现call
+*/
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNIEnv *env, jobject instance, jint obj);
+
+/**
+*Surface 显示
+*/
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SurfaceRender(JNIEnv * env, jobject instance, jint obj, jobject surface);
+/**
+*删除一个播放器核心
+*/
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance,jint obj);
+/**
+*打开媒体
+*/
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(JNIEnv *env, jobject instance, jstring str_,jint obj);
+/**
+*获取音视信息
+*/
 JNIEXPORT jstring JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetMediaInfo(JNIEnv *env, jobject instance, jint obj);
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Pause(JNIEnv *env, jobject instance,jint obj);
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Seek(JNIEnv *env, jobject instance, jint obj, jint value);
@@ -59,6 +85,17 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKGetRealtim
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKGetRealtimeDelay(JNIEnv *env, jobject instance,jint obj);
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKSetMinRealtimeDelay(JNIEnv *env, jobject instance,jint obj, jint value);
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKForceFlushQue(JNIEnv *env, jobject instance,jint obj);
+
+
+
+/**
+* JNI 库模块加载事件处理接口。
+*/
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * java_vm, void * reserved);
+/**
+* JNI 库模块卸载事件处理接口。
+*/
+JNIEXPORT void JNICALL JNI_OnUnload(JavaVM * java_vm, void * reserved);
 #ifdef __cplusplus
 }
 #endif

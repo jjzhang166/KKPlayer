@@ -3,34 +3,23 @@
 //#include <GLES/glext.h>
 #include <GLES2/gl2ext.h>
 #include <android/log.h>
+#include <android/native_window.h> 
+#include <android/native_window_jni.h>
 #include "AndKKAudio.h"
 
 #include "../IKKPlayUI.h"
 #include "../KKPlayer.h"
 #ifndef AndKKPlayerUI_H_
 #define AndKKPlayerUI_H_
-class CAndKKPlayerUI :public  IKKPlayUI,CRender
+class CAndKKPlayerUI :public  IKKPlayUI
 {
    public:
-            CAndKKPlayerUI();
-            ~CAndKKPlayerUI();
-           //OpenGlES 1.0 返回没有实际作用
-            int IniGl();
-            void renderFrame();
-            int Resizeint(int w,int h);
-            int CloseMedia();
-   public:
-             bool init(HWND hView);
-             void destroy();
-             void resize(unsigned int w, unsigned int h);
-             void WinSize(unsigned int w, unsigned int h);
-             void render(char* buf,int width,int height,int imgwith);
-             //呈现背景图片
-             void renderBk(unsigned char* buf,int len);
-             void AVRender();
-             void SetWaitPic(unsigned char* buf,int len);
-             void SetBkImagePic(unsigned char* buf,int len);
-             unsigned char* GetCenterLogoImage(int &length);
+             CAndKKPlayerUI(int RenderView);
+             ~CAndKKPlayerUI();
+             int Init();
+			 int  OnSize(int w,int h);
+             void renderFrame(ANativeWindow* surface);
+             int  CloseMedia();
              MEDIA_INFO GetMediaInfo();
              int OpenMedia(char *str);
              int GetIsReady();
@@ -41,42 +30,30 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
              //
              int SetMinRealtimeDelay(int value);
              //强制刷新Que
-             void ForceFlushQue();
+             void ForceFlushQue();  
+			 bool GetNeedReconnect();
+             void Pause();
+             void Seek(int value);
+             int GetPlayerState();
     /***********UI调用***********/
    public:
-            virtual unsigned char* GetWaitImage(int &length,int curtime);
+		   /********** IKKPlayUI实现*************/
 			virtual unsigned char* GetErrImage(int &length,int ErrType);
-			virtual void SetErrPic(unsigned char* buf,int len);
-			virtual void ShowErrPic(bool show);
-            virtual unsigned char* GetBkImage(int &length);
-            virtual void OpenMediaFailure(char* strURL,int err);
-            virtual void  AutoMediaCose(int Stata);
-            void LoadCenterLogo(unsigned char* buf,int len);
-            bool GetNeedReconnect();
-            void Pause();
-            void Seek(int value);
-            int GetPlayerState();
+			virtual unsigned char* GetWaitImage(int &len,int curtime);
+			virtual unsigned char* GetBkImage(int &len);
+			virtual unsigned char* GetCenterLogoImage(int &length);
+			virtual void OpenMediaFailure(char* strURL,int err);
+			/*******视频流结束调用*******/
+			virtual void  AutoMediaCose(int Stata);
+			virtual void AVRender(); 
    private:
-        GLuint buildProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
-        void GLES2_Renderer_reset();
-        void AVTexCoords_reset();
-        void AVTexCoords_cropRight(GLfloat cropRight);
-        GLuint g_texYId;
-        GLuint g_texUId;
-        GLuint g_texVId;
-        GLuint g_glProgram;
-        GLuint g_av2_texcoord;
-        GLuint g_av4_position;
-
-        GLuint m_vertexShader;
-        GLuint m_fragmentShader;
-        GLuint m_plane_textures[3];
-        GLint m_us2_sampler[3];
-
-        GLfloat m_AVVertices[8];
-        GLfloat m_AVTexcoords[8];
-        int m_glwidth;
-        int m_glheight;
+        void   GlViewRender();
+		void   SurfaceViewRender(ANativeWindow* surface);
+        
+       
+        CRender* m_pRender;
+        int m_RenderWidth;         ///呈现区域宽度
+        int m_RenderHeight;        ///呈现区域高度
         int m_Picwidth;
         int m_Picheight;
         bool m_bAdJust;
@@ -85,12 +62,13 @@ class CAndKKPlayerUI :public  IKKPlayUI,CRender
         int m_playerState;
         KKPlayer m_player;
         CAndKKAudio m_Audio;
-        GLuint m_pGLHandle;
-        GLuint gvPositionHandle;
+        
         int m_Screen_Width;
         int m_Screen_Height;
-        unsigned int  m_nTextureID;
+      
 
-       CKKLock m_RenderLock;
+        CKKLock m_RenderLock;
+		/**呈现类型，0 glviw 1 **/
+		int  m_nRenderType;
 };
 #endif

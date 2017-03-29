@@ -28,6 +28,11 @@ void KKPlayer::SetBGRA()
 	DstAVff=AV_PIX_FMT_BGRA;
 }
 
+//如果定义安卓平台。
+#ifdef Android_Plat
+void* kk_jni_attach_env();
+int kk_jni_detach_env();
+#endif
 std::list<KKPluginInfo>  KKPlayer::KKPluginInfoList;
 void KKPlayer::AddKKPluginInfo(KKPluginInfo& info)
 {
@@ -61,7 +66,9 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 		
 	}
 	
-
+#ifdef Android_Plat
+	m_pVideoRefreshJNIEnv=NULL;
+#endif
 	AVInputFormat *ff=av_iformat_next(NULL);
 
 	AVCodec *codec=av_codec_next(NULL);
@@ -339,6 +346,9 @@ void KKPlayer::CloseMedia()
 	m_bOpen=false;
 	m_CloseLock.Unlock();
 
+	#ifdef Android_Plat
+	    m_pVideoRefreshJNIEnv=NULL;
+    #endif
 	LOGE("KKplay Over\n");
 }
 
@@ -657,10 +667,13 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 		
 		int len=0;
 		unsigned char* pBkImage=m_pPlayUI->GetCenterLogoImage(len);
-		pRender->LoadCenterLogo(pBkImage,len);
-
-		pBkImage=m_pPlayUI->GetBkImage(len);
-		pRender->renderBk(pBkImage,len);
+		if(pBkImage!=NULL&&len>0){
+			pRender->LoadCenterLogo(pBkImage,len);
+			pBkImage=m_pPlayUI->GetBkImage(len);
+			if(pBkImage!=NULL&&len>0){
+			   pRender->renderBk(pBkImage,len);
+			}
+		}
 		return;
 	}else 
 	{
@@ -684,14 +697,11 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 			
 		   pVideoInfo->pictq.mutex->Lock();
 		   vp =frame_queue_peek_last(&pVideoInfo->pictq);
-		 
-		  
-           
 		   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
 		   {
 			   m_lstPts=vp->pts;
 			   vp->BmpLock->Lock();
-			   pRender->render((char*)vp->buffer,pVideoInfo->viddec_width,pVideoInfo->viddec_height,pVideoInfo->video_width);
+			   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch);
 			   vp->BmpLock->Unlock();
 		   }
 		   pVideoInfo->pictq.mutex->Unlock();
@@ -838,28 +848,6 @@ void KKPlayer::VideoDisplay(void *buf,int w,int h,void *usadata,double last_dura
 		   ::SetTextColor(dc,RGB(255,255,255));
 		  ::DrawTextA(dc,t,strlen(t),&rt2,DT_CENTER);
 		}
-	}
-	
-	if(0)
-	{
-		//3 构造文件头
-		BITMAPFILEHEADER bmpFileHeader;
-		HANDLE hFile = NULL;
-		DWORD dwTotalWriten = 0;
-		DWORD dwWriten;
-
-		bmpFileHeader.bfType = 0x4d42; //'BM';
-		bmpFileHeader.bfOffBits=sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
-		bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER)+ w*h*24/8;
-
-	/*	char buf[256]="";
-		sprintf_s(buf,255,"%s%d.bmp","D:/pic/",index++);  
-		FILE* pf = fopen(buf, "wb");
-		fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, pf);
-		fwrite(&header, sizeof(BITMAPINFOHEADER), 1, pf);
-		int numBytes=avpicture_get_size(PIX_FMT_RGB24, w,h);
-		fwrite(buf, 1, numBytes, pf);
-		fclose(pf);*/
 	}
 }
 
@@ -1140,6 +1128,9 @@ int KKPlayer::GetAVRate()
 	 int llxx=0;
 #ifdef WIN32
 	 ::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+#endif 
+#ifdef Android_Plat
+	pPlayer->m_pVideoRefreshJNIEnv=kk_jni_attach_env();
 #endif
 	 pPlayer->pVideoInfo->remaining_time = 0.01;
 	 while(pPlayer->m_bOpen)
@@ -1163,6 +1154,10 @@ int KKPlayer::GetAVRate()
 		}
 		
 	 }
+#ifdef Android_Plat
+	kk_jni_detach_env();
+	pPlayer->m_pVideoRefreshJNIEnv=NULL;
+#endif
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=true;
 	 LOGE("VideoRefreshthread over \n");
 	 return 1;

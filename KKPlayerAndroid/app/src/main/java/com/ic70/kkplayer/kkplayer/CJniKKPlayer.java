@@ -1,4 +1,6 @@
 package com.ic70.kkplayer.kkplayer;
+import android.view.Surface;
+import android.view.SurfaceView;
 
 /**
  * Created by saint on 2016/2/26.
@@ -18,6 +20,7 @@ public class CJniKKPlayer {
     }
     static{
         System.loadLibrary("z");
+        System.loadLibrary("android");
        // System.loadLibrary("dvbcsa");
         System.loadLibrary("avutil-55");
         System.loadLibrary("swresample-2");
@@ -28,23 +31,49 @@ public class CJniKKPlayer {
         System.loadLibrary("avdevice-57");/**/
         System.loadLibrary("KKPlayerCore");
     }
-    //初始化一个KKplayer实例
-    public native int IniKK();
-    //检查Gl环境
-    public native int IniGl(int obj);
-    //尺寸调整
-    public native int Resizeint(int obj,int w, int h);
-    public native int GlRender(int obj);
-    public native void DelKK(int obj);
-    public native int KKOpenMedia(String str,int obj);
 
-    public native int KKIsNeedReConnect(int obj);
+    /**
+     * 初始化一个KKplayer实例
+     * @param RenderType 0 glview 1 surfaceview
+     * @return 返回一个播放器对象
+     */
+    public native int IniKK(int RenderType);
+
+    //检查Gl环境，初始化glview环境
+    public native int IniGl(int obj);
+
+    /***
+     * 尺寸调整
+     * @param obj 播放器实例
+     * @param w
+     * @param h
+     * @return
+     */
+    public native int OnSize(int obj,int w, int h);
+
+    /**
+     * glview 显示调用
+     * @param obj 播放器实例
+     * @return
+     */
+    public native int GlRender(int obj);
+
+    /***
+     * 删除播放器
+     * @param obj 播放器实例
+     */
+    public native void DelKK(int obj);
+
+    public native void SurfaceRender(int obj,Surface surface);
+    public native int  KKOpenMedia(String str,int obj);
+
+    public native int  KKIsNeedReConnect(int obj);
     //get about of movie info
-    public native String GetMediaInfo(int obj);
-    public native  int KKCloseMedia(int obj);
-    public native  int KKGetPlayerState(int obj);
-    public native  int KKIsReady(int obj);
-    public native  int KKGetRealtime(int obj);
+    public native  String GetMediaInfo(int obj);
+    public native  int  KKCloseMedia(int obj);
+    public native  int  KKGetPlayerState(int obj);
+    public native  int  KKIsReady(int obj);
+    public native  int  KKGetRealtime(int obj);
 
     //得到延迟
     public native  int KKGetRealtimeDelay(int obj);

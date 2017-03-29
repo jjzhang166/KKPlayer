@@ -126,7 +126,12 @@ class KKPlayer
 			/**********添加插件**********/
 			static void AddKKPluginInfo(KKPluginInfo &info);
 
-			
+#ifdef Android_Plat
+			void *  GetVideoRefreshJNIEnv()
+			{
+			    return m_pVideoRefreshJNIEnv;
+			}
+#endif
 private:
 	       
 	        /*********视频刷新线程********/
@@ -150,8 +155,8 @@ private:
 			void ReadAudioCall();
 			void PacketQueuefree();
 private:
-	 KKPlayer(const CKKLock& cs);
-	 KKPlayer operator = (const CKKLock& cs);
+			 KKPlayer(const CKKLock& cs);
+			 KKPlayer operator = (const CKKLock& cs);
 private:
 	        //插件信息
 	        static std::list<KKPluginInfo>  KKPluginInfoList;
@@ -194,6 +199,9 @@ private:
 			void *m_PicBuf;
 			int m_PicBufLen;
 			int64_t m_lstPts;
+#ifdef Android_Plat
+			void *  m_pVideoRefreshJNIEnv;
+#endif
 			
 };
 #endif

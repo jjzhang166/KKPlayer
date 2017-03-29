@@ -91,21 +91,24 @@ typedef struct SKK_Clock
 /********解码后的数据帧*******/
 typedef struct SKK_Frame 
 {
-	AVFrame *frame;
-	AVSubtitle sub;
-	//序列号--刷新时更新。
-	int serial;
-	int PktNumber;/*****包序号，递增*****/
-	double pts;           /* presentation timestamp for the frame */
-	double duration;      /* estimated duration of the frame 这一帧持续的时间*/ 
-	int64_t pos;          /* byte position of the frame in the input file */
-	/***********位图数据*************/
-	AVPicture Bmp;
-	uint8_t *buffer;
+	AVFrame                 *frame;
+	AVSubtitle              sub;
+	
+	int                     serial;         ///序列号--刷新时更新。
+	int                     PktNumber;      ///包序号，递增
+	double                  pts;            /// presentation timestamp for the frame
+	double                  duration;       /// estimated duration of the frame 这一帧持续的时间
+	int64_t                 pos;            /// byte position of the frame in the input file
+	
+	AVPicture               Bmp;            ///位图数据
+	uint8_t                 *buffer;
 	int dataLen;
 	int buflen;
-
-	/***是否分配内存对frame***/
+    int width;
+	int height;
+	int pitch;
+	
+	/*****是否分配内存对frame*****/
 	int allocated;
 	CKKLock *BmpLock;
 } SKK_Frame;
@@ -304,11 +307,14 @@ typedef struct SKK_VideoState
 	int eof;
     /*****文件名******/
 	char filename[1024];
-	int fileSize;
-	/*******视频大小信息********/
+	int  fileSize;
+	/*******视频大小信息,只对当前帧有效********/
 	int viddec_width;                /**********解码后的宽度**********/
 	int viddec_height;               /**********解码后的高度**********/
-	int video_width;
+	int video_pitch;                 /************硬件解码**************/
+	
+	int need_width;
+	int need_height;
 	int step;
 
 	

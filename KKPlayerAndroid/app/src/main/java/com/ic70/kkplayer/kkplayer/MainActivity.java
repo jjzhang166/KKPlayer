@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
     boolean m_HandleIni=false;
     private List<CKKMoviePath> m_lstFile;
     private EditText txtAvUrl;
+    CKKPlayerSurfaceRender SurfaceRender;
     public MainActivity()
     {
 
@@ -75,17 +76,20 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
 
         txtAvUrl=( EditText)findViewById(R.id.AVeditText);
         Button btx2=(Button)findViewById(R.id.AVbutton2);
+       SurfaceRender=(CKKPlayerSurfaceRender)findViewById(R.id.surfaceView);
         btx2.setOnClickListener(new Button.OnClickListener(){//创建监听
             public void onClick(View v) {
-                Intent intent = new Intent();
+               /* SurfaceRender.CreatePlayer();
+                SurfaceRender.OpenMedia(txtAvUrl.getText().toString());*/
+                 Intent intent = new Intent();
 
-            EditText txtAv=  txtAvUrl;
+             EditText txtAv=  txtAvUrl;
              String xx=   txtAv.getText().toString();
                 intent.putExtra("MoviePath",  xx);
-        /* 指定intent要启动的类 */
+               //指定intent要启动的类
 
                 intent.setClass(v.getContext(),CPlayerActivity.class);//(context.this, Activity02.class);
-        /* 启动一个新的Activity */
+               //启动一个新的Activity
                 v.getContext().startActivity(intent);
             }
 

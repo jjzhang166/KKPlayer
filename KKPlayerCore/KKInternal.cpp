@@ -831,6 +831,8 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 
 							
 							decoder_init(&is->viddec, avctx, &is->videoq);
+							//is->need_width; //FFALIGN(pFrame->width, 64);
+				   //         is->need_width;//FFALIGN(pFrame->height, 2);
 							is->queue_attachments_req = 1;
 							is->viddec.decoder_tid.ThOver=false;
 							decoder_start(&is->viddec,&Video_thread,is);
@@ -1100,7 +1102,11 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	vp->frame->format=pFrame->format;
 	vp->frame->width=pFrame->width;
 	vp->frame->height=pFrame->height;
-    is->video_width=pFrame->width;
+
+    is->video_pitch    =pFrame->width;
+	is->viddec_height  =pFrame->height;
+	is->viddec_width   =pFrame->width;
+
     vp->duration=duration;
 	vp->pos=pos;
 	vp->serial=serial;
@@ -1128,31 +1134,46 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 #else
        pOutAV=pFrame;
 #endif
-		if( vp->buffer==NULL || is->viddec_height!=pOutAV->height ||is->viddec_width!=pOutAV->width)
+
+	   if(is->need_height!=pOutAV->height ||is->need_width!=pOutAV->width){
+
+		   if( is->img_convert_ctx!=NULL){
+	           sws_freeContext(is->img_convert_ctx);
+		       is->img_convert_ctx=NULL;
+		   }
+	   }
+
+		if( vp->buffer==NULL || is->need_height!=pOutAV->height ||is->need_width!=pOutAV->width)
 		{
 			vp->allocated = 1;
 			if(vp->BmpLock==NULL)
 			    vp->BmpLock = new CKKLock();
 			
+			if(is->need_height<=0||is->need_width<=0)
+			{
+			     is->need_width=pFrame->width;
+				 is->need_height=pFrame->height;
+			}
+			
+
 			vp->BmpLock->Lock();
 			{
-				 int sw=pOutAV->width; //FFALIGN(pFrame->width, 64);
-				 int sh=pOutAV->height;//FFALIGN(pFrame->height, 2);
-				 is->viddec_height=sh;
-				 is->viddec_width=sw;
-			     int numBytes=avpicture_get_size(DstAVff, sw,sh); //pFrame->width,pFrame->height
+				 vp->width =   is->need_width; 
+				 vp->height=   is->need_height;//FFALIGN(pFrame->height, 2);
+				 vp->pitch =   is->need_width;
+				 
+			     int numBytes=avpicture_get_size(DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
 			     vp->buflen=numBytes*sizeof(uint8_t);
 			     av_free(vp->buffer);
 			     vp->buffer=(uint8_t *)av_malloc(vp->buflen);
-			     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff, sw,sh);
+			     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff, vp->width,vp->height);
 			}
 			vp->BmpLock->Unlock();
 		}
         
 		//
          PixelFormat xx=(PixelFormat)(pOutAV->format);
-		//xx=AV_PIX_FMT_NV12;
-		//pOutAV->format=xx;
+		
 		 int  OpenTime= av_gettime ()/1000;
 		 if(0&&pOutAV->format==AV_PIX_FMT_NV12&&DstAVff==AV_PIX_FMT_YUV420P){
                QsvNv12toFrameI420(pOutAV,(AVFrame *)&vp->Bmp);

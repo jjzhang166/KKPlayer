@@ -36,7 +36,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     {
         m_PlayerAc=ac;
         m_JniKKPlayer = new CJniKKPlayer();
-        m_nKKPlayer=m_JniKKPlayer.IniKK();
+        m_nKKPlayer=m_JniKKPlayer.IniKK(0);
         int ll=0;
         ll++;
     }
@@ -151,7 +151,7 @@ public class CKKPlayerReader implements GLSurfaceView.Renderer
     public void onSurfaceChanged(GL10 gl, int width, int height)
     {
         if(m_nKKPlayer!=0)
-            m_JniKKPlayer.Resizeint(m_nKKPlayer,width,height);
+            m_JniKKPlayer.OnSize(m_nKKPlayer,width,height);
     }
     //当窗口被创建时需要调用 onSurfaceCreate ，我们可以在这里对 OpenGL 做一些初始化工作，例如：
     @Override
