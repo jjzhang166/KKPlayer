@@ -1257,25 +1257,15 @@ void KKPlayer::ReadAV()
 	m_nPreFile=2;
 	m_PreFileLock.Unlock();
 	
-#ifdef WIN32
-	if(!strncmp(pVideoInfo->filename, "rtmp:",5))
-	{
+	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
         //rtmp ²»Ö§³Ö timeout
 		// av_dict_set(&format_opts, "rtmp_listen", "1", AV_DICT_MATCH_CASE);
 		 //av_dict_set(&format_opts, "timeout", "5", AV_DICT_MATCH_CASE);
-		av_dict_set(&format_opts, "rtmp_buffer", "0", AV_DICT_MATCH_CASE);
+		//av_dict_set(&format_opts, "rtmp_buffer", "0", AV_DICT_MATCH_CASE);
 	}else if(!strncmp(pVideoInfo->filename, "rtsp:",5)){
       
 		av_dict_set(&format_opts, "rtsp_transport", "tcp", AV_DICT_MATCH_CASE);
 	}
-#else
-	if(!strncmp(pVideoInfo->filename, "rtmp:",5))
-	{
-
-		//av_dict_set(&format_opts, "rtmp_listen", "1", AV_DICT_MATCH_CASE);
-		//av_dict_set(&format_opts, "timeout", "60000", AV_DICT_MATCH_CASE);
-	}
-#endif
 	
 	pVideoInfo->OpenTime= av_gettime ()/1000/1000;
 	double Opex=0;

@@ -76,7 +76,7 @@ public class CJniKKPlayer {
     //get about of movie info
     public native  String GetMediaInfo(int obj);
     public native  int  KKCloseMedia(int obj);
-    public native  int  KKGetPlayerState(int obj);
+    public native  int  KKGetPlayerState (int obj);
     public native  int  KKIsReady(int obj);
     public native  int  KKGetRealtime(int obj);
 

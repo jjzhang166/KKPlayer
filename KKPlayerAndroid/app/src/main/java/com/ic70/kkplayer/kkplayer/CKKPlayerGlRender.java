@@ -93,6 +93,11 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
 
         }
     }
+
+    /***
+     *播放器状态
+     * @return -1 播放器关闭状态 -2，媒体打开失败。如果是实时媒体-2是流终断 。 -3，媒体播放关闭,如果是流媒体这表示需要重连
+     */
     public int GetPlayerState()
     {
         if(m_nKKPlayer!=0) {
@@ -107,8 +112,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
         }
         return 0;
     }
-    public int GetRealtime()
-    {
+    public int GetRealtime() {
         if(m_nKKPlayer!=0) {
             return m_JniKKPlayer.KKGetRealtime(m_nKKPlayer);
         }
