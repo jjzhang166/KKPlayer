@@ -11,7 +11,7 @@
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 CAndKKPlayerUI::CAndKKPlayerUI(int RenderView):m_player(this,&m_Audio)
 ,m_nRenderType(RenderView),m_playerState(-1)///播放器未启动
-,m_pRender(0)
+,m_pRender(0),m_nRefreshPic(0)
 {
     
     m_player.InitSound();
@@ -114,12 +114,22 @@ void CAndKKPlayerUI::SurfaceViewRender(ANativeWindow* surface)
 {
 	
 }
-void CAndKKPlayerUI::GlViewRender()
+
+void CAndKKPlayerUI::AVRender()
 {
 	m_RenderLock.Lock();
+	m_nRefreshPic=1;
+	m_RenderLock.Unlock();
+}
+
+void CAndKKPlayerUI::GlViewRender()
+{
+	
+	m_RenderLock.Lock();
 	if(m_pRender!=NULL){
-	GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
-	pRender->GlViewRender();
+	   GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
+	   pRender->GlViewRender(m_nRefreshPic);
+	   m_nRefreshPic=0;
 	}
 	m_RenderLock.Unlock();
 }
@@ -179,10 +189,6 @@ void  CAndKKPlayerUI::AutoMediaCose(int Stata)
          m_bNeedReconnect=true;
      }
     m_playerState=-3;
-}
-void CAndKKPlayerUI::AVRender()
-{
-	
 }
 
 

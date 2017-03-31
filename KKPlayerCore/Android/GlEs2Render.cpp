@@ -345,7 +345,7 @@ void GlEs2Render::AVTexCoords_cropRight(GLfloat cropRight)
 
 
 
-void GlEs2Render::GlViewRender()
+void GlEs2Render::GlViewRender(bool ReLoad)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
     if(g_glProgram==0|| m_vertexShader==0||m_fragmentShader==0)
@@ -389,7 +389,9 @@ void GlEs2Render::GlViewRender()
         m_bAdJust=true;
     }
 
-    m_pPlayer->RenderImage(this, false);
+	if(ReLoad){
+       m_pPlayer->RenderImage(this, false);
+	}
     if(m_Picwidth==0|| m_Picheight==0)
          return;
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

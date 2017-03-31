@@ -9,6 +9,7 @@ objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o
 #cd f:/ProgramTool/OpenPro/KKPlayer/KKPlayerCore
 # f:/android/android-sdk-windows/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/windows/bin/aarch64-linux-android-readelf.exe -d libKKPlayerCore.so
 LDFLAGS =  -shared -std=c++11 -fPIC
+#-Wl,--gc-sections -O2
 ObjTARGET = libKKPlayerCore.so
 ObjLib = libKKPlayerCore.a
 #-L $(BASELib) \
@@ -24,7 +25,7 @@ $(ObjTARGET):$(objects)
 	cp -f $(BASELib)/crtbegin_so.o ./crtbegin_so.o;
 	cp -f $(BASELib)/crtend_so.o ./crtend_so.o;
 	$(CXX) $(LDFLAGS) -o $(ObjTARGET) $(objects) \
-	$(LDFLAGS) \
+	$(LDFLAGS)  \
 	-L$(BASELib) \
 	-L$(FFMPEGLib) \
 	-L$(STLLib) \
@@ -43,7 +44,7 @@ $(ObjTARGET):$(objects)
 	$(AR) rcs $(ObjLib) $(objects) 
 
 md5.o: MD5/md5.c MD5/md5.h
-	$(CC) -c $(CFLAGS) MD5/md5.c
+	$(CC) -c  $(CFLAGS) MD5/md5.c
 sqlite3.o: sqlite/sqlite3ext.h sqlite/sqlite3.h sqlite/sqlite3.c
 	$(CC) -c $(CFLAGS) sqlite/sqlite3.c
 platforms.o:platforms.cpp stdafx.h

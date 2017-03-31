@@ -72,5 +72,6 @@ class CAndKKPlayerUI :public  IKKPlayUI
         CKKLock m_RenderLock;
 		/**呈现类型，0 glviw 1 **/
 		int  m_nRenderType;
+		int  m_nRefreshPic;
 };
 #endif

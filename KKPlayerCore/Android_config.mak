@@ -22,8 +22,8 @@ endif
 #F:\android\android-sdk-windows\ndk-bundle\sources\android\support\include
 #F:\android\android-sdk-windows\ndk-bundle\sources\cxx-stl\stlport\stlport
 AR=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-ar
-CC=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-gcc
-CXX=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-g++.exe
+CC=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-gcc 
+CXX=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-g++
 AS=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-gcc
 OBJCC=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-gcc
 LD=$(NDK_PATH)/toolchains/$(ARM_LINUX_ANDROIDE_API)/prebuilt/$(COMPILERDIR)/arm-linux-androideabi-gcc
