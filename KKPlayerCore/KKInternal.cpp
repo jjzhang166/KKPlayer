@@ -20,6 +20,7 @@ void *KK_Malloc_(size_t size)
 }
 void  KK_Free_(void *ptr)
 {
+	if(ptr!=NULL)
 	av_free(ptr);
 }
 #define PixelFormat AVPixelFormat
