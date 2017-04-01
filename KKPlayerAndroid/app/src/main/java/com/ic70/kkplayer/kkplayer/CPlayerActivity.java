@@ -93,7 +93,7 @@ public class CPlayerActivity extends Activity {
                     lllxx=lllxx+ll+"s";
                     xxll.setText(lllxx);
                 }
-                //System.out.println( m_KKPlayer.GetPlayerState() + "==="+m_OpenCouner);
+             //  Log.v("xxxxx:", m_KKPlayer.GetPlayerState() + "==="+m_OpenCouner);
                 if(   m_KKPlayer.GetPlayerState()==-2 &&m_OpenCouner==0&&  PlayerStata==EnumPlayerStata.Play)
                     { /*********文件打开失败***********/
                         PlayerStata = EnumPlayerStata.OpenFailure;

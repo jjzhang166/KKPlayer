@@ -110,7 +110,7 @@ typedef struct SKK_Frame
 	
 	/*****是否分配内存对frame*****/
 	int allocated;
-	CKKLock *BmpLock;
+	//CKKLock *BmpLock;
 } SKK_Frame;
 
 //帧队列(解码后的数据为帧)
@@ -306,7 +306,7 @@ typedef struct SKK_VideoState
     struct SwsContext *sub_convert_ctx;
 	int eof;
     /*****文件名******/
-	char filename[1024];
+	char filename[2048];
 	int  fileSize;
 	/*******视频大小信息,只对当前帧有效********/
 	int viddec_width;                /**********解码后的宽度**********/

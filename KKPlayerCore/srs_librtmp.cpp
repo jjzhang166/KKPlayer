@@ -36384,7 +36384,7 @@ int Srs_read_packet(void *opaque, uint8_t *buf, int buf_size)
 {
 	KKPlugin* plu=(KKPlugin*)opaque;
 
-	
+	int ret=0;
 	if(plu->opaque==NULL&&plu->kkirq!=NULL&&plu->kkirq(plu->PlayerOpaque)!=1)
 	{
 		srs_rtmp_t rtmp = srs_rtmp_create(plu->URL);
@@ -36396,7 +36396,7 @@ int Srs_read_packet(void *opaque, uint8_t *buf, int buf_size)
 		}
 		srs_human_trace("simple handshake success");
 
-		if (srs_rtmp_connect_app(rtmp) != 0) {
+		if ((ret=srs_rtmp_connect_app(rtmp)) != 0) {
 			srs_human_trace("connect vhost/app failed.");
 			return AVERROR(EIO);
 		
@@ -36418,7 +36418,7 @@ int Srs_read_packet(void *opaque, uint8_t *buf, int buf_size)
 
 	}
 
-	int ret=AVERROR(EIO);
+	ret=AVERROR(EIO);
 	if(TmpSrSBuf!=NULL)
 	{
 		 memcpy(buf,TmpSrSBuf,SrSBufDataLen);

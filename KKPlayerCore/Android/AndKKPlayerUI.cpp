@@ -164,7 +164,7 @@ unsigned char* CAndKKPlayerUI::GetBkImage(int &length)
 }
 void CAndKKPlayerUI::OpenMediaFailure(char *strURL,int err)
 {
-    LOGE("Open Err");
+    LOGE("Open Err %d \n",m_playerState);
     m_playerState=-2;
     return;
 }
@@ -184,11 +184,13 @@ void  CAndKKPlayerUI::ForceFlushQue()
 }
 void  CAndKKPlayerUI::AutoMediaCose(int Stata)
 {
-     if(Stata==-1)
-     {
+     if(Stata==-1){
          m_bNeedReconnect=true;
+		  LOGE("Stata %d \n", Stata);
      }
-    m_playerState=-3;
+	 m_playerState=-3;
+	 LOGE("AutoMediaCose %d \n", m_playerState);
+    
 }
 
 

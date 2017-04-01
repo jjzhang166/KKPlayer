@@ -151,7 +151,6 @@ void frame_queue_destory(SKK_FrameQueue *f)
 		SKK_Frame *vp = &f->queue[i];
 		frame_queue_unref_item(vp);
 		av_frame_free(&vp->frame);
-		delete vp->BmpLock;
 		av_free(vp->buffer);
 	}
 }
@@ -1096,7 +1095,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	if(vp==NULL)
 		return -1;
 
-
+	pPictq->mutex->Lock();
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
 	vp->frame->pts=pFrame->pts;
 	vp->frame->format=pFrame->format;
@@ -1146,29 +1145,23 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		if( vp->buffer==NULL || is->need_height!=pOutAV->height ||is->need_width!=pOutAV->width)
 		{
 			vp->allocated = 1;
-			if(vp->BmpLock==NULL)
-			    vp->BmpLock = new CKKLock();
+			
 			
 			if(is->need_height<=0||is->need_width<=0)
 			{
 			     is->need_width=pFrame->width;
 				 is->need_height=pFrame->height;
 			}
-			
-
-			vp->BmpLock->Lock();
-			{
-				 vp->width =   is->need_width; 
-				 vp->height=   is->need_height;//FFALIGN(pFrame->height, 2);
-				 vp->pitch =   is->need_width;
-				 
-			     int numBytes=avpicture_get_size(DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
-			     vp->buflen=numBytes*sizeof(uint8_t);
-			     av_free(vp->buffer);
-			     vp->buffer=(uint8_t *)av_malloc(vp->buflen);
-			     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff, vp->width,vp->height);
-			}
-			vp->BmpLock->Unlock();
+		
+			 vp->width =   is->need_width; 
+			 vp->height=   is->need_height;//FFALIGN(pFrame->height, 2);
+			 vp->pitch =   is->need_width;
+			 
+		     int numBytes=avpicture_get_size(DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
+		     vp->buflen=numBytes*sizeof(uint8_t);
+		     av_free(vp->buffer);
+		     vp->buffer=(uint8_t *)av_malloc(vp->buflen);
+		     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff, vp->width,vp->height);
 		}
         
 		//
@@ -1190,17 +1183,11 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 				 assert(0);
 				 
 			 }
-		   
-				vp->BmpLock->Lock();
-				//如果是硬件加速，转化就慢了。
-				sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
-				vp->BmpLock->Unlock();/**/
-		
+			 //如果是硬件加速，转化就慢了。
+			 sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
 		 }
+		 pPictq->mutex->Unlock();
          int  OpenTime2= av_gettime ()/1000-OpenTime;
-		
-		
-		
 
 		if(is->bTraceAV)
 		LOGE("dex:%d ,%d,%d\n",OpenTime2,pOutAV->width,pOutAV->height );

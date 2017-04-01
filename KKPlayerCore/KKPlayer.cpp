@@ -700,9 +700,8 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 		   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
 		   {
 			   m_lstPts=vp->pts;
-			   vp->BmpLock->Lock();
 			   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch);
-			   vp->BmpLock->Unlock();
+			
 		   }
 		   pVideoInfo->pictq.mutex->Unlock();
 		}
@@ -917,15 +916,13 @@ int is_realtime2(char *name)
 		return 1;
 
 
-	if(strncmp(name, "rtmp:",5)==0)
-	{
+	if(strncmp(name, "rtmp:",5)==0){
+		return 1;
+	}else if(!strncmp(name, "rtp:", 4)|| !strncmp(name, "udp:", 4)){
+		  return 1;
+	}else if(strncmp(name, "rtsp:",5)==0){
 		return 1;
 	}
-	if
-		(  !strncmp(name, "rtp:", 4)|| 
-		!strncmp(name, "udp:", 4) 
-		)
-		return 1;
 	return 0;
 }
 int KKPlayer::OpenMedia(char* URL,char* Other)
@@ -1043,8 +1040,12 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo->InAudioSrc=NULL;
 	pVideoInfo->OutAudioSink=NULL;
 	pVideoInfo->AudioGraph=NULL;
+	LOGE("创建线程\n");
 #ifdef WIN32_KK
 	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
+
+	if(m_ReadThreadInfo.ThreadHandel==0)
+		assert(0);
 	m_VideoRefreshthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, VideoRefreshthread, (LPVOID)this, 0,&m_VideoRefreshthreadInfo.Addr);
     m_AudioCallthreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, Audio_Thread, (LPVOID)this, 0,&m_AudioCallthreadInfo.Addr);
 #else
@@ -1060,6 +1061,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	m_AVCacheInfo.MaxTime=0;
 	m_AVCacheInfo.VideoSize=0;
 	m_CloseLock.Unlock();
+		LOGE("创建线程结束\n");
 	return 0;
 }
 void KKPlayer::OnDecelerate()
@@ -1550,6 +1552,7 @@ void KKPlayer::ReadAV()
 
 			
         /********读取一个pkt**********/
+		// LOGE("pVideoInfo->realtime %d \n",1);
 		ret = av_read_frame(pFormatCtx, pkt);
 		
 		if(pVideoInfo->nCacheTime>0&&pVideoInfo->nCacheTime>m_AVCacheInfo.MaxTime)
@@ -1560,6 +1563,8 @@ void KKPlayer::ReadAV()
 			 pVideoInfo->nRealtimeDelayCount=0;
 		}
 
+//		 LOGE("pVideoInfo->realtime %d \n",2);
+		 //LOGE("pVideoInfo->realtime %d \n",pVideoInfo->realtime);
 		if (ret < 0) {
 			 if(pVideoInfo->bTraceAV)
 			 LOGE("readAV ret=%d \n",ret);

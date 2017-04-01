@@ -547,6 +547,7 @@ static const char *optinfo[] = {
 
 #define OFF(x)	offsetof(struct RTMP,x)
 
+	typedef long off_t;
 static struct urlopt {
   AVal name;
   off_t off;
