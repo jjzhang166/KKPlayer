@@ -167,8 +167,8 @@ private:
 			//记录播放信息用
 			CAVInfoManage* m_pAVInfomanage;
 
-			/*******关闭打开锁********/
-	        CKKLock m_CloseLock;
+			
+	        CKKLock m_PlayerLock;
 			
 			/*******准备文件所锁*****/
 			CKKLock m_PreFileLock;

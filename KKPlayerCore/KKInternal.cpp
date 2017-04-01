@@ -75,7 +75,7 @@ int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt)
 		return -1;
 	}
 	q->PktMemSize+=pkt->size;
-	pkt1 = (SKK_AVPacketList *)av_malloc(sizeof(SKK_AVPacketList));
+	pkt1 = (SKK_AVPacketList *)KK_Malloc_(sizeof(SKK_AVPacketList));
 	if (!pkt1)
 		return -1;
 	pkt1->pkt = *pkt;
@@ -1158,9 +1158,9 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			 vp->pitch =   is->need_width;
 			 
 		     int numBytes=avpicture_get_size(DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
-		     vp->buflen=numBytes*sizeof(uint8_t);
+		     vp->buflen=numBytes*sizeof(uint8_t)+100;
 		     av_free(vp->buffer);
-		     vp->buffer=(uint8_t *)av_malloc(vp->buflen);
+		     vp->buffer=(uint8_t *)KK_Malloc_(vp->buflen);
 		     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff, vp->width,vp->height);
 		}
         
