@@ -55,7 +55,7 @@ BOOL CKKLock::TryLock()
 	#ifdef WIN32_KK
 	      return ::TryEnterCriticalSection(&m_crisec);
 	#else
-		if(pthread_rwlock_trywrlock(&m_crisec))
+		if(pthread_rwlock_trywrlock(&m_crisec)==0)
 		{
 			return TRUE;
 		}

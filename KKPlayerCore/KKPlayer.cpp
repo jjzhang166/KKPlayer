@@ -182,24 +182,18 @@ void KKPlayer::CloseMedia()
 	pVideoInfo->sampq.m_pWaitCond->SetCond();
 	pVideoInfo->subpq.m_pWaitCond->SetCond();/**/
 
-	if(pVideoInfo->IsReady!=0)
+	
+	while(1)
 	{
-		while(1)
+		if(pVideoInfo->viddec.decoder_tid.ThOver==true&&pVideoInfo->auddec.decoder_tid.ThOver==true&&pVideoInfo->subdec.decoder_tid.ThOver==true)
 		{
-			if(
-				pVideoInfo->viddec.decoder_tid.ThOver==true&&
-				pVideoInfo->auddec.decoder_tid.ThOver==true&&
-				pVideoInfo->subdec.decoder_tid.ThOver==true
-				)
-			{
-				break;
-			}
-			LOGE("thread Over2 viddec%d,auddec%d,subdec%d \n",pVideoInfo->viddec.decoder_tid.ThOver
-				,pVideoInfo->auddec.decoder_tid.ThOver
-				,pVideoInfo->subdec.decoder_tid.ThOver
-				);
-			 av_usleep(10000);
+			break;
 		}
+		LOGE("thread Over2 viddec%d,auddec%d,subdec%d \n",pVideoInfo->viddec.decoder_tid.ThOver
+			,pVideoInfo->auddec.decoder_tid.ThOver
+			,pVideoInfo->subdec.decoder_tid.ThOver
+			);
+		 av_usleep(10000);
 	}
 
 	LOGE("thread Over 2 \n");
@@ -207,21 +201,41 @@ void KKPlayer::CloseMedia()
 #ifdef WIN32_KK
 	//SDL_CloseAudio();
 	//关闭读取线程
-	//::TerminateThread(m_ReadThreadInfo.ThreadHandel,0);
+	if(m_ReadThreadInfo.Addr!=0)
+	   ::TerminateThread(m_ReadThreadInfo.ThreadHandel,0);
 	::CloseHandle(m_ReadThreadInfo.ThreadHandel);
+	m_ReadThreadInfo.ThreadHandel=0;
     
-	//::TerminateThread(m_VideoRefreshthreadInfo.ThreadHandel,0);
+	//关闭刷新线程
+	if(m_VideoRefreshthreadInfo.Addr!=0)
+	   ::TerminateThread(m_VideoRefreshthreadInfo.ThreadHandel,0);
 	::CloseHandle(m_VideoRefreshthreadInfo.ThreadHandel);
+	m_VideoRefreshthreadInfo.ThreadHandel=0;
 	
 	//关闭相关解码线程
-	//::TerminateThread(pVideoInfo->viddec.decoder_tid.ThreadHandel,0);
+
+	if(pVideoInfo->viddec.decoder_tid.Addr!=0)
+	    ::TerminateThread(pVideoInfo->viddec.decoder_tid.ThreadHandel,0);
 	::CloseHandle(pVideoInfo->viddec.decoder_tid.ThreadHandel);
 	
-	//::TerminateThread(pVideoInfo->auddec.decoder_tid.ThreadHandel,0);
+
+	if(pVideoInfo->auddec.decoder_tid.Addr!=0)
+	    ::TerminateThread(pVideoInfo->auddec.decoder_tid.ThreadHandel,0);
 	::CloseHandle(pVideoInfo->auddec.decoder_tid.ThreadHandel);
 	
-	//::TerminateThread(pVideoInfo->subdec.decoder_tid.ThreadHandel,0);
+	if(pVideoInfo->subdec.decoder_tid.Addr!=0)
+	    ::TerminateThread(pVideoInfo->subdec.decoder_tid.ThreadHandel,0);
 	::CloseHandle(pVideoInfo->subdec.decoder_tid.ThreadHandel);
+#else
+        
+	if(pVideoInfo->viddec.decoder_tid.Addr!=0)
+	    pthread_kill(pVideoInfo->viddec.decoder_tid.Tid_task,0);
+	
+	if(pVideoInfo->auddec.decoder_tid.Addr!=0)
+	    pthread_kill(pVideoInfo->auddec.decoder_tid.Tid_task,0);
+	
+	if(pVideoInfo->subdec.decoder_tid.Addr!=0)
+	     pthread_kill(pVideoInfo->subdec.decoder_tid.Tid_task,0);
 #endif	
 	
     /*******事件*********/
@@ -458,6 +472,7 @@ unsigned __stdcall  KKPlayer::ReadAV_thread(LPVOID lpParameter)
 	KKPlayer *pPlayer=(KKPlayer *  )lpParameter;
 	pPlayer->m_ReadThreadInfo.ThOver=false;
 	pPlayer->ReadAV();
+	pPlayer->m_ReadThreadInfo.Addr=0;
 	pPlayer->m_ReadThreadInfo.ThOver=true;
 	return 1;
 }
@@ -661,7 +676,8 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 {
 	SKK_Frame *vp;
 	
-	if(m_PlayerLock.TryLock())
+	//if(m_PlayerLock.TryLock())
+	m_PlayerLock.Lock();
 	{
 			if(pVideoInfo==NULL){
 				
@@ -958,8 +974,18 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo->viddec.decoder_tid.ThOver=true;
 	pVideoInfo->auddec.decoder_tid.ThOver=true;
 	pVideoInfo->subdec.decoder_tid.ThOver=true;
+	
 	m_ReadThreadInfo.ThOver=true;
+	m_ReadThreadInfo.Addr=0;
+	
+
 	m_VideoRefreshthreadInfo.ThOver=true;
+	m_VideoRefreshthreadInfo.Addr=0;
+
+#ifdef WIN32_KK
+    m_ReadThreadInfo.ThreadHandel=0;
+    m_VideoRefreshthreadInfo.ThreadHandel=0;
+#endif
 
 	RECT rt;
 	::GetClientRect(m_hwnd,&rt);
@@ -1155,6 +1181,8 @@ int KKPlayer::GetAVRate()
 	kk_jni_detach_env();
 	pPlayer->m_pVideoRefreshJNIEnv=NULL;
 #endif
+
+	 pPlayer->m_VideoRefreshthreadInfo.Addr=0;
 	 pPlayer->m_VideoRefreshthreadInfo.ThOver=true;
 	 LOGE("VideoRefreshthread over \n");
 	 return 1;
@@ -1658,7 +1686,7 @@ void KKPlayer::ReadAV()
 		
 	}
 	
-	
+	m_ReadThreadInfo.Addr=0;
 	LOGE("readAV Over \n");
 	
 }

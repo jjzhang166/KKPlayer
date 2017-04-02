@@ -865,6 +865,8 @@ fail:
 unsigned __stdcall  Subtitle_thread(LPVOID lpParameter)
 {
 	SKK_VideoState *pIs=(SKK_VideoState *)lpParameter;
+
+	pIs->subdec.decoder_tid.Addr=0;
 	pIs->subdec.decoder_tid.ThOver=true;
 	return 1;
 }
@@ -1306,6 +1308,8 @@ LXXXX:
 	 }
 #endif
 	LOGE("Video_thread Over");
+	
+	is->viddec.decoder_tid.Addr=0;
 	is->viddec.decoder_tid.ThOver=true;
 	return 0;
 }
@@ -1718,6 +1722,7 @@ the_end:
 	av_frame_unref(frame);
 	av_frame_free(&frame);
 	
+	is->auddec.decoder_tid.Addr=0;
 	is->auddec.decoder_tid.ThOver=true;
 	return ret;
 }
