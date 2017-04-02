@@ -1280,6 +1280,9 @@ void KKPlayer::ReadAV()
 	pVideoInfo->OpenTime= av_gettime ()/1000/1000;
 	double Opex=0;
 //	std::string urlxx=filename;
+
+
+	LOGE("call avformat_open_input \n");
 	//此函数是阻塞的
 	err =avformat_open_input(
 		&pVideoInfo->pFormatCtx,                    pVideoInfo->filename,
