@@ -105,13 +105,12 @@ void FreeKKIo(SKK_VideoState *kkAV);
 void KKPlayer::CloseMedia()
 {
    
-	m_PreFileLock.Lock();
+	m_PlayerLock.Lock();
 	while(m_nPreFile==1)
 	{
-		m_PreFileLock.Unlock();
+		m_PlayerLock.Unlock();
 		Sleep(50);
-		m_PreFileLock.Lock();
-
+		m_PlayerLock.Lock();
 		LOGE(" xx\n");
 	}
 	
@@ -123,18 +122,13 @@ void KKPlayer::CloseMedia()
 
 	while(m_nPreFile==2)
 	{
-		m_PreFileLock.Unlock();
+		m_PlayerLock.Unlock();
 		Sleep(100);
-		m_PreFileLock.Lock();
+		m_PlayerLock.Lock();
 		LOGE(" xx2\n");
        
 	}
 	m_nPreFile=0;
-	m_PreFileLock.Unlock();
-
-
-
-    m_PlayerLock.Lock();
 	if(!m_bOpen)
 	{
 		m_PlayerLock.Unlock();
@@ -685,10 +679,10 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 				unsigned char* pBkImage=m_pPlayUI->GetCenterLogoImage(len);
 				if(pBkImage!=NULL&&len>0){
 					pRender->LoadCenterLogo(pBkImage,len);
-					pBkImage=m_pPlayUI->GetBkImage(len);
+
 					if(pBkImage!=NULL&&len>0){
 					   pRender->renderBk(pBkImage,len);
-					}
+					}/**/
 				}
 			}else {
 				if(pVideoInfo->IsReady==0)
@@ -938,26 +932,18 @@ int is_realtime2(char *name)
 }
 int KKPlayer::OpenMedia(char* URL,char* Other)
 {
-	m_PreFileLock.Lock();
-	if(m_nPreFile!=0)
+	m_PlayerLock.Lock();
+	if(m_nPreFile!=0|| m_bOpen)
 	{
-		m_PreFileLock.Unlock();
+		m_PlayerLock.Unlock();
         return -1;
 	}
-	m_PreFileLock.Unlock();
+	m_PlayerLock.Unlock();
 
-	
-	m_PlayerLock.Lock();
-    if(m_bOpen)
-	{
-        m_PlayerLock.Unlock();
-		return -1;
-	}
-	m_bOpen=true;
-	
-	m_PreFileLock.Lock();
+
+	m_bOpen=true;	
 	m_nPreFile=1;
-	m_PreFileLock.Unlock();
+	
 	
 	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
 	
@@ -1271,16 +1257,15 @@ void KKPlayer::ReadAV()
 		scan_all_pmts_set = 1;
 	}
 	
-	//timeout
+	
 	if(KKProtocolAnalyze(pVideoInfo->filename,*pVideoInfo->pKKPluginInfo)==1)
 	{	
 	    pFormatCtx->pb=CreateKKIo(pVideoInfo);
         pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
 		//pFormatCtx->max_delay
     }
-	m_PreFileLock.Lock();
 	m_nPreFile=2;
-	m_PreFileLock.Unlock();
+	
 	
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
         //rtmp ²»Ö§³Ö timeout
@@ -1302,14 +1287,8 @@ void KKPlayer::ReadAV()
     
 	if(pVideoInfo->bTraceAV)
 	   LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
-	
-	m_PreFileLock.Lock();
+	 
 	m_nPreFile=3;
-	m_PreFileLock.Unlock();
-
-
-
-
 	 if(!m_bOpen)
 	 {
 		 m_PlayerLock.Unlock();

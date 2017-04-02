@@ -170,8 +170,7 @@ private:
 			
 	        CKKLock m_PlayerLock;
 			
-			/*******准备文件所锁*****/
-			CKKLock m_PreFileLock;
+			
             volatile int m_nPreFile;
 
 	        volatile  bool m_bOpen;
