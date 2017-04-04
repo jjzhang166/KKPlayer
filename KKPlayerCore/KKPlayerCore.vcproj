@@ -315,7 +315,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rtmp\rtmpPush.cpp"
+				RelativePath=".\rtmp\libRtmpPlugin.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\rtmp\libRtmpPlugin.h"
 				>
 			</File>
 			<File

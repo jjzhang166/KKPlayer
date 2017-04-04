@@ -58,6 +58,7 @@ extern "C"
 	typedef void (*fDeleteKKPlugin)(KKPlugin*p);
 	typedef struct __KKPluginInfo
 	{
+		/***插件名称***/
 		char ptl[32];
 		/******创建一个插件******/
 		fCreateKKPlugin CreKKP;
