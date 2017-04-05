@@ -12,6 +12,8 @@
 #include "KKInternal.h"
 #include "rtmp/SrsRtmpPlugin.h"
 #include "MD5/md5.h"
+#define MaxTimeOutStr "30000000"
+#define MaxTimeOut    25
 static AVPacket flush_pkt;
 static int decoder_reorder_pts = -1;
 static int framedrop = -1;
@@ -114,7 +116,6 @@ void KKPlayer::CloseMedia()
 		LOGE(" xx\n");
 	}
 	
-	//强制中断
 	if(pVideoInfo!=NULL)
 	{
 		pVideoInfo->abort_request=1;
@@ -667,8 +668,7 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 {
 	SKK_Frame *vp;
 
-	 if(m_PlayerLock.TryLock())
-	 {
+	 if(m_PlayerLock.TryLock()){
 		if(pVideoInfo==NULL){
 			
 			int len=0;
@@ -703,7 +703,19 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 					  
 		}
 	    m_PlayerLock.Unlock();	
-	}
+	 }
+#ifdef _WINDOWS
+	 else{
+			if(m_bOpen&&m_nPreFile<=2){ 
+						int len=0;
+						unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
+						if(pWaitImage!=NULL){
+							 pRender->SetWaitPic(pWaitImage,len);
+							 pRender->render(NULL,0,0,0);
+						}
+			}
+	 }
+#endif
 }
 
 #ifdef WIN32_KK
@@ -924,6 +936,10 @@ int is_realtime2(char *name)
 }
 int KKPlayer::OpenMedia(char* URL,char* Other)
 {
+	if(pVideoInfo!=NULL)
+	{
+	    pVideoInfo->abort_request=1;
+	}
 	m_PlayerLock.Lock();
 	if(m_nPreFile!=0|| m_bOpen)
 	{
@@ -1129,7 +1145,7 @@ int KKPlayer::GetAVRate()
 	 ::SetThreadPriority(::GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 #endif 
 #ifdef Android_Plat
-	pPlayer->m_pVideoRefreshJNIEnv=kk_jni_attach_env();
+	//pPlayer->m_pVideoRefreshJNIEnv=kk_jni_attach_env();
 #endif
 	 pPlayer->pVideoInfo->remaining_time = 0.01;
 	 while(pPlayer->m_bOpen)
@@ -1154,7 +1170,7 @@ int KKPlayer::GetAVRate()
 		
 	 }
 #ifdef Android_Plat
-	kk_jni_detach_env();
+	//kk_jni_detach_env();
 	pPlayer->m_pVideoRefreshJNIEnv=NULL;
 #endif
 
@@ -1259,9 +1275,9 @@ void KKPlayer::ReadAV()
 	
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
         //rtmp 不支持 timeout
-		// av_dict_set(&format_opts, "rtmp_listen", "1", AV_DICT_MATCH_CASE);
-		 //av_dict_set(&format_opts, "timeout", "5", AV_DICT_MATCH_CASE);
-		//av_dict_set(&format_opts, "rtmp_buffer", "0", AV_DICT_MATCH_CASE);
+		av_dict_set(&format_opts, "rw_timeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
+		 //av_dict_set(&format_opts, "timeout", "10", AV_DICT_MATCH_CASE);
+		//av_dict_set(&format_opts, "rtmp_buffer", "0", AV_DICT_MATCH_CASE);RTMP_ReadPacket, failed to read RTMP packet header
 	}else if(!strncmp(pVideoInfo->filename, "rtsp:",5)){
       
 		av_dict_set(&format_opts, "rtsp_transport", "tcp", AV_DICT_MATCH_CASE);
@@ -1278,11 +1294,17 @@ void KKPlayer::ReadAV()
 		&pVideoInfo->pFormatCtx,                    pVideoInfo->filename,
 		pVideoInfo->iformat,    &format_opts);
     
-	if(pVideoInfo->bTraceAV)
-	   LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
+	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
+		double  dx2=av_gettime ()/1000/1000-pVideoInfo->OpenTime;
+        if(dx2>MaxTimeOut)
+		{
+		    err=-1;
+		}
+	}
+	LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
 	 
-	m_nPreFile=3;
-	 if(!m_bOpen)
+	 m_nPreFile=3;
+	 if(!m_bOpen||pVideoInfo->abort_request==1)
 	 {
 		 m_PlayerLock.Unlock();
 		 return;
