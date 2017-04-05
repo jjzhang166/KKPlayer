@@ -143,13 +143,10 @@ void KKPlayer::CloseMedia()
 		return;
 	}
    
-	
+	m_PlayerLock.Unlock();
 	while(1)
 	{
-		if(
-			m_ReadThreadInfo.ThOver==true&&
-			m_VideoRefreshthreadInfo.ThOver==true
-			)
+		if(m_ReadThreadInfo.ThOver==true&&m_VideoRefreshthreadInfo.ThOver==true)
 		{
 			break;
 		}
@@ -162,7 +159,7 @@ void KKPlayer::CloseMedia()
 
 	LOGE("thread Over 1");
 	
-	
+	m_PlayerLock.Lock();
 	#ifndef WIN32_KK
 			pthread_join(m_ReadThreadInfo.Tid_task,0);
 			pthread_join(m_VideoRefreshthreadInfo.Tid_task,0);
@@ -669,48 +666,43 @@ int KKPlayer::GetIsReady()
 void KKPlayer::RenderImage(CRender *pRender,bool Force)
 {
 	SKK_Frame *vp;
-	
-	//if(m_PlayerLock.TryLock())
-	m_PlayerLock.Lock();
-	{
-			if(pVideoInfo==NULL){
-				
-				int len=0;
-				unsigned char* pBkImage=m_pPlayUI->GetCenterLogoImage(len);
-				if(pBkImage!=NULL&&len>0){
-					pRender->LoadCenterLogo(pBkImage,len);
 
-					if(pBkImage!=NULL&&len>0){
-					   pRender->renderBk(pBkImage,len);
-					}/**/
-				}
-			}else {
-				if(pVideoInfo->IsReady==0)
-				{
-					int len=0;
-					unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
-					if(pWaitImage!=NULL)
-					{
-						 pRender->SetWaitPic(pWaitImage,len);
-						 pRender->render(NULL,0,0,0);
-					}
-					
-				}else{
-						if(m_bOpen){
-						   pVideoInfo->pictq.mutex->Lock();
-						   vp =frame_queue_peek_last(&pVideoInfo->pictq);
-						   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
-						   {
-							   m_lstPts=vp->pts;
-							   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch);
-							
-						   }
-						   pVideoInfo->pictq.mutex->Unlock();
-						 }
-				   
-				}
+	 if(m_PlayerLock.TryLock())
+	 {
+		if(pVideoInfo==NULL){
+			
+			int len=0;
+			unsigned char* pBkImage=m_pPlayUI->GetCenterLogoImage(len);
+			if(pBkImage!=NULL&&len>0){
+				pRender->LoadCenterLogo(pBkImage,len);
+				if(pBkImage!=NULL&&len>0){
+				   pRender->renderBk(pBkImage,len);
+				}/**/
 			}
-			m_PlayerLock.Unlock();
+		}else {
+						if(m_bOpen&&m_nPreFile!=0){ 
+								if(pVideoInfo->IsReady==0){
+									int len=0;
+									unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
+									if(pWaitImage!=NULL){
+										 pRender->SetWaitPic(pWaitImage,len);
+										 pRender->render(NULL,0,0,0);
+									}
+								}else{
+								   pVideoInfo->pictq.mutex->Lock();
+								   vp =frame_queue_peek_last(&pVideoInfo->pictq);
+								   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
+								   {
+									   m_lstPts=vp->pts;
+									   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch);
+									
+								   }
+								   pVideoInfo->pictq.mutex->Unlock();
+								}
+						}
+					  
+		}
+	    m_PlayerLock.Unlock();	
 	}
 }
 
@@ -938,8 +930,6 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 		m_PlayerLock.Unlock();
         return -1;
 	}
-	m_PlayerLock.Unlock();
-
 
 	m_bOpen=true;	
 	m_nPreFile=1;
