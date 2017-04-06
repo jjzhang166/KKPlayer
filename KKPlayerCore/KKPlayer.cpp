@@ -504,7 +504,6 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 		if (is->force_refresh || is->last_vis_time + rdftspeed < time)
 		{
 			
-			
 			is->last_vis_time = time;
 		}
 
@@ -641,6 +640,66 @@ display:
 
 	}
 	is->force_refresh=0;
+}
+
+static inline int compute_mod(int a, int b)
+{
+    return a < 0 ? a%b + b : a%b;
+}
+void KKPlayer::video_audio_display(SKK_VideoState *s)
+{
+    int i, i_start, x, y1, y, ys, delay, n, nb_display_channels;
+    int ch, channels, h, h2, bgcolor, fgcolor;
+    int64_t time_diff;
+    int rdft_bits, nb_freq;
+
+	int height=100;
+	int width=100;
+    for (rdft_bits = 1; (1 << rdft_bits) < 2 * height; rdft_bits++)
+        ;
+    nb_freq = 1 << (rdft_bits - 1);
+
+    /* compute display index : center on currently output samples */
+    channels = s->audio_tgt.channels;
+    nb_display_channels = channels;
+    if (!s->paused) {
+		int data_used= s->show_mode ==  SKK_VideoState::SHOW_MODE_WAVES ? width : (2*nb_freq);
+        n = 2 * channels;
+        delay = s->audio_write_buf_size;
+        delay /= n;
+
+        /* to be more precise, we take into account the time spent since
+           the last buffer computation */
+        if (s->audio_callback_time) {
+            time_diff = av_gettime_relative() - s->audio_callback_time;
+            delay -= (time_diff * s->audio_tgt.freq) / 1000000;
+        }
+
+        delay += 2 * data_used;
+        if (delay < data_used)
+            delay = data_used;
+
+        i_start= x = compute_mod(s->sample_array_index - delay * channels, SAMPLE_ARRAY_SIZE);
+        if (s->show_mode == SKK_VideoState::SHOW_MODE_WAVES) {
+            h = INT_MIN;
+            for (i = 0; i < 1000; i += channels) {
+                int idx = (SAMPLE_ARRAY_SIZE + x - i) % SAMPLE_ARRAY_SIZE;
+                int a = s->sample_array[idx];
+                int b = s->sample_array[(idx + 4 * channels) % SAMPLE_ARRAY_SIZE];
+                int c = s->sample_array[(idx + 5 * channels) % SAMPLE_ARRAY_SIZE];
+                int d = s->sample_array[(idx + 9 * channels) % SAMPLE_ARRAY_SIZE];
+                int score = a - d;
+                if (h < score && (b ^ c) < 0) {
+                    h = score;
+                    i_start = idx;
+                }
+            }
+        }
+
+        s->last_i_start = i_start;
+    } else {
+        i_start = s->last_i_start;
+    }
 }
 int KKPlayer::GetPktSerial()
 {

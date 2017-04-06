@@ -145,8 +145,11 @@ private:
 	        void ReadAV();
 	        //视频刷线程
 			void VideoRefresh();
-	        /*******显示视频**********/
+	        
+			/*******显示视频**********/
 		    void video_image_refresh(SKK_VideoState *is);
+			/******绘制音频图谱******/
+            void video_audio_display(SKK_VideoState *s);
 
 			/********流媒体这是刷新函数**********/
 			void Avflush(int64_t seek_target); 
