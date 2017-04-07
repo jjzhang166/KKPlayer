@@ -5,11 +5,15 @@
 #include "render/render.h"
 #include "../KKPlayerCore/IKKPlayUI.h"
 #include <vector>
-#include <GdiPlus.h>
-#include <GdiPlusHeaders.h>
 #include "KKSound.h"
 #include "SDLSound.h"
+
+#ifndef LIBKKPLAYER
 #include "MainPage/AVMenu.h"
+#else
+#include "Resource.h"
+#endif
+
 struct SWaitPicInfo
 {
     unsigned char* Buf;
@@ -59,8 +63,9 @@ private:
 private:
 	    //CKKSound m_Sound;
 		IKKAudio *m_pSound;
+#ifndef LIBKKPLAYER
 		SOUI::CAVMenu *m_pAVMenu;
-	    Gdiplus::Bitmap *m_BkGidPulsBitmap;
+#endif
 	    CRender *m_pRender;
 	   
 		int LeftWidth;

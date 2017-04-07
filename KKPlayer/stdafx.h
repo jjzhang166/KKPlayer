@@ -31,7 +31,7 @@ extern CAppModule _Module;
 #include <Windows.h>
 #include <assert.h>
 
-
+#ifndef LIBKKPLAYER
 //soui°üº¬ÎÄ¼þ
 #include <souistd.h>
 #include <core/SHostDialog.h>
@@ -43,6 +43,7 @@ extern CAppModule _Module;
 #include <unknown/obj-ref-i.h>
 #include <interface/SResProvider-i.h>
 #include "resource.h"
+#endif
 
 typedef void *(*CreateRender)(HWND h,char *Oput);
 typedef char (*DelRender)(void *p,char RenderType);

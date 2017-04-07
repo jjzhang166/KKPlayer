@@ -138,30 +138,7 @@ std::basic_string<TCHAR> GetModulePath()
 	return _T("");
 }
 
-class CAVMainFrame : 
-	public CFrameWindowImpl<CAVMainFrame>, 
-	public CUpdateUI<CAVMainFrame>,
-	public CMessageFilter
-{
-public:
-	CAVMainFrame(){};
-	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
-	    BEGIN_UPDATE_UI_MAP(CAVMainFrame)
-	    END_UPDATE_UI_MAP()
 
-	BEGIN_MSG_MAP(CAVMainFrame)
-	END_MSG_MAP()
-	virtual BOOL PreTranslateMessage(MSG* pMsg)
-		{
-			if(CFrameWindowImpl<CAVMainFrame>::PreTranslateMessage(pMsg))
-				return TRUE;
-			return FALSE;
-		}
-	virtual BOOL OnIdle()
-	{
-           return TRUE;
-	}
-};
 HWND G_Parent=NULL;
 CMainFrame *pWnd;
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)

@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;&quot;$(KKWinDx9Path)\include&quot;;..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\wke\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="KKPLAYERUI;WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

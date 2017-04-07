@@ -1,39 +1,22 @@
 #include "stdafx.h"
-#include "MainPage/MainDlg.h"
+
 #include "MainFrm.h"
 #include <ObjIdl.h>
 #include "KKSound.h"
+
+
+#ifndef LIBKKPLAYER
+#include "MainPage/MainDlg.h"
 #include "Tool/cchinesecode.h"
 #include "Tool/CFileMgr.h"
-#pragma comment(lib, "winmm.lib")
-//#include <Windows.h>
 extern SOUI::CMainDlg* m_pDlgMain;
+#endif
+
 extern CreateRender pfnCreateRender;
 extern DelRender pfnDelRender;
-//#define QY_GDI
-Gdiplus::Bitmap* CoverPic(int destWidth,int destHeight,Gdiplus::Image* srcBmp)
-{
-	Gdiplus::Bitmap* pDestBmp= new Gdiplus::Bitmap(destWidth, destHeight, PixelFormat32bppARGB); //新建缩放后的位图  
-	unsigned char* pOutData=new unsigned char[destWidth * destHeight * 4]; //新建缩放后的rgb数据  
-	if (pDestBmp)  
-	{  
-		Gdiplus::Graphics* g = Gdiplus::Graphics::FromImage(pDestBmp);
-		if (g)  
-		{  
-			// 使用高质量模式(相对比较耗时)，可以查看msdn，替换为其他mode   
-			g->SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);  
-			g->DrawImage(srcBmp, 0, 0, destWidth, destHeight);  
-			delete g;   
-		}  
-	}  
 
-	Gdiplus::BitmapData* pBitmapData = new Gdiplus::BitmapData;  
-	Gdiplus::Rect rect( 0, 0, destWidth, destHeight);  
-	pDestBmp->LockBits(&rect , Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, pBitmapData);  
-	memcpy(pOutData, (unsigned char*)pBitmapData->Scan0, destWidth * destHeight * 4); //得到缩放后的rgb数据  
-	pDestBmp->UnlockBits(pBitmapData);  
-	return pDestBmp;
-}
+#pragma comment(lib, "winmm.lib")
+
 std::basic_string<char> g_strModuleFileNameA;
 const std::basic_string<char>& XGetModuleFilenameA()
 {
@@ -63,18 +46,20 @@ std::basic_string<char> GetModulePathA()
 
 std::basic_string<TCHAR> GetModulePath();
 CMainFrame::CMainFrame():
-m_pBkImage(NULL),m_pCenterLogoImage(NULL),m_pAVMenu(NULL),
+m_pBkImage(NULL),m_pCenterLogoImage(NULL),
 m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_bFullScreen(false)
 ,m_nFullLastTick(false)
 ,m_nCursorCount(0)
 {
+#ifndef LIBKKPLAYER
+	m_pAVMenu=NULL;
+#endif
 	//m_bFullScreen=true;
 	m_pSound=NULL;
 	m_pPlayerInstance=NULL;
 	m_CenterLogoLen=0;
 	std::string basePath=GetModulePathA();
-	m_BkGidPulsBitmap=NULL;
 	m_bOpen=false;
 	int Giftime=120;
 	{
@@ -94,8 +79,9 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 			fseek(fp,0,SEEK_SET);
 			size_t tt=fread(info->Buf,1,info->Len,fp);
 			m_WaitPicList.push_back(info);
+			fclose(fp);
 		}
-		fclose(fp);
+		
 	}
 
 	{
@@ -115,8 +101,9 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 			fseek(fp,0,SEEK_SET);
 			size_t tt=fread(info->Buf,1,info->Len,fp);
 			m_WaitPicList.push_back(info);
+			fclose(fp);
 		}
-		fclose(fp);
+		
 	}
 
 	{
@@ -136,8 +123,9 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 			fseek(fp,0,SEEK_SET);
 			size_t tt=fread(info->Buf,1,info->Len,fp);
 			m_WaitPicList.push_back(info);
+			fclose(fp);
 		}
-		fclose(fp);
+		
 	}
 
 	{
@@ -157,8 +145,9 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 			fseek(fp,0,SEEK_SET);
 			size_t tt=fread(info->Buf,1,info->Len,fp);
 			m_WaitPicList.push_back(info);
+			fclose(fp);
 		}
-		fclose(fp);
+		
 	}
 
 	{
@@ -178,8 +167,9 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 			fseek(fp,0,SEEK_SET);
 			size_t tt=fread(info->Buf,1,info->Len,fp);
 			m_WaitPicList.push_back(info);
+			fclose(fp);
 		}
-		fclose(fp);
+		
 	}
 
 	{
@@ -199,13 +189,11 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 			fseek(fp,0,SEEK_SET);
 			size_t tt=fread(info->Buf,1,info->Len,fp);
 			m_WaitPicList.push_back(info);
+			fclose(fp);
 		}
-		fclose(fp);
+		
 	}
 	m_CurWaitPic=NULL;
-	
-	
-	
 }
 
 CMainFrame::~CMainFrame()
@@ -365,8 +353,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	delete m_BkGidPulsBitmap;
-	m_BkGidPulsBitmap=NULL;
+	
 	if( m_bOpen)
 	{
 		m_bOpen=false;
@@ -719,13 +706,14 @@ LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
 	int xPos = GET_X_LPARAM(lParam); 
 	int yPos = GET_Y_LPARAM(lParam);
 	
-	//if(!m_pDlgMain->GetScreenModel())
+#ifndef LIBKKPLAYER
 	::PostMessage(::GetParent(m_hWnd) ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
 
 	if(!m_pDlgMain->GetScreenModel())
 	{
 	   m_pDlgMain->ShowMiniUI(false);
 	}
+#endif
 	return 1;
 }
 LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
@@ -734,6 +722,7 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 	int xPos = GET_X_LPARAM(lParam); 
 	int yPos = GET_Y_LPARAM(lParam);
 
+	#ifndef LIBKKPLAYER
 	RECT rt;
 	::GetWindowRect(m_hWnd,&rt);
 	xPos+=rt.left;
@@ -778,6 +767,7 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 		}  
 	}
 	me.TrackPopupMenu(0,xPos,yPos,::GetParent(m_hWnd));
+#endif
 	return 1;
 }
 
@@ -788,6 +778,7 @@ LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
    int xPos = GET_X_LPARAM(lParam); 
    int yPos = GET_Y_LPARAM(lParam);
    
+   #ifndef LIBKKPLAYER
    if(m_bFullScreen){
 	   m_nFullLastTick=::GetTickCount();
 	   ::SetCursor(LoadCursor(NULL,IDC_ARROW));
@@ -805,7 +796,7 @@ LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 			m_pDlgMain->ShowMiniUI(false);
 		}
 	}
-
+#endif
 	m_lastPoint.x=xPos;
 	m_lastPoint.y=yPos;
 	return 0;
