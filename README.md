@@ -50,6 +50,7 @@ function build_one
 --cross-prefix=$TOOLCHAIN/bin/arm-linux-androideabi- \
 --target-os=linux \
 --arch=arm \
+--disable-encoders \
 --sysroot=$SYSROOT \
 --extra-cflags="-Os -fpic $ADDI_CFLAGS" \
 --extra-ldflags="$ADDI_LDFLAGS" \
@@ -73,5 +74,5 @@ windowVc(Vs2010)编译ffmpeg(https://ffmpeg.org/platform.html#Microsoft-Visual-C
             cc_default="c99wrap cl"
         fi
 		cc_default="c99wrap cl"
-例如:
-./configure --toolchain=msvc --extra-cflags='-IC:/msinttypes' --enable-shared
+例如(启用共享库，关闭所有编码器):
+./configure --toolchain=msvc --extra-cflags='-IC:/msinttypes' --prefix='./ffmpegBin'   --incdir='./ffmpegBin/incdir' --enable-shared --disable-encoders

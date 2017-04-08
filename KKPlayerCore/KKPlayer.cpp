@@ -1338,7 +1338,7 @@ void KKPlayer::ReadAV()
 	
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
         //rtmp ²»Ö§³Ö timeout
-		av_dict_set(&format_opts, "rw_timeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
+		//av_dict_set(&format_opts, "rw_timeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
 		 //av_dict_set(&format_opts, "timeout", "10", AV_DICT_MATCH_CASE);
 		//av_dict_set(&format_opts, "rtmp_buffer", "0", AV_DICT_MATCH_CASE);RTMP_ReadPacket, failed to read RTMP packet header
 	}else if(!strncmp(pVideoInfo->filename, "rtsp:",5)){
@@ -1677,13 +1677,9 @@ void KKPlayer::ReadAV()
 						pVideoInfo->nRealtimeDelay=0;
 						pVideoInfo->abort_request=1;
 						pVideoInfo->IsReady=0;
-						m_pPlayUI->AutoMediaCose(-1);
-						
+						m_pPlayUI->AutoMediaCose(-1);						
 					}
 			 }else if (pFormatCtx->pb && pFormatCtx->pb->error&&ret != AVERROR_EOF){
-				/* int xxx=AVERROR_EOF;
-				 xxx=-541478725;
-				*/
 					 pVideoInfo->eof=1;
 					 pVideoInfo->abort_request=1;
 					 pVideoInfo->nRealtimeDelay=0;
@@ -1809,9 +1805,11 @@ void KKPlayer::PacketQueuefree()
    }
 }
 void KKPlayer::SetVolume(long value)
-{
-	if(pVideoInfo!=NULL&&pVideoInfo->audio_st!=NULL)
-   m_pSound->SetVolume(value);
+{ 
+	if(m_pSound!=NULL)
+	   m_pSound->SetVolume(value);
+	//if(pVideoInfo!=NULL&&pVideoInfo->audio_st!=NULL)
+  
 }
 long KKPlayer::GetVolume()
 {
