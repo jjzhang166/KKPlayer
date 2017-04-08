@@ -24,12 +24,14 @@ struct SWaitPicInfo
 };
 #define  WM_MediaClose  WM_USER+100
 #define  WM_OpenErr     WM_USER+101
+//errcode 参考EKKPlayerErr
+typedef void (*fpKKPlayerErrNotify)(void *UserData,int errcode);
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	public IKKPlayUI
 {
 public:
-	CMainFrame();
+	CMainFrame(bool NeedDel=false);
 	~CMainFrame();
 protected:
 /********** IKKPlayUI实现*************/
@@ -37,7 +39,7 @@ protected:
 	virtual unsigned char* GetWaitImage(int &len,int curtime);
 	virtual unsigned char* GetBkImage(int &len);
 	virtual unsigned char* GetCenterLogoImage(int &length);
-	virtual void OpenMediaFailure(char* strURL,int err);
+	virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err);
 	/*******视频流结束调用*******/
 	virtual void  AutoMediaCose(int Stata);
 	virtual void AVRender(); 
@@ -48,6 +50,8 @@ public:
 	int PktSerial();
 	void OnDecelerate();
 	void OnAccelerate();
+	void SetErrNotify(void *UserData,fpKKPlayerErrNotify m_ErrNotify);
+
 	void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 	int GetRealtime();
     MEDIA_INFO GetMediaInfo();
@@ -108,6 +112,7 @@ public:
 			MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLbuttonDown);
 	END_MSG_MAP()
 protected:
+	    void     OnFinalMessage(HWND /*hWnd*/);
 	    LRESULT  OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	    LRESULT  OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT  OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
@@ -122,5 +127,9 @@ protected:
 		LRESULT  OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
+private:
+	   bool m_bNeedDel;
+	   fpKKPlayerErrNotify   m_ErrNotify;
+	   void*                 m_pErrNotifyUserData;
 };
 #endif

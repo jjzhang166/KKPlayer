@@ -106,7 +106,11 @@ void FreeKKIo(SKK_VideoState *kkAV);
 
 void KKPlayer::CloseMedia()
 {
-   
+
+    if(pVideoInfo!=NULL)
+	{
+	    pVideoInfo->abort_request=1;
+	}
 	m_PlayerLock.Lock();
 	while(m_nPreFile==1)
 	{
@@ -1378,7 +1382,7 @@ void KKPlayer::ReadAV()
 
         if(m_pPlayUI!=NULL)
 		{
-			m_pPlayUI->OpenMediaFailure(urlx,err);
+			m_pPlayUI->OpenMediaFailure(urlx,KKOpenUrlOkFailure);
 		}else
 		{
 			 //if(m_bTrace)
@@ -1411,7 +1415,7 @@ void KKPlayer::ReadAV()
 		//m_PlayerLock.Unlock();
 		if(m_pPlayUI!=NULL)
 		{
-			m_pPlayUI->OpenMediaFailure(urlx,err);
+			m_pPlayUI->OpenMediaFailure(urlx,KKAVNotStream);
 		}else
 		{
 			//if(m_bTrace)
@@ -1485,6 +1489,11 @@ void KKPlayer::ReadAV()
 	pVideoInfo->max_frame_duration = (pVideoInfo->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 	pVideoInfo->IsReady=1;	
 
+	if(m_pPlayUI!=NULL)
+	{
+		m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVReady);
+	}
+
 	if(pVideoInfo->realtime&&pVideoInfo->audio_st==NULL)
 	{
          pVideoInfo->max_frame_duration = 2.0;
@@ -1521,6 +1530,10 @@ void KKPlayer::ReadAV()
 					pVideoInfo->IsReady=0;
 					pVideoInfo->paused=1;
 					avsize=0;
+					if(m_pPlayUI!=NULL)
+					{
+						m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVWait);
+					}
 				}
 				
 			}
@@ -1529,6 +1542,11 @@ void KKPlayer::ReadAV()
 			{
 				pVideoInfo->IsReady=1;
 				pVideoInfo->paused=0;
+
+				if(m_pPlayUI!=NULL)
+				{
+					m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVReady);
+				}
 			}
 		}else if(pVideoInfo->realtime&&pVideoInfo->audio_st==NULL&&pVideoInfo->video_st!=NULL)
 		{
@@ -1550,6 +1568,10 @@ void KKPlayer::ReadAV()
 			if(pVideoInfo->videoq.size>2000&& pVideoInfo->IsReady==0){
 				   pVideoInfo->IsReady=1;
 				   pVideoInfo->paused=0;
+				   if(m_pPlayUI!=NULL)
+				{
+					m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVReady);
+				}
 			}
 		}
 

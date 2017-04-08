@@ -6,7 +6,6 @@
 #include <map>
 extern SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
 #include <helper/SAdapterBase.h>
-#pragma comment(lib,"dwmapi.lib")
 namespace SOUI
 {
 	CAVMenu::CAVMenu(CAVMenu** Own)

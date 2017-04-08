@@ -15,8 +15,6 @@ extern SOUI::CMainDlg* m_pDlgMain;
 extern CreateRender pfnCreateRender;
 extern DelRender pfnDelRender;
 
-#pragma comment(lib, "winmm.lib")
-
 std::basic_string<char> g_strModuleFileNameA;
 const std::basic_string<char>& XGetModuleFilenameA()
 {
@@ -45,12 +43,15 @@ std::basic_string<char> GetModulePathA()
 }
 
 std::basic_string<TCHAR> GetModulePath();
-CMainFrame::CMainFrame():
+CMainFrame::CMainFrame(bool NeedDel):
 m_pBkImage(NULL),m_pCenterLogoImage(NULL),
 m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_bFullScreen(false)
 ,m_nFullLastTick(false)
 ,m_nCursorCount(0)
+,m_ErrNotify(0)
+,m_pErrNotifyUserData(0)
+,m_bNeedDel(NeedDel)
 {
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
@@ -304,6 +305,11 @@ void CALLBACK TimeProc(UINT uID,UINT uMsg,DWORD dwUsers,DWORD dw1,DWORD dw2)
           CMainFrame *Pts=(CMainFrame *)dwUsers;
 		 // Pts->Render();
 }
+ void CMainFrame::OnFinalMessage(HWND /*hWnd*/)
+ {
+	 if(m_bNeedDel)
+     delete this;
+ }
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 
@@ -359,8 +365,8 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 		m_bOpen=false;
 		m_pPlayerInstance->CloseMedia();
 	}
-	DWORD Id=GetCurrentThreadId();
-	::PostThreadMessage(Id, WM_QUIT, 0, 0);
+	//DWORD Id=GetCurrentThreadId();
+	//::PostThreadMessage(Id, WM_QUIT, 0, 0);
 	bHandled = TRUE;
 	return 1;
 }
@@ -482,24 +488,19 @@ int CMainFrame::PktSerial()
 }
 void  CMainFrame::OnDecelerate()
 {
-   m_pPlayerInstance->OnDecelerate();
-
+    m_pPlayerInstance->OnDecelerate();
     int Rate=m_pPlayerInstance->GetAVRate();
-   /* CRenderD3D *pRender=( CRenderD3D *)m_pRender;
-	wchar_t abcd[256]=L"";
-	float aa=(float)Rate/100;
-	swprintf(abcd,L"%.1f±¶",aa);
-    pRender->SetLeftPicStr(abcd);*/
 }
 void  CMainFrame::OnAccelerate()
 {
    m_pPlayerInstance->OnAccelerate();
    int Rate=m_pPlayerInstance->GetAVRate();
-  /* CRenderD3D *pRender=( CRenderD3D *)m_pRender;
-   wchar_t abcd[256]=L"";
-   float aa=(float)Rate/100;
-   swprintf(abcd,L"%.1f±¶",aa);
-   pRender->SetLeftPicStr(abcd);*/
+}
+
+void CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify ErrNotify)
+{
+    m_ErrNotify=ErrNotify;
+	m_pErrNotifyUserData=UserData;
 }
 void CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
@@ -573,6 +574,8 @@ unsigned char*  CMainFrame::GetErrImage(int &length,int ErrType)
 }
 unsigned char*  CMainFrame::GetWaitImage(int &len,int curtime)
 {
+	if(m_WaitPicList.size()<=0)
+		return NULL;
 	int t=::GetTickCount();
 	if(m_CurWaitPic==NULL)
 	{
@@ -669,20 +672,24 @@ LRESULT CMainFrame::OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
    bHandled=true;
-   char *err=(char*)wParam;
+  /* char *err=(char*)wParam;
    ::MessageBoxA(m_hWnd,err,"´íÎó",MB_ICONHAND);
    ::free(err);
-   CloseMedia();
+   CloseMedia();*/
    return 1;
 }
-void CMainFrame::OpenMediaFailure(char* strURL,int err)
+void CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
 {
      int length=0;
 	 unsigned char* img=GetErrImage(length,0);
-	 if(img!=NULL&&length>0&&m_pRender!=NULL)
+	 if(err==KKOpenUrlOkFailure&&img!=NULL&&length>0&&m_pRender!=NULL)
 	 {
 		 m_pRender->SetErrPic(img,length);
 		 m_pRender->ShowErrPic(true);
+	 }
+	 if(m_ErrNotify!=NULL)
+	 {
+	    m_ErrNotify(m_pErrNotifyUserData,err);
 	 }
 }
 void  CMainFrame::AutoMediaCose(int Stata)

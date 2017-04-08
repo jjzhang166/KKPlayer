@@ -7,6 +7,15 @@
 /*************************date：2015-6-25**********************************************/
 #ifndef KKPlayUI_H_
 #define KKPlayUI_H_
+
+enum EKKPlayerErr
+{
+     KKOpenUrlOk=0,          /***播发器打开成功**/
+	 KKOpenUrlOkFailure=1,  /**播发器打开失败***/
+	 KKAVNotStream=2,
+	 KKAVReady=3,          ///缓冲已经准备就绪
+	 KKAVWait=4,           ///需要缓冲
+};
 /*******UI接口********/
 class IKKPlayUI
 {
@@ -16,11 +25,11 @@ class IKKPlayUI
 		     virtual unsigned char* GetBkImage(int &length)=0;
 			 virtual unsigned char* GetCenterLogoImage(int &length)=0;
 			 //打开失败
-			 virtual void OpenMediaFailure(char* strURL,int err)=0;
+			 virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err)=0;
 			 /*******视频流结束调用*******/
 			 virtual void  AutoMediaCose(int Stata)=0;
 
-			 virtual void AVRender()=0;
+			 virtual void  AVRender()=0;
    protected:
 	         unsigned char* m_pBkImage;
 			 int m_pBkImageLen;
