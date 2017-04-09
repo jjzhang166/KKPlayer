@@ -6,7 +6,7 @@
 	<title>xxx</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=gbk">
 	<style>
-	     body{background: #f5f5f5;font-family: "微软雅黑"; padding-left: 20px}
+	     body{background: #f5f5f5;font-family: "宋体";}
 		<!-- .kcbox{width:100%;  margin:0 auto; position:relative;}-->
 		.kcbox{width:100%;  margin:0px 0px; position:relative; overflow-x: hidden;}
 		 a{ text-decoration: none;}
@@ -115,7 +115,7 @@
 						 content+="<div class='kc_info'>";
 							 content+="<div class='kc_img' >";
 									 content+="<a class=\"site-piclist_pic_link\"  ";
-									 content+=" href='javascript:;'";
+									 content+="href='javascript:CallAVPlayer(\"" +Item.url+"\");'";
 									 content+=" >";
 									 if(Item.cover.length>10){
 										content+="<img src='"+Item.cover+"' />";
@@ -129,7 +129,7 @@
 							  content+="<div class='jianjie'>";
 							  {
 							       content+="<p class=\"site-piclist_info_title\">";
-								   content+=Item.courseName;
+								   content+=Item.name;
 								   content+="</p>";
 								   content+="<p class=\"site-piclist_info_describe\">浩哥入学保护小太妹</p>";
 							  }
@@ -156,7 +156,7 @@
 			
 			function Init()
 			{
-			    var person={showBtn:1,courseName:"xxxxxx",playbackUrl:"blue",cover:"http://pic0.qiyipic.com/image/20170408/6e/87/v_112023068_m_601_m1_180_236.jpg",id:1,lecturer:"sss"};
+			    var person={name:"黑夜传说",url:"kkv:6ba56c8eaf1dd6c2a7f2abd5729637dc|mp4",cover:"http://7pumeo.com1.z0.glb.clouddn.com/heiyeshuanshuo5.jpg"};
 				var aary=new Array(person,person);
 				FillLivePulicClass(aary);
 			}

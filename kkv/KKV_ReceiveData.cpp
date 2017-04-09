@@ -72,7 +72,7 @@ namespace Qy_IPC
 
 				}else if(dataLen==-1001){
 				
-				}else if(dataLen>0){
+				}else if(dataLen>0&&It->second.pBuf!=NULL){
 					memcpy(It->second.pBuf, dataBuf, dataLen);
 				}
 				
