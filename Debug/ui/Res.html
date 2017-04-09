@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>xxx</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=gbk">
+	<style>
+	     body{background: #f5f5f5;font-family: "微软雅黑"; padding-left: 20px}
+		<!-- .kcbox{width:100%;  margin:0 auto; position:relative;}-->
+		.kcbox{width:100%;  margin:0px 0px; position:relative; overflow-x: hidden;}
+		 a{ text-decoration: none;}
+	     ul, li, dl, dt, dd {margin: 0;padding: 0;list-style: none;}
+	     ul, li, p, h1, h2, * {margin: 0;padding: 0;}
+	     .ClearBoth{clear:both;}
+	    
+	     .site-piclist_pic_link {display: block;width: 100%;height: 100%;}
+	     .site-piclist_icons-lb {position: absolute;bottom: 75px;left: 10px;font-size:12px;color:#FFFFFF;font-weight:900}
+	     .red_class{ border-width:2px; border-color:#FFFFFF; }
+	     .site-piclist_icons-lb .mark-3d, .site-piclist_icons-lb .mark-4k, .site-piclist_icons-lb .mark-1080p, 
+		 .site-piclist_icons-lb .mark-dolby {
+            float: none;display: inline-block;vertical-align: top;height: 16px;margin-left: 4px; margin-bottom: 4px;
+            background: url(http://www.qiyipic.com/common/fix/site/video-marks-0623.png) no-repeat;
+         }
+		 
+		 
+		 .dy_tab{ padding-top:30px;}
+         .dy_tit{background: #f5f5f5; z-index:2; height: 30px; padding:10px 15px 0px 0px; overflow: hidden; 
+		  border-bottom: solid 1px #dcdcdc; margin-bottom: 5px;top:0; width:100%;margin-left: 20px;
+		 }
+		 
+		 .dy_tit2{background: #f5f5f5; z-index:2; height: 30px; padding:10px 15px 0px 0px; overflow: hidden; border-bottom: solid 1px #dcdcdc; 
+		 margin-bottom: 20px; position:fixed; top:0; width:100%}
+		 
+         .dy_tit ul{ height: 30px; float: left; overflow: hidden; border-bottom:solid 1px #50c168; box-sizing:border-box;}
+         .dy_tit ul li{ cursor: pointer; height: 30px; float: left; width: 95px; border-top-right-radius: 5px; border-top-left-radius: 5px; 
+		 line-height: 30px; text-align: center; color: #9a9a9a;font-size: 16px;background: #f9f9f9; border:solid 1px #e5e5e5;}
+         .dy_tit ul li.active{ background: #0eb832;  border:solid 1px #0eb832;color: #fff;}
+         .dy_tit a.more{ display: block; height: 30px; line-height: 30px; color:#ff6c00; font-size:16px; margin-right: 15px; float: right;}
+         
+		 .tab_content { min-height: 305px;margin-top:0px;}
+		 .tab_content ul{ overflow: hidden; padding:0 0px; min-height: 305px;}
+		 .tab_content ul li {float: left; padding-left: 20px; height: 305px; width:180px; margin:0px; position: relative;}
+		 .tab_content ul li .kc_info{width:100%; height: 300px; border:solid 1px #cfcfcf; overflow: hidden;}
+		 .tab_content ul li .kc_info:hover{border:solid 1px #51cb44;}
+		 .tab_content ul li .kc_img{ width: 180px;height: 236px; position:relative; overflow:hidden;}
+		 .tab_content ul li .kc_img img{ width:100%; height: 100%;}
+		
+		 .tab_content ul li .jianjie{ height: 55px; padding: 2px 2px;}
+         .site-piclist_icons-lb { position: absolute;bottom: 0;left: 0;font-size: 0;}
+         .site-piclist_icons-lb .mark-1080p {width: 42px;background-position: 0 -40px;}
+		 
+		 
+		 .site-piclist_info {line-height: 20px;padding: 7px 5px 0;height: 27px;background: #f2f2f2;border-bottom: 1px solid #ebebeb;margin-bottom: 15px;}
+         .site-piclist-channel-180236 .site-piclist_info .site-piclist_info_title {font-size: 14px;}
+		 .site-piclist_info_describe {color: #999;font-size: 12px; width: 100%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
+		 
+		 .tab_content ul li .kc_btn2{ height: 40px; text-align: left;}
+		 .tab_content ul li .kc_btn2 span{height:30px; width: 100px; line-height: 30px; text-indent: 3px; text-align: left;  display: inline-block; border:solid 1px #e5e5e5; border-radius: 3px; background: #ffffff; color:#5a5a5a;margin: 0 3px;  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.11);}
+		 .tab_content ul li .kc_btn2 i{width: 30px; height: 30px; display: inline-block; float: left;}
+		 .tab_content ul li .kc_btn2 i.ts{background: url(img/ico_ts.png) no-repeat right center;}
+		 .tab_content ul li .kc_btn2 i.hf{background: url(img/ico_hf.png) no-repeat right center;}
+
+		 .tab_content ul li .kc_btn{ height: 40px; text-align: left;}
+		 .tab_content ul li .kc_btn span{ cursor: pointer; height:30px; width: 100px; line-height: 30px; text-indent: 3px; text-align: left;  display: inline-block; border:solid 1px #e5e5e5; border-radius: 3px; background: #ffffff; color:#5a5a5a;margin: 0 3px;  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.11);}
+		 .tab_content ul li .kc_btn span:hover{background: #0eb832; border:solid 1px #0eb832; color:#fff;}
+		 .tab_content ul li .kc_btn i{width: 30px; height: 30px; display: inline-block; float: left;}
+		 .tab_content ul li .kc_btn i.ts{background: url(img/ico_ts.png) no-repeat right center;}
+		 .tab_content ul li .kc_btn span:hover i.ts{background: url(img/ico_ts_hover.png) no-repeat right center;}
+		 .tab_content ul li .kc_btn i.hf{background: url(img/ico_hf.png) no-repeat right center;}
+		 .tab_content ul li .kc_btn span:hover i.hf{background: url(img/ico_hf_hover.png) no-repeat right center;}
+		 .tab_content ul li  p.teacher{ position: absolute; bottom: 0; width:100%; border-top:1px dashed #cfcfcf ; height: 30px; line-height: 30px; text-indent: 30px;}
+		 
+		 .tab_content ul.active{ display:block;}
+
+
+
+	     .KKKPage { text-align: center; }
+         .KKKPage a:link,.KKKPage a:visited,.KKKPage a:hover,.current,.PageTotalInfo{ 
+		  border:1px solid #DDD; background:#F2F2F2; 
+		  display: inline-block;margin:2px; text-decoration:none; 
+		  font-size:12px; text-align:center; color:#000; padding:8px 12px;} 
+         .KKKPage a:hover{ border:1px solid #E5E5E5; background:#F9F9F9; } 
+         .KKKPage .current{ border:1px solid #83E7E4; background:#DFF9F8; margin:1px; color:#0eb832; } 
+         .KKKPage .PageTotalInfo{ width:auto; } 
+		 
+		 
+	</style>
+	<!--  background: url(http://www.qiyipic.com/common/fix/site/video-marks-0623.png) no-repeat;-->
+	<script src="jquery/jquery.js"></script>
+</head>
+<body>
+       <div class="kcbox">
+			
+				 <div class="dy_tit">
+			               <ul class="tab_name">
+				                     <li class="active">
+								          推荐电影
+								     </li>
+			               </ul>
+		          </div>
+			
+	        <div class="tab_content" id="TuijianAVKK" >
+	                 <ul>
+				        
+			         </ul>
+			</div>
+			<div style="height:10px;">
+            </div>
+			<script type="text/javascript">
+			
+			function AddPublicItem(Item)
+			{
+			     var content="<li>";
+						 content+="<div class='kc_info'>";
+							 content+="<div class='kc_img' >";
+									 content+="<a class=\"site-piclist_pic_link\"  ";
+									 content+=" href='javascript:;'";
+									 content+=" >";
+									 if(Item.cover.length>10){
+										content+="<img src='"+Item.cover+"' />";
+									 }else{
+										content+="<img src='img/default.jpg' />";
+									 }
+									
+									 content+="<p class=\"site-piclist_icons-lb\"><i class=\"mark-1080p\"></i></p>"
+									 content+="</a>"
+							  content+="</div>";
+							  content+="<div class='jianjie'>";
+							  {
+							       content+="<p class=\"site-piclist_info_title\">";
+								   content+=Item.courseName;
+								   content+="</p>";
+								   content+="<p class=\"site-piclist_info_describe\">浩哥入学保护小太妹</p>";
+							  }
+							      
+							  content+="</div>";
+							 
+						 content+="</div>";
+				 content+="</li>";
+			     $("#TuijianAVKK ul").append(content);
+			}
+			
+			function FillLivePulicClass(jonArr)
+			{
+			
+			    
+			   var count =jonArr.length;
+			   for(var j=0;j<count;j++){
+			        AddPublicItem(jonArr[j]);
+			   }
+			  
+			}
+			
+			
+			
+			function Init()
+			{
+			    var person={showBtn:1,courseName:"xxxxxx",playbackUrl:"blue",cover:"http://pic0.qiyipic.com/image/20170408/6e/87/v_112023068_m_601_m1_180_236.jpg",id:1,lecturer:"sss"};
+				var aary=new Array(person,person);
+				FillLivePulicClass(aary);
+			}
+			Init();
+			</script>
+	   </div>
+</body>
+</html>

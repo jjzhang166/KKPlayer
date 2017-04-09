@@ -33,7 +33,7 @@ translucent="0"
 				   
 			</caption>
 			<!------视频区域grfaiusc------->
-			<window name="WinAVPlayer" pos="0,50,-0,-0" colorBkgnd="#000000" >
+			<window name="WinAVPlayer" pos="1,50,-1,-1" colorBkgnd="#000000" >
 			      <include src="layout:XML_AVPlayer" />
 			</window>
 			<window name="WinWebRes" pos="0,50,-0,-0" colorBkgnd="#000000" >

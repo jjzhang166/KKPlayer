@@ -786,10 +786,10 @@ LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
    int yPos = GET_Y_LPARAM(lParam);
    
    #ifndef LIBKKPLAYER
-   if(m_bFullScreen){
+   if(m_bFullScreen&&m_lastPoint.x!=xPos&&m_lastPoint.y!=yPos){
 	   m_nFullLastTick=::GetTickCount();
 	   ::SetCursor(LoadCursor(NULL,IDC_ARROW));
-	   
+	   ::OutputDebugStringA("鼠标移动全部 \n");
    }
 	//迷你模式
 	if(!m_pDlgMain->GetScreenModel()&&xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y&&xPos>1&&yPos>1)
