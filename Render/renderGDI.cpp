@@ -152,8 +152,22 @@ void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h)
 			destRt.fBottom=offy+h;
 		}
 
+	
 		canvas.drawBitmapRect(AVSkbit,destRt,&m_Paint);
 	}
+}
+void  CRenderGDI::FillRect(kkBitmap img,kkRect rt,unsigned int colour)
+{
+	SkBitmap Skbit;
+	Skbit.setInfo(SkImageInfo::Make( img.width,img.height,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
+	Skbit.setPixels(img.pixels);
+
+	SkCanvas canvas(Skbit);
+
+	m_Paint.setStyle(SkPaint::kFill_Style);
+	SkRect srt={rt.left,rt.top,rt.right,rt.bottom};
+	m_Paint.setARGB(255, GetRValue(colour), GetGValue(colour), GetBValue(colour));
+	canvas.drawRect(srt,m_Paint);
 }
 void CRenderGDI::SetErrPic(unsigned char* buf,int len)
 {

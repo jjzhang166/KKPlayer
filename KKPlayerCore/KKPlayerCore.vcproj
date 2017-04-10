@@ -415,6 +415,14 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="render"
+			>
+			<File
+				RelativePath=".\render\render.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
 			>

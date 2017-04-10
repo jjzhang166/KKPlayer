@@ -1,7 +1,26 @@
 #include "../stdafx.h"
 #ifndef RENDER_H
 #define RENDER_H
-class CRender
+#define LOBYTE(w)           ((unsigned char)(((unsigned long)(w)) & 0xff))
+#define GetRValue(rgb)      (LOBYTE(rgb))
+#define GetGValue(rgb)      (LOBYTE(((unsigned short)(rgb)) >> 8))
+#define GetBValue(rgb)      (LOBYTE((rgb)>>16))
+#define kkRGB(r,g,b)              ((unsigned long )(((unsigned char)(r)|((unsigned short)((unsigned char)(g))<<8))|(((unsigned long)(unsigned char)(b))<<16)))
+typedef struct kkRect
+{
+	int left;
+	int top;
+	int right;
+	int bottom;
+}kkRect;
+typedef struct kkBitmap
+{
+   void *pixels;
+   int  width;
+   int  height;
+   unsigned char format;  /// 1 BGRA 32
+}kkBitmap;
+class IkkRender
 {
 public:
     enum RenderType
@@ -23,7 +42,7 @@ public:
 
 	virtual void SetErrPic(unsigned char* buf,int len)=0;
 	virtual void ShowErrPic(bool show)=0;
-	//void SetLeftPicStr(wchar_t *str);
+	virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color)=0;
 };
 
 #endif

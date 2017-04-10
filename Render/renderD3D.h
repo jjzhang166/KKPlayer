@@ -6,7 +6,12 @@
 #include <string>
 #include <d3d9.h>
 #include <d3dx9.h>
-class CRenderD3D : public CRender
+#include <core\SkCanvas.h>
+#include <core\SkBitmap.h>
+#include <core\SkTypeface.h>
+#include <core\SkImageDecoder.h>
+#include <core\SkStream.h>
+class CRenderD3D : public IkkRender
 {
 public:
     CRenderD3D();
@@ -30,11 +35,14 @@ public:
 	
 	void DrawFontInfo();
 
+	
 	void SetLeftPicStr(wchar_t *str);
-	std::wstring m_LeftStr;
-	std::wstring m_LstLeftStr;
+	void FillRect(kkBitmap img,kkRect rt,unsigned int color);
 	
 private:
+	SkPaint      m_skPaint;
+    std::wstring m_LeftStr;
+	std::wstring m_LstLeftStr;
 	CRendLock m_lock;
 	bool UpdateTexture(char *pBuf,int w,int h,int imgwidth);
 	void ResetTexture();

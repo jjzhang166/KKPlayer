@@ -473,3 +473,8 @@ void GlEs2Render::ShowErrPic(bool show)
 {
 	
 }
+void GlEs2Render::FillRect(kkBitmap img,kkRect rt,unsigned int color)
+{
+	
+	
+}

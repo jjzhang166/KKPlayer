@@ -6,7 +6,7 @@
 #include "renderD3D.h"
 #include "renderGDI.h"
 #include <map>
-std::map<CRender *,int> m_Rendermap;
+std::map<IkkRender *,int> m_Rendermap;
 void skpngZhuc();
 
 #ifdef _DEBUG
@@ -22,7 +22,6 @@ void skpngZhuc();
 //#pragma comment (lib,"D3dx9.lib")
 #pragma comment (lib,"Usp10.lib")
 #pragma comment (lib,"Opengl32.lib")
-
 extern "C"{
 	void __declspec(dllexport) *CreateRender(HWND h,char *Oput){
 
@@ -32,17 +31,25 @@ extern "C"{
 		     xxxaa=false;
 		 }
 		
-		 CRender *m_pRender = new CRenderD3D();
-		 *Oput=1;
-		 if(!m_pRender->init(h))
-		 {
-            delete m_pRender;
-			m_pRender =new CRenderGDI();
-			m_pRender->init(h);
-			*Oput=0;
-			m_Rendermap.insert(std::pair<CRender *,int>(m_pRender,0));
+		 IkkRender *m_pRender = NULL;
+		 if(Oput==0){
+		            m_pRender =new CRenderGDI();
+					m_pRender->init(h);
+					*Oput=0;
+					m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,0));
 		 }else{
-            m_Rendermap.insert(std::pair<CRender *,int>(m_pRender,1));
+		         m_pRender =new CRenderD3D();
+				 if(!m_pRender->init(h))
+				 {
+					delete m_pRender;
+					m_pRender =new CRenderGDI();
+					m_pRender->init(h);
+					m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,0));
+					*Oput=0;
+				 }else{
+					m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,1));
+					*Oput=1;
+				 }
 		 }
 
 
@@ -52,9 +59,9 @@ extern "C"{
 
 	char __declspec(dllexport) DelRender(void *p,char RenderType)
 	{
-          CRender *pIn=(CRender*)p;
+          IkkRender *pIn=(IkkRender*)p;
 
-		  std::map<CRender *,int>::iterator It= m_Rendermap.find(pIn);
+		  std::map<IkkRender *,int>::iterator It= m_Rendermap.find(pIn);
 		  if(It!=m_Rendermap.end())
 		  {
 			  if(It->second==1)

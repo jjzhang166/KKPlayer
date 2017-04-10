@@ -327,8 +327,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	this->EnableWindow(true);
 	::SetTimer(this->m_hWnd,10010,40,NULL);
 
-	char Out=0;
-	m_pRender=(CRender*) pfnCreateRender(m_hWnd,&Out);
+	char Out=1;
+	m_pRender=(IkkRender*) pfnCreateRender(m_hWnd,&Out);
 	if(Out==0)
 	{
          m_pPlayerInstance->SetBGRA();

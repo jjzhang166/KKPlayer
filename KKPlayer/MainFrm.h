@@ -70,7 +70,7 @@ private:
 #ifndef LIBKKPLAYER
 		SOUI::CAVMenu *m_pAVMenu;
 #endif
-	    CRender *m_pRender;
+	    IkkRender *m_pRender;
 	   
 		int LeftWidth;
 		int LeftNavigationBarWidth;

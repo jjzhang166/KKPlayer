@@ -722,7 +722,20 @@ void CRenderD3D::SetLeftPicStr(wchar_t *str)
 {
 	m_LeftStr=L"放播速度：";
     m_LeftStr+=str;
-	
+}
+
+void  CRenderD3D::FillRect(kkBitmap img,kkRect rt,unsigned int colour)
+{
+    SkBitmap Skbit;
+	Skbit.setInfo(SkImageInfo::Make( img.width,img.height,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
+	Skbit.setPixels(img.pixels);
+
+	SkCanvas canvas(Skbit);
+
+	m_skPaint.setStyle(SkPaint::kFill_Style);
+	SkRect srt={rt.left,rt.top,rt.right,rt.bottom};
+	m_skPaint.setARGB(255, GetRValue(colour), GetGValue(colour), GetBValue(colour));
+	canvas.drawRect(srt,m_skPaint);
 }
 //提示
 bool CRenderD3D::UpdateLeftPicTexture()

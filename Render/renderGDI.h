@@ -8,7 +8,7 @@
 #include <core\SkTypeface.h>
 #include <core\SkImageDecoder.h>
 #include <core\SkStream.h>
-class CRenderGDI : public CRender
+class CRenderGDI : public IkkRender
 {
 public:
     CRenderGDI();
@@ -25,6 +25,7 @@ public:
 
 	virtual void SetErrPic(unsigned char* buf,int len);
 	virtual void ShowErrPic(bool show);
+	virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color);
 protected:
     void createBitmap(unsigned int w, unsigned int h);
     void DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h);

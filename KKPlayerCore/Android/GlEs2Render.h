@@ -4,7 +4,7 @@
 #include <GLES2/gl2ext.h>
 #include <android/log.h>
 #include "../KKPlayer.h"
-class GlEs2Render: public CRender
+class GlEs2Render: public IkkRender
 {
 	public:
 	        GlEs2Render(KKPlayer* pPlayer);
@@ -36,6 +36,7 @@ class GlEs2Render: public CRender
 
 			virtual void SetErrPic(unsigned char* buf,int len);
 			virtual void ShowErrPic(bool show);
+			virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color);
 	private:
         KKPlayer* m_pPlayer;
         GLuint g_texYId;

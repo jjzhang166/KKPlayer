@@ -7,13 +7,13 @@
 /*************************date：2015-6-25**********************************************/
 //http://www.2cto.com/kf/201504/390386.html mediacodec aac 解码。
 
-
+//#include "kk2dop.h"
 #include "KKPlayer.h"
 #include "KKInternal.h"
 #include "rtmp/SrsRtmpPlugin.h"
 #include "MD5/md5.h"
-#define MaxTimeOutStr "30000000"
-#define MaxTimeOut    25
+#define MaxTimeOutStr "50000000"
+#define MaxTimeOut    45
 static AVPacket flush_pkt;
 static int decoder_reorder_pts = -1;
 static int framedrop = -1;
@@ -42,8 +42,8 @@ void KKPlayer::AddKKPluginInfo(KKPluginInfo& info)
 }
 void register_Kkv();
 KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI),m_nPreFile(false)
-,m_PicBuf(NULL)
-,m_PicBufLen(0)
+,m_pAudioPicBuf(NULL)
+,m_AudioPicBufLen(0)
 {
 	m_pAVInfomanage=CAVInfoManage::GetInance();
 	pVideoInfo=NULL;
@@ -522,12 +522,8 @@ retry:
 			//没有数据
 			if (frame_queue_nb_remaining(&is->pictq) <= 0)
 			{
-				//is->remaining_time = 0.01;
-			   //::OutputDebugStringA("frame_queue_nb_remaining(&is->pictq) <= 0 \n");
 			   goto display;
 			}
-			
-			
 			
 
 			SKK_Frame *vp;
@@ -650,15 +646,24 @@ static inline int compute_mod(int a, int b)
 {
     return a < 0 ? a%b + b : a%b;
 }
-void KKPlayer::video_audio_display(SKK_VideoState *s)
+///渲染音频波新
+void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 {
     int i, i_start, x, y1, y, ys, delay, n, nb_display_channels;
-    int ch, channels, h, h2, bgcolor, fgcolor;
+    int ch, channels, h, h2;
+	unsigned int bgcolor, fgcolor;
     int64_t time_diff;
     int rdft_bits, nb_freq;
 
 	int height=100;
 	int width=100;
+
+	if(m_pAudioPicBuf==NULL){
+	    m_AudioPicBufLen=avpicture_get_size(AV_PIX_FMT_BGRA,width, height);
+	    m_pAudioPicBuf=(uint8_t *)KK_Malloc_(m_AudioPicBufLen);
+	}else{
+	     memset( m_pAudioPicBuf,0,m_AudioPicBufLen);
+	}
     for (rdft_bits = 1; (1 << rdft_bits) < 2 * height; rdft_bits++)
         ;
     nb_freq = 1 << (rdft_bits - 1);
@@ -684,7 +689,7 @@ void KKPlayer::video_audio_display(SKK_VideoState *s)
             delay = data_used;
 
         i_start= x = compute_mod(s->sample_array_index - delay * channels, SAMPLE_ARRAY_SIZE);
-        if (s->show_mode == SKK_VideoState::SHOW_MODE_WAVES) {
+        if (1||s->show_mode == SKK_VideoState::SHOW_MODE_WAVES) {
             h = INT_MIN;
             for (i = 0; i < 1000; i += channels) {
                 int idx = (SAMPLE_ARRAY_SIZE + x - i) % SAMPLE_ARRAY_SIZE;
@@ -704,6 +709,79 @@ void KKPlayer::video_audio_display(SKK_VideoState *s)
     } else {
         i_start = s->last_i_start;
     }
+
+	if(pRender!=NULL)
+	{
+				kkBitmap img;
+				img.pixels=m_pAudioPicBuf;
+				img.width=width;
+				img.height=height;
+				kkRect rt={0,0,img.width,img.height};
+				bgcolor = kkRGB(0,0,0);
+				pRender->FillRect(img,rt,bgcolor);
+		        fgcolor =kkRGB(0xff, 0xff, 0xff);
+				h = height / nb_display_channels;
+				/* graph height / 2 */
+				h2 = (h * 9) / 20;
+				for (ch = 0; ch < nb_display_channels; ch++) {
+					i = i_start + ch;
+					y1 = 0 + ch * h + (h / 2); /* position of center line */
+					for (x = 0; x < width; x++) {
+						y = (s->sample_array[i] * h2) >> 15;
+						if (y < 0) {
+							y = -y;
+							ys = y1 - y;
+						} else {
+							ys = y1;
+						}
+						kkRect rt2={ x, ys, 1, y};
+						pRender->FillRect(img,rt2, fgcolor);
+						i += channels;
+						if (i >= SAMPLE_ARRAY_SIZE)
+							i -= SAMPLE_ARRAY_SIZE;
+					}
+				}
+
+				fgcolor = kkRGB( 0x00, 0x00, 0xff);
+
+				for (ch = 1; ch < nb_display_channels; ch++) {
+					y =0 +  ch * h;
+					kkRect rt2={ 0, y, width, 1};
+					pRender->FillRect(img,rt2, fgcolor);
+				}
+
+
+
+				s->img_convert_ctx = sws_getCachedContext(s->img_convert_ctx,width, height ,AV_PIX_FMT_BGRA,
+					            width, height,               DstAVff,                
+			                    SWS_FAST_BILINEAR,
+			                    NULL, NULL, NULL);
+				 if (s->img_convert_ctx == NULL) 
+				 {
+					 if(s->bTraceAV)
+					 fprintf(stderr, "Cannot initialize the conversion context\n");
+					 assert(0);
+					 
+				 }
+			     AVPicture  InBmp; 
+				 avpicture_fill((AVPicture *)&InBmp,(uint8_t *) m_pAudioPicBuf,AV_PIX_FMT_BGRA, width,height);
+
+				  AVPicture  OutBmp; 
+				  int numBytes=avpicture_get_size(DstAVff,width,height); //pFrame->width,pFrame->height
+		          uint8_t * OutBmpbuffer=(uint8_t *)KK_Malloc_(numBytes);
+                  avpicture_fill((AVPicture *)&OutBmp, OutBmpbuffer,DstAVff, width,height);
+
+			      sws_scale(s->img_convert_ctx, InBmp.data, InBmp.linesize,0,height,
+					 OutBmp.data,OutBmp.linesize);
+				  pRender->render((char*) OutBmp.data,width,height,width);
+
+                  KK_Free_(OutBmpbuffer);
+
+				   if (!s->paused)
+							s->xpos++;
+						if (s->xpos >= width)
+							s->xpos= 0;
+					}
 }
 int KKPlayer::GetPktSerial()
 {
@@ -727,7 +805,7 @@ int KKPlayer::GetIsReady()
 	return -1;
 }
 
-void KKPlayer::RenderImage(CRender *pRender,bool Force)
+void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 {
 	SKK_Frame *vp;
 
@@ -752,16 +830,20 @@ void KKPlayer::RenderImage(CRender *pRender,bool Force)
 										 pRender->render(NULL,0,0,0);
 									}
 								}else{
-								   pVideoInfo->pictq.mutex->Lock();
-								   vp =frame_queue_peek_last(&pVideoInfo->pictq);
-								   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
-								   {
-									   m_lstPts=vp->pts;
-									   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch);
-									
-								   }
-								   pVideoInfo->pictq.mutex->Unlock();
-								}
+									if(pVideoInfo->video_st!=NULL){
+									   pVideoInfo->pictq.mutex->Lock();
+									   vp =frame_queue_peek_last(&pVideoInfo->pictq);
+									   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
+									   {
+										   m_lstPts=vp->pts;
+										   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch);
+										
+									   }
+									   pVideoInfo->pictq.mutex->Unlock();
+									}else if(pVideoInfo->audio_st!=NULL){
+									   video_audio_display(pRender,pVideoInfo);
+									}
+							  }
 						}
 					  
 		}
@@ -1338,12 +1420,13 @@ void KKPlayer::ReadAV()
 	
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
         //rtmp 不支持 timeout
-		//av_dict_set(&format_opts, "rw_timeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
+		av_dict_set(&format_opts, "rw_timeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
 		 //av_dict_set(&format_opts, "timeout", "10", AV_DICT_MATCH_CASE);
 		//av_dict_set(&format_opts, "rtmp_buffer", "0", AV_DICT_MATCH_CASE);RTMP_ReadPacket, failed to read RTMP packet header
 	}else if(!strncmp(pVideoInfo->filename, "rtsp:",5)){
       
 		av_dict_set(&format_opts, "rtsp_transport", "tcp", AV_DICT_MATCH_CASE);
+        av_dict_set(&format_opts, "stimeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
 	}
 	
 	pVideoInfo->OpenTime= av_gettime ()/1000/1000;
@@ -1357,7 +1440,7 @@ void KKPlayer::ReadAV()
 		&pVideoInfo->pFormatCtx,                    pVideoInfo->filename,
 		pVideoInfo->iformat,    &format_opts);
     
-	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
+	if(strncmp(pVideoInfo->filename, "rtmp:",5)==0||strncmp(pVideoInfo->filename, "rtsp:",5)==0){
 		double  dx2=av_gettime ()/1000/1000-pVideoInfo->OpenTime;
         if(dx2>MaxTimeOut)
 		{
@@ -1506,7 +1589,9 @@ void KKPlayer::ReadAV()
 	INT64 GOP1=0;
 	INT64 GOP2=0;
 
-	
+	if(pVideoInfo->video_st==NULL&&pVideoInfo->audio_st!=NULL){
+		pVideoInfo->show_mode=  SKK_VideoState::SHOW_MODE_WAVES;
+	}
 	while(m_bOpen) 
 	{
 		if(pVideoInfo->abort_request)
@@ -1661,6 +1746,7 @@ void KKPlayer::ReadAV()
 			 pVideoInfo->nRealtimeDelayCount=0;
 		}
 
+		//avpicture_get_size
 //		 LOGE("pVideoInfo->realtime %d \n",2);
 		 //LOGE("pVideoInfo->realtime %d \n",pVideoInfo->realtime);
 		if (ret < 0) {
@@ -2046,4 +2132,6 @@ void* gpu_memcpy(void* d, const void* s, size_t size)
 
 	return d;
 }
+
+
 #endif

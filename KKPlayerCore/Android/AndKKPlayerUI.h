@@ -52,7 +52,7 @@ class CAndKKPlayerUI :public  IKKPlayUI
 		void   SurfaceViewRender(ANativeWindow* surface);
         
        
-        CRender* m_pRender;
+        IkkRender* m_pRender;
         int m_RenderWidth;         ///呈现区域宽度
         int m_RenderHeight;        ///呈现区域高度
         int m_Picwidth;

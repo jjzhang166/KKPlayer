@@ -68,7 +68,7 @@ class KKPlayer
 			//获取播放的时间
             int GetCurTime();
 			
-			void RenderImage(CRender *pRender,bool Force);
+			void RenderImage(IkkRender *pRender,bool Force);
 			
 			void OnDecelerate();
 			void OnAccelerate();
@@ -149,7 +149,7 @@ private:
 			/*******显示视频**********/
 		    void video_image_refresh(SKK_VideoState *is);
 			/******绘制音频图谱******/
-            void video_audio_display(SKK_VideoState *s);
+            void video_audio_display(IkkRender *pRender,SKK_VideoState *s);
 
 			/********流媒体这是刷新函数**********/
 			void Avflush(int64_t seek_target); 
@@ -183,11 +183,7 @@ private:
 			volatile int m_PktSerial;
 	        IKKAudio* m_pSound;
 			HWND m_hwnd;
-	        
-
-		   
 			int64_t start_time;
-			
 			//当前时间
 			int m_CurTime;
 			//视频读取线程
@@ -196,11 +192,12 @@ private:
 			SKK_ThreadInfo m_VideoRefreshthreadInfo;
             //音频数据回调线程
 			SKK_ThreadInfo m_AudioCallthreadInfo;
-			
-			
-			void *m_PicBuf;
-			int m_PicBufLen;
 			int64_t m_lstPts;
+			
+            //用于渲染音频波形
+			void *m_pAudioPicBuf;
+			int   m_AudioPicBufLen;
+			
 #ifdef Android_Plat
 			void *  m_pVideoRefreshJNIEnv;
 #endif
