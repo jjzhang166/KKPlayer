@@ -21,7 +21,7 @@ void *KK_Malloc_(size_t size)
 void  KK_Free_(void *ptr)
 {
 	if(ptr!=NULL)
-	av_free(ptr);
+	   av_free(ptr);
 }
 #define PixelFormat AVPixelFormat
 #ifdef WIN32
@@ -530,6 +530,24 @@ DELXXX:
 }
 
 
+/* copy samples for viewing in editor window */
+static void update_sample_display(SKK_VideoState *is, short *samples, int samples_size)
+{
+    int size, len;
+
+    size = samples_size / sizeof(short);
+    while (size > 0) {
+        len = SAMPLE_ARRAY_SIZE - is->sample_array_index;
+        if (len > size)
+            len = size;
+        memcpy(is->sample_array + is->sample_array_index, samples, len * sizeof(short));
+        samples += len;
+        is->sample_array_index += len;
+        if (is->sample_array_index >= SAMPLE_ARRAY_SIZE)
+            is->sample_array_index = 0;
+        size -= len;
+    }
+}
 /* prepare a new audio buffer */
 void audio_callback(void *userdata, char *stream, int len)
 {
@@ -554,7 +572,9 @@ void audio_callback(void *userdata, char *stream, int len)
                 pVideoInfo->audio_buf_size =512 / pVideoInfo->audio_tgt.frame_size * pVideoInfo->audio_tgt.frame_size;
 			  
 			} else 
-			{				
+			{		
+				if (pVideoInfo->show_mode != SKK_VideoState::SHOW_MODE_VIDEO)
+                   update_sample_display(pVideoInfo, (int16_t *)pVideoInfo->audio_buf, audio_size);
 				pVideoInfo->audio_buf_size = audio_size;
 			}
 			pVideoInfo->audio_buf_index = 0;
