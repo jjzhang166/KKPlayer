@@ -33,13 +33,16 @@ void CSDLSound::SetWindowHAND(int m_hwnd)
 }
 void CSDLSound::SetUserData(void* UserData){
 
+	m_lock.Lock();
 	m_UserData=UserData;
-
+m_lock. Unlock();
 }
 	 /********设置音频回到函数*********/
 void CSDLSound::SetAudioCallBack(pfun fun)
 {
+	m_lock.Lock();
 	m_pFun=fun;
+	m_lock. Unlock();
 }
 	 /***********初始化音频设备*********/
 
@@ -52,6 +55,7 @@ void sdl_audio_callback(void *userdata, Uint8 *stream, int len)
 
 void  CSDLSound::KKSDLCall(Uint8 *stream, int len)
 {
+	m_lock.Lock();
 	if(m_pFun!=NULL&&m_UserData!=NULL)
 	{
 		//memset(buf,0,buf_len);
@@ -61,8 +65,8 @@ void  CSDLSound::KKSDLCall(Uint8 *stream, int len)
 			double ff=(double)m_Vol/100;
 			RaiseVolume((char*)stream, len, 1, ff);
 		}
-		
 	}
+	m_lock. Unlock();
 }
 int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels,                     int &wanted_sample_rate)
 {

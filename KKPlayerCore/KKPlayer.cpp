@@ -141,6 +141,9 @@ void KKPlayer::CloseMedia()
 	}
     m_pSound->Stop();
 	
+	m_pSound->SetAudioCallBack(0);
+	m_pSound->SetUserData(0);
+
 	if(pVideoInfo==NULL) 
 	{
 		m_bOpen=false;
@@ -353,15 +356,6 @@ void KKPlayer::CloseMedia()
 
 	start_time=AV_NOPTS_VALUE;
 	m_CurTime=0;
-
-
-	if(m_pAudioPicBuf!=NULL){
-		m_AudioPicBufLen=0;
-		KK_Free_(m_pAudioPicBuf);
-		m_pAudioPicBuf=NULL;
-	}
-
-
 	m_bOpen=false;
 	m_PlayerLock.Unlock();
 
@@ -459,6 +453,7 @@ void KKPlayer::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 }
 KKPlayer::~KKPlayer(void)
 {
+	
 }
 
 void KKPlayer::SetWindowHwnd(HWND hwnd)
@@ -511,15 +506,16 @@ void KKPlayer::video_image_refresh(SKK_VideoState *is)
 		m_CurTime=is->vidclk.pts;
 	else
 		m_CurTime=get_master_clock(is);
-	if (is->video_st==NULL&&is->audio_st) {
+	if (0&&is->audio_st) {
 		time = av_gettime_relative() / 1000000.0;
 		if (is->force_refresh || is->last_vis_time + rdftspeed < time)
 		{
 			
 			is->last_vis_time = time;
 		}
+
+		
 		is->remaining_time = FFMIN(is->remaining_time, is->last_vis_time + rdftspeed - time);
-		is->force_refresh=1;
 	}
 
 	
@@ -653,22 +649,23 @@ static inline int compute_mod(int a, int b)
 {
     return a < 0 ? a%b + b : a%b;
 }
-///äÖÈ¾ÒôÆµ²¨ÐÎ
+///äÖÈ¾ÒôÆµ²¨ÐÂ
 void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 {
-//	return ;
-	int i, i_start, x, y1, y, ys, delay, n, nb_display_channels;
+    int i, i_start, x, y1, y, ys, delay, n, nb_display_channels;
     int ch, channels, h, h2;
 	unsigned int bgcolor, fgcolor;
     int64_t time_diff;
     int rdft_bits, nb_freq;
 
-	int height=300;
-	int width=700;
+	int height=100;
+	int width=100;
 
 	if(m_pAudioPicBuf==NULL){
 	    m_AudioPicBufLen=avpicture_get_size(AV_PIX_FMT_BGRA,width, height);
 	    m_pAudioPicBuf=(uint8_t *)KK_Malloc_(m_AudioPicBufLen);
+	}else{
+	     memset( m_pAudioPicBuf,0,m_AudioPicBufLen);
 	}
     for (rdft_bits = 1; (1 << rdft_bits) < 2 * height; rdft_bits++)
         ;
@@ -724,54 +721,40 @@ void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 				img.height=height;
 				kkRect rt={0,0,img.width,img.height};
 				bgcolor = kkRGB(0,0,0);
-				//pRender->FillRect(img,rt,bgcolor);
+				pRender->FillRect(img,rt,bgcolor);
 		        fgcolor =kkRGB(0xff, 0xff, 0xff);
-				
-               //if(0)
-				{
-				   nb_display_channels= FFMIN(nb_display_channels, 2);
-					if (rdft_bits != s->rdft_bits) {
-						av_rdft_end(s->rdft);
-						av_free(s->rdft_data);
-						s->rdft = av_rdft_init(rdft_bits, DFT_R2C);
-						s->rdft_bits = rdft_bits;
-						s->rdft_data =(FFTSample *) av_malloc_array(nb_freq, 4 *sizeof(*s->rdft_data));
-					}
-					if (!s->rdft || !s->rdft_data){
-						av_log(NULL, AV_LOG_ERROR, "Failed to allocate buffers for RDFT, switching to waves display\n");
-						//s->show_mode = SHOW_MODE_WAVES;
-					} else {
-						FFTSample *data[2];
-						for (ch = 0; ch < nb_display_channels; ch++) {
-							data[ch] = s->rdft_data + 2 * nb_freq * ch;
-							i = i_start + ch;
-							for (x = 0; x < 2 * nb_freq; x++) {
-								double w = (x-nb_freq) * (1.0 / nb_freq);
-								data[ch][x] = s->sample_array[i] * (1.0 - w * w);
-								i += channels;
-								if (i >= SAMPLE_ARRAY_SIZE)
-									i -= SAMPLE_ARRAY_SIZE;
-							}
-							av_rdft_calc(s->rdft, data[ch]);
+				h = height / nb_display_channels;
+				/* graph height / 2 */
+				h2 = (h * 9) / 20;
+				for (ch = 0; ch < nb_display_channels; ch++) {
+					i = i_start + ch;
+					y1 = 0 + ch * h + (h / 2); /* position of center line */
+					for (x = 0; x < width; x++) {
+						y = (s->sample_array[i] * h2) >> 15;
+						if (y < 0) {
+							y = -y;
+							ys = y1 - y;
+						} else {
+							ys = y1;
 						}
-						/* Least efficient way to do this, we should of course
-						 * directly access it but it is more than fast enough. */
-						for (y = 0; y < height; y++) {
-							double w = 1 / sqrt((double)nb_freq);
-							int a = sqrt(w * hypot(data[0][2 * y + 0], data[0][2 * y + 1]));
-							int b = (nb_display_channels == 2 ) ? sqrt(w * hypot(data[1][2 * y + 0], data[1][2 * y + 1]))
-																: a;
-							a = FFMIN(a, 255);
-							b = FFMIN(b, 255);
-							fgcolor =kkRGB( a, b, (a + b) / 2);
-							kkRect rt2={s->xpos,height-y, s->xpos+1,height-y+ 1};
-						    pRender->FillRect(img,rt2, fgcolor);
-						}
+						kkRect rt2={ x, ys, 1, y};
+						pRender->FillRect(img,rt2, fgcolor);
+						i += channels;
+						if (i >= SAMPLE_ARRAY_SIZE)
+							i -= SAMPLE_ARRAY_SIZE;
 					}
 				}
 
+				fgcolor = kkRGB( 0x00, 0x00, 0xff);
 
-                if(s->img_convert_ctx ==NULL)
+				for (ch = 1; ch < nb_display_channels; ch++) {
+					y =0 +  ch * h;
+					kkRect rt2={ 0, y, width, 1};
+					pRender->FillRect(img,rt2, fgcolor);
+				}
+
+
+
 				s->img_convert_ctx = sws_getCachedContext(s->img_convert_ctx,width, height ,AV_PIX_FMT_BGRA,
 					            width, height,               DstAVff,                
 			                    SWS_FAST_BILINEAR,
@@ -786,24 +769,22 @@ void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 			     AVPicture  InBmp; 
 				 avpicture_fill((AVPicture *)&InBmp,(uint8_t *) m_pAudioPicBuf,AV_PIX_FMT_BGRA, width,height);
 
-				 AVPicture  OutBmp; 
-				 int numBytes=avpicture_get_size(DstAVff,width,height); //pFrame->width,pFrame->height
-		         static   uint8_t * OutBmpbuffer=(uint8_t *)KK_Malloc_(numBytes)+100;
-                 avpicture_fill((AVPicture *)&OutBmp, OutBmpbuffer,DstAVff, width,height);
+				  AVPicture  OutBmp; 
+				  int numBytes=avpicture_get_size(DstAVff,width,height); //pFrame->width,pFrame->height
+		          uint8_t * OutBmpbuffer=(uint8_t *)KK_Malloc_(numBytes);
+                  avpicture_fill((AVPicture *)&OutBmp, OutBmpbuffer,DstAVff, width,height);
 
 			      sws_scale(s->img_convert_ctx, InBmp.data, InBmp.linesize,0,height,
 					 OutBmp.data,OutBmp.linesize);
-				  pRender->render((char*) OutBmpbuffer,width,height,width);
+				  pRender->render((char*) OutBmp.data,width,height,width);
 
                   KK_Free_(OutBmpbuffer);
 
-				  if (!s->paused)
+				   if (!s->paused)
 							s->xpos++;
-				  if (s->xpos >= width)
+						if (s->xpos >= width)
 							s->xpos= 0;
-		           s->remaining_time=0.1;				
-	}
-	
+					}
 }
 int KKPlayer::GetPktSerial()
 {

@@ -2,6 +2,7 @@
 #ifndef SDLSound_H_
 #define SDLSound_H_
 #include "../../SDL-1.2.15/include/SDL.h"
+#include "../KKPlayerCore/KKLock.h"
 class CSDLSound: public IKKAudio
 {
 	public:
@@ -26,6 +27,7 @@ class CSDLSound: public IKKAudio
 public:
 		void KKSDLCall( Uint8 *stream, int len);
    private:
+	   CKKLock m_lock;
 		pfun m_pFun;
 		void* m_UserData;
 		static long m_Vol;

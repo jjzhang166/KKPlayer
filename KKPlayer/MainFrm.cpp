@@ -202,6 +202,7 @@ CMainFrame::~CMainFrame()
     m_pPlayerInstance->CloseMedia();
 	pfnDelRender(m_pRender,0);
 	m_pRender=NULL;
+	m_pSound->CloseAudio();
 	delete m_pSound;
 	delete m_pPlayerInstance;
 }
