@@ -860,7 +860,9 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 									   }
 									   pVideoInfo->pictq.mutex->Unlock();
 									}else if(pVideoInfo->audio_st!=NULL){
+#ifndef  _WINDOWS
 									   video_audio_display(pRender,pVideoInfo);
+#endif
 									}
 							  }
 						}
