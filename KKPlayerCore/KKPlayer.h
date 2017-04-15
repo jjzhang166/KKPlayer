@@ -30,14 +30,14 @@ enum SeekEnum
 	Right
 };
 
-struct AVCACHE_INFO
+typedef struct AVCACHE_INFO
 {
 	int VideoSize;
 	int AudioSize;
 	int MaxTime;
-};
+}AVCACHE_INFO;
 //获取播放器信息
-struct MEDIA_INFO 
+typedef struct MEDIA_INFO 
 {
 	//分辨率
 	char AVRes[32];
@@ -51,7 +51,7 @@ struct MEDIA_INFO
 	int KKState;
 
 	AVCACHE_INFO CacheInfo;
-};
+}MEDIA_INFO ;
 
 class KKPlayer
 {
@@ -60,8 +60,18 @@ class KKPlayer
 	        ~KKPlayer(void);
 			/******Windows平台调用**********/
 			void SetWindowHwnd(HWND hwnd);
+
+			
+			///强制中断。
+			void ForceAbort();
+
+			///设置最后打开音频
+			void SetLastOpenAudio(bool bLastOpenAudio);
+			///设置是否呈现
+			void SetRender(bool bRender);
 			/*********打开媒体.成功返回0，失败返回-1.************/
 			int OpenMedia(char* URL,char* Other=""); 
+			
 			/*********关闭播放器*********/
 			void CloseMedia(); 
     		
@@ -72,7 +82,7 @@ class KKPlayer
 			
 			void OnDecelerate();
 			void OnAccelerate();
-			int GetAVRate();
+			int  GetAVRate();
 #ifdef WIN32_KK
 			/*****Gdi*****/
 			void OnDrawImageByDc(HDC memdc);
@@ -139,7 +149,9 @@ private:
 			//音频回调线程
 			static unsigned __stdcall Audio_Thread(LPVOID lpParameter);
 			//文件读取线程
-	        static unsigned __stdcall  ReadAV_thread(LPVOID lpParameter);
+	        static unsigned __stdcall ReadAV_thread(LPVOID lpParameter);
+			
+			void OpenAudioDev();
 			
 			//数据读取
 	        void ReadAV();
@@ -157,9 +169,8 @@ private:
 			//读音频
 			void ReadAudioCall();
 			void PacketQueuefree();
-private:
-			 KKPlayer(const CKKLock& cs);
-			 KKPlayer operator = (const CKKLock& cs);
+			KKPlayer(const CKKLock& cs);
+			KKPlayer operator = (const CKKLock& cs);
 private:
 	        //插件信息
 	        static std::list<KKPluginInfo>  KKPluginInfoList;
@@ -173,7 +184,9 @@ private:
 			
 	        CKKLock m_PlayerLock;
 			
-			
+			///是否显示
+			bool         m_bRender;
+			bool         m_bLastOpenAudio;
             volatile int m_nPreFile;
 
 	        volatile  bool m_bOpen;

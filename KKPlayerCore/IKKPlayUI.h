@@ -26,9 +26,12 @@ class IKKPlayUI
 			 virtual unsigned char* GetCenterLogoImage(int &length)=0;
 			 //打开失败
 			 virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err)=0;
+			 
 			 /*******视频流结束调用*******/
-			 virtual void  AutoMediaCose(int Stata)=0;
+			 virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize)=0;
 
+			 /***视频读取线程结束调用****/
+			 virtual void  AVReadOverThNotify(void *playerIns)=0;
 			 virtual void  AVRender()=0;
    protected:
 	         unsigned char* m_pBkImage;

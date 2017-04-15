@@ -735,19 +735,19 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 			                         is->last_audio_stream= stream_index;
 									 break;
         case AVMEDIA_TYPE_SUBTITLE: 
-			      //    LOGE("Code:AVMEDIA_TYPE_SUBTITLE");              
-					  is->last_subtitle_stream = stream_index;
+			                         //LOGE("Code:AVMEDIA_TYPE_SUBTITLE");              
+					                 is->last_subtitle_stream = stream_index;
 									 break;
         case AVMEDIA_TYPE_VIDEO   : 
-			//LOGE("Code:AVMEDIA_TYPE_VIDEO");  
+			                         //LOGE("Code:AVMEDIA_TYPE_VIDEO");  
 			                         is->last_video_stream= stream_index;
 									 break;
     }
     
     if (!codec) 
 	{
-		//LOGE("Code:-1");  
-        return -1;
+									//LOGE("Code:-1");  
+									return -1;
     }
 
     avctx->codec_id = codec->id;

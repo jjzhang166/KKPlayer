@@ -282,8 +282,35 @@ int  CMainFrame::OpenMedia(std::string url)
 	 {
 		   m_pRender->ShowErrPic(false);
 	 }
-	  
-	int  ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());
+	 int  ret=0;
+
+	 AVFILE_SEGS_INFO &infos=m_FileInfos;
+
+	 {
+		 AVFILE_SEG_ITEM *Seg1= new AVFILE_SEG_ITEM();
+		 Seg1->milliseconds=413267;
+		 Seg1->segsize=12231264;
+		 strcpy(Seg1->url,"D:/avseg/1.flv");
+		 infos.FileSize+=Seg1->segsize;
+		 infos.milliseconds+=Seg1->milliseconds;
+		 infos.pCurItem= Seg1;
+		 infos.ItemCount++;
+
+
+		 AVFILE_SEG_ITEM *Seg2= new AVFILE_SEG_ITEM();
+		 Seg2->milliseconds=362000;
+		 Seg2->segsize=14210929;
+		 strcpy(Seg2->url,"D:/avseg/2.flv");
+		 infos.FileSize+=Seg2->segsize;
+		 infos.milliseconds+=Seg2->milliseconds;
+		 Seg1->next=Seg2;
+		 Seg2->pre=Seg1;
+		 infos.ItemCount++;
+	 }
+
+	
+	
+	 ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());
 	if(ret>=0){
           m_bOpen=true;
 		  char abcd[1024]="";
@@ -295,7 +322,6 @@ int  CMainFrame::OpenMedia(std::string url)
 		 }
 		 
 	}
-
 	
 	return ret;
 }
@@ -318,8 +344,10 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	m_pSound =new CSDLSound();//
 	m_pSound->SetWindowHAND((int)m_hWnd);
-	
+	m_nPlayerInsCount=1;
 	m_pPlayerInstance = new KKPlayer(this,m_pSound);
+	
+	//m_pPlayerInstance = new KKPlayer(NULL,m_pSound);
 	
 
 	m_pRender=NULL;
@@ -338,7 +366,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	
 	
 	 m_pPlayerInstance->InitSound();
-	 m_pPlayerInstance->SetWindowHwnd(m_hWnd);
+	 m_pSound->SetWindowHAND((int)m_hWnd);
 
 
 	 //m_AVwTimerRes=0;
@@ -479,7 +507,6 @@ void CMainFrame::FullScreen()
 }
 void CMainFrame::CloseMedia()
 {
-  
    m_pPlayerInstance->CloseMedia();
    m_bOpen=false;
 }
@@ -693,7 +720,7 @@ void CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
 	    m_ErrNotify(m_pErrNotifyUserData,err);
 	 }
 }
-void  CMainFrame::AutoMediaCose(int Stata)
+void  CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesize)
 {
 
 	if(Stata==-109)//管道已结束。
@@ -707,6 +734,41 @@ void  CMainFrame::AutoMediaCose(int Stata)
 		}
 	}
 	
+	
+	    
+
+	 if(m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->next!=NULL)
+	 { 
+			 if(m_pPlayerInstance==(KKPlayer*)playerIns){
+				 if(m_nPlayerInsCount<2){
+						 m_pPlayerInstanceNext = new KKPlayer(this,m_pSound);
+						 m_pPlayerInstanceNext->SetRender(false);
+						 m_pPlayerInstanceNext->SetLastOpenAudio(true);
+						 m_pPlayerInstanceNext->OpenMedia(m_FileInfos.pCurItem->next->url,"-pause");
+						 m_nPlayerInsCount++;
+				 }
+				 if(m_nPlayerInsCount>=2&&quesize<=0)
+				 {
+					 m_pPlayerInstance->SetRender(false);
+					 m_pPlayerInstance->ForceAbort();
+				 }
+			 }
+	 }
+}
+void  CMainFrame::AVReadOverThNotify(void *playerIns)
+{
+	if(m_nPlayerInsCount>1)
+	{
+		KKPlayer *temp=m_pPlayerInstance;
+		temp->CloseMedia();
+		m_pPlayerInstanceNext->Pause();
+		
+		m_pPlayerInstance=m_pPlayerInstanceNext;
+		m_pPlayerInstanceNext->SetRender(true);
+		m_pPlayerInstanceNext=NULL;
+		delete temp;
+		m_nPlayerInsCount--;
+	}
 }
 LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {

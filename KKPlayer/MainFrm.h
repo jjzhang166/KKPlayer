@@ -24,6 +24,38 @@ struct SWaitPicInfo
 };
 #define  WM_MediaClose  WM_USER+100
 #define  WM_OpenErr     WM_USER+101
+
+
+/*************以下用于文件的分片播放***************/
+typedef struct AVFILE_SEG_ITEM
+{
+   int segsize;           ///文件大小。
+   unsigned  int milliseconds;      ///文件时间。 
+   unsigned  int seektime;
+   char url[1024];        ///文件路径.
+  
+   AVFILE_SEG_ITEM *pre;
+   AVFILE_SEG_ITEM *next;
+   AVFILE_SEG_ITEM()
+   {
+       memset(this,0,sizeof(AVFILE_SEG_ITEM));
+   }
+}AVFILE_SEG_ITEM;
+typedef struct AVFILE_SEGS_INFO
+{
+   unsigned int            milliseconds;
+   unsigned long long      FileSize;
+   AVFILE_SEG_ITEM*        pItemHead;
+   AVFILE_SEG_ITEM*        pItemTail;
+   AVFILE_SEG_ITEM*        pCurItem;
+   int                     ItemCount;
+   AVFILE_SEGS_INFO()
+   {
+       memset(this,0,sizeof(AVFILE_SEGS_INFO));
+   }
+}AVFILE_SEGS_INFO;
+
+
 //errcode 参考EKKPlayerErr
 typedef void (*fpKKPlayerErrNotify)(void *UserData,int errcode);
 class CMainFrame : 
@@ -41,7 +73,8 @@ protected:
 	virtual unsigned char* GetCenterLogoImage(int &length);
 	virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err);
 	/*******视频流结束调用*******/
-	virtual void  AutoMediaCose(int Stata);
+	virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize);
+	virtual void  AVReadOverThNotify(void *playerIns);
 	virtual void AVRender(); 
 /********播放器相关操作*********/
 public:
@@ -74,7 +107,11 @@ private:
 	   
 		int LeftWidth;
 		int LeftNavigationBarWidth;
-		KKPlayer* m_pPlayerInstance;
+
+		AVFILE_SEGS_INFO m_FileInfos;
+		KKPlayer*      m_pPlayerInstance;
+		KKPlayer*      m_pPlayerInstanceNext;
+		unsigned int   m_nPlayerInsCount;///播放器实例个数
 		/*********默认背景图片**********/
 		unsigned char* m_pBkImage;
 
