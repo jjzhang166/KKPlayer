@@ -178,6 +178,9 @@ private:
 			AVCACHE_INFO m_AVCacheInfo;
 	        //视频信息
 	        SKK_VideoState *pVideoInfo; 
+
+			//
+			AVFormatContext *m_pAVForCtx;
 			//记录播放信息用
 			CAVInfoManage* m_pAVInfomanage;
 

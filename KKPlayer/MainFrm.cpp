@@ -306,11 +306,31 @@ int  CMainFrame::OpenMedia(std::string url)
 		 Seg1->next=Seg2;
 		 Seg2->pre=Seg1;
 		 infos.ItemCount++;
+
+		 AVFILE_SEG_ITEM *Seg3= new AVFILE_SEG_ITEM();
+		 Seg3->milliseconds=362000;
+		 Seg3->segsize=14210929;
+		 strcpy(Seg3->url,"D:/avseg/3.flv");
+		 infos.FileSize+=Seg3->segsize;
+		 infos.milliseconds+=Seg3->milliseconds;
+		 Seg2->next=Seg3;
+		 Seg3->pre=Seg2;
+		 infos.ItemCount++;
+
+		 AVFILE_SEG_ITEM *Seg4= new AVFILE_SEG_ITEM();
+		 Seg4->milliseconds=362000;
+		 Seg4->segsize=14210929;
+		 strcpy(Seg4->url,"D:/avseg/4.flv");
+		 infos.FileSize+=Seg4->segsize;
+		 infos.milliseconds+=Seg4->milliseconds;
+		 Seg3->next=Seg4;
+		 Seg4->pre=Seg3;
+		 infos.ItemCount++;
 	 }
 
 	
 	
-	 ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());
+	 ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());//,"-pause");
 	if(ret>=0){
           m_bOpen=true;
 		  char abcd[1024]="";
@@ -737,19 +757,19 @@ void  CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesize)
 	
 	    
 
-	 if(m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->next!=NULL)
+	 if(m_FileInfos.pCurItem!=NULL)
 	 { 
 			 if(m_pPlayerInstance==(KKPlayer*)playerIns){
-				 if(m_nPlayerInsCount<2){
+				 if(m_nPlayerInsCount<2&&m_FileInfos.pCurItem->next!=NULL){
+					     m_FileInfos.pCurItem=m_FileInfos.pCurItem->next;
 						 m_pPlayerInstanceNext = new KKPlayer(this,m_pSound);
 						 m_pPlayerInstanceNext->SetRender(false);
 						 m_pPlayerInstanceNext->SetLastOpenAudio(true);
-						 m_pPlayerInstanceNext->OpenMedia(m_FileInfos.pCurItem->next->url,"-pause");
+						 m_pPlayerInstanceNext->OpenMedia(m_FileInfos.pCurItem->url,"-pause");
 						 m_nPlayerInsCount++;
 				 }
 				 if(m_nPlayerInsCount>=2&&quesize<=0)
 				 {
-					 m_pPlayerInstance->SetRender(false);
 					 m_pPlayerInstance->ForceAbort();
 				 }
 			 }
@@ -759,15 +779,17 @@ void  CMainFrame::AVReadOverThNotify(void *playerIns)
 {
 	if(m_nPlayerInsCount>1)
 	{
+		m_nPlayerInsCount--;
 		KKPlayer *temp=m_pPlayerInstance;
-		temp->CloseMedia();
+		
 		m_pPlayerInstanceNext->Pause();
 		
 		m_pPlayerInstance=m_pPlayerInstanceNext;
 		m_pPlayerInstanceNext->SetRender(true);
 		m_pPlayerInstanceNext=NULL;
+		temp->CloseMedia();
 		delete temp;
-		m_nPlayerInsCount--;
+		
 	}
 }
 LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)

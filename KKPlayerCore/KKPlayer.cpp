@@ -1752,7 +1752,7 @@ void KKPlayer::ReadAV()
 		if (pVideoInfo->paused != pVideoInfo->last_paused&&!pVideoInfo->realtime) 
 		{
 			pVideoInfo->last_paused = pVideoInfo->paused;//
-			if (pVideoInfo->paused && AVQueSize>1000)
+			if (pVideoInfo->paused && AVQueSize>10000)
 			{
 				pVideoInfo->read_pause_return=1;
 				av_read_pause(pFormatCtx);
@@ -1878,7 +1878,13 @@ void KKPlayer::ReadAV()
 				
 			 }else if(ret == AVERROR_EOF && avio_feof(pFormatCtx->pb)&& pVideoInfo->eof){
 			            if(m_pPlayUI!=NULL)
-						     m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize);
+						{
+							if(AVQueSize==0&&(pVideoInfo->pictq.size<=1|| pVideoInfo->sampq.size<=1))
+								m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,0);
+							else
+								m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize);
+						        
+						}
 			 }
 			av_usleep(10000);
 			continue;
