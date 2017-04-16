@@ -16,6 +16,12 @@ enum EKKPlayerErr
 	 KKAVReady=3,          ///缓冲已经准备就绪
 	 KKAVWait=4,           ///需要缓冲
 };
+typedef struct KKPlayerNextAVInfo
+{
+     char url[1024];
+	 bool NeedRead;
+	 short SegId;
+}KKPlayerNextAVInfo;
 /*******UI接口********/
 class IKKPlayUI
 {
@@ -27,8 +33,8 @@ class IKKPlayUI
 			 //打开失败
 			 virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err)=0;
 			 
-			 /*******视频流结束调用*******/
-			 virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize)=0;
+			 /*******视频流结束调用.*******/
+			 virtual void AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)=0;
 
 			 /***视频读取线程结束调用****/
 			 virtual void  AVReadOverThNotify(void *playerIns)=0;

@@ -67,7 +67,7 @@ void packet_queue_init(SKK_PacketQueue  *q)
 	q->abort_request = 1;
 }
 //包入队列
-int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt) 
+int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt,short SegId) 
 {
 
 	SKK_AVPacketList *pkt1;
@@ -83,8 +83,9 @@ int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt)
 	pkt1->next = NULL;
 	if (pkt == flush_pkt)
 		q->serial++;
-	pkt1->serial = q->serial;
 
+	pkt1->serial = q->serial;
+	pkt1->seg=SegId;
 	q->pLock->Lock();
 
 	if (!q->last_pkt)
@@ -643,7 +644,7 @@ static void decoder_init(SKK_Decoder *d, AVCodecContext *avctx, SKK_PacketQueue 
 static void decoder_start(SKK_Decoder *d,unsigned (__stdcall* _StartAddress) (void *),SKK_VideoState* is)
 {
 	d->pQueue->abort_request = 0;
-	packet_queue_put(d->pQueue, is->pflush_pkt,is->pflush_pkt);
+	packet_queue_put(d->pQueue, is->pflush_pkt,is->pflush_pkt,is->segid);
 #ifdef WIN32_KK
 	d->decoder_tid.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, _StartAddress, (LPVOID)is, 0,&d->decoder_tid.Addr);
 #else

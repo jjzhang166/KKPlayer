@@ -9,7 +9,7 @@
 #include "KKVideoInfo.h"
 void packet_queue_init(SKK_PacketQueue  *q);
 void frame_queue_destory(SKK_FrameQueue *f);
-int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt) ;
+int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt,short SegId) ;
 void init_clock(SKK_Clock *c, int *queue_serial);
 int stream_component_open(SKK_VideoState *is, int stream_index);
 //初始化队列

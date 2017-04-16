@@ -40,17 +40,17 @@ typedef struct AVCACHE_INFO
 typedef struct MEDIA_INFO 
 {
 	//分辨率
-	char AVRes[32];
-	char AVinfo[1024];
-	const char* AvFile;
-	int FileSize;
-	int CurTime;
-	int TotalTime;//总时长
-	int serial;
-	bool Open;
-	int KKState;
-
-	AVCACHE_INFO CacheInfo;
+	char              AVRes[32];
+	char              AVinfo[1024];
+	const char*       AvFile;
+	int               FileSize;
+	int               CurTime;
+	int               TotalTime;//总时长
+	int               serial;
+	bool              Open;
+	int               KKState;
+    short             SegId;
+	AVCACHE_INFO      CacheInfo;
 }MEDIA_INFO ;
 
 class KKPlayer
@@ -88,8 +88,6 @@ class KKPlayer
 			void OnDrawImageByDc(HDC memdc);
 			void VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,long long pos,double diff);
 #endif           
-			//获取屏幕数据
-			//static unsigned WINAPI PicGdiGrab(LPVOID lpParameter);
 			void SetVolume(long value);
 			long GetVolume();
 			//暂停
@@ -101,7 +99,7 @@ class KKPlayer
 			void InitSound();
 			
 			//获取播放信息
-			MEDIA_INFO GetMediaInfo();
+			bool GetMediaInfo(MEDIA_INFO &info);
 			
 			//得到包序列号
 			int GetPktSerial();	
@@ -155,6 +153,7 @@ private:
 			
 			//数据读取
 	        void ReadAV();
+			void OpenInputAV(const char *url);
 	        //视频刷线程
 			void VideoRefresh();
 	        
@@ -176,11 +175,14 @@ private:
 	        static std::list<KKPluginInfo>  KKPluginInfoList;
 			//缓存信息
 			AVCACHE_INFO m_AVCacheInfo;
+
 	        //视频信息
 	        SKK_VideoState *pVideoInfo; 
 
-			//
-			AVFormatContext *m_pAVForCtx;
+			//用于读取多个视频流
+			AVFormatContext *  m_pAVForCtx;
+			///AV视频信息
+			KKPlayerNextAVInfo m_AVNextInfo;
 			//记录播放信息用
 			CAVInfoManage* m_pAVInfomanage;
 

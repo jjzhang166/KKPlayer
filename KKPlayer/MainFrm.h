@@ -29,9 +29,10 @@ struct SWaitPicInfo
 /*************以下用于文件的分片播放***************/
 typedef struct AVFILE_SEG_ITEM
 {
-   int segsize;           ///文件大小。
-   unsigned  int milliseconds;      ///文件时间。 
-   unsigned  int seektime;
+   short                 SegId;
+   int                   segsize;           ///文件大小。
+   unsigned  int         milliseconds;      ///文件时间。 
+   unsigned  int         seektime;
    char url[1024];        ///文件路径.
   
    AVFILE_SEG_ITEM *pre;
@@ -73,43 +74,45 @@ protected:
 	virtual unsigned char* GetCenterLogoImage(int &length);
 	virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err);
 	/*******视频流结束调用*******/
-	virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize);
+	virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 	virtual void  AVReadOverThNotify(void *playerIns);
 	virtual void AVRender(); 
 /********播放器相关操作*********/
 public:
-	int GetCurTime();
-	int Pause();
-	int PktSerial();
-	void OnDecelerate();
-	void OnAccelerate();
-	void SetErrNotify(void *UserData,fpKKPlayerErrNotify m_ErrNotify);
+	int          GetCurTime();
+	int          Pause();
+	int          PktSerial();
+	void         OnDecelerate();
+	void         OnAccelerate();
+	void         SetErrNotify(void *UserData,fpKKPlayerErrNotify m_ErrNotify);
 
-	void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
-	int GetRealtime();
-    MEDIA_INFO GetMediaInfo();
-	void SetVolume(long value);
-	void AvSeek(int value);
-    int OpenMedia(std::string url);
-	int DownMedia(char *KKVURL,bool Down=true);
-    void CloseMedia();
+	void         GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
+	int          GetRealtime();
+    MEDIA_INFO   GetMediaInfo();
+	void         SetVolume(long value);
+	void         AvSeek(int value);
+    int          OpenMedia(std::string url);
+	int          DownMedia(char *KKVURL,bool Down=true);
+    void         CloseMedia();
 	//全屏
-	void FullScreen();
+	void         FullScreen();
 private:
-	void OnDraw(HDC& memdc,RECT& rt);
+	void         OnDraw(HDC& memdc,RECT& rt);
 private:
-	    //CKKSound m_Sound;
-		IKKAudio *m_pSound;
+    IKKAudio*        m_pSound;
 #ifndef LIBKKPLAYER
-		SOUI::CAVMenu *m_pAVMenu;
+	SOUI::CAVMenu*   m_pAVMenu;
 #endif
-	    IkkRender *m_pRender;
+	IkkRender*       m_pRender;
 	   
-		int LeftWidth;
-		int LeftNavigationBarWidth;
+	int              LeftWidth;
+	int              LeftNavigationBarWidth;
+    /****文件分片信息*****/
+	AVFILE_SEGS_INFO m_FileInfos;
+	short            m_nCurSegId;
+	unsigned int     m_nMilTimePos;
+	KKPlayer*      m_pPlayerInstance;
 
-		AVFILE_SEGS_INFO m_FileInfos;
-		KKPlayer*      m_pPlayerInstance;
 		KKPlayer*      m_pPlayerInstanceNext;
 		unsigned int   m_nPlayerInsCount;///播放器实例个数
 		/*********默认背景图片**********/

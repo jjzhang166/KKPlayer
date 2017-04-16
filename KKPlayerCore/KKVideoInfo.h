@@ -36,6 +36,8 @@ typedef struct SKK_AVPacketList {
 	AVPacket pkt;
 	struct SKK_AVPacketList *next;
 	int serial;
+	//分段ID
+	short seg;
 } SKK_AVPacketList;
 /**********线程信息************/
 typedef struct SKK_ThreadInfo
@@ -178,6 +180,7 @@ typedef struct SKK_VideoState
 
 	int redisplay;
 	int decoder_reorder_pts;
+	short segid;
 	/********包序号递增*********/
 	int PktNumber;
 	double duration;

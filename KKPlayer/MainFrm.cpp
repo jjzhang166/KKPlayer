@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#include<Mmsystem.h>
 #include "MainFrm.h"
 #include <ObjIdl.h>
 #include "KKSound.h"
@@ -12,6 +12,8 @@
 extern SOUI::CMainDlg* m_pDlgMain;
 #endif
 
+#define mad_f_mul(x, y)	((((x) + (1L << 11)) >> 12) *  \
+	(((y) + (1L << 15)) >> 16))
 extern CreateRender pfnCreateRender;
 extern DelRender pfnDelRender;
 
@@ -43,6 +45,7 @@ std::basic_string<char> GetModulePathA()
 }
 
 std::basic_string<TCHAR> GetModulePath();
+
 CMainFrame::CMainFrame(bool NeedDel):
 m_pBkImage(NULL),m_pCenterLogoImage(NULL),
 m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
@@ -52,6 +55,8 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_ErrNotify(0)
 ,m_pErrNotifyUserData(0)
 ,m_bNeedDel(NeedDel)
+,m_nCurSegId(0)
+,m_nMilTimePos(0)
 {
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
@@ -197,7 +202,7 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 	m_CurWaitPic=NULL;
 }
 
-CMainFrame::~CMainFrame()
+CMainFrame::      ~CMainFrame()
 {
     m_pPlayerInstance->CloseMedia();
 	pfnDelRender(m_pRender,0);
@@ -206,7 +211,7 @@ CMainFrame::~CMainFrame()
 	delete m_pSound;
 	delete m_pPlayerInstance;
 }
-int CMainFrame::GetRealtime()
+int               CMainFrame::GetRealtime()
 {
 	if(m_pPlayerInstance!=NULL)
 		return m_pPlayerInstance->GetRealtime();
@@ -214,29 +219,43 @@ int CMainFrame::GetRealtime()
 	return 0;
 }
 
-void  CMainFrame::AvSeek(int value)
+void              CMainFrame::AvSeek(int value)
 {
 	m_pPlayerInstance->AVSeek(value);
 }
-void CMainFrame::SetVolume(long value)
+void              CMainFrame::SetVolume(long value)
 {
 	m_pPlayerInstance->SetVolume(value);
 }
-MEDIA_INFO  CMainFrame::GetMediaInfo()
+MEDIA_INFO        CMainFrame::GetMediaInfo()
 {
-   return 	m_pPlayerInstance->GetMediaInfo();
+
+	//m_nCurSegId=0;
+ //  m_nMilTimePos=0;
+   MEDIA_INFO  info;
+
+   if(m_pPlayerInstance->GetMediaInfo(info))
+   {
+	   info.CurTime+=m_nMilTimePos;
+	   info.TotalTime=m_FileInfos.milliseconds/1000;
+	   if(m_nCurSegId!=info.SegId&&m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->pre!=NULL)
+	   {
+		   m_nCurSegId=info.SegId;
+		   m_nMilTimePos+=(m_FileInfos.pCurItem->pre->milliseconds/1000);
+	   }
+   }
+   
+   return 	info;
 }
-int CMainFrame::GetCurTime()
+int               CMainFrame::GetCurTime()
 {
 	return m_pPlayerInstance->GetCurTime();
 }
 
 
-#   define mad_f_mul(x, y)	((((x) + (1L << 11)) >> 12) *  \
-	(((y) + (1L << 15)) >> 16))
-std::basic_string<TCHAR> GetModulePath();
 
-int CMainFrame::DownMedia(char *KKVURL,bool Down)
+
+int               CMainFrame::DownMedia(char *KKVURL,bool Down)
 {
 	if(m_pPlayerInstance!=NULL)
 	{
@@ -273,7 +292,7 @@ int CMainFrame::DownMedia(char *KKVURL,bool Down)
 	
     return -1;
 }
-int  CMainFrame::OpenMedia(std::string url)
+int               CMainFrame::OpenMedia(std::string url)
 {
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
@@ -287,9 +306,11 @@ int  CMainFrame::OpenMedia(std::string url)
 	 AVFILE_SEGS_INFO &infos=m_FileInfos;
 
 	 {
+		 int SegId=0;
 		 AVFILE_SEG_ITEM *Seg1= new AVFILE_SEG_ITEM();
 		 Seg1->milliseconds=413267;
 		 Seg1->segsize=12231264;
+		 Seg1->SegId=SegId++;
 		 strcpy(Seg1->url,"D:/avseg/1.flv");
 		 infos.FileSize+=Seg1->segsize;
 		 infos.milliseconds+=Seg1->milliseconds;
@@ -300,6 +321,7 @@ int  CMainFrame::OpenMedia(std::string url)
 		 AVFILE_SEG_ITEM *Seg2= new AVFILE_SEG_ITEM();
 		 Seg2->milliseconds=362000;
 		 Seg2->segsize=14210929;
+		 Seg2->SegId=SegId++;
 		 strcpy(Seg2->url,"D:/avseg/2.flv");
 		 infos.FileSize+=Seg2->segsize;
 		 infos.milliseconds+=Seg2->milliseconds;
@@ -310,6 +332,7 @@ int  CMainFrame::OpenMedia(std::string url)
 		 AVFILE_SEG_ITEM *Seg3= new AVFILE_SEG_ITEM();
 		 Seg3->milliseconds=362000;
 		 Seg3->segsize=14210929;
+		 Seg3->SegId=SegId++;
 		 strcpy(Seg3->url,"D:/avseg/3.flv");
 		 infos.FileSize+=Seg3->segsize;
 		 infos.milliseconds+=Seg3->milliseconds;
@@ -320,6 +343,7 @@ int  CMainFrame::OpenMedia(std::string url)
 		 AVFILE_SEG_ITEM *Seg4= new AVFILE_SEG_ITEM();
 		 Seg4->milliseconds=362000;
 		 Seg4->segsize=14210929;
+		 Seg4->SegId=SegId++;
 		 strcpy(Seg4->url,"D:/avseg/4.flv");
 		 infos.FileSize+=Seg4->segsize;
 		 infos.milliseconds+=Seg4->milliseconds;
@@ -330,7 +354,7 @@ int  CMainFrame::OpenMedia(std::string url)
 
 	
 	
-	 ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());//,"-pause");
+	ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());//,"-pause");
 	if(ret>=0){
           m_bOpen=true;
 		  char abcd[1024]="";
@@ -342,22 +366,66 @@ int  CMainFrame::OpenMedia(std::string url)
 		 }
 		 
 	}
-	
+	m_nCurSegId=0;
+	m_nMilTimePos=0;
 	return ret;
 }
+void              CMainFrame::CloseMedia()
+{
+   m_pPlayerInstance->CloseMedia();
+   m_bOpen=false;
+   m_nCurSegId=0;
+   m_nMilTimePos=0;
+}
+void              CMainFrame::FullScreen()
+{
+	if(m_bFullScreen){
+		m_bFullScreen=false;
+	}else{
+		m_nFullLastTick=::GetTickCount();
+		m_bFullScreen=true;
+		m_nCursorCount=0;
+		
+	}/**/
+}
 
-#include<Mmsystem.h>
-void CALLBACK TimeProc(UINT uID,UINT uMsg,DWORD dwUsers,DWORD dw1,DWORD dw2)
+int               CMainFrame::PktSerial()
+{
+  return m_pPlayerInstance->GetPktSerial();
+}
+void              CMainFrame::OnDecelerate()
+{
+    m_pPlayerInstance->OnDecelerate();
+    int Rate=m_pPlayerInstance->GetAVRate();
+}
+void              CMainFrame::OnAccelerate()
+{
+   m_pPlayerInstance->OnAccelerate();
+   int Rate=m_pPlayerInstance->GetAVRate();
+}
+int               CMainFrame::Pause()
+{
+	m_pPlayerInstance->Pause();
+	return 0;
+}
+
+
+LRESULT           CMainFrame::OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+            CloseMedia();
+			return 1;
+}
+void              CALLBACK TimeProc(UINT uID,UINT uMsg,DWORD dwUsers,DWORD dw1,DWORD dw2)
 {
           CMainFrame *Pts=(CMainFrame *)dwUsers;
 		 // Pts->Render();
 }
- void CMainFrame::OnFinalMessage(HWND /*hWnd*/)
+void              CMainFrame::OnFinalMessage(HWND /*hWnd*/)
  {
 	 if(m_bNeedDel)
      delete this;
  }
-LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 
 	
@@ -406,7 +474,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     return 0;
 }
 
-LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+LRESULT           CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	
 	if( m_bOpen)
@@ -421,7 +489,7 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 }
 
 
-LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+LRESULT           CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	 
 	 bHandled=true;
@@ -462,7 +530,7 @@ LRESULT  CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 	return 1;
 }
 
-void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
+void              CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 {
      HBRUSH m_SelectDotHbr=CreateSolidBrush(RGB(86, 147, 44));
 	::FillRect(memdc,&rt,m_SelectDotHbr);
@@ -472,11 +540,8 @@ void CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 	    m_pPlayerInstance->OnDrawImageByDc(memdc);
     #endif
 }
-void CMainFrame::AVRender()
-{
- m_pPlayerInstance->RenderImage(m_pRender,false);
-}
-LRESULT  CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+
+LRESULT           CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 { 	
      ::DefWindowProc(this->m_hWnd,uMsg, wParam, lParam);
 	 int h=HIWORD(lParam);
@@ -489,72 +554,12 @@ LRESULT  CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/,
 	
 	 return 1;
 }
-LRESULT  CMainFrame::OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+LRESULT           CMainFrame::OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
     bHandled=true;
 	return 1;
 }
-extern HINSTANCE GhInstance;
-LRESULT  CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
-{
-	if(m_bFullScreen){
-		if(::GetTickCount()-m_nFullLastTick>2000)
-		{
-			::SetCursor(NULL);//
-			//::SetCursor(LoadCursor (GhInstance,MAKEINTRESOURCE(IDC_CURSOR1)));//
-			 m_nFullLastTick=::GetTickCount();
-		}
-	}
-	if(wParam==10010)
-	{
-          AVRender();
-	}else{
-	     
-	}
-	bHandled=true;
-	return 1;
-}
-void CMainFrame::FullScreen()
-{
-	if(m_bFullScreen){
-		m_bFullScreen=false;
-	}else{
-		m_nFullLastTick=::GetTickCount();
-		m_bFullScreen=true;
-		m_nCursorCount=0;
-		
-	}/**/
-}
-void CMainFrame::CloseMedia()
-{
-   m_pPlayerInstance->CloseMedia();
-   m_bOpen=false;
-}
-int CMainFrame::PktSerial()
-{
-  return m_pPlayerInstance->GetPktSerial();
-}
-void  CMainFrame::OnDecelerate()
-{
-    m_pPlayerInstance->OnDecelerate();
-    int Rate=m_pPlayerInstance->GetAVRate();
-}
-void  CMainFrame::OnAccelerate()
-{
-   m_pPlayerInstance->OnAccelerate();
-   int Rate=m_pPlayerInstance->GetAVRate();
-}
-
-void CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify ErrNotify)
-{
-    m_ErrNotify=ErrNotify;
-	m_pErrNotifyUserData=UserData;
-}
-void CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
-{
-	m_pPlayerInstance->GetAVHistoryInfo(slQue);
-}
-LRESULT  CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+LRESULT           CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	KillTimer(10010);
 	if( m_bOpen)
@@ -568,7 +573,7 @@ LRESULT  CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/
 
 	return 1;
 }
-LRESULT  CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+LRESULT           CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	long ll=0;
 	switch(wParam)
@@ -594,205 +599,29 @@ LRESULT  CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/*
 	return 1;
 }
 
-unsigned char*  CMainFrame::GetErrImage(int &length,int ErrType)
+extern HINSTANCE GhInstance;
+LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
-	if(m_pErrOpenImage==NULL)
-	{
-		std::string basePath=GetModulePathA();
-		FILE*fp=NULL;
-		std::string PicPath=basePath;
-		PicPath+="\\Skin\\ErrOpen.png";
-		fp=fopen(PicPath.c_str(),"rb");
-		if (!fp)
+	if(m_bFullScreen){
+		if(::GetTickCount()-m_nFullLastTick>2000)
 		{
-			return NULL;
-		}
-		fseek(fp,0,SEEK_END); //定位到文件末 
-		length= ftell(fp); 
-
-		m_pErrOpenImage = (unsigned char*)::malloc(length);
-		memset(m_pErrOpenImage,0,length);
-		fseek(fp,0,SEEK_SET);
-		size_t tt=fread(m_pErrOpenImage,1,length,fp);
-		fclose(fp);
-		m_ErrOpenImgLen=length;
-	}
-	length=m_ErrOpenImgLen;
-	return m_pErrOpenImage;
-}
-unsigned char*  CMainFrame::GetWaitImage(int &len,int curtime)
-{
-	if(m_WaitPicList.size()<=0)
-		return NULL;
-	int t=::GetTickCount();
-	if(m_CurWaitPic==NULL)
-	{
-		m_CurWaitPic=m_WaitPicList[0];
-		m_CurWaitPic->StartTime=t;
-	}else 
-	{
-           if(m_CurWaitPic->Time<(t-m_CurWaitPic->StartTime))
-		   {
-			   if(m_CurWaitPic->Index>=5)
-			   {
-                    m_CurWaitPic=m_WaitPicList[0];
-					m_CurWaitPic->StartTime=t;
-			   }else
-			   {
-				   m_CurWaitPic=m_WaitPicList[m_CurWaitPic->Index+1];
-				   m_CurWaitPic->StartTime=t;
-			   }
-		   }
-	}
-	len=m_CurWaitPic->Len;
-	curtime=m_CurWaitPic->StartTime;
-	return m_CurWaitPic->Buf;
-}
-
-
-int  CMainFrame::Pause()
-{
-	m_pPlayerInstance->Pause();
-	return 0;
-}
- unsigned char* CMainFrame::GetCenterLogoImage(int &len)
- {
-         if(m_pCenterLogoImage==NULL)
-		 {
-			 std::string basePath=GetModulePathA();
-			 FILE*fp=NULL;
-			 std::string PicPath=basePath;
-			 PicPath+="\\Skin\\mediaCtrl_Img.png";
-			 fp=fopen(PicPath.c_str(),"rb");
-			 if (!fp)
-			 {
-				 return NULL;
-			 }
-			 fseek(fp,0,SEEK_END); //定位到文件末 
-			 len = ftell(fp); 
-
-			 m_pCenterLogoImage = (unsigned char*)::malloc(len);
-			 memset(m_pCenterLogoImage,0,len);
-			 fseek(fp,0,SEEK_SET);
-			 size_t tt=fread(m_pCenterLogoImage,1,len,fp);
-			 fclose(fp);
-			m_pCenterLogoImageLen=len;
-			len=m_pCenterLogoImageLen;
-			m_CenterLogoLen=len;
-		 }
-		 len=m_CenterLogoLen;
-		 return m_pCenterLogoImage;
- }
-unsigned char*  CMainFrame::GetBkImage(int &len)
-{
-	
-	if(m_pBkImage==NULL)
-	{
-		std::string basePath=GetModulePathA();
-		FILE*fp=NULL;
-		std::string PicPath=basePath;
-		PicPath+="\\Skin\\Bk.jpg";
-		fp=fopen(PicPath.c_str(),"rb");
-		if (!fp)
-		{
-           return NULL;
-		}
-		fseek(fp,0,SEEK_END); //定位到文件末 
-		len = ftell(fp); 
-
-		m_pBkImage = (unsigned char*)::malloc(len);
-		memset(m_pBkImage,0,len);
-		fseek(fp,0,SEEK_SET);
-		size_t tt=fread(m_pBkImage,1,len,fp);
-		fclose(fp);
-		m_pBkImageLen=len;
-	}
-	len=m_pBkImageLen;
-	return m_pBkImage;
-}
-
-
-LRESULT CMainFrame::OnMediaClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
-{
-            CloseMedia();
-			return 1;
-}
-LRESULT CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
-{
-   bHandled=true;
-  /* char *err=(char*)wParam;
-   ::MessageBoxA(m_hWnd,err,"错误",MB_ICONHAND);
-   ::free(err);
-   CloseMedia();*/
-   return 1;
-}
-void CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
-{
-     int length=0;
-	 unsigned char* img=GetErrImage(length,0);
-	 if(err==KKOpenUrlOkFailure&&img!=NULL&&length>0&&m_pRender!=NULL)
-	 {
-		 m_pRender->SetErrPic(img,length);
-		 m_pRender->ShowErrPic(true);
-	 }
-	 if(m_ErrNotify!=NULL)
-	 {
-	    m_ErrNotify(m_pErrNotifyUserData,err);
-	 }
-}
-void  CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesize)
-{
-
-	if(Stata==-109)//管道已结束。
-	{
-		int length=0;
-		unsigned char* img=GetErrImage(length,0);
-		if(img!=NULL&&length>0&&m_pRender!=NULL)
-		{
-			m_pRender->SetErrPic(img,length);
-			m_pRender->ShowErrPic(true);
+			::SetCursor(NULL);//
+			//::SetCursor(LoadCursor (GhInstance,MAKEINTRESOURCE(IDC_CURSOR1)));//
+			 m_nFullLastTick=::GetTickCount();
 		}
 	}
-	
-	
-	    
-
-	 if(m_FileInfos.pCurItem!=NULL)
-	 { 
-			 if(m_pPlayerInstance==(KKPlayer*)playerIns){
-				 if(m_nPlayerInsCount<2&&m_FileInfos.pCurItem->next!=NULL){
-					     m_FileInfos.pCurItem=m_FileInfos.pCurItem->next;
-						 m_pPlayerInstanceNext = new KKPlayer(this,m_pSound);
-						 m_pPlayerInstanceNext->SetRender(false);
-						 m_pPlayerInstanceNext->SetLastOpenAudio(true);
-						 m_pPlayerInstanceNext->OpenMedia(m_FileInfos.pCurItem->url,"-pause");
-						 m_nPlayerInsCount++;
-				 }
-				 if(m_nPlayerInsCount>=2&&quesize<=0)
-				 {
-					 m_pPlayerInstance->ForceAbort();
-				 }
-			 }
-	 }
-}
-void  CMainFrame::AVReadOverThNotify(void *playerIns)
-{
-	if(m_nPlayerInsCount>1)
+	if(wParam==10010)
 	{
-		m_nPlayerInsCount--;
-		KKPlayer *temp=m_pPlayerInstance;
-		
-		m_pPlayerInstanceNext->Pause();
-		
-		m_pPlayerInstance=m_pPlayerInstanceNext;
-		m_pPlayerInstanceNext->SetRender(true);
-		m_pPlayerInstanceNext=NULL;
-		temp->CloseMedia();
-		delete temp;
-		
+          AVRender();
+	}else{
+	     
 	}
+	bHandled=true;
+	return 1;
 }
-LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+
+
+LRESULT           CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	bHandled=true;
 	int xPos = GET_X_LPARAM(lParam); 
@@ -808,7 +637,7 @@ LRESULT  CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPar
 #endif
 	return 1;
 }
-LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+LRESULT           CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	bHandled=true;
 	int xPos = GET_X_LPARAM(lParam); 
@@ -863,7 +692,7 @@ LRESULT  CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 	return 1;
 }
 
-LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+LRESULT           CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 
    bHandled=true;
@@ -892,4 +721,205 @@ LRESULT  CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam
 	m_lastPoint.x=xPos;
 	m_lastPoint.y=yPos;
 	return 0;
+}
+
+LRESULT           CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+   bHandled=true;
+  /* char *err=(char*)wParam;
+   ::MessageBoxA(m_hWnd,err,"错误",MB_ICONHAND);
+   ::free(err);
+   CloseMedia();*/
+   return 1;
+}
+
+
+
+
+void              CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify ErrNotify)
+{
+    m_ErrNotify=ErrNotify;
+	m_pErrNotifyUserData=UserData;
+}
+void              CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
+{
+	m_pPlayerInstance->GetAVHistoryInfo(slQue);
+}
+
+unsigned char*    CMainFrame::GetErrImage(int &length,int ErrType)
+{
+	if(m_pErrOpenImage==NULL)
+	{
+		std::string basePath=GetModulePathA();
+		FILE*fp=NULL;
+		std::string PicPath=basePath;
+		PicPath+="\\Skin\\ErrOpen.png";
+		fp=fopen(PicPath.c_str(),"rb");
+		if (!fp)
+		{
+			return NULL;
+		}
+		fseek(fp,0,SEEK_END); //定位到文件末 
+		length= ftell(fp); 
+
+		m_pErrOpenImage = (unsigned char*)::malloc(length);
+		memset(m_pErrOpenImage,0,length);
+		fseek(fp,0,SEEK_SET);
+		size_t tt=fread(m_pErrOpenImage,1,length,fp);
+		fclose(fp);
+		m_ErrOpenImgLen=length;
+	}
+	length=m_ErrOpenImgLen;
+	return m_pErrOpenImage;
+}
+unsigned char*    CMainFrame::GetWaitImage(int &len,int curtime)
+{
+	if(m_WaitPicList.size()<=0)
+		return NULL;
+	int t=::GetTickCount();
+	if(m_CurWaitPic==NULL)
+	{
+		m_CurWaitPic=m_WaitPicList[0];
+		m_CurWaitPic->StartTime=t;
+	}else 
+	{
+           if(m_CurWaitPic->Time<(t-m_CurWaitPic->StartTime))
+		   {
+			   if(m_CurWaitPic->Index>=5)
+			   {
+                    m_CurWaitPic=m_WaitPicList[0];
+					m_CurWaitPic->StartTime=t;
+			   }else
+			   {
+				   m_CurWaitPic=m_WaitPicList[m_CurWaitPic->Index+1];
+				   m_CurWaitPic->StartTime=t;
+			   }
+		   }
+	}
+	len=m_CurWaitPic->Len;
+	curtime=m_CurWaitPic->StartTime;
+	return m_CurWaitPic->Buf;
+}
+
+
+
+unsigned char*    CMainFrame::GetCenterLogoImage(int &len)
+ {
+         if(m_pCenterLogoImage==NULL)
+		 {
+			 std::string basePath=GetModulePathA();
+			 FILE*fp=NULL;
+			 std::string PicPath=basePath;
+			 PicPath+="\\Skin\\mediaCtrl_Img.png";
+			 fp=fopen(PicPath.c_str(),"rb");
+			 if (!fp)
+			 {
+				 return NULL;
+			 }
+			 fseek(fp,0,SEEK_END); //定位到文件末 
+			 len = ftell(fp); 
+
+			 m_pCenterLogoImage = (unsigned char*)::malloc(len);
+			 memset(m_pCenterLogoImage,0,len);
+			 fseek(fp,0,SEEK_SET);
+			 size_t tt=fread(m_pCenterLogoImage,1,len,fp);
+			 fclose(fp);
+			m_pCenterLogoImageLen=len;
+			len=m_pCenterLogoImageLen;
+			m_CenterLogoLen=len;
+		 }
+		 len=m_CenterLogoLen;
+		 return m_pCenterLogoImage;
+ }
+unsigned char*    CMainFrame::GetBkImage(int &len)
+{
+	
+	if(m_pBkImage==NULL)
+	{
+		std::string basePath=GetModulePathA();
+		FILE*fp=NULL;
+		std::string PicPath=basePath;
+		PicPath+="\\Skin\\Bk.jpg";
+		fp=fopen(PicPath.c_str(),"rb");
+		if (!fp)
+		{
+           return NULL;
+		}
+		fseek(fp,0,SEEK_END); //定位到文件末 
+		len = ftell(fp); 
+
+		m_pBkImage = (unsigned char*)::malloc(len);
+		memset(m_pBkImage,0,len);
+		fseek(fp,0,SEEK_SET);
+		size_t tt=fread(m_pBkImage,1,len,fp);
+		fclose(fp);
+		m_pBkImageLen=len;
+	}
+	len=m_pBkImageLen;
+	return m_pBkImage;
+}
+
+
+
+void              CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
+{
+     int length=0;
+	 unsigned char* img=GetErrImage(length,0);
+	 if(err==KKOpenUrlOkFailure&&img!=NULL&&length>0&&m_pRender!=NULL)
+	 {
+		 m_pRender->SetErrPic(img,length);
+		 m_pRender->ShowErrPic(true);
+	 }
+	 if(m_ErrNotify!=NULL)
+	 {
+	    m_ErrNotify(m_pErrNotifyUserData,err);
+	 }
+}
+void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
+{
+
+	if(Stata==-109)//管道已结束。
+	{
+		int length=0;
+		unsigned char* img=GetErrImage(length,0);
+		if(img!=NULL&&length>0&&m_pRender!=NULL)
+		{
+			m_pRender->SetErrPic(img,length);
+			m_pRender->ShowErrPic(true);
+		}
+	}
+
+	if(m_FileInfos.pCurItem!=NULL&&m_FileInfos.ItemCount>0)
+	 { 
+		 if(m_pPlayerInstance==(KKPlayer*)playerIns&&m_FileInfos.pCurItem->next!=NULL){
+				 m_FileInfos.pCurItem=m_FileInfos.pCurItem->next;	
+				 memset(&NextInfo,0,sizeof(NextInfo));
+				 strcpy(NextInfo.url, m_FileInfos.pCurItem->url);
+				 NextInfo.SegId=m_FileInfos.pCurItem->SegId;
+				 NextInfo.NeedRead=true;
+				 return  ;
+		 }
+	 }
+	 return;
+}
+void              CMainFrame::AVReadOverThNotify(void *playerIns)
+{
+	if(m_nPlayerInsCount>1)
+	{
+		/*m_nPlayerInsCount--;
+		KKPlayer *temp=m_pPlayerInstance;
+		
+		m_pPlayerInstanceNext->Pause();
+		
+		m_pPlayerInstance=m_pPlayerInstanceNext;
+		m_pPlayerInstanceNext->SetRender(true);
+		m_pPlayerInstanceNext=NULL;
+		temp->CloseMedia();
+		delete temp;*/
+		
+	}
+}
+void              CMainFrame::AVRender()
+{
+ m_pPlayerInstance->RenderImage(m_pRender,false);
 }
