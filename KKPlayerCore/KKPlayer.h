@@ -95,15 +95,16 @@ class KKPlayer
 			//快进快退，相对
 			void KKSeek( SeekEnum en,int value);
 			//单位时间秒
-			void AVSeek(int value);
+			void AVSeek(int value,short segid=-1);
 			void InitSound();
 			
 			//获取播放信息
 			bool GetMediaInfo(MEDIA_INFO &info);
 			
 			//得到包序列号
-			int GetPktSerial();	
-			
+			int   GetPktSerial();	
+			short GetSegId();
+			short GetCurSegId();
 		
 			//获取放播的历史信息
 			void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
@@ -149,10 +150,12 @@ private:
 			//文件读取线程
 	        static unsigned __stdcall ReadAV_thread(LPVOID lpParameter);
 			
-			void OpenAudioDev();
+			void        OpenAudioDev();
 			
+			void        loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid=-1);
+			void        InterSeek(AVFormatContext*  pAVForCtx);
 			//数据读取
-	        void ReadAV();
+	        void        ReadAV();
 			void OpenInputAV(const char *url);
 	        //视频刷线程
 			void VideoRefresh();
@@ -184,10 +187,10 @@ private:
 			///AV视频信息
 			KKPlayerNextAVInfo m_AVNextInfo;
 			//记录播放信息用
-			CAVInfoManage* m_pAVInfomanage;
-
-			
-	        CKKLock m_PlayerLock;
+			CAVInfoManage*     m_pAVInfomanage;
+            //播放信息
+			MEDIA_INFO         m_AVPlayInfo;
+	        CKKLock            m_PlayerLock;
 			
 			///是否显示
 			bool         m_bRender;
@@ -199,9 +202,13 @@ private:
 	       
 			//当前包序列号
 			volatile int m_PktSerial;
-	        IKKAudio* m_pSound;
-			HWND m_hwnd;
-			int64_t start_time;
+	        IKKAudio*    m_pSound;
+			HWND         m_hwnd;
+			int64_t      start_time;
+			
+			///seektime
+			int          m_nSeekTime;
+			short        m_nSeekSegId;
 			//当前时间
 			int m_CurTime;
 			//视频读取线程

@@ -103,7 +103,7 @@ int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt,short
 	return 0;
 }
 
-int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial)
+int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial,short *segid)
 {
 	SKK_AVPacketList *pkt1;
 	int ret=-1;
@@ -123,6 +123,7 @@ int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial)
 			*pkt = pkt1->pkt;
 			q->PktMemSize-=pkt->size;
 			*serial=pkt1->serial;
+			*segid=pkt1->seg;
 			av_free(pkt1);
 			ret = 1;
 			break;
@@ -395,6 +396,8 @@ DELXXX:
 
 	   frame_queue_next(&is->sampq,true);
 	   pVideoInfo->audio_clock_serial=af->serial;
+	   
+	   pVideoInfo->cursegid=af->segid;
    } while (af->serial!=is->auddec.pkt_serial&&!is->abort_request);
 	
 	frame=af->frame;
@@ -1234,6 +1237,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
     AVRational frame_rate = av_guess_frame_rate(is->pFormatCtx, is->video_st, NULL);
 
 	pFrame = av_frame_alloc();//avcodec_alloc_frame();  
+
 	for(;!is->abort_request;)  
 	{
 		    if(is->abort_request){
@@ -1241,18 +1245,22 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 				LOGE("Video_thread break");
                 break;
 			}	
+			short segid=0;
 			do
 			{
 LXXXX:
 				if(is->abort_request){
 					break;
-				}else if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial) <= 0) 
+				}else if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial,&segid) <= 0) 
 				{
 					av_usleep(5000);
 					goto LXXXX;
 				}
 				
-				
+				if(is->audio_st==NULL)
+				{
+				     is->cursegid=segid;
+				}
 				if(is->videoq.serial!=is->viddec.pkt_serial)
 				{
                     av_free_packet(packet); 
@@ -1337,7 +1345,7 @@ LXXXX:
 
 
 //½âÂëÒôÆµ
-int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame) 
+int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame,short *segId) 
 {  
 	int n=0;
 	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
@@ -1357,7 +1365,7 @@ LOXXXX:
 		if(pVideoInfo->abort_request)
 		{
 			break;
-		}else if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial) <= 0) 
+		}else if(packet_queue_get(&pVideoInfo->audioq, &pkt, 1,&pVideoInfo->auddec.pkt_serial,segId) <= 0) 
 		{
 		
 			av_usleep(5000);
@@ -1609,7 +1617,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	//½âÂë²Ù×÷
 	do {
 		
-		if ((got_frame = audio_decode_frame(is, frame)) < 0)
+		short segid=0;
+		if ((got_frame = audio_decode_frame(is, frame,&segid)) < 0)
 			goto the_end;
     
 		if (got_frame)
@@ -1705,7 +1714,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 					af->pts 	+=is->Baseaudio_clock;
 					af->pos = av_frame_get_pkt_pos(frame);
 					af->serial = is->auddec.pkt_serial;
-
+                    af->segid=segid;
 					AVRational avr={frame->nb_samples, frame->sample_rate};
 					af->duration = av_q2d(avr);
 
@@ -1726,7 +1735,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
 				af->pos = av_frame_get_pkt_pos(frame);
 				af->serial = is->auddec.pkt_serial;
-
+				af->segid=segid;
 				AVRational avr={frame->nb_samples, frame->sample_rate};
 				af->duration = av_q2d(avr);
 				AVSampleFormat ff=(AVSampleFormat)frame->format;
@@ -1738,6 +1747,7 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 			
 		}
 	} while ((ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)&&!is->abort_request);
+
 the_end:
     avcodec_flush_buffers(is->auddec.avctx);
 	av_frame_unref(frame);

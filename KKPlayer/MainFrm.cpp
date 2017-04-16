@@ -221,7 +221,29 @@ int               CMainFrame::GetRealtime()
 
 void              CMainFrame::AvSeek(int value)
 {
-	m_pPlayerInstance->AVSeek(value);
+	if(m_FileInfos.ItemCount<2)
+	{
+	     m_pPlayerInstance->AVSeek(value);
+	}else{
+		 AVFILE_SEG_ITEM*  pItemHead=m_FileInfos.pItemHead;
+		 int seektime=0;
+		 while(pItemHead)
+		 {
+			 seektime+=pItemHead->milliseconds/1000;
+			 if(value<seektime){
+				short CurSegId=m_pPlayerInstance->GetCurSegId();
+				short SegId=m_pPlayerInstance->GetSegId();
+                int va=seektime-value;
+				if(CurSegId!=SegId){
+				    int i=0;
+					i++;
+				}else{
+				    m_pPlayerInstance->AVSeek(value);
+				}
+				break;
+			 }
+		 }
+	}
 }
 void              CMainFrame::SetVolume(long value)
 {
@@ -241,7 +263,7 @@ MEDIA_INFO        CMainFrame::GetMediaInfo()
 	   if(m_nCurSegId!=info.SegId&&m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->pre!=NULL)
 	   {
 		   m_nCurSegId=info.SegId;
-		   m_nMilTimePos+=(m_FileInfos.pCurItem->pre->milliseconds/1000);
+		   m_nMilTimePos=m_nMilTimePos+(m_FileInfos.pCurItem->pre->milliseconds/1000);
 	   }
    }
    
@@ -308,8 +330,8 @@ int               CMainFrame::OpenMedia(std::string url)
 	 {
 		 int SegId=0;
 		 AVFILE_SEG_ITEM *Seg1= new AVFILE_SEG_ITEM();
-		 Seg1->milliseconds=413267;
-		 Seg1->segsize=12231264;
+		 Seg1->milliseconds=194397;
+		 Seg1->segsize=25072982;
 		 Seg1->SegId=SegId++;
 		 strcpy(Seg1->url,"D:/avseg/1.flv");
 		 infos.FileSize+=Seg1->segsize;
@@ -319,8 +341,8 @@ int               CMainFrame::OpenMedia(std::string url)
 
 
 		 AVFILE_SEG_ITEM *Seg2= new AVFILE_SEG_ITEM();
-		 Seg2->milliseconds=362000;
-		 Seg2->segsize=14210929;
+		 Seg2->milliseconds=197781;
+		 Seg2->segsize=32653311;
 		 Seg2->SegId=SegId++;
 		 strcpy(Seg2->url,"D:/avseg/2.flv");
 		 infos.FileSize+=Seg2->segsize;
@@ -330,8 +352,8 @@ int               CMainFrame::OpenMedia(std::string url)
 		 infos.ItemCount++;
 
 		 AVFILE_SEG_ITEM *Seg3= new AVFILE_SEG_ITEM();
-		 Seg3->milliseconds=362000;
-		 Seg3->segsize=14210929;
+		 Seg3->milliseconds=180514;
+		 Seg3->segsize=29149088;
 		 Seg3->SegId=SegId++;
 		 strcpy(Seg3->url,"D:/avseg/3.flv");
 		 infos.FileSize+=Seg3->segsize;
@@ -341,8 +363,8 @@ int               CMainFrame::OpenMedia(std::string url)
 		 infos.ItemCount++;
 
 		 AVFILE_SEG_ITEM *Seg4= new AVFILE_SEG_ITEM();
-		 Seg4->milliseconds=362000;
-		 Seg4->segsize=14210929;
+		 Seg4->milliseconds=203870;
+		 Seg4->segsize=29475132;
 		 Seg4->SegId=SegId++;
 		 strcpy(Seg4->url,"D:/avseg/4.flv");
 		 infos.FileSize+=Seg4->segsize;
@@ -350,21 +372,23 @@ int               CMainFrame::OpenMedia(std::string url)
 		 Seg3->next=Seg4;
 		 Seg4->pre=Seg3;
 		 infos.ItemCount++;
+
+		 infos.pItemHead=Seg1;
+		 infos.pItemTail=Seg4;
 	 }
 
 	
 	
 	ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());//,"-pause");
 	if(ret>=0){
-          m_bOpen=true;
-		  char abcd[1024]="";
-		  strcpy(abcd,(char*)url.c_str());
+         m_bOpen=true;
+		 char abcd[1024]="";
+		 strcpy(abcd,(char*)url.c_str());
 		 int Retx= DownMedia(abcd,false);
 		 if(Retx==2)
 		 {
 		   return Retx;
 		 }
-		 
 	}
 	m_nCurSegId=0;
 	m_nMilTimePos=0;
@@ -891,14 +915,18 @@ void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesiz
 
 	if(m_FileInfos.pCurItem!=NULL&&m_FileInfos.ItemCount>0)
 	 { 
-		 if(m_pPlayerInstance==(KKPlayer*)playerIns&&m_FileInfos.pCurItem->next!=NULL){
+		 if(m_pPlayerInstance==(KKPlayer*)playerIns){
+			 
+			 if(m_FileInfos.pCurItem->next!=NULL&&NextInfo.SegId==-1){
 				 m_FileInfos.pCurItem=m_FileInfos.pCurItem->next;	
 				 memset(&NextInfo,0,sizeof(NextInfo));
 				 strcpy(NextInfo.url, m_FileInfos.pCurItem->url);
 				 NextInfo.SegId=m_FileInfos.pCurItem->SegId;
 				 NextInfo.NeedRead=true;
 				 return  ;
-		 }
+			 }else{
+			 
+			 }
 	 }
 	 return;
 }

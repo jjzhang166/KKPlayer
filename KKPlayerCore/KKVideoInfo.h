@@ -95,7 +95,7 @@ typedef struct SKK_Frame
 {
 	AVFrame                 *frame;
 	AVSubtitle              sub;
-	
+	int                     segid;
 	int                     serial;         ///序列号--刷新时更新。
 	int                     PktNumber;      ///包序号，递增
 	double                  pts;            /// presentation timestamp for the frame
@@ -181,6 +181,7 @@ typedef struct SKK_VideoState
 	int redisplay;
 	int decoder_reorder_pts;
 	short segid;
+	short cursegid;
 	/********包序号递增*********/
 	int PktNumber;
 	double duration;

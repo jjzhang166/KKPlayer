@@ -34,9 +34,9 @@ typedef struct AVFILE_SEG_ITEM
    unsigned  int         milliseconds;      ///文件时间。 
    unsigned  int         seektime;
    char url[1024];        ///文件路径.
-  
-   AVFILE_SEG_ITEM *pre;
-   AVFILE_SEG_ITEM *next;
+   bool                  bIsAd;
+   AVFILE_SEG_ITEM*      pre;
+   AVFILE_SEG_ITEM*      next;
    AVFILE_SEG_ITEM()
    {
        memset(this,0,sizeof(AVFILE_SEG_ITEM));
@@ -72,11 +72,11 @@ protected:
 	virtual unsigned char* GetWaitImage(int &len,int curtime);
 	virtual unsigned char* GetBkImage(int &len);
 	virtual unsigned char* GetCenterLogoImage(int &length);
-	virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err);
+	virtual void           OpenMediaFailure(char* strURL,EKKPlayerErr err);
 	/*******视频流结束调用*******/
-	virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
-	virtual void  AVReadOverThNotify(void *playerIns);
-	virtual void AVRender(); 
+	virtual void           AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
+	virtual void           AVReadOverThNotify(void *playerIns);
+	virtual void           AVRender(); 
 /********播放器相关操作*********/
 public:
 	int          GetCurTime();
@@ -107,33 +107,31 @@ private:
 	   
 	int              LeftWidth;
 	int              LeftNavigationBarWidth;
-    /****文件分片信息*****/
-	AVFILE_SEGS_INFO m_FileInfos;
+    
+	AVFILE_SEGS_INFO m_FileInfos;///文件分片信息
 	short            m_nCurSegId;
 	unsigned int     m_nMilTimePos;
-	KKPlayer*      m_pPlayerInstance;
+	KKPlayer*        m_pPlayerInstance;
 
-		KKPlayer*      m_pPlayerInstanceNext;
-		unsigned int   m_nPlayerInsCount;///播放器实例个数
-		/*********默认背景图片**********/
-		unsigned char* m_pBkImage;
+	KKPlayer*        m_pPlayerInstanceNext;
+	unsigned int     m_nPlayerInsCount;///播放器实例个数
+	/*********默认背景图片**********/
+	unsigned char*   m_pBkImage;
 
-		unsigned char* m_pCenterLogoImage;
-        int m_CenterLogoLen;
+	unsigned char*   m_pCenterLogoImage;
+    int              m_CenterLogoLen;
 
-		unsigned char* m_pErrOpenImage;
-		int m_ErrOpenImgLen;
-
-		std::vector<SWaitPicInfo*> m_WaitPicList;
-		SWaitPicInfo* m_CurWaitPic;
-        bool m_bOpen;
-		CPoint m_lastPoint;
-
-		UINT m_AVwTimerRes;
-		UINT m_AVtimerID;
-        bool m_bFullScreen;
-		int  m_nFullLastTick;
-		int  m_nCursorCount;
+	unsigned char*   m_pErrOpenImage;
+	int              m_ErrOpenImgLen;
+	std::vector<SWaitPicInfo*>         m_WaitPicList;
+	SWaitPicInfo*                      m_CurWaitPic;
+    bool                               m_bOpen;
+	CPoint                             m_lastPoint;
+	UINT                               m_AVwTimerRes;
+	UINT                               m_AVtimerID;
+    bool                               m_bFullScreen;
+	int                                m_nFullLastTick;
+	int                                m_nCursorCount;
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 	BEGIN_MSG_MAP(CMainFrame)
@@ -168,7 +166,7 @@ protected:
 		LRESULT  OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 private:
-	   bool m_bNeedDel;
+	   bool                  m_bNeedDel;
 	   fpKKPlayerErrNotify   m_ErrNotify;
 	   void*                 m_pErrNotifyUserData;
 };

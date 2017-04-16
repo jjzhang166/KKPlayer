@@ -397,7 +397,7 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 							info.CurTime=m_CurTime;
 							if(pVideoInfo->pFormatCtx!=NULL)
 							{
-											info.SegId=pVideoInfo->segid;
+								info.SegId=pVideoInfo->cursegid;
 											info.AvFile=(const char*)pVideoInfo->filename;
 											info.TotalTime=(pVideoInfo->pFormatCtx->duration/1000/1000);
 											info.serial=pVideoInfo->viddec.pkt_serial;
@@ -445,10 +445,13 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 											}
 											strcpy(info.AVinfo,infostr);
 							}
+							m_AVPlayInfo=info;
 							ok=true;
 				
 		      }
 		m_PlayerLock.Unlock();/**/
+	}else{
+	    info=m_AVPlayInfo;
 	}
 	return ok;
 }
@@ -809,6 +812,27 @@ int KKPlayer::GetPktSerial()
 {
 	return m_PktSerial;
 }
+short KKPlayer::GetSegId()
+{
+	m_PlayerLock.Lock();
+	if(pVideoInfo!=NULL)
+	{
+		m_PlayerLock.Unlock();
+		return pVideoInfo->segid;
+	}
+	m_PlayerLock.Unlock();
+
+}
+short KKPlayer::GetCurSegId()
+{
+	m_PlayerLock.Lock();
+	if(pVideoInfo!=NULL)
+	{
+		m_PlayerLock.Unlock();
+	    return pVideoInfo->cursegid;
+	}
+	m_PlayerLock.Unlock();
+}
 
 void KKPlayer::VideoRefresh()
 {
@@ -1147,7 +1171,9 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
 
     m_PktSerial=0;
-	
+	m_nSeekTime=0;
+	m_nSeekSegId=-1;
+
 	LOGE("Movie Path：\n");
 	LOGE("%s",URL);
 	LOGE("\n");
@@ -1178,6 +1204,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 
 	pVideoInfo->realtime = is_realtime2(URL);
 
+	memset(&m_AVPlayInfo,0,sizeof(MEDIA_INFO));
 	//初始化队列
 	packet_queue_init(&pVideoInfo->videoq);
 	pVideoInfo->videoq.m_pWaitCond=new CKKCond_t();
@@ -1541,6 +1568,45 @@ void KKPlayer::OpenInputAV(const char *url)
 	}
 	m_pAVForCtx=pFormatCtx;
 }
+
+void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid)
+{
+	AVFormatContext*  pFormatCtx=*pAVForCtx;
+    memset(&m_AVNextInfo,0,sizeof(m_AVNextInfo));
+	m_AVNextInfo.SegId=segid;
+	m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
+	if(m_AVNextInfo.NeedRead&&strlen(m_AVNextInfo.url))
+	{
+		   OpenInputAV(m_AVNextInfo.url);
+		   if(m_pAVForCtx!=NULL){
+			   if(pFormatCtx!=pVideoInfo->pFormatCtx)
+			   {
+				 avformat_close_input(pAVForCtx);
+			   }
+			   pFormatCtx=m_pAVForCtx;
+			   pVideoInfo->segid=m_AVNextInfo.SegId;
+		   }
+           *pAVForCtx=pFormatCtx;
+	}    
+}
+void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
+{
+	if(pVideoInfo!=NULL&&pVideoInfo->IsReady)
+	{
+		double incr, pos, frac;
+		incr=m_nSeekTime;
+		pos = get_master_clock(pVideoInfo);
+		if (isNAN(pos))
+			pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
+		incr=m_nSeekTime-pos;
+		pos += incr;
+		incr=60;
+		if (pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pFormatCtx->start_time / (double)AV_TIME_BASE)
+			pos = pFormatCtx->start_time / (double)AV_TIME_BASE;
+		stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
+		m_nSeekTime=0;
+	}
+}
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
@@ -1847,6 +1913,11 @@ void KKPlayer::ReadAV()
 			}
 		}
 
+		if(m_nSeekSegId>-1){
+		    loadSeg(&pFormatCtx,0,m_nSeekSegId);
+			m_nSeekSegId=-1;
+		}
+		InterSeek(pFormatCtx);
         /******快进*******/
 		if (pVideoInfo->seek_req&&!pVideoInfo->realtime)
 		{
@@ -1964,20 +2035,7 @@ void KKPlayer::ReadAV()
 							if(AVQueSize==0&&(pVideoInfo->pictq.size>1|| pVideoInfo->sampq.size>1)){
 								AVQueSize=1;
 							}
-							memset(&m_AVNextInfo,0,sizeof(m_AVNextInfo));
-							m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
-							if(m_AVNextInfo.NeedRead&&strlen(m_AVNextInfo.url))
-							{
-								   OpenInputAV(m_AVNextInfo.url);
-								   if(m_pAVForCtx!=NULL){
-									   if(pFormatCtx!=pVideoInfo->pFormatCtx)
-									   {
-										 avformat_close_input(&pFormatCtx);
-									   }
-									   pFormatCtx=m_pAVForCtx;
-									   pVideoInfo->segid=m_AVNextInfo.SegId;
-								   }
-							}    
+                            loadSeg(&pFormatCtx,AVQueSize);
 						}
 			 }
 			av_usleep(10000);
@@ -2143,26 +2201,11 @@ void KKPlayer::KKSeek( SeekEnum en,int value)
 	}
 }
 
-void KKPlayer::AVSeek(int value)
+void KKPlayer::AVSeek(int value,short segid)
 {
-	if(this->m_PlayerLock.TryLock())
-	{
-		if(pVideoInfo!=NULL&&pVideoInfo->IsReady)
-		{
-			m_CurTime=value;
-			double incr, pos, frac;
-			incr=value;
-			pos = get_master_clock(pVideoInfo);
-			if (isNAN(pos))
-				pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
-			incr=value-pos;
-			pos += incr;
-			incr=60;
-			if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
-				pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
-			stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
-		}
-	}
+	m_nSeekTime=value;
+	m_nSeekSegId=segid;
+	
 }
 
 void KKPlayer::AvflushRealTime(int Avtype)
