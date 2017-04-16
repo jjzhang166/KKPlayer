@@ -235,13 +235,13 @@ void              CMainFrame::AvSeek(int value)
 				short SegId=m_pPlayerInstance->GetSegId();
                 int va=seektime-value;
 				if(CurSegId!=SegId){
-				    int i=0;
-					i++;
+					m_pPlayerInstance->AVSeek(va,pItemHead->SegId);
 				}else{
-				    m_pPlayerInstance->AVSeek(value);
+				    m_pPlayerInstance->AVSeek(va);
 				}
 				break;
 			 }
+			 pItemHead=m_FileInfos.pItemHead->next;
 		 }
 	}
 }
@@ -927,25 +927,13 @@ void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesiz
 			 }else{
 			 
 			 }
+		 }
 	 }
 	 return;
 }
 void              CMainFrame::AVReadOverThNotify(void *playerIns)
 {
-	if(m_nPlayerInsCount>1)
-	{
-		/*m_nPlayerInsCount--;
-		KKPlayer *temp=m_pPlayerInstance;
-		
-		m_pPlayerInstanceNext->Pause();
-		
-		m_pPlayerInstance=m_pPlayerInstanceNext;
-		m_pPlayerInstanceNext->SetRender(true);
-		m_pPlayerInstanceNext=NULL;
-		temp->CloseMedia();
-		delete temp;*/
-		
-	}
+
 }
 void              CMainFrame::AVRender()
 {

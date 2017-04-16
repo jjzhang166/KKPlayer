@@ -1591,7 +1591,7 @@ void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid)
 }
 void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
 {
-	if(pVideoInfo!=NULL&&pVideoInfo->IsReady)
+	if(m_nSeekTime>0&&pVideoInfo!=NULL&&pVideoInfo->IsReady)
 	{
 		double incr, pos, frac;
 		incr=m_nSeekTime;
