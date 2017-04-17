@@ -474,11 +474,7 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	{
          m_pPlayerInstance->SetBGRA();
 	}
-	
-	
-	
-	 m_pPlayerInstance->InitSound();
-	 m_pSound->SetWindowHAND((int)m_hWnd);
+	m_pSound->SetWindowHAND((int)m_hWnd);
 
 
 	 //m_AVwTimerRes=0;

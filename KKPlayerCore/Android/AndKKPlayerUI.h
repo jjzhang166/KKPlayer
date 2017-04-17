@@ -43,9 +43,11 @@ class CAndKKPlayerUI :public  IKKPlayUI
 			virtual unsigned char* GetWaitImage(int &len,int curtime);
 			virtual unsigned char* GetBkImage(int &len);
 			virtual unsigned char* GetCenterLogoImage(int &length);
-			virtual void OpenMediaFailure(char* strURL,int err);
+			virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err);
 			/*******视频流结束调用*******/
-			virtual void  AutoMediaCose(int Stata);
+			virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
+			/***视频读取线程结束调用***/
+			virtual void  AVReadOverThNotify(void *playerIns);
 			virtual void AVRender(); 
    private:
         void   GlViewRender();

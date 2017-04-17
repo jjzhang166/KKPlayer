@@ -96,7 +96,7 @@ class KKPlayer
 			void KKSeek( SeekEnum en,int value);
 			//单位时间秒
 			void AVSeek(int value,short segid=-1);
-			void InitSound();
+			
 			
 			//获取播放信息
 			bool GetMediaInfo(MEDIA_INFO &info);

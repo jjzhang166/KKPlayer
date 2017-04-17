@@ -14,8 +14,9 @@ CAndKKPlayerUI::CAndKKPlayerUI(int RenderView):m_player(this,&m_Audio)
 ,m_pRender(0),m_nRefreshPic(0)
 {
     
-    m_player.InitSound();
-    m_player.SetWindowHwnd(0);
+   
+    m_player.SetWindowHwnd(0); 
+	m_Audio.SetWindowHAND(0); 
     m_bNeedReconnect= false; 
     if(m_nRenderType==0)	
 	    m_pRender = new GlEs2Render(&m_player);
@@ -84,7 +85,12 @@ void  CAndKKPlayerUI::Seek(int value)
 
 MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
 {
-    return m_player.GetMediaInfo();
+	 MEDIA_INFO  info;
+
+   if(m_player.GetMediaInfo(info))
+   {
+   }
+   return info;
 }
 int  CAndKKPlayerUI::OpenMedia(char *str)
 {
@@ -162,10 +168,11 @@ unsigned char* CAndKKPlayerUI::GetBkImage(int &length)
 {
     return NULL;
 }
-void CAndKKPlayerUI::OpenMediaFailure(char *strURL,int err)
+void CAndKKPlayerUI::OpenMediaFailure(char *strURL,EKKPlayerErr err)
 {
     LOGE("Open Err %d \n",m_playerState);
-    m_playerState=-2;
+	if(err==KKOpenUrlOkFailure)
+        m_playerState=-2;
     return;
 }
 //得到延迟
@@ -182,7 +189,7 @@ void  CAndKKPlayerUI::ForceFlushQue()
 {
     m_player.ForceFlushQue();
 }
-void  CAndKKPlayerUI::AutoMediaCose(int Stata)
+void  CAndKKPlayerUI::AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
 {
      if(Stata==-1){
          m_bNeedReconnect=true;
@@ -190,9 +197,13 @@ void  CAndKKPlayerUI::AutoMediaCose(int Stata)
      }
 	 m_playerState=-3;
 	 LOGE("AutoMediaCose %d \n", m_playerState);
-    
+     memset(&NextInfo,0,sizeof(KKPlayerNextAVInfo));
+	 
 }
-
+void  CAndKKPlayerUI::AVReadOverThNotify(void *playerIns)
+{
+	
+}
 
 int  CAndKKPlayerUI::CloseMedia()
 {

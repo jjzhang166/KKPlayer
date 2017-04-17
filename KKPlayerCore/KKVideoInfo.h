@@ -203,7 +203,11 @@ typedef struct SKK_VideoState
 	int64_t seek_pos;
 	int64_t seek_rel;
 	int read_pause_return;
+
+	//默认环境。
 	AVFormatContext *pFormatCtx;
+	//发送seg切换后使用
+	AVFormatContext *pSegFormatCtx;
 	int realtime;
 
 	SKK_Clock audclk;

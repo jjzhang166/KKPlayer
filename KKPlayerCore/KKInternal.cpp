@@ -67,7 +67,7 @@ void packet_queue_init(SKK_PacketQueue  *q)
 	q->abort_request = 1;
 }
 //包入队列
-int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt,short SegId) 
+int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt,short SegId,bool bflush) 
 {
 
 	SKK_AVPacketList *pkt1;
@@ -81,7 +81,7 @@ int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt,short
 		return -1;
 	pkt1->pkt = *pkt;
 	pkt1->next = NULL;
-	if (pkt == flush_pkt)
+	if (pkt == flush_pkt&&bflush)
 		q->serial++;
 
 	pkt1->serial = q->serial;
@@ -555,6 +555,7 @@ static void update_sample_display(SKK_VideoState *is, short *samples, int sample
 /* prepare a new audio buffer */
 void audio_callback(void *userdata, char *stream, int len)
 {
+	
 	SKK_VideoState *pVideoInfo=(SKK_VideoState *)userdata;
 	memset(stream,0,len);
 	if (pVideoInfo->paused||pVideoInfo->IsReady!=1||!pVideoInfo->audio_st)
@@ -618,6 +619,7 @@ static int audio_open2( void *opaque,                               int wanted_c
 	if(is->pKKAudio!=NULL)
 	{
 		is->pKKAudio->OpenAudio( wanted_channel_layout, wanted_nb_channels,wanted_sample_rate);
+		//is->pKKAudio->Start();
 	}
 	audio_hw_params->fmt = AV_SAMPLE_FMT_S16;
 	audio_hw_params->freq = wanted_sample_rate;
@@ -712,7 +714,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
         return -1;
-    //avctx = ic->streams[stream_index]->codec;
+   
 
 	avctx = avcodec_alloc_context3(NULL);
 	if (!avctx)
@@ -1249,6 +1251,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			do
 			{
 LXXXX:
+				LOGE(" 2 \n");
 				if(is->abort_request){
 					break;
 				}else if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial,&segid) <= 0) 
@@ -1320,6 +1323,7 @@ LXXXX:
 			av_free_packet(packet);  
 	}
 
+	LOGE(" 1");
 	avcodec_flush_buffers(is->viddec.avctx);
 	av_frame_unref(pFrame);
 	av_frame_free(&pFrame);
