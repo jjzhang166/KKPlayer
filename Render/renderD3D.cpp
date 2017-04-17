@@ -82,6 +82,8 @@ CRenderD3D::CRenderD3D()
 	,m_ErrTexture(NULL)
 	,m_ErrBufImg(NULL)
     ,m_ErrBufImgLen(0)
+	,m_lastpicw(0)
+	,m_lastpich(0)
 {
 
 }
@@ -826,13 +828,14 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 {
 	
 #ifdef VFYUV420P	
-   if (m_pYUVAVTexture == NULL)
+   if (m_pYUVAVTexture == NULL||m_lastpicw!=w|| m_lastpich!=h)
     {
         RECT rect2;
         GetClientRect(m_hView, &rect2);
 		UINT hei=rect2.bottom - rect2.top;
 		UINT Wei=rect2.right - rect2.left;
 		
+		SAFE_RELEASE(m_pYUVAVTexture);
 			if(m_w!=Wei&&hei!=m_h){
 				resize( Wei,hei);
 			}

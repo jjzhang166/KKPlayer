@@ -206,8 +206,10 @@ typedef struct SKK_VideoState
 
 	//默认环境。
 	AVFormatContext *pFormatCtx;
+
 	//发送seg切换后使用
 	AVFormatContext *pSegFormatCtx;
+
 	int realtime;
 
 	SKK_Clock audclk;
@@ -321,8 +323,8 @@ typedef struct SKK_VideoState
 	int viddec_height;               /**********解码后的高度**********/
 	int video_pitch;                 /************硬件解码**************/
 	
-	int need_width;
-	int need_height;
+	int last_width;
+	int last_height;
 	int step;
 
 	

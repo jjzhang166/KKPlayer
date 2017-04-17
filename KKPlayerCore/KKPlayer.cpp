@@ -46,7 +46,6 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 ,m_AudioPicBufLen(0)
 ,m_bRender(1)
 ,m_bLastOpenAudio(0)
-,m_pAVForCtx(0)
 {
 	m_pAVInfomanage=CAVInfoManage::GetInance();
 	pVideoInfo=NULL;
@@ -332,10 +331,8 @@ void KKPlayer::CloseMedia()
 	if(pVideoInfo->viddec.avctx!=NULL)
 	{
 	   LOGE("avcodec_close(pVideoInfo->viddec.avctx); \n");
-
 	   avcodec_flush_buffers(pVideoInfo->viddec.avctx);
 	   avcodec_close(pVideoInfo->viddec.avctx);
-	 //  av_packet_unref(&pVideoInfo->viddec->pkt);
 	   avcodec_free_context(&pVideoInfo->viddec.avctx);
 	   LOGE("avcodec_close(avcodec_free_context(&pVideoInfo->viddec.avctx) OK \n");
 	}
@@ -346,17 +343,16 @@ void KKPlayer::CloseMedia()
 		pVideoInfo->pFormatCtx->pb=NULL;
 	}
 
-	LOGE("pVideoInfo->pFormatCtx %d,%d \n",pVideoInfo->pFormatCtx,m_pAVForCtx);
-	if(pVideoInfo->pFormatCtx!=NULL)
-	   avformat_close_input(&pVideoInfo->pFormatCtx);
-
-    if(m_pAVForCtx!=NULL)
-	{
-		LOGE("m_pAVForCtx\n");
-	    avformat_close_input(&m_pAVForCtx);
-		m_pAVForCtx=NULL;
+	LOGE("pVideoInfo->pFormatCtx %d,%d \n",pVideoInfo->pFormatCtx,pVideoInfo->pSegFormatCtx);
+	if(pVideoInfo->pFormatCtx!=NULL){
+	    avformat_close_input(&pVideoInfo->pFormatCtx);
+	    pVideoInfo->pFormatCtx=NULL;
 	}
-
+	if(pVideoInfo->pSegFormatCtx!=NULL){
+		avformat_close_input(&pVideoInfo->pSegFormatCtx);
+		pVideoInfo->pSegFormatCtx=NULL;
+	}
+   
 	LOGE("pVideoInfo->pKKPluginInfo\n");
 	KK_Free_(pVideoInfo->pKKPluginInfo);
 
@@ -1422,7 +1418,7 @@ int KKPlayer::GetAVRate()
 		 if(pVideoInfo->pKKAudio!=NULL&&pVideoInfo->IsReady&&pVideoInfo->audio_st!=NULL)
 		    pVideoInfo->pKKAudio->ReadAudio();
 		 else
-			 av_usleep(10000);
+			 av_usleep(20000);
 	 }
 	 LOGE("KKPlayer Audio_Thread over \n");
 	 m_AudioCallthreadInfo.ThOver=true;
@@ -1479,7 +1475,7 @@ void KKPlayer::ForceFlushQue()
 
 
 //打开视频文件
-void KKPlayer::OpenInputAV(const char *url)
+void KKPlayer::OpenInputAV(const char *url,short segid)
 {
 
 	char filename[1024]="";
@@ -1517,7 +1513,7 @@ void KKPlayer::OpenInputAV(const char *url)
     //文件打开失败
 	if(err<0)
 	{
-	
+		avformat_free_context(pFormatCtx);
 		return;
 	}
     
@@ -1564,23 +1560,23 @@ void KKPlayer::OpenInputAV(const char *url)
 		enum AVMediaType type = st->codec->codec_type;
 		st_index[type] = i;
 	}
-	m_pAVForCtx=pFormatCtx;
+	pVideoInfo->pSegFormatCtx=pFormatCtx;
 
 
 
 	if (pVideoInfo->video_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->videoq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,pVideoInfo->segid,false);
+		packet_queue_put(&pVideoInfo->videoq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,segid,false);
 	}
 
 	if (pVideoInfo->audio_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt,pVideoInfo->segid,false);
+		packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt,segid,false);
 		
 	}
 	if (pVideoInfo->subtitle_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,pVideoInfo->segid,false);
+		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,segid,false);
 	}
 }
 
@@ -1592,16 +1588,12 @@ void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid)
 	m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
 	if(m_AVNextInfo.NeedRead&&strlen(m_AVNextInfo.url))
 	{
-		   OpenInputAV(m_AVNextInfo.url);
-		   if(m_pAVForCtx!=NULL){
-			   if(pFormatCtx!=pVideoInfo->pFormatCtx)
-			   {
-				 avformat_close_input(pAVForCtx);
-			   }
-			   pFormatCtx=m_pAVForCtx;
+		  OpenInputAV(m_AVNextInfo.url,m_AVNextInfo.SegId);
+		  if(pVideoInfo->pSegFormatCtx!=NULL)
+		  {
 			   pVideoInfo->segid=m_AVNextInfo.SegId;
-		   }
-           *pAVForCtx=pFormatCtx;
+			   *pAVForCtx=pVideoInfo->pSegFormatCtx;
+		  }
 	}    
 }
 void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
@@ -2051,12 +2043,20 @@ void KKPlayer::ReadAV()
 				
 			 }else if(ret == AVERROR_EOF && avio_feof(pFormatCtx->pb)&& pVideoInfo->eof){
 				        ///用于视频分片，但视频必须是同一格的
-			            if(m_pPlayUI!=NULL){
-
+			            if(m_pPlayUI!=NULL&&pVideoInfo->pSegFormatCtx==NULL){
 							if(AVQueSize==0&&(pVideoInfo->pictq.size>1|| pVideoInfo->sampq.size>1)){
 								AVQueSize=1;
 							}
                             loadSeg(&pFormatCtx,AVQueSize);
+						}else if(pVideoInfo->pSegFormatCtx!=NULL&&pVideoInfo->segid==pVideoInfo->cursegid){
+							if(m_PlayerLock.TryLock())
+							{
+								AVFormatContext *pTmpCtx=pVideoInfo->pFormatCtx;
+								pVideoInfo->pFormatCtx=pVideoInfo->pSegFormatCtx;
+								avformat_close_input(&pTmpCtx);
+								pVideoInfo->pSegFormatCtx=NULL;
+								m_PlayerLock.Unlock();
+							}
 						}
 			 }
 			av_usleep(10000);

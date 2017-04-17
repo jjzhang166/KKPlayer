@@ -65,8 +65,10 @@ private:
 	IDirect3DTexture9* m_pLeftPicTexture;
 	//YUV
 	IDirect3DSurface9  *m_pYUVAVTexture;
+	IDirect3DSurface9  *m_pBackBuffer;
+    int                m_lastpicw;
+	int                m_lastpich;
 
-	IDirect3DSurface9 * m_pBackBuffer;
     RECT m_rtViewport; 
 	//‰÷»æ«¯”Ú∏ﬂ∂»
     unsigned int m_w;

@@ -696,6 +696,149 @@ static inline int64_t get_valid_channel_layout(int64_t channel_layout, int chann
 //	else
 //		return 0;
 //}
+
+
+
+
+int seg_stream_component_open(SKK_VideoState *is, int stream_index)
+{
+	AVFormatContext *ic = is->pSegFormatCtx;
+    AVCodecContext *avctx=NULL;
+	AVCodecContext  *aCodecCtx = NULL;
+    AVCodec *codec=NULL;
+    const char *forced_codec_name = NULL;
+    AVDictionary *opts=NULL;
+    AVDictionaryEntry *t = NULL;
+    int sample_rate, nb_channels;
+    int channel_layout;
+	int stream_lowres = lowres;
+    int ret = 0;
+   
+
+    if (stream_index < 0 || stream_index >= ic->nb_streams)
+        return -1;
+   
+
+	avctx = avcodec_alloc_context3(NULL);
+	if (!avctx)
+		return AVERROR(ENOMEM);
+
+	ret = avcodec_parameters_to_context(avctx, ic->streams[stream_index]->codecpar);
+	if (ret < 0)
+		goto fail;
+
+	
+    codec = avcodec_find_decoder(avctx->codec_id);
+
+
+    switch(avctx->codec_type)
+	{
+        case AVMEDIA_TYPE_AUDIO   : 
+									 {
+										is->audio_filter_src.freq           = avctx->sample_rate;
+										is->audio_filter_src.channels       = avctx->channels;
+										is->audio_filter_src.channel_layout = get_valid_channel_layout(avctx->channel_layout, avctx->channels);
+										is->audio_filter_src.fmt            = avctx->sample_fmt;
+									 }
+			                         is->last_audio_stream= stream_index;
+									 break;
+        case AVMEDIA_TYPE_SUBTITLE: 
+			                         //LOGE("Code:AVMEDIA_TYPE_SUBTITLE");              
+					                 is->last_subtitle_stream = stream_index;
+									 break;
+        case AVMEDIA_TYPE_VIDEO   : 
+			                         //LOGE("Code:AVMEDIA_TYPE_VIDEO");  
+			                         is->last_video_stream= stream_index;
+									 break;
+    }
+    
+    if (!codec) 
+	{
+			LOGE("Code:-1");  
+			return -1;
+    }
+
+    avctx->codec_id = codec->id;
+   
+	if(stream_lowres > av_codec_get_max_lowres(codec))
+	{
+	
+		av_codec_get_max_lowres(codec);
+		stream_lowres = av_codec_get_max_lowres(codec);
+	}
+	av_codec_set_lowres(avctx, stream_lowres);
+
+	if(stream_lowres) 
+		avctx->flags |= CODEC_FLAG_EMU_EDGE;
+	
+	if(codec->capabilities & CODEC_CAP_DR1)
+		avctx->flags |= CODEC_FLAG_EMU_EDGE;
+
+	if(avctx->codec_type==AVMEDIA_TYPE_VIDEO)
+	{
+       #ifdef WIN32
+		       avctx->codec_id=codec->id;
+
+			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
+				   if(BindDxva2Module(avctx)<0){
+					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
+				   }
+			   }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){	   
+			       if(BindQsvModule(avctx)>-1){
+					   codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
+				   }else{
+				       is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
+				   }		
+			   }
+       #endif
+	}
+
+	
+	//打开解码器
+	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
+	{
+		LOGE("avcodec_open2 %d",avctx->codec_type);
+	}
+  
+    is->eof = 0;
+    ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
+    switch (avctx->codec_type)
+	{
+			case AVMEDIA_TYPE_AUDIO:
+									sample_rate    = avctx->sample_rate;
+									nb_channels    = avctx->channels;
+									channel_layout = avctx->channel_layout;
+									/* prepare audio output */
+									if ((ret = audio_open2(is, channel_layout, nb_channels, sample_rate, &is->audio_tgt)) < 0)
+									{
+										assert(0);
+										goto fail;
+									}
+									is->audio_diff_threshold = (double)(is->audio_hw_buf_size) / is->audio_tgt.bytes_per_sec;
+									is->audio_stream = stream_index;
+									is->audio_st = ic->streams[stream_index];
+									is->auddec.avctx=avctx;
+									break;
+			case AVMEDIA_TYPE_VIDEO:
+									is->video_stream = stream_index;
+									is->video_st = ic->streams[stream_index];
+									is->viddec.avctx = avctx;
+									break;
+			case AVMEDIA_TYPE_SUBTITLE:
+									is->subtitle_stream = stream_index;
+									is->subtitle_st = ic->streams[stream_index];
+                                    is->subdec.avctx = avctx;
+									break;
+			default:
+				                    break;
+    }
+
+fail:
+    av_dict_free(&opts);
+
+    return ret;
+}
+
 //打开流
 int stream_component_open(SKK_VideoState *is, int stream_index)
 {
@@ -783,12 +926,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
 				   }
-			   }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){
-
-				  
-				  /* avcodec_free_context(&avctx);
-				   avctx = avcodec_alloc_context3(codec);*/
-				   
+			   }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){	   
 			       if(BindQsvModule(avctx)>-1){
 					   codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
 				   }else{
@@ -858,7 +996,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 							
 							decoder_init(&is->viddec, avctx, &is->videoq);
 							//is->need_width; //FFALIGN(pFrame->width, 64);
-				   //         is->need_width;//FFALIGN(pFrame->height, 2);
+				            //is->need_width;//FFALIGN(pFrame->height, 2);
 							is->queue_attachments_req = 1;
 							is->viddec.decoder_tid.ThOver=false;
 							decoder_start(&is->viddec,&Video_thread,is);
@@ -880,6 +1018,8 @@ fail:
 
     return ret;
 }
+
+
 
 
 
@@ -1163,7 +1303,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
        pOutAV=pFrame;
 #endif
 
-	   if(is->need_height!=pOutAV->height ||is->need_width!=pOutAV->width){
+	   if(is->last_height!=pOutAV->height ||is->last_width!=pOutAV->width){
 
 		   if( is->img_convert_ctx!=NULL){
 	           sws_freeContext(is->img_convert_ctx);
@@ -1171,20 +1311,17 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		   }
 	   }
 
-		if( vp->buffer==NULL || is->need_height!=pOutAV->height ||is->need_width!=pOutAV->width)
+		if( vp->buffer==NULL || vp->height!=pOutAV->height ||vp->width!=pOutAV->width)
 		{
 			vp->allocated = 1;
 			
 			
-			if(is->need_height<=0||is->need_width<=0)
-			{
-			     is->need_width=pFrame->width;
-				 is->need_height=pFrame->height;
-			}
-		
-			 vp->width =   is->need_width; 
-			 vp->height=   is->need_height;//FFALIGN(pFrame->height, 2);
-			 vp->pitch =   is->need_width;
+			
+			 is->last_width=pFrame->width;
+			 is->last_height=pFrame->height;
+			 vp->width =   is->last_width; 
+			 vp->height=   is->last_height;//FFALIGN(pFrame->height, 2);
+			 vp->pitch =   is->last_width;
 			 
 		     int numBytes=avpicture_get_size(DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
 		     vp->buflen=numBytes*sizeof(uint8_t)+100;
@@ -1240,6 +1377,8 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 
 	pFrame = av_frame_alloc();//avcodec_alloc_frame();  
 
+	short segid=0;
+    short lastsegid=0;
 	for(;!is->abort_request;)  
 	{
 		    if(is->abort_request){
@@ -1247,22 +1386,25 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 				LOGE("Video_thread break");
                 break;
 			}	
-			short segid=0;
+			
 			do
 			{
 LXXXX:
-				LOGE(" 2 \n");
+//				LOGE(" 2 \n");
+				lastsegid=segid;
 				if(is->abort_request){
 					break;
+				
 				}else if(packet_queue_get(&is->videoq, packet, 1,&is->viddec.pkt_serial,&segid) <= 0) 
 				{
 					av_usleep(5000);
 					goto LXXXX;
 				}
 				
+
 				if(is->audio_st==NULL)
 				{
-				     is->cursegid=segid;
+				   is->cursegid=segid; 
 				}
 				if(is->videoq.serial!=is->viddec.pkt_serial)
 				{
@@ -1315,6 +1457,23 @@ LXXXX:
 				//av_frame_unref(pFrame);
 				LOGE("avcodec_flush_buffers video \n");
 				avcodec_flush_buffers(d->avctx);
+				if(lastsegid!=segid){
+					    for (int i = 0; i <is->pSegFormatCtx->nb_streams; i++) 
+						{
+							AVStream *st = is->pSegFormatCtx->streams[i];
+							enum AVMediaType type = st->codec->codec_type;
+							if(AVMEDIA_TYPE_VIDEO==type){
+								AVCodecContext *tempavctx=is->viddec.avctx;
+							    seg_stream_component_open(is,i);
+                                if(tempavctx!=0){
+								      avcodec_flush_buffers(tempavctx);
+									  avcodec_close(tempavctx); 
+									  avcodec_free_context(&tempavctx);
+								}
+								break;
+							}
+						}
+				}
 				d->finished = 0;
 				d->next_pts = d->start_pts;
 				d->next_pts_tb = d->start_pts_tb;
@@ -1323,7 +1482,7 @@ LXXXX:
 			av_free_packet(packet);  
 	}
 
-	LOGE(" 1");
+//	LOGE(" 1");
 	avcodec_flush_buffers(is->viddec.avctx);
 	av_frame_unref(pFrame);
 	av_frame_free(&pFrame);
@@ -1349,7 +1508,7 @@ LXXXX:
 
 
 //解码音频
-int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame,short *segId) 
+int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame,short *segId,short *lastsegid,int reconfigure=0) 
 {  
 	int n=0;
 	AVCodecContext *aCodecCtx=pVideoInfo->auddec.avctx;	
@@ -1365,6 +1524,7 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame,short *segId)
 	do
 	{
 LOXXXX:
+        *lastsegid=*segId;
 		//从队列获取数据
 		if(pVideoInfo->abort_request)
 		{
@@ -1384,6 +1544,26 @@ LOXXXX:
 		
 	if(pkt.data == pVideoInfo->pflush_pkt->data)
 	{
+		if(*segId!=*lastsegid&&pVideoInfo->pSegFormatCtx!=0)
+		{
+            for (int i = 0; i <pVideoInfo->pSegFormatCtx->nb_streams; i++) 
+			{
+				AVStream *st = pVideoInfo->pSegFormatCtx->streams[i];
+				enum AVMediaType type = st->codec->codec_type;
+				if(AVMEDIA_TYPE_AUDIO==type)
+				{
+					AVCodecContext *tempavctx=pVideoInfo->auddec.avctx;
+				    seg_stream_component_open(pVideoInfo,i);
+                    if(tempavctx!=0){
+					      avcodec_flush_buffers(tempavctx);
+						  avcodec_close(tempavctx); 
+						  avcodec_free_context(&tempavctx);
+					}
+					reconfigure=1;
+					break;
+				}
+			}
+		}
 		avcodec_flush_buffers(pVideoInfo->auddec.avctx);
 		pVideoInfo->auddec.Isflush=1;
 		pVideoInfo->auddec.finished = 0;
@@ -1404,12 +1584,7 @@ LOXXXX:
 				frame->pts=pkt.pts;
 		}
 	}	
-	
-	//if(pkt.data)
-	//{
-		av_packet_unref(&pkt);
-		//pkt.data=NULL;
-	//}
+	av_packet_unref(&pkt);
 	return got_frame;
 }
 static int configure_filtergraph(AVFilterGraph *graph, const char *filtergraph,
@@ -1618,11 +1793,13 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	
 	int64_t dec_channel_layout;
 	int reconfigure=0;
+	short segid=0;
+	short lastsegid=0;
 	//解码操作
 	do {
 		
-		short segid=0;
-		if ((got_frame = audio_decode_frame(is, frame,&segid)) < 0)
+		
+		if ((got_frame = audio_decode_frame(is, frame,&segid,&lastsegid,reconfigure)) < 0)
 			goto the_end;
     
 		if (got_frame)

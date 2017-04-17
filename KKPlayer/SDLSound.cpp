@@ -136,7 +136,7 @@ int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, 
  /*******∂¡»°“Ù∆µ ˝æ›********/
  void CSDLSound::ReadAudio()
  {
-	 Sleep(10);
+	 Sleep(50);
  }
  void CSDLSound::Start(){
 	 SDL_PauseAudio(0);

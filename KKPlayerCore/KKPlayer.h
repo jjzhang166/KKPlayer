@@ -156,7 +156,7 @@ private:
 			void        InterSeek(AVFormatContext*  pAVForCtx);
 			//数据读取
 	        void        ReadAV();
-			void OpenInputAV(const char *url);
+			void OpenInputAV(const char *url,short segid);
 	        //视频刷线程
 			void VideoRefresh();
 	        
@@ -182,8 +182,7 @@ private:
 	        //视频信息
 	        SKK_VideoState *pVideoInfo; 
 
-			//用于读取多个视频流
-			AVFormatContext *  m_pAVForCtx;
+			
 			///AV视频信息
 			KKPlayerNextAVInfo m_AVNextInfo;
 			//记录播放信息用
