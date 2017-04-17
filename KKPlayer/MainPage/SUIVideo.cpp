@@ -67,9 +67,9 @@ namespace SOUI
 	 {
           m_VideoWnd.AvSeek(value);
 	 }
-	MEDIA_INFO   CSuiVideo::GetMeadiaInfo()
+	bool   CSuiVideo::GetMeadiaInfo(MEDIA_INFO &info)
 	{
-       return     m_VideoWnd.GetMediaInfo();
+       return     m_VideoWnd.GetMediaInfo(info);
 	}
 	void CSuiVideo::OnPaint(IRenderTarget *pRT)
 	{

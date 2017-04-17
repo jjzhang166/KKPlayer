@@ -234,7 +234,7 @@ void              CMainFrame::AvSeek(int value)
 				short CurSegId=m_pPlayerInstance->GetCurSegId();
 				short SegId=m_pPlayerInstance->GetSegId();
                 int va=seektime-value;
-				if(CurSegId!=SegId){
+				if(CurSegId!=SegId||SegId!=pItemHead->SegId ){
 					m_pPlayerInstance->AVSeek(va,pItemHead->SegId);
 				}else{
 				    m_pPlayerInstance->AVSeek(va);
@@ -249,25 +249,29 @@ void              CMainFrame::SetVolume(long value)
 {
 	m_pPlayerInstance->SetVolume(value);
 }
-MEDIA_INFO        CMainFrame::GetMediaInfo()
+bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 {
 
-	//m_nCurSegId=0;
- //  m_nMilTimePos=0;
-   MEDIA_INFO  info;
-
-   if(m_pPlayerInstance->GetMediaInfo(info))
-   {
+   if(m_pPlayerInstance->GetMediaInfo(info)){
 	   info.CurTime+=m_nMilTimePos;
 	   info.TotalTime=m_FileInfos.milliseconds/1000;
 	   if(m_nCurSegId!=info.SegId&&m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->pre!=NULL)
 	   {
+		   AVFILE_SEG_ITEM* pItemHead=m_FileInfos.pItemHead;
 		   m_nCurSegId=info.SegId;
-		   m_nMilTimePos=m_nMilTimePos+(m_FileInfos.pCurItem->pre->milliseconds/1000);
+		   m_nMilTimePos=0;
+		   while(pItemHead){
+			   if(m_nCurSegId<=info.SegId)
+		           m_nMilTimePos=m_nMilTimePos+(m_FileInfos.pCurItem->pre->milliseconds/1000); 
+			   if(m_nCurSegId==info.SegId)
+				  break;
+			   pItemHead=pItemHead->next;
+		   }
 	   }
+	   return true;
    }
    
-   return 	info;
+   return 	false;
 }
 int               CMainFrame::GetCurTime()
 {
@@ -914,14 +918,26 @@ void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesiz
 		 if(m_pPlayerInstance==(KKPlayer*)playerIns){
 			 
 			 if(m_FileInfos.pCurItem->next!=NULL&&NextInfo.SegId==-1){
-				 m_FileInfos.pCurItem=m_FileInfos.pCurItem->next;	
-				 memset(&NextInfo,0,sizeof(NextInfo));
-				 strcpy(NextInfo.url, m_FileInfos.pCurItem->url);
-				 NextInfo.SegId=m_FileInfos.pCurItem->SegId;
-				 NextInfo.NeedRead=true;
-				 return  ;
+					 m_FileInfos.pCurItem=m_FileInfos.pCurItem->next;	
+					 memset(&NextInfo,0,sizeof(NextInfo));
+					 strcpy(NextInfo.url, m_FileInfos.pCurItem->url);
+					 NextInfo.SegId=m_FileInfos.pCurItem->SegId;
+					 NextInfo.NeedRead=true;
+					 return  ;
 			 }else{
-			 
+				    int timepos=0;
+			        AVFILE_SEG_ITEM* pItemHead=NULL;
+					for(;pItemHead!=NULL;){
+						if(pItemHead->SegId==NextInfo.SegId){
+							  memset(&NextInfo,0,sizeof(NextInfo));
+					          strcpy(NextInfo.url, pItemHead->url);
+						      NextInfo.SegId=pItemHead->SegId;
+					          NextInfo.NeedRead=true;
+							  m_FileInfos.pCurItem=pItemHead;
+							  return;
+						}
+						pItemHead=pItemHead->next;
+					}
 			 }
 		 }
 	 }
@@ -933,5 +949,5 @@ void              CMainFrame::AVReadOverThNotify(void *playerIns)
 }
 void              CMainFrame::AVRender()
 {
- m_pPlayerInstance->RenderImage(m_pRender,false);
+                  m_pPlayerInstance->RenderImage(m_pRender,false);
 }

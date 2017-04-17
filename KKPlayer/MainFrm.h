@@ -88,7 +88,7 @@ public:
 
 	void         GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 	int          GetRealtime();
-    MEDIA_INFO   GetMediaInfo();
+    bool         GetMediaInfo(MEDIA_INFO& info);
 	void         SetVolume(long value);
 	void         AvSeek(int value);
     int          OpenMedia(std::string url);

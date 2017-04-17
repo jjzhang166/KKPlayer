@@ -18,7 +18,7 @@ namespace SOUI
 		   int DownMedia(char *KKVURL);
 		   void Close();
 		   void SetPlayStat(int state);
-		   MEDIA_INFO GetMeadiaInfo();
+		   bool GetMeadiaInfo(MEDIA_INFO &info);
 		   void SetVolume(long value);
 		   void AvSeek(int value);
 		   int PktSerial();
