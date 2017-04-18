@@ -1482,7 +1482,7 @@ void KKPlayer::ForceFlushQue()
 
 
 //打开视频文件
-void KKPlayer::OpenInputAV(const char *url,short segid)
+void KKPlayer::OpenInputAV(const char *url,short segid,bool flush)
 {
 
 	char filename[1024]="";
@@ -1573,21 +1573,21 @@ void KKPlayer::OpenInputAV(const char *url,short segid)
 
 	if (pVideoInfo->video_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->videoq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,segid,false);
+		packet_queue_put(&pVideoInfo->videoq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,segid,flush);
 	}
 
 	if (pVideoInfo->audio_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt,segid,false);
+		packet_queue_put(&pVideoInfo->audioq,pVideoInfo->pflush_pkt, pVideoInfo->pflush_pkt,segid,flush);
 		
 	}
 	if (pVideoInfo->subtitle_stream >= 0) 
 	{
-		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,segid,false);
+		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,segid,flush);
 	}
 }
 
-void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid)
+void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid,bool flush)
 {
 	AVFormatContext*  pFormatCtx=*pAVForCtx;
     memset(&m_AVNextInfo,0,sizeof(m_AVNextInfo));
@@ -1595,7 +1595,7 @@ void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid)
 	m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
 	if(m_AVNextInfo.NeedRead&&strlen(m_AVNextInfo.url))
 	{
-		  OpenInputAV(m_AVNextInfo.url,m_AVNextInfo.SegId);
+		  OpenInputAV(m_AVNextInfo.url,m_AVNextInfo.SegId,flush);
 		  if(pVideoInfo->pSegFormatCtx!=NULL)
 		  {
 			   pVideoInfo->segid=m_AVNextInfo.SegId;
@@ -1933,8 +1933,8 @@ void KKPlayer::ReadAV()
 
 		//LOGE(" xxx:%d,%d",m_nSeekSegId,pFormatCtx);
 		if(m_nSeekSegId>-1){
-			ForceFlushQue();
-		    loadSeg(&pFormatCtx,0,m_nSeekSegId);
+			//ForceFlushQue();
+		    loadSeg(&pFormatCtx,0,m_nSeekSegId,true);
 			m_nSeekSegId=-1;
 		}
 		InterSeek(pFormatCtx);

@@ -1488,8 +1488,7 @@ LXXXX:
 	av_frame_free(&pFrame);
 
 #ifdef WIN32
-	 if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA)
-	 {
+	 if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 	        FroceClose_Kk_Va_Dxva2(is->viddec.avctx->opaque);
 	        is->viddec.avctx->opaque=NULL;
 	        is->viddec.avctx->hwaccel_context=NULL;
