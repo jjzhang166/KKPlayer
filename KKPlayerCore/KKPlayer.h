@@ -151,7 +151,7 @@ private:
 	        static unsigned __stdcall ReadAV_thread(LPVOID lpParameter);
 			
 			void        OpenAudioDev();
-			void        OpenInputAV(const char *url,short segid,bool flush);
+			bool        OpenInputSegAV(const char *url,short segid,bool flush);
 			void        loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid=-1,bool flush=false);
 			void        InterSeek(AVFormatContext*  pAVForCtx);
 			//Êý¾Ý¶ÁÈ¡

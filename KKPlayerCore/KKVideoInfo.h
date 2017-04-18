@@ -209,7 +209,7 @@ typedef struct SKK_VideoState
 
 	//发送seg切换后使用
 	AVFormatContext *pSegFormatCtx;
-
+    int              SegStreamState;
 	int realtime;
 
 	SKK_Clock audclk;

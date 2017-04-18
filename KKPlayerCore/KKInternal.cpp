@@ -105,7 +105,7 @@ int packet_queue_put(SKK_PacketQueue *q, AVPacket *pkt,AVPacket *flush_pkt,short
 
 int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial,short *segid)
 {
-	SKK_AVPacketList *pkt1;
+	SKK_AVPacketList *pkt1=NULL;
 	int ret=-1;
 
 	q->pLock->Lock();
@@ -122,9 +122,11 @@ int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial,s
 			q->size -= pkt1->pkt.size;
 			*pkt = pkt1->pkt;
 			q->PktMemSize-=pkt->size;
-			*serial=pkt1->serial;
 			*segid=pkt1->seg;
+			*serial=pkt1->serial;
+			
 			av_free(pkt1);
+			pkt1=0;
 			ret = 1;
 			break;
 		} else if (!block) 
@@ -138,12 +140,6 @@ int packet_queue_get(SKK_PacketQueue *q, AVPacket *pkt, int block, int *serial,s
 		}
 	}
 	q->pLock->Unlock();
-
-	if(pkt->data==NULL)
-	{
-          int xx=0;
-		  xx++;
-	}
 	return ret;
 }
 
@@ -1391,7 +1387,6 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 			{
 LXXXX:
 //				LOGE(" 2 \n");
-				lastsegid=segid;
 				if(is->abort_request){
 					break;
 				
@@ -1409,10 +1404,11 @@ LXXXX:
 				if(is->videoq.serial!=is->viddec.pkt_serial)
 				{
                     av_free_packet(packet); 
+					
 				}
 				
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
-
+         
  
 
 			SKK_Decoder* d=&is->viddec;
@@ -1457,7 +1453,7 @@ LXXXX:
 				//av_frame_unref(pFrame);
 				LOGE("avcodec_flush_buffers video \n");
 				avcodec_flush_buffers(d->avctx);
-				if(lastsegid!=segid){
+				if(lastsegid!=segid&&is->pSegFormatCtx!=NULL){
 					    for (int i = 0; i <is->pSegFormatCtx->nb_streams; i++) 
 						{
 							AVStream *st = is->pSegFormatCtx->streams[i];
@@ -1470,6 +1466,7 @@ LXXXX:
 									  avcodec_close(tempavctx); 
 									  avcodec_free_context(&tempavctx);
 								}
+								is->SegStreamState|= 0x10;
 								break;
 							}
 						}
@@ -1478,7 +1475,7 @@ LXXXX:
 				d->next_pts = d->start_pts;
 				d->next_pts_tb = d->start_pts_tb;
 			}
-			
+			 lastsegid=segid;
 			av_free_packet(packet);  
 	}
 
@@ -1523,7 +1520,6 @@ int audio_decode_frame( SKK_VideoState *pVideoInfo,AVFrame* frame,short *segId,s
 	do
 	{
 LOXXXX:
-        *lastsegid=*segId;
 		//从队列获取数据
 		if(pVideoInfo->abort_request)
 		{
@@ -1558,6 +1554,7 @@ LOXXXX:
 						  avcodec_close(tempavctx); 
 						  avcodec_free_context(&tempavctx);
 					}
+					pVideoInfo->SegStreamState|= 0x1;
 					reconfigure=1;
 					break;
 				}
@@ -1583,6 +1580,9 @@ LOXXXX:
 				frame->pts=pkt.pts;
 		}
 	}	
+
+	
+    *lastsegid= *segId;
 	av_packet_unref(&pkt);
 	return got_frame;
 }

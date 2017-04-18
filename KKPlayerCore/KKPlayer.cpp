@@ -1482,7 +1482,7 @@ void KKPlayer::ForceFlushQue()
 
 
 //打开视频文件
-void KKPlayer::OpenInputAV(const char *url,short segid,bool flush)
+bool KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
 {
 
 	char filename[1024]="";
@@ -1520,8 +1520,9 @@ void KKPlayer::OpenInputAV(const char *url,short segid,bool flush)
     //文件打开失败
 	if(err<0)
 	{
-		avformat_free_context(pFormatCtx);
-		return;
+		avformat_close_input(&pFormatCtx);
+		//avformat_free_context(pFormatCtx);
+		return false;
 	}
     
 	if (scan_all_pmts_set)
@@ -1533,7 +1534,8 @@ void KKPlayer::OpenInputAV(const char *url,short segid,bool flush)
 
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
 	{
-		return;
+		avformat_close_input(&pFormatCtx);
+		return false;
     }
 	
 	int  i, ret=-1;
@@ -1567,7 +1569,7 @@ void KKPlayer::OpenInputAV(const char *url,short segid,bool flush)
 		enum AVMediaType type = st->codec->codec_type;
 		st_index[type] = i;
 	}
-	pVideoInfo->pSegFormatCtx=pFormatCtx;
+	
 
 
 
@@ -1585,6 +1587,8 @@ void KKPlayer::OpenInputAV(const char *url,short segid,bool flush)
 	{
 		packet_queue_put(&pVideoInfo->subtitleq, pVideoInfo->pflush_pkt,pVideoInfo->pflush_pkt,segid,flush);
 	}
+	pVideoInfo->pSegFormatCtx=pFormatCtx;
+	return true;
 }
 
 void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid,bool flush)
@@ -1592,15 +1596,22 @@ void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid,
 	AVFormatContext*  pFormatCtx=*pAVForCtx;
     memset(&m_AVNextInfo,0,sizeof(m_AVNextInfo));
 	m_AVNextInfo.SegId=segid;
+	m_AVNextInfo.lstOpSt=true;
+ReOpenAV:
 	m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
 	if(m_AVNextInfo.NeedRead&&strlen(m_AVNextInfo.url))
 	{
-		  OpenInputAV(m_AVNextInfo.url,m_AVNextInfo.SegId,flush);
-		  if(pVideoInfo->pSegFormatCtx!=NULL)
-		  {
-			   pVideoInfo->segid=m_AVNextInfo.SegId;
-			   *pAVForCtx=pVideoInfo->pSegFormatCtx;
-		  }
+		 if(OpenInputSegAV(m_AVNextInfo.url,m_AVNextInfo.SegId,flush))
+		 {
+			  if(pVideoInfo->pSegFormatCtx!=NULL)
+			  {
+				   pVideoInfo->segid=m_AVNextInfo.SegId;
+				   *pAVForCtx=pVideoInfo->pSegFormatCtx;
+			  }
+		 }else{
+			  m_AVNextInfo.lstOpSt=false;
+		      goto ReOpenAV;
+		 }
 	}    
 }
 void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
@@ -1931,13 +1942,7 @@ void KKPlayer::ReadAV()
 			}
 		}
 
-		//LOGE(" xxx:%d,%d",m_nSeekSegId,pFormatCtx);
-		if(m_nSeekSegId>-1){
-			//ForceFlushQue();
-		    loadSeg(&pFormatCtx,0,m_nSeekSegId,true);
-			m_nSeekSegId=-1;
-		}
-		InterSeek(pFormatCtx);
+	
         /******快进*******/
 		if (pVideoInfo->seek_req&&!pVideoInfo->realtime)
 		{
@@ -2015,7 +2020,19 @@ void KKPlayer::ReadAV()
 			 pVideoInfo->nRealtimeDelayCount=0;
 		}
 
+		if(m_nSeekSegId>-1){
+			if(pVideoInfo->pSegFormatCtx!=0)
+			    ForceFlushQue();
+		}
+		
+ReRead:
 		ret = av_read_frame(pFormatCtx, pkt);
+        if(ret>=0&&m_nSeekSegId>-1)
+		{
+		    av_packet_unref(pkt);
+			goto ReRead;
+		}
+
 		if (ret < 0) {
 			 if(pVideoInfo->bTraceAV)
 			 LOGE("readAV ret=%d \n",ret);
@@ -2049,22 +2066,45 @@ void KKPlayer::ReadAV()
 					 LOGE("pFormatCtx->pb && pFormatCtx->pb->error \n");
 				 break;
 				
-			 }else if(ret == AVERROR_EOF && avio_feof(pFormatCtx->pb)&& pVideoInfo->eof){
+			 }else if(ret == AVERROR_EOF && avio_feof(pFormatCtx->pb)&& pVideoInfo->eof)
+			 {
 				        ///用于视频分片，但视频必须是同一格的
 			            if(m_pPlayUI!=NULL&&pVideoInfo->pSegFormatCtx==NULL){
 							if(AVQueSize==0&&(pVideoInfo->pictq.size>1|| pVideoInfo->sampq.size>1)){
 								AVQueSize=1;
 							}
-                            loadSeg(&pFormatCtx,AVQueSize);
-						}else if(pVideoInfo->pSegFormatCtx!=NULL&&pVideoInfo->segid==pVideoInfo->cursegid){
-							if(m_PlayerLock.TryLock())
-							{
-								AVFormatContext *pTmpCtx=pVideoInfo->pFormatCtx;
-								pVideoInfo->pFormatCtx=pVideoInfo->pSegFormatCtx;
-								avformat_close_input(&pTmpCtx);
-								pVideoInfo->pSegFormatCtx=NULL;
-								m_PlayerLock.Unlock();
-							}
+							if(m_nSeekSegId>-1){
+							   loadSeg(&pFormatCtx,0,m_nSeekSegId,true);
+							   m_nSeekSegId=-1;
+							}else{
+							   loadSeg(&pFormatCtx,AVQueSize);
+							}        
+						}else if(pVideoInfo->SegStreamState!=0&&pVideoInfo->pSegFormatCtx!=NULL)//&&pVideoInfo->segid==pVideoInfo->cursegid)
+						{
+							    int retxx=pVideoInfo->SegStreamState;
+						        for (int i = 0; i <pVideoInfo->pSegFormatCtx->nb_streams; i++) 
+								{
+									AVStream *st = pVideoInfo->pSegFormatCtx->streams[i];
+									enum AVMediaType type = st->codec->codec_type;
+									if(AVMEDIA_TYPE_VIDEO==type){
+										retxx^= 0x10;
+									}else if(AVMEDIA_TYPE_AUDIO==type){
+										retxx^= 0x01;
+										continue;
+									}
+								}
+								if(retxx==0){
+									if(m_PlayerLock.TryLock())
+									{
+										AVFormatContext *pTmpCtx=pVideoInfo->pFormatCtx;
+										pVideoInfo->pFormatCtx=pVideoInfo->pSegFormatCtx;
+										avformat_close_input(&pTmpCtx);
+										pVideoInfo->SegStreamState=0;
+										pVideoInfo->pSegFormatCtx=NULL;
+										m_PlayerLock.Unlock();
+										continue;
+									}
+								}
 						}
 			 }
 			av_usleep(10000);
@@ -2072,6 +2112,15 @@ void KKPlayer::ReadAV()
 		} else 
 		{
 			pVideoInfo->eof = 0;
+			
+		}
+
+         ///seek.
+		if(m_nSeekSegId==-1)
+		     InterSeek(pFormatCtx);
+		else if(m_nSeekSegId>=-1)
+		{
+		
 		}
 		
 		/* check if packet is in play range specified by user, then queue, otherwise discard */

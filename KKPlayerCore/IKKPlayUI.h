@@ -18,9 +18,10 @@ enum EKKPlayerErr
 };
 typedef struct KKPlayerNextAVInfo
 {
-     char url[1024];
-	 bool NeedRead;
-	 short SegId;
+     char url[1024];///填入要打开的url地址。
+	 bool NeedRead; ///是否需要打开。
+	 bool lstOpSt;  ///上次打开是否成功
+	 short SegId;   ///需要打开的分段Id
 }KKPlayerNextAVInfo;
 /*******UI接口********/
 class IKKPlayUI

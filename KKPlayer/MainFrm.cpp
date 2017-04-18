@@ -253,21 +253,23 @@ bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 {
 
    if(m_pPlayerInstance->GetMediaInfo(info)){
-	   info.CurTime+=m_nMilTimePos;
+	   m_nMilTimePos=0;
 	   info.TotalTime=m_FileInfos.milliseconds/1000;
-	   if(m_nCurSegId!=info.SegId&&m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->pre!=NULL)
+	   if(m_FileInfos.ItemCount>1)
 	   {
 		   AVFILE_SEG_ITEM* pItemHead=m_FileInfos.pItemHead;
 		   m_nCurSegId=info.SegId;
 		   m_nMilTimePos=0;
 		   while(pItemHead){
-			   if(m_nCurSegId<=info.SegId)
+			   if(pItemHead->SegId<info.SegId)
 		           m_nMilTimePos=m_nMilTimePos+(m_FileInfos.pCurItem->pre->milliseconds/1000); 
-			   if(m_nCurSegId==info.SegId)
-				  break;
+			   
+			   if(pItemHead->SegId==info.SegId)
+				    break;
 			   pItemHead=pItemHead->next;
 		   }
 	   }
+	   info.CurTime+=m_nMilTimePos;
 	   return true;
    }
    
@@ -329,9 +331,8 @@ int               CMainFrame::OpenMedia(std::string url)
 	 }
 	 int  ret=0;
 
-	 AVFILE_SEGS_INFO &infos=m_FileInfos;
-
-	 {
+	 if(0){
+		 AVFILE_SEGS_INFO &infos=m_FileInfos;
 		 int SegId=0;
 		 AVFILE_SEG_ITEM *Seg1= new AVFILE_SEG_ITEM();
 		 Seg1->milliseconds=194397;
@@ -404,6 +405,14 @@ void              CMainFrame::CloseMedia()
    m_bOpen=false;
    m_nCurSegId=0;
    m_nMilTimePos=0;
+
+   AVFILE_SEG_ITEM* item=m_FileInfos.pItemHead;
+   while(item!=0)
+   {
+	   AVFILE_SEG_ITEM* item2=item->next;
+	   delete item;
+	   item=item2;
+   }
 }
 void              CMainFrame::FullScreen()
 {
@@ -913,21 +922,21 @@ void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesiz
 		}
 	}
 
-	if(m_FileInfos.pCurItem!=NULL&&m_FileInfos.ItemCount>0)
+	if(m_FileInfos.ItemCount>1)
 	 { 
 		 if(m_pPlayerInstance==(KKPlayer*)playerIns){
 			 
-			 if(m_FileInfos.pCurItem->next!=NULL&&NextInfo.SegId==-1){
+			 if(m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->next!=NULL&&NextInfo.SegId==-1){
 					 m_FileInfos.pCurItem=m_FileInfos.pCurItem->next;	
 					 memset(&NextInfo,0,sizeof(NextInfo));
 					 strcpy(NextInfo.url, m_FileInfos.pCurItem->url);
 					 NextInfo.SegId=m_FileInfos.pCurItem->SegId;
 					 NextInfo.NeedRead=true;
 					 return  ;
-			 }else{
+			 }else if(NextInfo.SegId>-1){
 				    int timepos=0;
-			        AVFILE_SEG_ITEM* pItemHead=NULL;
-					for(;pItemHead!=NULL;){
+					AVFILE_SEG_ITEM* pItemHead=m_FileInfos.pItemHead;
+					while(pItemHead!=NULL){
 						if(pItemHead->SegId==NextInfo.SegId){
 							  memset(&NextInfo,0,sizeof(NextInfo));
 					          strcpy(NextInfo.url, pItemHead->url);
