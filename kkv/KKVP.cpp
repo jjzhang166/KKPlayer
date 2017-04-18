@@ -503,4 +503,5 @@ KK_DOWN_SPEED_INFO __declspec(dllexport) *KKDownAVFileSpeedInfo(char *strurl,int
 	KK_DOWN_SPEED_INFO* pSpeedInfo;
 	return pSpeedInfo; 
 }
+
 };

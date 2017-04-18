@@ -331,7 +331,8 @@ int               CMainFrame::OpenMedia(std::string url)
 	 }
 	 int  ret=0;
 
-	 if(0){
+	 //if(0)
+	 {
 		 AVFILE_SEGS_INFO &infos=m_FileInfos;
 		 int SegId=0;
 		 AVFILE_SEG_ITEM *Seg1= new AVFILE_SEG_ITEM();

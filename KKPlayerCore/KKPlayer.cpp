@@ -1654,7 +1654,7 @@ void KKPlayer::ReadAV()
 		av_dict_set(&format_opts, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
 		scan_all_pmts_set = 1;
 	}
-	
+	pVideoInfo->pFormatCtx = pFormatCtx;
 	
 	if(KKProtocolAnalyze(pVideoInfo->filename,*pVideoInfo->pKKPluginInfo)==1)
 	{	
@@ -1726,7 +1726,7 @@ void KKPlayer::ReadAV()
 		return;
 		
 	}
-	pVideoInfo->pFormatCtx = pFormatCtx;
+	
     m_PlayerLock.Unlock();
 
 	if (scan_all_pmts_set)
