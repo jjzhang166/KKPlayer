@@ -1688,6 +1688,9 @@ void KKPlayer::ReadAV()
 		pVideoInfo->iformat,    &format_opts);
     
 	if(strncmp(pVideoInfo->filename, "rtmp:",5)==0||strncmp(pVideoInfo->filename, "rtsp:",5)==0){
+		 
+		pFormatCtx->probesize = 100 *1024;
+		pFormatCtx->max_analyze_duration=5 * AV_TIME_BASE;
 		double  dx2=av_gettime ()/1000/1000-pVideoInfo->OpenTime;
         if(dx2>MaxTimeOut)
 		{
@@ -1737,6 +1740,8 @@ void KKPlayer::ReadAV()
 	//if(m_bTrace)
 	LOGE("av_format_inject_global_side_data \n");
 	av_format_inject_global_side_data(pFormatCtx);
+	
+	
 	// Retrieve stream information
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
 	{

@@ -1369,7 +1369,13 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	double pts;  
 	//double duration;
 	//大概的速率
-    AVRational frame_rate = av_guess_frame_rate(is->pFormatCtx, is->video_st, NULL);
+    AVRational frame_rate =  av_guess_frame_rate(is->pFormatCtx, is->video_st, NULL);
+	if(is->realtime)
+	{
+	   
+	}else{
+	   
+	}
 
 	pFrame = av_frame_alloc();//avcodec_alloc_frame();  
 
