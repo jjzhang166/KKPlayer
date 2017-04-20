@@ -894,7 +894,10 @@ unsigned char*    CMainFrame::GetBkImage(int &len)
 }
 
 
-
+int            CMainFrame::PreOpenUrlCall(const char *Url,int *Interrupt)
+{
+              return 0;
+}
 void              CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
 {
      int length=0;

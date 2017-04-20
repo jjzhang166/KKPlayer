@@ -363,4 +363,38 @@ typedef struct SKK_VideoState
 		HARD_CODE_NONE = 0, HARD_CODE_DXVA = 1, HARD_CODE_QSV = 2,HARD_CODE_CUDA
 	} Hard_Code;
 } SKK_VideoState;
+
+
+enum SeekEnum
+{
+	Up,
+	Down,
+	Left,
+	Right
+};
+
+typedef struct AVCACHE_INFO
+{
+	int VideoSize;
+	int AudioSize;
+	int MaxTime;
+}AVCACHE_INFO;
+//获取播放器信息
+typedef struct MEDIA_INFO 
+{
+	//分辨率
+	char              AVRes[32];
+	char              AVinfo[1024];
+	const char*       AvFile;
+	int               FileSize;
+	int               CurTime;
+	int               TotalTime;//总时长
+	int               serial;
+	bool              Open;
+	int               KKState;
+    short             SegId;
+	AVCACHE_INFO      CacheInfo;
+}MEDIA_INFO ;
+
+
 #endif

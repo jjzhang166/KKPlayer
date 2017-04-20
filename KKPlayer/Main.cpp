@@ -25,6 +25,7 @@
 
 void DeclareDumpFile();
 CAppModule _Module;
+
 std::basic_string<TCHAR> g_strModuleFileName;
 SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
 const std::basic_string<TCHAR>& XGetModuleFilename()
@@ -36,6 +37,7 @@ const std::basic_string<TCHAR>& XGetModuleFilename()
 			g_strModuleFileName = filename;
 		}
 	}
+	
 	return g_strModuleFileName;
 }
 std::basic_string<TCHAR> GetModulePath()

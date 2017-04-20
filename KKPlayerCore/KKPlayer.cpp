@@ -58,8 +58,6 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 		/*std::string strPort="";
 		const char *pp=strPort.c_str();
 		char* const aaa=(char* const)pp;*/
-
-		avdevice_register_all();
 		av_register_all();
 		avfilter_register_all();
 		avformat_network_init();
@@ -1656,11 +1654,11 @@ void KKPlayer::ReadAV()
 	}
 	pVideoInfo->pFormatCtx = pFormatCtx;
 	
+	m_pPlayUI->PreOpenUrlCall(pVideoInfo->filename,(int*)&pVideoInfo->abort_request);
 	if(KKProtocolAnalyze(pVideoInfo->filename,*pVideoInfo->pKKPluginInfo)==1)
 	{	
 	    pFormatCtx->pb=CreateKKIo(pVideoInfo);
         pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
-		//pFormatCtx->max_delay
     }
 	m_nPreFile=2;
 	

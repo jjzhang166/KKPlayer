@@ -11,8 +11,9 @@ extern "C"{
 
 #include "libavcodec/avcodec.h"
 
-int av_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
-int av_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);
+///此函数需要导出，需要修改FFmpeg
+int av_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);///->ff_get_format
+int av_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);    ///->ff_get_buffer;
 }
 
 //#include "internal.h"
@@ -110,6 +111,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     enum AVPixelFormat pix_fmts[3] = { AV_PIX_FMT_QSV,AV_PIX_FMT_NV12,AV_PIX_FMT_NONE };
 
     ret = av_get_format(avctx, pix_fmts);
+	
     if (ret < 0)
         return ret;
 

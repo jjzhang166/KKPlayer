@@ -33,7 +33,8 @@ class IKKPlayUI
 			 virtual unsigned char* GetCenterLogoImage(int &length)=0;
 			 //打开失败
 			 virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err)=0;
-			 
+			 ///读取线程打开文件前的回调函数
+			 virtual int PreOpenUrlCall(const char *Url,int *Interrupt)=0;
 			 /*******视频流结束调用.*******/
 			 virtual void AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)=0;
 
