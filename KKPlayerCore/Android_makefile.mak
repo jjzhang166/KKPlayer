@@ -35,7 +35,6 @@ $(ObjTARGET):$(objects)
 	-lOpenSLES \
 	-lstlport_static \
 	-lavcodec-57 \
-	-lavdevice-57 \
 	-lavfilter-6 \
 	-lavformat-57 \
 	-lavutil-55 \

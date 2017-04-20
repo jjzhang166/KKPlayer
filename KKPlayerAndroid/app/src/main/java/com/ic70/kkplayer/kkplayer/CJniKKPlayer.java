@@ -28,7 +28,7 @@ public class CJniKKPlayer {
         System.loadLibrary("avformat-57");
         System.loadLibrary("swscale-4");
         System.loadLibrary("avfilter-6");
-        System.loadLibrary("avdevice-57");/**/
+       // System.loadLibrary("avdevice-57");/**/
         System.loadLibrary("KKPlayerCore");
     }
 

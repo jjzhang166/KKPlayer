@@ -175,6 +175,11 @@ void CAndKKPlayerUI::OpenMediaFailure(char *strURL,EKKPlayerErr err)
         m_playerState=-2;
     return;
 }
+int CAndKKPlayerUI::PreOpenUrlCall(const char *Url,int *Interrupt)
+{
+	
+	return 0;
+}
 //得到延迟
 int  CAndKKPlayerUI::GetRealtimeDelay()
 {
