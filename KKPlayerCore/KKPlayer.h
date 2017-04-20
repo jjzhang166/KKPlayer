@@ -102,7 +102,7 @@ class KKPlayer
 			int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 			/**********Ìí¼Ó²å¼þ**********/
 			static void AddKKPluginInfo(KKPluginInfo &info);
-
+			static std::list<KKPluginInfo>&  GetKKPluginInfoList();
 #ifdef Android_Plat
 			void *  GetVideoRefreshJNIEnv()
 			{

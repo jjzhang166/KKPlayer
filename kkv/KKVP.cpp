@@ -504,4 +504,32 @@ KK_DOWN_SPEED_INFO __declspec(dllexport) *KKDownAVFileSpeedInfo(char *strurl,int
 	return pSpeedInfo; 
 }
 
+
+
+char * c_left(char *dst,char *src, int n)
+{
+	char *p = src;
+	char *q = dst;
+	int len = strlen(src);
+	if(n>len) n = len;
+	/*p += (len-n);*/   /*从右边第n个字符开始*/
+	while(n--) *(q++) = *(p++);
+	*(q++)='\0'; /*有必要吗？很有必要*/
+	return dst;
+}
+char __declspec(dllexport) *KKUrlParser(const char *strurl)
+{
+	
+	char* pos=(char*)strstr(strurl,":") ;
+	if(pos!=NULL)
+	{
+		char ProName[256];
+		int lll=pos-strurl;
+		c_left(ProName,(char *)strurl,lll);
+		if(strcmp(ProName,"kkv")==0){
+		
+		}
+	}
+	return NULL; 
+}
 };

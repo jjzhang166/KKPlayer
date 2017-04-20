@@ -35,6 +35,9 @@ extern "C"
 	typedef int64_t  (*fIo_seek)(void *opaque, int64_t offset, int whence);
 	//得到缓存时间
 	typedef unsigned int     (*fGetCacheTime)(void *opaque);
+
+	//url分析函数
+	typedef char (*fKKUrlParser)(const char *strurl);
 	//
 	typedef int  (*fKKIRQ)(void *opaque);  //强制中断函数
 
@@ -72,6 +75,7 @@ extern "C"
 		fKKDownAVFileSpeedInfo KKDownAVFileSpeedInfo;
 		/*****************释放内存*************/
 		fFree KKFree;
+		fKKUrlParser           KKUrlParser;
 #ifdef WIN32
 		HMODULE	Handle;
 #else

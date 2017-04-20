@@ -896,7 +896,16 @@ unsigned char*    CMainFrame::GetBkImage(int &len)
 
 int            CMainFrame::PreOpenUrlCall(const char *Url,int *Interrupt)
 {
-              return 0;
+	std::list<KKPluginInfo>& listx=KKPlayer::GetKKPluginInfoList();
+	std::list<KKPluginInfo>::iterator It=listx.begin();
+	for(;It!=listx.end();++It)
+	{
+	       KKPluginInfo &Info=*It;
+		   if(Info.KKUrlParser!=NULL){
+			   Info.KKUrlParser(Url);
+		   }
+	}
+    return 0;
 }
 void              CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
 {

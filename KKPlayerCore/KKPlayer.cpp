@@ -40,6 +40,10 @@ void KKPlayer::AddKKPluginInfo(KKPluginInfo& info)
 {
      KKPluginInfoList.push_back(info);
 }
+std::list<KKPluginInfo>&   KKPlayer::GetKKPluginInfoList()
+{
+	return KKPluginInfoList;
+}
 void register_Kkv();
 KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlayUI(pPlayUI),m_nPreFile(false)
 ,m_pAudioPicBuf(NULL)

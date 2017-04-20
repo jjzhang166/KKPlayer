@@ -143,14 +143,14 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		//fFree KKFree;
 
 		HMODULE	hdll= LoadLibraryA((*It).c_str());
-		fCreateKKPlugin pfn = (fCreateKKPlugin)GetProcAddress(hdll, "CreateKKPlugin");
-		fGetPtlHeader pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
-		fDeleteKKPlugin pDel=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
-        fKKDownAVFile pKKDownAVFile=(fKKDownAVFile)GetProcAddress(hdll, "KKDownAVFile");
-		fKKStopDownAVFile pKKStopDownAVFile=(fKKStopDownAVFile)GetProcAddress(hdll, "KKStopDownAVFile");
-		fFree pKKFree=(fFree)GetProcAddress(hdll, "KKFree");
+		fCreateKKPlugin        pfn = (fCreateKKPlugin)GetProcAddress(hdll, "CreateKKPlugin");
+		fGetPtlHeader          pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
+		fDeleteKKPlugin        pDel=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
+        fKKDownAVFile          pKKDownAVFile=(fKKDownAVFile)GetProcAddress(hdll, "KKDownAVFile");
+		fKKStopDownAVFile      pKKStopDownAVFile=(fKKStopDownAVFile)GetProcAddress(hdll, "KKStopDownAVFile");
+		fFree                  pKKFree=(fFree)GetProcAddress(hdll, "KKFree");
         fKKDownAVFileSpeedInfo pKKDownAVFileSpeedInfo=(fKKDownAVFileSpeedInfo)GetProcAddress(hdll, "KKDownAVFileSpeedInfo");
-
+        fKKUrlParser           pKKUrlParser=(fKKUrlParser)GetProcAddress(hdll, "KKUrlParser");
 		if(pfn!=NULL&&pfGetPtl!=NULL&& pDel!=NULL)
 		{
 			
@@ -163,6 +163,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 				Info.KKStopDownAVFile=pKKStopDownAVFile;
 				Info.KKFree=pKKFree;
 				Info.KKDownAVFileSpeedInfo=pKKDownAVFileSpeedInfo;
+				Info.KKUrlParser=pKKUrlParser;
 				KKPlayer::AddKKPluginInfo(Info);
 			
 		}else{
