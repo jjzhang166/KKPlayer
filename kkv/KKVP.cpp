@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
-#include "Json/json/json.h"
+#include "json/json.h"
 
 #include <process.h>
 #include <tlhelp32.h>
@@ -69,6 +69,8 @@ void AddIPCGuid(std::string& strGuid,IPC_DATA_INFO &xxda)
 	G_guidBufMap.insert(std::pair<std::string,IPC_DATA_INFO>(strGuid,xxda));
 	G_KKMapLock.Unlock();
 }
+
+
 
 void GetIPCOpRet(std::string& strGuid,bool& Ok,IPC_DATA_INFO &OutInfo)
 {
@@ -451,9 +453,6 @@ LOOP1:
 		int ret=OutInfo.DataSize;
 		return ret;
 	}
-
-	G_KKMapLock.Unlock();
-
 	return AVERROR(errno);
 }
 
@@ -517,19 +516,83 @@ char * c_left(char *dst,char *src, int n)
 	*(q++)='\0'; /*有必要吗？很有必要*/
 	return dst;
 }
-char __declspec(dllexport) *KKUrlParser(const char *strurl)
+char* GetIPCUrlParserRet(const char*Url,int *abort_request);
+char __declspec(dllexport) *KKUrlParser(const char *strurl,int *abort_request)
 {
 	
 	char* pos=(char*)strstr(strurl,":") ;
 	if(pos!=NULL)
 	{
-		char ProName[256];
+		char ProName[1024];
 		int lll=pos-strurl;
 		c_left(ProName,(char *)strurl,lll);
 		if(strcmp(ProName,"kkv")==0){
-		
+		      strcpy(ProName,pos+1);
+              return GetIPCUrlParserRet(ProName,abort_request);
 		}
 	}
 	return NULL; 
 }
+
+
+
+
 };
+
+
+///得到URL分析的结果
+char* GetIPCUrlParserRet(const char*Url,int *abort_request)
+{
+
+    std::string strGuid;
+	CreatStrGuid(strGuid);
+
+ 
+	HANDLE hRead=CreateEvent(NULL, TRUE, FALSE, NULL);
+	IPC_DATA_INFO xxda;
+	xxda.pBuf=0;
+	xxda.BufLen=0;
+	xxda.DataSize=0;
+	xxda.hWait=hRead;
+	xxda.CacheTime=0;
+	
+	AddIPCGuid(strGuid,xxda);
+
+	Json::Value jsonValue;
+	jsonValue["IPCMSG"]=IPCURLParser;
+	jsonValue["Guid"]=strGuid;
+	jsonValue["Url"]=Url;
+    jsonValue["HRW"]=(int)hRead;
+	jsonValue["FirstRead"]=0;
+	
+
+	strGuid=jsonValue.toStyledString();
+	unsigned char *IPCbuf=(unsigned char*)::malloc(1024);
+	memset(IPCbuf,0,1024);
+	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
+
+	int rext=KKVWritePipe(IPCbuf,1024,0);
+	while(rext==1&&*abort_request==0)
+	{
+		DWORD ret=::WaitForSingleObject( hRead,50);
+        if(ret==WAIT_OBJECT_0)
+		{
+			break;
+		}
+	}
+	
+	
+	::free(IPCbuf);
+	::CloseHandle(hRead);
+	
+	
+	IPC_DATA_INFO OutInfo;
+	bool RetOk=false;
+	strGuid=jsonValue["Guid"].asString();
+	GetIPCOpRet(strGuid,RetOk,OutInfo);
+
+	if(RetOk){
+		return (char*)OutInfo.pBuf;
+	}
+	return NULL;
+}

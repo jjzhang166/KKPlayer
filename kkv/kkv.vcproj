@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\QyIPC"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KKV_EXPORTS"
+				AdditionalIncludeDirectories="..\jsoncpp;..\..\QyIPC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;KKV_EXPORTS;_CRT_SECURE_NO_WARNINGS;JSON_DLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\QyIPC\Debug\vs2008"
+				AdditionalLibraryDirectories="..\..\QyIPC\Debug\vs2008;..\debug"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -116,8 +116,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="F:\ProgramTool\OpenPro\QyIPC"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KKV_EXPORTS"
+				AdditionalIncludeDirectories="..\jsoncpp;..\..\QyIPC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;KKV_EXPORTS;JSON_DLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -136,6 +136,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\QyIPC\Release\vs2008;..\Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -201,62 +202,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
-		</Filter>
-		<Filter
-			Name="Json"
-			>
-			<File
-				RelativePath=".\Json\json_batchallocator.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Json\json_reader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Json\json_value.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Json\json_writer.cpp"
-				>
-			</File>
-			<Filter
-				Name="Json"
-				>
-				<File
-					RelativePath=".\Json\json\autolink.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Json\json\config.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Json\json\features.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Json\json\forwards.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Json\json\json.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Json\json\reader.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Json\json\value.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Json\json\writer.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Base64"

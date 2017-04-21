@@ -8,5 +8,6 @@ enum IPCMSG{
 	IPCClose=4,
 	IPCSpeed=5,
 	IPCCacheTime=6,
+	IPCURLParser=9,
 };
 #endif

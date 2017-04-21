@@ -902,7 +902,10 @@ int            CMainFrame::PreOpenUrlCall(const char *Url,int *Interrupt)
 	{
 	       KKPluginInfo &Info=*It;
 		   if(Info.KKUrlParser!=NULL){
-			   Info.KKUrlParser(Url);
+			  char* strurls=Info.KKUrlParser(Url,Interrupt);
+			  if(strurls!=NULL){
+			        
+			  }
 		   }
 	}
     return 0;

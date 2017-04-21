@@ -5,21 +5,25 @@
 #include <string>
 #include <queue>
 #include <process.h>
-#include "Json/json/json.h"
+#include "json/json.h"
 #include "Base64/Base64.h"
 #include "md5/md5.h"
 #include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
+#include "../../QyIPC/Qy_Ipc_Manage.h"
 #include "KKVP.h"
 #ifdef _DEBUG
     #pragma comment (lib,"QyIPC.lib")
+    #pragma comment (lib,"jsoncpp.lib")
 #else
     #pragma comment (lib,"QyIPC.lib")
+    #pragma comment (lib,"jsoncpp.lib")
 #endif
 typedef unsigned char      uint8_t;
 typedef long long          int64_t;
 
-extern std::map<std::string,IPC_DATA_INFO> G_guidBufMap;
-extern std::map<std::string,unsigned int> G_CacheTimeMap;
+extern std::map<std::string,IPC_DATA_INFO>   G_guidBufMap;
+extern Qy_IPC::Qy_IPc_InterCriSec            G_KKMapLock;
+extern std::map<std::string,unsigned int>    G_CacheTimeMap;
 extern int G_IPC_Read_Write;
 
 namespace Qy_IPC
@@ -50,6 +54,7 @@ namespace Qy_IPC
 
 	void HandleIPCMsg(std::string guidstr,int msgId,unsigned char *dataBuf,int dataLen,unsigned int CacheTime)
 	{
+		G_KKMapLock.Lock();
 		//readœ˚œ¢
 		if(msgId==IPCRead)
 		{
@@ -95,7 +100,25 @@ namespace Qy_IPC
 		}else if(msgId==6){
 
 			
+		}else if(msgId==IPCURLParser)
+		{
+		    std::map<std::string,IPC_DATA_INFO>::iterator It= G_guidBufMap.find(guidstr);
+			if(It!=G_guidBufMap.end())
+			{
+			    char *jsonstr= (char*)dataBuf;
+				int len=strlen(jsonstr);
+				if(len>0)
+				{
+					len+=10;
+					char *bb =(char*)::malloc(len);
+					memset(bb,0,len);
+					strcpy(jsonstr,bb);
+					It->second.pBuf=bb;
+				}
+			}
 		}
+
+		G_KKMapLock.Unlock();
 	}
 	void CKKV_ReceiveData::HandelReceiveData(char *buf,int Len,void* strId)
 	{
@@ -140,6 +163,9 @@ namespace Qy_IPC
 			}else if(IPCMSG==IPCSeek){
 				   DataLen=JsValue["Ret"].asInt();
 			       HandleIPCMsg(guidstr,IPCMSG,0,DataLen, CacheTime);
+			}else if(IPCMSG==IPCURLParser){
+			       std::string UrlJson=JsValue["UrlJson"].asString();
+				   HandleIPCMsg(guidstr,IPCURLParser,(unsigned char*)UrlJson.c_str(),UrlJson.length(),0);
 			}
 			::SetEvent(HRW);
 		}

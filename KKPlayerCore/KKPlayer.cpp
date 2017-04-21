@@ -12,6 +12,7 @@
 #include "KKInternal.h"
 #include "rtmp/SrsRtmpPlugin.h"
 #include "MD5/md5.h"
+#include <string>
 #define MaxTimeOutStr "50000000"
 #define MaxTimeOut    45
 static AVPacket flush_pkt;
@@ -28,6 +29,8 @@ extern AVPixelFormat DstAVff;//=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA;
 void KKPlayer::SetBGRA()
 {
 	DstAVff=AV_PIX_FMT_BGRA;
+	std::string aaa="xxx";
+	aaa="";
 }
 
 //如果定义安卓平台。

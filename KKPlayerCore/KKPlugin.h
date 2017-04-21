@@ -37,23 +37,23 @@ extern "C"
 	typedef unsigned int     (*fGetCacheTime)(void *opaque);
 
 	//url分析函数
-	typedef char (*fKKUrlParser)(const char *strurl);
+	typedef char* (*fKKUrlParser)(const char *strurl,int *abort_request);
 	//
 	typedef int  (*fKKIRQ)(void *opaque);  //强制中断函数
 
 	typedef struct __KKPlugin
 	{
         void *opaque;                        //用户数据
-		fIo_read_packet kkread;              
-		fIo_seek kkseek;
-		fFlushPlayerQue FlushQue;           //参数填入 kkirqOpaque,刷新队列函数
-		fCalPlayerDelay CalPlayerDelay;     //外部回调函数，Player填入
+		fIo_read_packet kkread;              //读函数
+		fIo_seek kkseek;                     //写函数
+		fFlushPlayerQue FlushQue;            //参数填入 kkirqOpaque,刷新队列函数
+		fCalPlayerDelay CalPlayerDelay;      //外部回调函数，Player填入
 		fGetCacheTime GetCacheTime;
-		fKKIRQ kkirq;                       //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
-        void *PlayerOpaque;                 //播放器环境
-		char *URL;                          //去掉协议头的地址
-		int RealTime;                       //1为实时，否则应为0
-		int FirstRead;                      //第一次读，1,读后为0，需手动
+		fKKIRQ kkirq;                        //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
+        void *PlayerOpaque;                  //播放器环境
+		char *URL;                           //去掉协议头的地址
+		int RealTime;                        //1为实时，否则应为0
+		int FirstRead;                       //第一次读，1,读后为0，需手动
 	}KKPlugin;
 	
 	//创建一个插件实例
@@ -75,6 +75,7 @@ extern "C"
 		fKKDownAVFileSpeedInfo KKDownAVFileSpeedInfo;
 		/*****************释放内存*************/
 		fFree KKFree;
+		/***********分析url***************/
 		fKKUrlParser           KKUrlParser;
 #ifdef WIN32
 		HMODULE	Handle;
