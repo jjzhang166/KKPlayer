@@ -3,8 +3,8 @@
 #include "MainFrm.h"
 #include <ObjIdl.h>
 #include "KKSound.h"
-
-
+#include "json/json.h"
+  #pragma comment (lib,"jsoncpp.lib")
 #ifndef LIBKKPLAYER
 #include "MainPage/MainDlg.h"
 #include "Tool/cchinesecode.h"
@@ -220,13 +220,15 @@ int               CMainFrame::GetRealtime()
 }
 
 void              CMainFrame::AvSeek(int value)
-{
+{ 
+	int seektime=0;
 	if(m_FileInfos.ItemCount<2)
 	{
 	     m_pPlayerInstance->AVSeek(value);
 	}else{
+		 m_FileSegLock.Lock();
 		 AVFILE_SEG_ITEM*  pItemHead=m_FileInfos.pItemHead;
-		 int seektime=0;
+		
 		 while(pItemHead)
 		 {
 			 seektime+=pItemHead->milliseconds/1000;
@@ -235,14 +237,19 @@ void              CMainFrame::AvSeek(int value)
 				short SegId=m_pPlayerInstance->GetSegId();
                 int va=seektime-value;
 				if(CurSegId!=SegId||SegId!=pItemHead->SegId ){
+					if(abs((pItemHead->SegId-SegId))>2)
+					{
+						m_pPlayerInstance->ForceFlushQue();
+					}/**/
 					m_pPlayerInstance->AVSeek(va,pItemHead->SegId);
 				}else{
 				    m_pPlayerInstance->AVSeek(va);
 				}
 				break;
 			 }
-			 pItemHead=m_FileInfos.pItemHead->next;
+			 pItemHead=pItemHead->next;
 		 }
+		 m_FileSegLock.Unlock();
 	}
 }
 void              CMainFrame::SetVolume(long value)
@@ -254,9 +261,10 @@ bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 
    if(m_pPlayerInstance->GetMediaInfo(info)){
 	   m_nMilTimePos=0;
-	   info.TotalTime=m_FileInfos.milliseconds/1000;
+	   
 	   if(m_FileInfos.ItemCount>1)
 	   {
+		   info.TotalTime=m_FileInfos.milliseconds/1000;
 		   AVFILE_SEG_ITEM* pItemHead=m_FileInfos.pItemHead;
 		   m_nCurSegId=info.SegId;
 		   m_nMilTimePos=0;
@@ -331,7 +339,7 @@ int               CMainFrame::OpenMedia(std::string url)
 	 }
 	 int  ret=0;
 
-	 //if(0)
+	 if(0)
 	 {
 		 AVFILE_SEGS_INFO &infos=m_FileInfos;
 		 int SegId=0;
@@ -388,13 +396,13 @@ int               CMainFrame::OpenMedia(std::string url)
 	ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());//,"-pause");
 	if(ret>=0){
          m_bOpen=true;
-		 char abcd[1024]="";
+		/* char abcd[1024]="";
 		 strcpy(abcd,(char*)url.c_str());
 		 int Retx= DownMedia(abcd,false);
 		 if(Retx==2)
 		 {
 		   return Retx;
-		 }
+		 }*/
 	}
 	m_nCurSegId=0;
 	m_nMilTimePos=0;
@@ -414,6 +422,11 @@ void              CMainFrame::CloseMedia()
 	   delete item;
 	   item=item2;
    }
+   m_FileInfos.pItemHead=NULL;
+   m_FileInfos.ItemCount=0;
+   m_FileInfos.milliseconds=0;
+   m_FileInfos.pItemTail=0;
+   m_FileInfos.pCurItem=0;
 }
 void              CMainFrame::FullScreen()
 {
@@ -894,21 +907,71 @@ unsigned char*    CMainFrame::GetBkImage(int &len)
 }
 
 
-int            CMainFrame::PreOpenUrlCall(const char *Url,int *Interrupt)
+int               CMainFrame:: PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)
 {
+	int ret=0;
 	std::list<KKPluginInfo>& listx=KKPlayer::GetKKPluginInfoList();
 	std::list<KKPluginInfo>::iterator It=listx.begin();
 	for(;It!=listx.end();++It)
 	{
-	       KKPluginInfo &Info=*It;
-		   if(Info.KKUrlParser!=NULL){
-			  char* strurls=Info.KKUrlParser(Url,Interrupt);
-			  if(strurls!=NULL){
-			        
+	          KKPluginInfo &Info=*It;
+		      if(Info.KKUrlParser!=NULL){
+					  char* strurls=Info.KKUrlParser(InOutUrl,Interrupt);
+					  if(strurls!=NULL){
+						  Json::Reader rd;
+						  Json::Value value;
+						  std::string aacc=strurls;
+						  if(rd.parse(aacc,value)){
+								Json::Value JsonStreams=value["Streams"];
+								ret=1;
+								m_FileSegLock.Lock();
+								AVFILE_SEGS_INFO &infos=m_FileInfos;
+								for(int i=0;i<JsonStreams.size();i++){  
+									
+									
+									 for(int j=0;j<JsonStreams[i]["segs"].size();j++){
+											 Json::Value &seg=JsonStreams[i]["segs"][j];
+									       
+											 AVFILE_SEG_ITEM *Seg1= new AVFILE_SEG_ITEM();
+											 Seg1->milliseconds=seg["milliseconds"].asInt();
+											 Seg1->segsize=seg["segsize"].asInt();
+											 Seg1->SegId=j;
+											 std::string rll=seg["url"].asString();
+											 strcpy(Seg1->url,rll.c_str());
+											
+											 infos.FileSize+=Seg1->segsize;
+											 infos.milliseconds+=Seg1->milliseconds;
+											 m_FileInfos.ItemCount++;
+											 if(infos.pCurItem==NULL){
+												infos.pCurItem=Seg1;
+												infos.pItemHead=Seg1;
+												strcpy(InOutUrl,Seg1->url);
+											 }
+
+											 if(infos.pItemHead==NULL){
+												 infos.pItemHead=Seg1;
+											 }
+											 if(infos.pItemTail==NULL){
+												 infos.pItemTail=Seg1;
+											 }else{
+												 infos.pItemTail->next=Seg1;   
+												 Seg1->pre=infos.pItemTail;
+												 infos.pItemTail=Seg1;
+											 }
+
+											
+									 }
+									 break;
+								}
+								m_FileSegLock.Unlock();
+						  }
 			  }
+              if(strurls!=NULL)
+		        Info.KKFree(strurls);
 		   }
+          
 	}
-    return 0;
+    return ret;
 }
 void              CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
 {
@@ -938,6 +1001,7 @@ void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesiz
 		}
 	}
 
+    m_FileSegLock.Lock();
 	if(m_FileInfos.ItemCount>1)
 	 { 
 		 if(m_pPlayerInstance==(KKPlayer*)playerIns){
@@ -948,10 +1012,12 @@ void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesiz
 					 strcpy(NextInfo.url, m_FileInfos.pCurItem->url);
 					 NextInfo.SegId=m_FileInfos.pCurItem->SegId;
 					 NextInfo.NeedRead=true;
+					 m_FileSegLock.Unlock();
 					 return  ;
 			 }else if(NextInfo.SegId>-1){
 				    int timepos=0;
 					AVFILE_SEG_ITEM* pItemHead=m_FileInfos.pItemHead;
+					
 					while(pItemHead!=NULL){
 						if(pItemHead->SegId==NextInfo.SegId){
 							  memset(&NextInfo,0,sizeof(NextInfo));
@@ -959,13 +1025,16 @@ void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesiz
 						      NextInfo.SegId=pItemHead->SegId;
 					          NextInfo.NeedRead=true;
 							  m_FileInfos.pCurItem=pItemHead;
+							  m_FileSegLock.Unlock();
 							  return;
 						}
 						pItemHead=pItemHead->next;
-					}
+				   }
+				 
 			 }
 		 }
 	 }
+	 m_FileSegLock.Unlock();
 	 return;
 }
 void              CMainFrame::AVReadOverThNotify(void *playerIns)

@@ -73,7 +73,7 @@ protected:
 	virtual unsigned char* GetBkImage(int &len);
 	virtual unsigned char* GetCenterLogoImage(int &length);
 	virtual void           OpenMediaFailure(char* strURL,EKKPlayerErr err);
-	virtual int            PreOpenUrlCall(const char *Url,int *Interrupt);
+	virtual int            PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
 	/*******视频流结束调用*******/
 	virtual void           AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 	virtual void           AVReadOverThNotify(void *playerIns);
@@ -109,21 +109,23 @@ private:
 	int              LeftWidth;
 	int              LeftNavigationBarWidth;
     
-	AVFILE_SEGS_INFO m_FileInfos;///文件分片信息
-	short            m_nCurSegId;
-	unsigned int     m_nMilTimePos;
-	KKPlayer*        m_pPlayerInstance;
 
-	KKPlayer*        m_pPlayerInstanceNext;
-	unsigned int     m_nPlayerInsCount;///播放器实例个数
+	CKKLock                            m_FileSegLock;
+	AVFILE_SEGS_INFO                   m_FileInfos;///文件分片信息
+	short                              m_nCurSegId;
+	unsigned int                       m_nMilTimePos;
+	KKPlayer*                          m_pPlayerInstance;
+
+	KKPlayer*                          m_pPlayerInstanceNext;
+	unsigned int                       m_nPlayerInsCount;///播放器实例个数
 	/*********默认背景图片**********/
-	unsigned char*   m_pBkImage;
+	unsigned char*                     m_pBkImage;
 
-	unsigned char*   m_pCenterLogoImage;
-    int              m_CenterLogoLen;
+	unsigned char*                     m_pCenterLogoImage;
+    int                                m_CenterLogoLen;
 
-	unsigned char*   m_pErrOpenImage;
-	int              m_ErrOpenImgLen;
+	unsigned char*                     m_pErrOpenImage;
+	int                                m_ErrOpenImgLen;
 	std::vector<SWaitPicInfo*>         m_WaitPicList;
 	SWaitPicInfo*                      m_CurWaitPic;
     bool                               m_bOpen;

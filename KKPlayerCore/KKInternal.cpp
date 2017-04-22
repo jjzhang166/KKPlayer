@@ -457,7 +457,7 @@ DELXXX:
 			 }
 		 }
 		
-		
+		static int lxxx=out_size;
 		 //分配内存
 		 av_fast_malloc(&pVideoInfo->audio_buf1, &pVideoInfo->audio_buf_size, out_size);
 		
@@ -470,11 +470,9 @@ DELXXX:
 		 
 
 		int ll=out_size / pVideoInfo->audio_tgt.channels  / av_get_bytes_per_sample(pVideoInfo->audio_tgt.fmt);
-		 //音频转化
-		 len2 = swr_convert(
-			                  pVideoInfo->swr_ctx, 
-							  OutData,               out_count, 
-			                  inextended_data, frame->nb_samples);
+		 
+		//音频转化
+		 len2 = swr_convert(pVideoInfo->swr_ctx,OutData,out_count, inextended_data, frame->nb_samples);
 		 if(len2<0)
 		 {
 			 return -1;
@@ -1460,22 +1458,26 @@ LXXXX:
 				LOGE("avcodec_flush_buffers video \n");
 				avcodec_flush_buffers(d->avctx);
 				if(lastsegid!=segid&&is->pSegFormatCtx!=NULL){
-					    for (int i = 0; i <is->pSegFormatCtx->nb_streams; i++) 
-						{
-							AVStream *st = is->pSegFormatCtx->streams[i];
-							enum AVMediaType type = st->codec->codec_type;
-							if(AVMEDIA_TYPE_VIDEO==type){
-								AVCodecContext *tempavctx=is->viddec.avctx;
-							    seg_stream_component_open(is,i);
-                                if(tempavctx!=0){
-								      avcodec_flush_buffers(tempavctx);
-									  avcodec_close(tempavctx); 
-									  avcodec_free_context(&tempavctx);
+					    
+						if(is->pSegFormatCtx!=NULL){
+							for (int i = 0; i <is->pSegFormatCtx->nb_streams; i++) 
+							{
+								AVStream *st = is->pSegFormatCtx->streams[i];
+								enum AVMediaType type = st->codec->codec_type;
+								if(AVMEDIA_TYPE_VIDEO==type){
+									AVCodecContext *tempavctx=is->viddec.avctx;
+									seg_stream_component_open(is,i);
+									if(tempavctx!=0){
+										  avcodec_flush_buffers(tempavctx);
+										  avcodec_close(tempavctx); 
+										  avcodec_free_context(&tempavctx);
+									}
+									is->SegStreamState|= 0x10;
+									break;
 								}
-								is->SegStreamState|= 0x10;
-								break;
 							}
 						}
+						
 				}
 				d->finished = 0;
 				d->next_pts = d->start_pts;
@@ -1545,26 +1547,30 @@ LOXXXX:
 		
 	if(pkt.data == pVideoInfo->pflush_pkt->data)
 	{
-		if(*segId!=*lastsegid&&pVideoInfo->pSegFormatCtx!=0)
+
+		if(*segId!=*lastsegid)
 		{
-            for (int i = 0; i <pVideoInfo->pSegFormatCtx->nb_streams; i++) 
-			{
-				AVStream *st = pVideoInfo->pSegFormatCtx->streams[i];
-				enum AVMediaType type = st->codec->codec_type;
-				if(AVMEDIA_TYPE_AUDIO==type)
+			if(pVideoInfo->pSegFormatCtx!=0){
+				for (int i = 0; i <pVideoInfo->pSegFormatCtx->nb_streams; i++) 
 				{
-					AVCodecContext *tempavctx=pVideoInfo->auddec.avctx;
-				    seg_stream_component_open(pVideoInfo,i);
-                    if(tempavctx!=0){
-					      avcodec_flush_buffers(tempavctx);
-						  avcodec_close(tempavctx); 
-						  avcodec_free_context(&tempavctx);
+					AVStream *st = pVideoInfo->pSegFormatCtx->streams[i];
+					enum AVMediaType type = st->codec->codec_type;
+					if(AVMEDIA_TYPE_AUDIO==type)
+					{
+						AVCodecContext *tempavctx=pVideoInfo->auddec.avctx;
+						seg_stream_component_open(pVideoInfo,i);
+						if(tempavctx!=0){
+							  avcodec_flush_buffers(tempavctx);
+							  avcodec_close(tempavctx); 
+							  avcodec_free_context(&tempavctx);
+						}
+						pVideoInfo->SegStreamState|= 0x1;
+						reconfigure=1;
+						break;
 					}
-					pVideoInfo->SegStreamState|= 0x1;
-					reconfigure=1;
-					break;
 				}
 			}
+		
 		}
 		avcodec_flush_buffers(pVideoInfo->auddec.avctx);
 		pVideoInfo->auddec.Isflush=1;

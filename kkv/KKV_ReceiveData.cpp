@@ -112,7 +112,7 @@ namespace Qy_IPC
 					len+=10;
 					char *bb =(char*)::malloc(len);
 					memset(bb,0,len);
-					strcpy(jsonstr,bb);
+					strcpy(bb,jsonstr);
 					It->second.pBuf=bb;
 				}
 			}

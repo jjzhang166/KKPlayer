@@ -207,6 +207,8 @@ typedef struct SKK_VideoState
 	//默认环境。
 	AVFormatContext *pFormatCtx;
 
+
+	//CKKLock*         SegLock;
 	//发送seg切换后使用
 	AVFormatContext *pSegFormatCtx;
     int              SegStreamState;

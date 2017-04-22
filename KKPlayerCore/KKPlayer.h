@@ -157,7 +157,10 @@ private:
 			CAVInfoManage*     m_pAVInfomanage;
             //播放信息
 			MEDIA_INFO         m_AVPlayInfo;
+			//播放器锁
 	        CKKLock            m_PlayerLock;
+
+			CKKLock            m_AVInfoLock;
 			
 			///是否显示
 			bool         m_bRender;

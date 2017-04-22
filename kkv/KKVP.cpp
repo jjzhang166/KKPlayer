@@ -533,10 +533,6 @@ char __declspec(dllexport) *KKUrlParser(const char *strurl,int *abort_request)
 	}
 	return NULL; 
 }
-
-
-
-
 };
 
 
