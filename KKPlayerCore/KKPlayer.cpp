@@ -163,7 +163,7 @@ void KKPlayer::CloseMedia()
 	m_PlayerLock.Unlock();
 	while(1)
 	{
-		if(m_ReadThreadInfo.ThOver==true&&m_VideoRefreshthreadInfo.ThOver==true)
+		if(m_ReadThreadInfo.ThOver==true&&m_VideoRefreshthreadInfo.ThOver==true&&m_AudioCallthreadInfo.ThOver==true)
 		{
 			break;
 		}
