@@ -80,3 +80,22 @@ extern "C"{
 		 return 1;
 	}
 }
+
+bool Utf8toWchar(wchar_t *pwstr,size_t len,const char *str)  
+{  
+    if(str){  
+		  size_t nu = strlen(str);  
+		  size_t n =(size_t)MultiByteToWideChar(CP_UTF8,0,( const char *)str,(int )nu,NULL,0);  
+		   if(n>=len)    
+			   n=len-1;  
+		  MultiByteToWideChar(CP_UTF8,0,( const char *)str,(int )nu,pwstr,(int)n);  
+		  pwstr[n]=0;  
+		  return true;
+    }  
+	return false;
+}  
+void charTowchar(const char *chr, wchar_t *wchar, int size)  
+{     
+	MultiByteToWideChar( CP_ACP, 0, chr,  
+		strlen(chr)+1, wchar, size/sizeof(wchar[0]) );  
+}

@@ -26,6 +26,7 @@ public:
 	virtual void SetErrPic(unsigned char* buf,int len);
 	virtual void ShowErrPic(bool show);
 	virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color);
+	virtual void SetLeftPicStr(const char *str);
 protected:
     void createBitmap(unsigned int w, unsigned int h);
     void DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h);

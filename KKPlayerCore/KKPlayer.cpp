@@ -116,7 +116,6 @@ void FreeKKIo(SKK_VideoState *kkAV);
 
 void KKPlayer::CloseMedia()
 {
-
 	m_AVInfoLock.Lock();
     if(pVideoInfo!=NULL)
 	{
@@ -1728,6 +1727,7 @@ void KKPlayer::ReadAV()
 	{
 		 av_dict_free(&format_opts);
 		 avformat_free_context(pFormatCtx);
+		pVideoInfo->pFormatCtx = NULL;
 		char urlx[1024]="";
 		strcpy(urlx,pVideoInfo->filename);
 		pVideoInfo->abort_request=1;
@@ -2261,7 +2261,9 @@ void KKPlayer::PacketQueuefree()
 void KKPlayer::SetVolume(long value)
 { 
 	if(m_pSound!=NULL)
+	{
 	   m_pSound->SetVolume(value);
+	}
 }
 long KKPlayer::GetVolume()
 {

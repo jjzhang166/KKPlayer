@@ -720,10 +720,14 @@ bool CRenderD3D::LostDeviceRestore()
 }
 int GetBmpSize(int w,int h);
 
-void CRenderD3D::SetLeftPicStr(wchar_t *str)
+bool Utf8toWchar(wchar_t *pwstr,size_t len,const char *str);
+void charTowchar(const char *chr, wchar_t *wchar, int size);
+void CRenderD3D::SetLeftPicStr(const char *str)
 {
-	m_LeftStr=L"放播速度：";
-    m_LeftStr+=str;
+
+	wchar_t pwstr[1024]=L"";
+    charTowchar(str,pwstr,1024);
+    m_LeftStr=pwstr;
 }
 
 void  CRenderD3D::FillRect(kkBitmap img,kkRect rt,unsigned int colour)
@@ -782,7 +786,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 			if(1)
 			{
 				LPCSTR strFont = GetUTF8String(L"宋体");
-				SkTypeface *font = SkTypeface::CreateFromName(strFont, SkTypeface::kNormal);
+				//SkTypeface *font = SkTypeface::CreateFromName(strFont, SkTypeface::kNormal);
 
 				SkBitmap Skbit;
 				Skbit.setInfo(SkImageInfo::Make(200,200,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
@@ -799,7 +803,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 				paint.setTextAlign(SkPaint::Align::kLeft_Align);
 
 				SkRect r; 
-				paint.setARGB(255, 255, 0, 0); /**/
+				paint.setARGB(255, 255,255, 255); /**/
 				r.set(25, 25, 200, 145); 
 				// canvas.drawRect(r, paint); 
 

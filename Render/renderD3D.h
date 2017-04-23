@@ -36,7 +36,7 @@ public:
 	void DrawFontInfo();
 
 	
-	void SetLeftPicStr(wchar_t *str);
+	void SetLeftPicStr(const char *str);
 	void FillRect(kkBitmap img,kkRect rt,unsigned int color);
 	
 private:

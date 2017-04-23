@@ -82,6 +82,10 @@ void CRenderGDI::SetBkImagePic(unsigned char* buf,int len)
 	m_BkBuffer=(char*)buf;
 	m_BkLen=len;
 }
+void  CRenderGDI::SetLeftPicStr(const char *str)
+{
+
+}
 void CRenderGDI::WinSize(unsigned int w, unsigned int h)
 {
 

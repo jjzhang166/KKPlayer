@@ -1457,6 +1457,7 @@ LXXXX:
 				//av_frame_unref(pFrame);
 				LOGE("avcodec_flush_buffers video \n");
 				avcodec_flush_buffers(d->avctx);
+				
 				if(lastsegid!=segid&&is->pSegFormatCtx!=NULL){
 					    
 						if(is->pSegFormatCtx!=NULL){
@@ -1487,7 +1488,8 @@ LXXXX:
 			av_free_packet(packet);  
 	}
 
-//	LOGE(" 1");
+
+	LOGE("XXXX video Over \n");
 	avcodec_flush_buffers(is->viddec.avctx);
 	av_frame_unref(pFrame);
 	av_frame_free(&pFrame);

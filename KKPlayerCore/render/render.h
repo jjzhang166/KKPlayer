@@ -43,6 +43,8 @@ public:
 	virtual void SetErrPic(unsigned char* buf,int len)=0;
 	virtual void ShowErrPic(bool show)=0;
 	virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color)=0;
+
+	virtual void SetLeftPicStr(const char *str)=0;
 };
 
 #endif

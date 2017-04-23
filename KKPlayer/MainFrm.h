@@ -172,5 +172,6 @@ private:
 	   bool                  m_bNeedDel;
 	   fpKKPlayerErrNotify   m_ErrNotify;
 	   void*                 m_pErrNotifyUserData;
+	   int                   m_nTipTick;
 };
 #endif

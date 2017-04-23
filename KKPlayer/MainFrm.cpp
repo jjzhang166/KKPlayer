@@ -57,6 +57,7 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_bNeedDel(NeedDel)
 ,m_nCurSegId(0)
 ,m_nMilTimePos(0)
+,m_nTipTick(0)
 {
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
@@ -254,7 +255,14 @@ void              CMainFrame::AvSeek(int value)
 }
 void              CMainFrame::SetVolume(long value)
 {
+	if(m_pRender!=NULL){
+		char Tip[1024]="";
+		sprintf(Tip,"ÒôÁ¿£º%d%%",value);
+		m_nTipTick=GetTickCount();
+		m_pRender->SetLeftPicStr(Tip);
+	}
 	m_pPlayerInstance->SetVolume(value);
+	
 }
 bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 {
@@ -659,6 +667,10 @@ LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 	}
 	if(wParam==10010)
 	{
+		if(m_pRender!=NULL&&::GetTickCount()-m_nTipTick>5000)
+		{
+			m_pRender->SetLeftPicStr("");
+		}
           AVRender();
 	}else{
 	     
