@@ -166,13 +166,16 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKSetMinReal
 ///Java虚拟机变量
 JavaVM *        kk_Gjava_vm=NULL;
 pthread_mutex_t kk_Gvm_lock = PTHREAD_MUTEX_INITIALIZER;
-
+extern "C"{
+int av_jni_set_java_vm(void *vm, void *log_ctx);
+}
 /**
 * JNI 库模块加载事件处理接口。可以做一些函数的加载
 */
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * java_vm, void * reserved)
 {
 	kk_Gjava_vm=java_vm;
+	av_jni_set_java_vm(java_vm, NULL);
 	return JNI_VERSION_1_6;
 }
 /**

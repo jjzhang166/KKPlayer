@@ -36,6 +36,7 @@ class GlEs2Render: public IkkRender
 
 			virtual void SetErrPic(unsigned char* buf,int len);
 			virtual void ShowErrPic(bool show);
+			virtual void SetLeftPicStr(const char *str);
 			virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color);
 	private:
         KKPlayer* m_pPlayer;

@@ -32,7 +32,7 @@ class IKKPlayUI
 		     virtual unsigned char* GetBkImage(int &length)=0;
 			 virtual unsigned char* GetCenterLogoImage(int &length)=0;
 			 //打开失败
-			 virtual void OpenMediaFailure(char* strURL,EKKPlayerErr err)=0;
+			 virtual void OpenMediaStateNotify(char* strURL,EKKPlayerErr err)=0;
 			 ///读取线程打开文件前的回调函数,用于分段，返回1，代表有分段，此时InOutUrl已经被修改。
 			 virtual int PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)=0;
 			 /*******视频流结束调用.*******/

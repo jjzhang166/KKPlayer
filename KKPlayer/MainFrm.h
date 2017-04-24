@@ -72,7 +72,7 @@ protected:
 	virtual unsigned char* GetWaitImage(int &len,int curtime);
 	virtual unsigned char* GetBkImage(int &len);
 	virtual unsigned char* GetCenterLogoImage(int &length);
-	virtual void           OpenMediaFailure(char* strURL,EKKPlayerErr err);
+	virtual void           OpenMediaStateNotify(char* strURL,EKKPlayerErr err);
 	virtual int            PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
 	/*******视频流结束调用*******/
 	virtual void           AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);

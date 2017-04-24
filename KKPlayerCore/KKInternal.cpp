@@ -911,26 +911,42 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 		avctx->flags |= CODEC_FLAG_EMU_EDGE;
 
 	if(avctx->codec_type==AVMEDIA_TYPE_VIDEO)
-	{
+	{ 
+	   avctx->codec_id=codec->id;
        #ifdef WIN32
-		       avctx->codec_id=codec->id;
-			  //is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
-			  // is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
-			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
+			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
-					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
+					   is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
 				   }
-			   }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){	   
+			   }else if(is->Hard_Code==SKK_VideoState::HARD_CODE_QSV){	   
 			       if(BindQsvModule(avctx)>-1){
 					   codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
 				   }else{
-				       is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
+				       is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
 				   }
-					
-					
 			   }
+			  
+			   
+      #else 
+	           LOGE("kkmediacodec \n"); 
+			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC){
+			       if(avctx->codec_id==AV_CODEC_ID_H264){
+			            codec = avcodec_find_decoder_by_name("h264_mediacodec"); 
+				   }else if(avctx->codec_id==AV_CODEC_ID_VP8){
+					   codec = avcodec_find_decoder_by_name("vp8_mediacodec");
+				   }else if(avctx->codec_id==AV_CODEC_ID_VP9){
+					   codec = avcodec_find_decoder_by_name("vp9_mediacodec");
+				   }else if(avctx->codec_id==AV_CODEC_ID_MPEG4){
+					   codec = avcodec_find_decoder_by_name("mpeg4_mediacodec");
+				   }else  if(avctx->codec_id==AV_CODEC_ID_HEVC){ 
+					   codec = avcodec_find_decoder_by_name("hevc_mediacodec");
+				   }
+			   }
+	      
        #endif
-		//dxva->tmp_frame= av_frame_alloc();
+	   if(codec==NULL){
+	        codec = avcodec_find_decoder(avctx->codec_id);
+	   }
 	}
 
 	

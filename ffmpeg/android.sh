@@ -1,10 +1,10 @@
 export TMPDIR=D:/ffmpeg/ffmpeg-3.3
 NDK=D:/ProgramFiles/Android/Androidsdk/ndk-bundle
-SYSROOT=$NDK/platforms/android-9/arch-arm/ 
+SYSROOT=$NDK/platforms/android-9/arch-arm
 TOOLCHAIN=$NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/windows-x86_64
 function build_one { 
 ./AndroidConfigure \
---prefix=./ff3.3Jni \
+--prefix='./ff3.3Jni' \
 --enable-shared \
 --disable-static \
 --disable-doc \
@@ -17,8 +17,12 @@ function build_one {
 --extra-cflags="-Os -fpic $ADDI_CFLAGS" \
 --extra-ldflags="$ADDI_LDFLAGS" \
 --disable-avdevice \
+--enable-jni \
+--enable-mediacodec \
 --disable-programs
 } 
-CPU=arm PREFIX=$(pwd)/android/$CPU 
+CPU=arm
+#D:\ProgramFiles\Android\Androidsdk\ndk-bundle\sysroot\usr\include
+PREFIX=$(pwd)/android/$CPU 
 ADDI_CFLAGS="-marm" 
 build_one

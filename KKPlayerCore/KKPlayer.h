@@ -125,25 +125,29 @@ private:
 			//数据读取
 	        void        ReadAV();
 			
+			///延迟分析
+			void        AvDelayParser();
 	        //视频刷线程
-			void VideoRefresh();
+			void        VideoRefresh();
 	        
 			/*******显示视频**********/
-		    void video_image_refresh(SKK_VideoState *is);
+		    void        video_image_refresh(SKK_VideoState *is);
 			/******绘制音频图谱******/
-            void video_audio_display(IkkRender *pRender,SKK_VideoState *s);
+            void        video_audio_display(IkkRender *pRender,SKK_VideoState *s);
 
 			/********流媒体这是刷新函数**********/
-			void Avflush(int64_t seek_target); 
-			void AvflushRealTime(int Avtype);
-			//读音频
-			void ReadAudioCall();
-			void PacketQueuefree();
-			KKPlayer(const CKKLock& cs);
-			KKPlayer operator = (const CKKLock& cs);
+			void        Avflush(int64_t seek_target); 
+			void        AvflushRealTime(int Avtype);
+			//读音频回调
+			void        ReadAudioCall();
+			void        PacketQueuefree();
+			KKPlayer(const KKPlayer& cs);
+			KKPlayer operator = (const KKPlayer& cs);
 private:
 	        //插件信息
 	        static std::list<KKPluginInfo>  KKPluginInfoList;
+
+			
 			//缓存信息
 			AVCACHE_INFO m_AVCacheInfo;
 
@@ -159,9 +163,12 @@ private:
 			MEDIA_INFO         m_AVPlayInfo;
 			//播放器锁
 	        CKKLock            m_PlayerLock;
-
+            
 			CKKLock            m_AVInfoLock;
-			
+			///指示是否有分片
+			int                m_AvIsSeg;
+			///缓存计数
+			int                m_CacheAvCounter;
 			///是否显示
 			bool         m_bRender;
 			bool         m_bLastOpenAudio;

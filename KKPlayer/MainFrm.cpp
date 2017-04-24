@@ -4,7 +4,11 @@
 #include <ObjIdl.h>
 #include "KKSound.h"
 #include "json/json.h"
-  #pragma comment (lib,"jsoncpp.lib")
+#ifdef _DEBUG
+#pragma comment (lib,"../jsoncpp.lib")
+#else
+#pragma comment (lib,"../Release/jsoncpp.lib")
+#endif
 #ifndef LIBKKPLAYER
 #include "MainPage/MainDlg.h"
 #include "Tool/cchinesecode.h"
@@ -985,7 +989,7 @@ int               CMainFrame:: PreOpenUrlCallForSeg(char *InOutUrl,int *Interrup
 	}
     return ret;
 }
-void              CMainFrame::OpenMediaFailure(char* strURL,EKKPlayerErr err)
+void              CMainFrame::OpenMediaStateNotify(char* strURL,EKKPlayerErr err)
 {
      int length=0;
 	 unsigned char* img=GetErrImage(length,0);

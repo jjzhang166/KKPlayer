@@ -53,6 +53,8 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 ,m_AudioPicBufLen(0)
 ,m_bRender(1)
 ,m_bLastOpenAudio(0)
+,m_AvIsSeg(0)
+,m_CacheAvCounter(0)
 {
 	m_pAVInfomanage=CAVInfoManage::GetInance();
 	pVideoInfo=NULL;
@@ -78,30 +80,23 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 #ifdef Android_Plat
 	m_pVideoRefreshJNIEnv=NULL;
 #endif
+#ifdef PRINT_CODEC_INFO
 	AVInputFormat *ff=av_iformat_next(NULL);
-
 	AVCodec *codec=av_codec_next(NULL);
+    while(codec!=NULL)
+	{
+		
+		LOGE("%s \n",codec->name);
+		codec=av_codec_next(codec);
+    }
 	AVHWAccel *hwaccel=av_hwaccel_next(NULL);
-	//LOGE("AVInputFormatList \n");
-#ifdef WIN32
-	int i=0;
 	while(hwaccel!=NULL)
 	{
 		const char *aa=hwaccel->name;
-		::OutputDebugStringA("\n");
-		::OutputDebugStringA(aa);
-		::OutputDebugStringA("---");
-		// aa=hwaccel->
-		//::OutputDebugStringA(aa);
-		//LOGE("%d,%s \n",i++,aa);
+		LOGE("%d,%s \n",i++,aa);
 		hwaccel=av_hwaccel_next(hwaccel);
 	}
 #endif
-
-	char buf[1024]="";
-	//MD5File("F://ttxx.mp4", buf);
-	
-	//avio_alloc_context
 	start_time=AV_NOPTS_VALUE;
 	m_CurTime=0;
 
@@ -1173,7 +1168,8 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 
 	m_bOpen=true;	
 	m_nPreFile=1;
-	
+	m_AvIsSeg=0;
+	m_CacheAvCounter=0;
 	
 	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
 	
@@ -1381,6 +1377,7 @@ int KKPlayer::GetAVRate()
 	//pPlayer->m_pVideoRefreshJNIEnv=kk_jni_attach_env();
 #endif
 	 pPlayer->pVideoInfo->remaining_time = 0.01;
+	 int count=0;
 	 while(pPlayer->m_bOpen)
 	 {
 		
@@ -1397,6 +1394,11 @@ int KKPlayer::GetAVRate()
 			 pPlayer->pVideoInfo->remaining_time = 0.01;
 			
              pPlayer->VideoRefresh();
+			 if(count>5){
+			     pPlayer->AvDelayParser();
+				 count=0;
+			 }
+			 count++;
 		}else{
 			av_usleep(5000);
 		}
@@ -1643,6 +1645,67 @@ void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
 		m_nSeekTime=0;
 	}
 }
+
+void        KKPlayer::AvDelayParser()
+{
+	if((m_AvIsSeg||pVideoInfo->realtime)&&pVideoInfo->audio_st!=NULL){
+						if(pVideoInfo->audioq.size==0||pVideoInfo->videoq.size==0)
+						{
+							  m_CacheAvCounter++; 
+						}
+						
+						if(pVideoInfo->bTraceAV)
+						   LOGE("de %.3fs,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
+						if(pVideoInfo->nRealtimeDelay<=2)//开始缓存&&avsize>100
+						{
+							if(pVideoInfo->audioq.size<=1000&&pVideoInfo->videoq.size<=1000&&pVideoInfo->IsReady&&!pVideoInfo->eof)
+							{
+								pVideoInfo->IsReady=0;
+								pVideoInfo->paused=1;
+								m_CacheAvCounter=0;
+								if(m_pPlayUI!=NULL)
+								{
+									m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVWait);
+								}
+							}
+							
+						}
+						/********刷新后缓存一会儿********/
+						if(pVideoInfo->audioq.size>2000&&pVideoInfo->videoq.size>2000&&!pVideoInfo->IsReady||pVideoInfo->eof)
+						{
+							pVideoInfo->IsReady=1;
+							pVideoInfo->paused=0;
+
+							if(m_pPlayUI!=NULL)
+							{
+								m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
+							}
+						}
+		}else if((m_AvIsSeg||pVideoInfo->realtime)&&pVideoInfo->audio_st==NULL&&pVideoInfo->video_st!=NULL){
+						if(pVideoInfo->videoq.size==0)
+						{
+							m_CacheAvCounter++; 
+						}   
+
+						if(pVideoInfo->videoq.size<=1000&&pVideoInfo->IsReady&&m_CacheAvCounter>100&&!pVideoInfo->eof)
+						{
+							pVideoInfo->IsReady=0;
+							pVideoInfo->paused=1;
+							m_CacheAvCounter=0;
+						}
+						
+
+						if(pVideoInfo->bTraceAV)
+							LOGE("de %.3fs,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
+						if(pVideoInfo->videoq.size>2000&& pVideoInfo->IsReady==0|| pVideoInfo->eof){
+							   pVideoInfo->IsReady=1;
+							   pVideoInfo->paused=0;
+							   if(m_pPlayUI!=NULL){
+								    m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
+							  }
+						}
+		}
+}
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
@@ -1667,15 +1730,12 @@ void KKPlayer::ReadAV()
 	}
 	pVideoInfo->pFormatCtx = pFormatCtx;
 	
-	int IsSeg=0;
-	if(m_pPlayUI->PreOpenUrlCallForSeg(pVideoInfo->filename,(int*)&pVideoInfo->abort_request))
-	{
-	 //   pVideoInfo->realtime=1;
-		IsSeg=1;
+	if(m_pPlayUI->PreOpenUrlCallForSeg(pVideoInfo->filename,(int*)&pVideoInfo->abort_request)){
+	   //pVideoInfo->realtime=1;
+	   m_AvIsSeg=1;
 	}
 
-	if(KKProtocolAnalyze(pVideoInfo->filename,*pVideoInfo->pKKPluginInfo)==1)
-	{	
+	if(KKProtocolAnalyze(pVideoInfo->filename,*pVideoInfo->pKKPluginInfo)==1){	
 	    pFormatCtx->pb=CreateKKIo(pVideoInfo);
         pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
     }
@@ -1735,7 +1795,7 @@ void KKPlayer::ReadAV()
 
         if(m_pPlayUI!=NULL)
 		{
-			m_pPlayUI->OpenMediaFailure(urlx,KKOpenUrlOkFailure);
+			m_pPlayUI->OpenMediaStateNotify(urlx,KKOpenUrlOkFailure);
 		}else
 		{
 			 //if(m_bTrace)
@@ -1771,7 +1831,7 @@ void KKPlayer::ReadAV()
 		//m_PlayerLock.Unlock();
 		if(m_pPlayUI!=NULL)
 		{
-			m_pPlayUI->OpenMediaFailure(urlx,KKAVNotStream);
+			m_pPlayUI->OpenMediaStateNotify(urlx,KKAVNotStream);
 		}else
 		{
 			//if(m_bTrace)
@@ -1859,7 +1919,7 @@ void KKPlayer::ReadAV()
 
 	if(m_pPlayUI!=NULL)
 	{
-		m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVReady);
+		m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
 	}
 
 	if(pVideoInfo->realtime&&pVideoInfo->audio_st==NULL)
@@ -1882,68 +1942,7 @@ void KKPlayer::ReadAV()
 		{
 			break;
 		}
-		if((IsSeg||pVideoInfo->realtime)&&pVideoInfo->audio_st!=NULL)
-		{
-
-			if(pVideoInfo->audioq.size==0||pVideoInfo->videoq.size==0)
-			{
-                  avsize++; 
-			}
-			
-			if(pVideoInfo->bTraceAV)
-			   LOGE("de %.3fs,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
-			if(pVideoInfo->nRealtimeDelay<=2)//开始缓存&&avsize>100
-			{
-				if(pVideoInfo->audioq.size<=1000&&pVideoInfo->videoq.size<=1000&&pVideoInfo->IsReady)
-				{
-					pVideoInfo->IsReady=0;
-					pVideoInfo->paused=1;
-					avsize=0;
-					if(m_pPlayUI!=NULL)
-					{
-						m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVWait);
-					}
-				}
-				
-			}
-			/********刷新后缓存一会儿********/
-			if(pVideoInfo->audioq.size>2000&&pVideoInfo->videoq.size>2000&&!pVideoInfo->IsReady)
-			{
-				pVideoInfo->IsReady=1;
-				pVideoInfo->paused=0;
-
-				if(m_pPlayUI!=NULL)
-				{
-					m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVReady);
-				}
-			}
-		}else if((IsSeg||pVideoInfo->realtime)&&pVideoInfo->audio_st==NULL&&pVideoInfo->video_st!=NULL)
-		{
-			if(pVideoInfo->videoq.size==0)
-			{
-				avsize++; 
-			}   
-
-			if(pVideoInfo->videoq.size<=1000&&pVideoInfo->IsReady&&avsize>100)
-			{
-				pVideoInfo->IsReady=0;
-				pVideoInfo->paused=1;
-				avsize=0;
-			}
-			
-
-			if(pVideoInfo->bTraceAV)
-				LOGE("de %.3fs,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
-			if(pVideoInfo->videoq.size>2000&& pVideoInfo->IsReady==0){
-				   pVideoInfo->IsReady=1;
-				   pVideoInfo->paused=0;
-				   if(m_pPlayUI!=NULL)
-				{
-					m_pPlayUI->OpenMediaFailure(pVideoInfo->filename,KKAVReady);
-				}
-			}
-		}
-
+		
 
 		int AVQueSize=0;
 
@@ -2071,7 +2070,7 @@ ReRead:
 			        if(pVideoInfo->bTraceAV) 
 				    LOGE("ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof \n");
                     pVideoInfo->eof=1;
-					if(pVideoInfo->realtime&&m_pPlayUI!=NULL&&!IsSeg){ 
+					if(pVideoInfo->realtime&&m_pPlayUI!=NULL&&!m_AvIsSeg){ 
 						
 						pVideoInfo->nRealtimeDelay=0;
 						pVideoInfo->abort_request=1;
@@ -2085,10 +2084,10 @@ ReRead:
 					 if(pVideoInfo->realtime)
 					 {
 						 pVideoInfo->IsReady=0;
-						 if(m_pPlayUI!=NULL&&!IsSeg)
+						 if(m_pPlayUI!=NULL&&!m_AvIsSeg)
 						     m_pPlayUI->AutoMediaCose(this,-2,AVQueSize,m_AVNextInfo);
 					 }else {
-						 if(m_pPlayUI!=NULL&&!IsSeg)
+						 if(m_pPlayUI!=NULL&&!m_AvIsSeg)
 						     m_pPlayUI->AutoMediaCose(this,pFormatCtx->pb->error,AVQueSize,m_AVNextInfo);
 					 }
 				 if(pVideoInfo->bTraceAV)

@@ -168,14 +168,14 @@ unsigned char* CAndKKPlayerUI::GetBkImage(int &length)
 {
     return NULL;
 }
-void CAndKKPlayerUI::OpenMediaFailure(char *strURL,EKKPlayerErr err)
+void CAndKKPlayerUI::OpenMediaStateNotify(char *strURL,EKKPlayerErr err)
 {
     LOGE("Open Err %d \n",m_playerState);
 	if(err==KKOpenUrlOkFailure)
         m_playerState=-2;
     return;
 }
-int CAndKKPlayerUI::PreOpenUrlCall(const char *Url,int *Interrupt)
+int CAndKKPlayerUI::PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)
 {
 	
 	return 0;
