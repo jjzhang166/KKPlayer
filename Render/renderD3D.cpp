@@ -486,7 +486,7 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 	m_ErrPicVertex[3].v = 1.f;
 
 }
-void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
+void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth,bool wait)
 {
   m_lock.Lock();
   if (!LostDeviceRestore())
@@ -618,7 +618,9 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth)
 				}
 				
 
-			}else if(pBuf==NULL&&m_pWaitPicTexture!=NULL&&m_bShowErrPic==false)
+			}
+			
+			if(wait&&m_pWaitPicTexture!=NULL&&m_bShowErrPic==false)
 			{
 				m_pDevice->SetTexture(0,  m_pWaitPicTexture);
 				m_pDevice->SetFVF(Vertex::FVF);

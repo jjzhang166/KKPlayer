@@ -638,8 +638,8 @@ LRESULT           CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM
 	switch(wParam)
 	{
 	    case VK_UP:
-                           ll=-1;//m_pPlayerInstance->GetVolume()-10;
-						   m_pPlayerInstance->SetVolume(ll);
+                           ll=m_pPlayerInstance->GetVolume()+10;
+						  SetVolume(ll);
 		        	       break;
 		case VK_DOWN:
 			               break;

@@ -800,7 +800,7 @@ void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 
 			      sws_scale(s->img_convert_ctx, InBmp.data, InBmp.linesize,0,height,
 					 OutBmp.data,OutBmp.linesize);
-				  pRender->render((char*) OutBmpbuffer,width,height,width);
+				  pRender->render((char*) OutBmpbuffer,width,height,width,false);
 
                   KK_Free_(OutBmpbuffer);
 
@@ -874,31 +874,33 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 								}
 							}
 						}else {
+							bool okkk=false;
 										if(m_bOpen&&m_nPreFile!=0){ 
 												if(pVideoInfo->IsReady==0){
-													int len=0;
-													unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
-													if(pWaitImage!=NULL){
+													  int len=0;
+													  unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
+													  if(pWaitImage!=NULL){
 														 pRender->SetWaitPic(pWaitImage,len);
-														 pRender->render(NULL,0,0,0);
-													}
-												}else{
+														  okkk=true;
+													  }
+												  }
+											
 													if(pVideoInfo->video_st!=NULL){
 													   pVideoInfo->pictq.mutex->Lock();
 													   vp =frame_queue_peek_last(&pVideoInfo->pictq);
 													   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
 													   {
 														   m_lstPts=vp->pts;
-														   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch);
-														
+														   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch,okkk);
+													   }else if(pVideoInfo->IsReady==0){
+														   pRender->render(NULL,0,0,0,true);
 													   }
 													   pVideoInfo->pictq.mutex->Unlock();
 													}else if(pVideoInfo->audio_st!=NULL){
-				#ifndef  _WINDOWS
-													   video_audio_display(pRender,pVideoInfo);
-				#endif
+				                                         #ifdef  _WINDOWS
+													         video_audio_display(pRender,pVideoInfo);
+				                                         #endif
 													}
-											  }
 										}
 									  
 						}
@@ -912,7 +914,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 						unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
 						if(pWaitImage!=NULL){
 							 pRender->SetWaitPic(pWaitImage,len);
-							 pRender->render(NULL,0,0,0);
+							 pRender->render(NULL,0,0,0,true);
 						}
 			}
 	 }

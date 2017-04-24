@@ -17,7 +17,7 @@ public:
     virtual void destroy();
     virtual void resize(unsigned int w, unsigned int h);
 	virtual void LoadCenterLogo(unsigned char* buf,int len);
-	void render(char* buf,int width,int height,int Imgwidth);
+	void render(char* buf,int width,int height,int Imgwidth,bool wait);
 	virtual void renderBk(unsigned char* buf,int len);
 	void SetWaitPic(unsigned char* buf,int len);
 	void SetBkImagePic(unsigned char* buf,int len);

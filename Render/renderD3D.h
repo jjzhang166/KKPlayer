@@ -23,7 +23,7 @@ public:
     void  WinSize(unsigned int w, unsigned int h);
     bool LostDeviceRestore();
     
-    void render(char *pBuf,int width,int height,int imgwidth);
+    void render(char *pBuf,int width,int height,int imgwidth,bool wait);
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
 	
