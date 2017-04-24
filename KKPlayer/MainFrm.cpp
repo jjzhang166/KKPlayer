@@ -5,7 +5,7 @@
 #include "KKSound.h"
 #include "json/json.h"
 #ifdef _DEBUG
-#pragma comment (lib,"../jsoncpp.lib")
+#pragma comment (lib,"../Debug/jsoncpp.lib")
 #else
 #pragma comment (lib,"../Release/jsoncpp.lib")
 #endif

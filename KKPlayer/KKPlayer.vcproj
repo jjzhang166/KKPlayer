@@ -139,6 +139,7 @@
 				AdditionalDependencies="..\Release\libx86\KKPlayerCore.lib ..\Release\libx86\libmfx.lib ..\WinUI\lib\Release\soui.lib ..\WinUI\lib\Release\utilities.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(KKWinDx9Path)\Lib\x86"
+				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"

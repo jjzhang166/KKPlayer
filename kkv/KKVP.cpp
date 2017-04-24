@@ -140,10 +140,17 @@ bool KillProcessFromName(std::wstring strProcessName)
 //FILE *TestFb=NULL;
 int OpenIPc()
 {
+	int recount=0;
+ReOpen:
 	if(G_pInstance==NULL)
 		return 0;
 	bool Ok=G_pInstance->OpenServerPipe("\\\\.\\Pipe\\KKPlayer_Res_70ic");
 	if(!Ok){
+		if(recount<20){
+			recount++;
+			Sleep(100);
+			goto ReOpen;
+		}
 		G_IPC_Read_Write=0;
 		return 0;
 	}else{
@@ -160,8 +167,7 @@ int OpenIPc()
 //buflen+data;
 int InitIPC(){
 	
-	if(0)
-	{
+
 		std::wstring kkres=GetModulePath();
 		kkres+=L"//kkres//kkRes.exe";
 
@@ -173,8 +179,8 @@ int InitIPC(){
 		memset(&si,0,sizeof(si));
 		KillProcessFromName(L"kkres.exe");
 		BOOL ret = CreateProcess(kkres.c_str(),NULL, NULL, NULL, FALSE, 0, NULL, NULL,&si, &pi);
-		Sleep(1000);
-    }
+	
+
 	if(G_pKKV_Rec==NULL)
 	{
          G_pKKV_Rec= new Qy_IPC::CKKV_ReceiveData();
