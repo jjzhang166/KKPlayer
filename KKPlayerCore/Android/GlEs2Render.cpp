@@ -418,7 +418,7 @@ void GlEs2Render::resize(unsigned int w, unsigned int h)
 	glViewport(0, 0,w, h);
     m_bAdJust= false;
 }
-void GlEs2Render::render(char* buf,int width,int height,int Imgwidth)
+void GlEs2Render::render(char* buf,int width,int height,int Imgwidth,bool wait)
 {
 	
     if(buf!=NULL&&width!=0&&height!=0)

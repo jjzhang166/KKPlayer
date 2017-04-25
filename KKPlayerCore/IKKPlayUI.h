@@ -15,6 +15,7 @@ enum EKKPlayerErr
 	 KKAVNotStream=2,
 	 KKAVReady=3,          ///缓冲已经准备就绪
 	 KKAVWait=4,           ///需要缓冲
+	 KKRealTimeOver=5,
 };
 typedef struct KKPlayerNextAVInfo
 {

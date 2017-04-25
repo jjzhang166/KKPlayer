@@ -242,10 +242,11 @@ void              CMainFrame::AvSeek(int value)
 				short SegId=m_pPlayerInstance->GetSegId();
                 int va=seektime-value;
 				if(CurSegId!=SegId||SegId!=pItemHead->SegId ){
-					if(abs((pItemHead->SegId-SegId))>2)
+					///发生了切片强制清空
+					/*if(abs((pItemHead->SegId-SegId))>0)
 					{
 						m_pPlayerInstance->ForceFlushQue();
-					}/**/
+					}*/
 					m_pPlayerInstance->AVSeek(va,pItemHead->SegId);
 				}else{
 				    m_pPlayerInstance->AVSeek(va);
