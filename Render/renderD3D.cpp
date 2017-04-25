@@ -753,7 +753,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 		m_LstLeftStr=m_LeftStr;/**/
 		SAFE_RELEASE(m_pLeftPicTexture);
 	}
-	if(m_LstLeftStr.length()>7)
+	if(m_LstLeftStr.length()>20)
 		return false;
 //	return true;
 	if (m_pLeftPicTexture == NULL)

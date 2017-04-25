@@ -20,6 +20,7 @@ namespace SOUI
 		   void SetPlayStat(int state);
 		   bool GetMeadiaInfo(MEDIA_INFO &info);
 		   void SetVolume(long value);
+		   long GetVolume();
 		   void AvSeek(int value);
 		   int PktSerial();
 

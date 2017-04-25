@@ -59,6 +59,10 @@ namespace SOUI
 		
         return ll;
 	}
+	long  CSuiVideo::GetVolume()
+	{
+	  return m_VideoWnd.GetVolume();
+	}
 	 void CSuiVideo::SetVolume(long value)
 	 {
            m_VideoWnd.SetVolume(value);

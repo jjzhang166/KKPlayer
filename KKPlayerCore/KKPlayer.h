@@ -200,6 +200,7 @@ private:
 			void *m_pAudioPicBuf;
 			int   m_AudioPicBufLen;
 			
+			
 #ifdef Android_Plat
 			void *  m_pVideoRefreshJNIEnv;
 #endif

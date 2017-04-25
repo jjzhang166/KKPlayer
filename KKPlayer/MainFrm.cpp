@@ -62,6 +62,7 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_nCurSegId(0)
 ,m_nMilTimePos(0)
 ,m_nTipTick(0)
+,m_nSeekTip(0)
 {
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
@@ -260,6 +261,8 @@ void              CMainFrame::AvSeek(int value)
 }
 void              CMainFrame::SetVolume(long value)
 {
+	if(value>1000)
+		value=1000;
 	if(m_pRender!=NULL){
 		char Tip[1024]="";
 		sprintf(Tip,"音量：%d%%",value);
@@ -267,7 +270,10 @@ void              CMainFrame::SetVolume(long value)
 		m_pRender->SetLeftPicStr(Tip);
 	}
 	m_pPlayerInstance->SetVolume(value);
-	
+}
+long              CMainFrame::GetVolume()
+{
+   return m_pPlayerInstance->GetVolume();
 }
 bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 {
@@ -283,7 +289,7 @@ bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 		   m_nMilTimePos=0;
 		   while(pItemHead){
 			   if(pItemHead->SegId<info.SegId)
-		           m_nMilTimePos=m_nMilTimePos+(m_FileInfos.pCurItem->pre->milliseconds/1000); 
+		           m_nMilTimePos=m_nMilTimePos+pItemHead->milliseconds/1000; 
 			   
 			   if(pItemHead->SegId==info.SegId)
 				    break;
@@ -291,6 +297,48 @@ bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 		   }
 	   }
 	   info.CurTime+=m_nMilTimePos;
+
+	    if(m_nSeekTip)
+		{
+			int h=(info.CurTime/(60*60));
+			int m=(info.CurTime%(60*60))/(60);
+			int s=((info.CurTime%(60*60))%(60)); 
+			char strtmp[1024]="";
+			std::string CurTimeStr;
+			if(h<10){
+				sprintf(strtmp,"0%d:",h);
+				CurTimeStr=strtmp;
+			}
+			else{
+				sprintf(strtmp,"%d:",h);
+				CurTimeStr=strtmp;
+			}
+			if(m<10){
+				sprintf(strtmp,"0%d:",m);
+				CurTimeStr+=strtmp;
+			}
+			else{				  
+				sprintf(strtmp,"%d:",m);
+				CurTimeStr+=strtmp;
+			}
+
+			if(s<10){
+				sprintf(strtmp,"0%d",s);
+				CurTimeStr+=strtmp;
+			}
+			else{
+				sprintf(strtmp,"%d",s);
+				CurTimeStr+=strtmp;
+			}
+			if(m_nSeekTip==1)
+				sprintf(strtmp,"快退  %s",CurTimeStr.c_str());
+			else if(m_nSeekTip==2)
+			   sprintf(strtmp,"快进  %s",CurTimeStr.c_str());
+			
+			m_nTipTick=::GetTickCount();
+			m_pRender->SetLeftPicStr(strtmp);
+			m_nSeekTip=0;
+		}
 	   return true;
    }
    
@@ -417,6 +465,7 @@ int               CMainFrame::OpenMedia(std::string url)
 		   return Retx;
 		 }*/
 	}
+	m_nSeekTip=0;
 	m_nCurSegId=0;
 	m_nMilTimePos=0;
 	return ret;
@@ -636,27 +685,42 @@ LRESULT           CMainFrame::OnClose(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 LRESULT           CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	long ll=0;
+	int seek=60;
 	switch(wParam)
 	{
 	    case VK_UP:
                            ll=m_pPlayerInstance->GetVolume()+10;
-						  SetVolume(ll);
+						   SetVolume(ll);
 		        	       break;
 		case VK_DOWN:
+			{
+						   ll=m_pPlayerInstance->GetVolume()-10;
+									if(ll<0)
+										ll=0;
+						   SetVolume(ll);
 			               break;
+			}
 		case VK_LEFT:
-			              m_pPlayerInstance->KKSeek(SeekEnum::Left,-60);
+			{
+				           m_nSeekTip=1;
+		                   seek=-seek;
+			               m_pPlayerInstance->KKSeek(SeekEnum::Left,seek);
 			               break;
+			}
 		case 80:           /******P键********/
 			               m_pPlayerInstance->Pause();
 						   break;
 		case VK_RIGHT:
-			               m_pPlayerInstance->KKSeek(SeekEnum::Right,60);
+			{
+				           m_nSeekTip=2;
+						  
+			               m_pPlayerInstance->KKSeek(SeekEnum::Right,seek);
 			               break;
+			}
 		
 	}
-	
-	return 1;
+	bHandled=true;
+	return 0;
 }
 
 extern HINSTANCE GhInstance;

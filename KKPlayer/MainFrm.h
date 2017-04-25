@@ -91,6 +91,7 @@ public:
 	int          GetRealtime();
     bool         GetMediaInfo(MEDIA_INFO& info);
 	void         SetVolume(long value);
+	long         GetVolume();
 	void         AvSeek(int value);
     int          OpenMedia(std::string url);
 	int          DownMedia(char *KKVURL,bool Down=true);
@@ -173,5 +174,6 @@ private:
 	   fpKKPlayerErrNotify   m_ErrNotify;
 	   void*                 m_pErrNotifyUserData;
 	   int                   m_nTipTick;
+int   m_nSeekTip;
 };
 #endif

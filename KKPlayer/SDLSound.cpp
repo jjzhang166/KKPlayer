@@ -156,5 +156,5 @@ int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, 
         m_Vol=value;
  }
  long CSDLSound::GetVolume(){
-	 return 1;
+	 return m_Vol;
  }
