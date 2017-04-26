@@ -61,9 +61,9 @@ class KKPlayer
 			//暂停
 			void Pause();
 			//快进快退，相对
-			void KKSeek( SeekEnum en,int value);
+			int KKSeek( SeekEnum en,int value);
 			//单位时间秒
-			void AVSeek(int value,short segid=-1);
+			int AVSeek(int value,short segid=-1);
 			
 			
 			//获取播放信息
@@ -170,9 +170,9 @@ private:
 			///缓存计数
 			int                m_CacheAvCounter;
 			///是否显示
-			bool         m_bRender;
-			bool         m_bLastOpenAudio;
-            volatile int m_nPreFile;
+			bool               m_bRender;
+			bool               m_bLastOpenAudio;
+            volatile int       m_nPreFile;
 
 	        volatile  bool m_bOpen;
 	        IKKPlayUI* m_pPlayUI;

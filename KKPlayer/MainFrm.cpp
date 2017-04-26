@@ -704,7 +704,9 @@ LRESULT           CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM
 			{
 				           m_nSeekTip=1;
 		                   seek=-seek;
-			               m_pPlayerInstance->KKSeek(SeekEnum::Left,seek);
+			               if(!m_pPlayerInstance->KKSeek(SeekEnum::Left,seek)){
+						       m_nSeekTip=0;
+						   }
 			               break;
 			}
 		case 80:           /******P¼ü********/
@@ -713,8 +715,9 @@ LRESULT           CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM
 		case VK_RIGHT:
 			{
 				           m_nSeekTip=2;
-						  
-			               m_pPlayerInstance->KKSeek(SeekEnum::Right,seek);
+						   if(!m_pPlayerInstance->KKSeek(SeekEnum::Right,seek)){
+						        m_nSeekTip=0;
+						   }
 			               break;
 			}
 		

@@ -84,7 +84,23 @@ HINSTANCE GhInstance;
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
-	int SDL_WindowStyle=WS_POPUP  | WS_VISIBLE|WS_CLIPCHILDREN;
+	LPWSTR *szArglist = NULL;   
+	int nArgs = 0;   
+	std::wstring  urlpath;
+	szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);   
+	if( NULL != szArglist)   
+	{   
+         for(int i=1;i<nArgs;i++)
+		 {
+		     urlpath+=*(szArglist+i);
+			 if(i!=nArgs-1)
+			   urlpath+=L" ";
+		 }
+	} 
+	/*if(urlpath.length()>1)
+		::MessageBox(NULL,urlpath.c_str(),L"xxx",0);*/
+	LocalFree(szArglist);
+
     DeclareDumpFile();
     
     GhInstance=hInstance;
@@ -266,6 +282,13 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);
 
+	if(urlpath.length()>3)
+	{
+	    char localurl[1024]="";
+	    CChineseCode::wcharTochar(urlpath.c_str(), localurl,1024);
+		dlgMain.WinTabShow(1);
+	    dlgMain.OpenMedia(localurl);
+	}
 	//int nRet =  Run(lpstrCmdLine, nCmdShow);
 	int 	nRet = theApp->Run(dlgMain.m_hWnd);
 

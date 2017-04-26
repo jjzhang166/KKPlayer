@@ -1,3 +1,5 @@
+#ifndef KKPLATFORMS_H_
+#define KKPLATFORMS_H_
 #ifndef WIN32_KK
     
     #ifdef Android_Plat
@@ -66,5 +68,8 @@
 		void Sleep(int ms);
 		BOOL GetClientRect(HWND hWnd,RECT *lpRect);
 	#endif
+	
 	//unsigned int _beginthreadex(void * _Security,unsigned _StackSize,unsigned (__stdcall * _StartAddress) (void *),void * _ArgList, unsigned _InitFlag,unsigned * _ThrdAddr);
+#endif
+		char**  KKCommandLineToArgv(char* CmdLine,int* _argc);
 #endif

@@ -1269,9 +1269,9 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	
 	
     pVideoInfo->AVRate=100;
-	m_ReadThreadInfo.ThOver=false;
-	m_VideoRefreshthreadInfo.ThOver=false;
-	m_AudioCallthreadInfo.ThOver=false;
+	m_ReadThreadInfo.ThOver=true;
+	m_VideoRefreshthreadInfo.ThOver=true;
+	m_AudioCallthreadInfo.ThOver=true;
 
 	float aa=(float)pVideoInfo->AVRate/100;
 	snprintf(pVideoInfo->Atempo,sizeof(pVideoInfo->Atempo),"atempo=%f",aa);
@@ -1665,7 +1665,8 @@ void        KKPlayer::AvDelayParser()
 
 							if(m_pPlayUI!=NULL)
 							{
-								m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
+								if(pVideoInfo->eof==0)
+								   m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
 							}
 						}
 		}else if((m_AvIsSeg||pVideoInfo->realtime)&&pVideoInfo->audio_st==NULL&&pVideoInfo->video_st!=NULL){
@@ -1688,7 +1689,8 @@ void        KKPlayer::AvDelayParser()
 							   pVideoInfo->IsReady=1;
 							   pVideoInfo->paused^=0x010;
 							   if(m_pPlayUI!=NULL){
-								    m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
+								   if(pVideoInfo->eof==0)
+								    m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename, KKAVReady);
 							  }
 						}
 		}
@@ -2059,6 +2061,8 @@ ReRead:
 			 if(pVideoInfo->bTraceAV)
 			 LOGE("readAV ret=%d \n",ret);
 
+			 if(pVideoInfo->abort_request)
+				 break;
 			 if ((ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof)
 			 {
 			        if(pVideoInfo->bTraceAV) 
@@ -2067,7 +2071,6 @@ ReRead:
 					if(pVideoInfo->realtime&&m_pPlayUI!=NULL&&!m_AvIsSeg){ 
 						
 						pVideoInfo->nRealtimeDelay=0;
-						pVideoInfo->abort_request=1;
 						pVideoInfo->IsReady=0;
 						m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKRealTimeOver);
 						//m_pPlayUI->AutoMediaCose(this,-1,AVQueSize,m_AVNextInfo);						
@@ -2293,31 +2296,32 @@ void KKPlayer::Pause()
 	this->m_PlayerLock.Unlock();
 }
 //¿ì½ø
-void KKPlayer::KKSeek( SeekEnum en,int value)
+int KKPlayer::KKSeek( SeekEnum en,int value)
 {
- 
-	
-       if(pVideoInfo!=NULL)
-	   {
-		   double incr, pos, frac;
-		   incr=value;
-		   pos = get_master_clock(pVideoInfo);
-		   if (isNAN(pos))
-			   pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
-           pos+=incr;
-		   if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
-			   pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
-		   stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
-	 
-      }
-	   
+	if(pVideoInfo!=NULL&&m_nPreFile==3&&!pVideoInfo->realtime){
+	   double incr, pos, frac;
+	   incr=value;
+	   pos = get_master_clock(pVideoInfo);
+	   if (isNAN(pos))
+		   pos = (double)pVideoInfo->seek_pos / AV_TIME_BASE;
+       pos+=incr;
+	   if (pVideoInfo->pFormatCtx->start_time != AV_NOPTS_VALUE && pos < pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE)
+		   pos = pVideoInfo->pFormatCtx->start_time / (double)AV_TIME_BASE;
+	   stream_seek(pVideoInfo, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
+       return 0;
+  }
+  return -1; 
 }
 
-void KKPlayer::AVSeek(int value,short segid)
+int KKPlayer::AVSeek(int value,short segid)
 {
-	m_nSeekTime=value;
-	m_nSeekSegId=segid;
-	
+	if(pVideoInfo!=NULL&&m_nPreFile==3&&!pVideoInfo->realtime)
+    {
+	   m_nSeekTime=value;
+	   m_nSeekSegId=segid;
+	   return 0;
+	}
+	return -1; 
 }
 
 void KKPlayer::AvflushRealTime(int Avtype)

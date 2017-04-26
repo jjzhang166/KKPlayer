@@ -51,7 +51,7 @@ extern "C"{
 		 Player->SetVolume(Vol);
 	     return	 Player->OpenMedia(url);
 		 }
-		 return 0;
+		 return -2;
    }
    void __declspec(dllexport) KKCloseMedia(void* player)
    {
