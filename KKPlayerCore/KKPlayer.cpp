@@ -1754,7 +1754,7 @@ void KKPlayer::ReadAV()
 		&pFormatCtx,                    pVideoInfo->filename,
 		pVideoInfo->iformat,    &format_opts);
     
-	if(strncmp(pVideoInfo->filename, "rtmp:",5)==0||strncmp(pVideoInfo->filename, "rtsp:",5)==0){
+	if(pFormatCtx!=0&&(strncmp(pVideoInfo->filename, "rtmp:",5)==0||strncmp(pVideoInfo->filename, "rtsp:",5)==0)){
 		 
 		pFormatCtx->probesize = 100 *1024;
 		pFormatCtx->max_analyze_duration=5 * AV_TIME_BASE;
