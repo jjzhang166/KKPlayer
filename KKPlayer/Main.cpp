@@ -223,6 +223,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	pComMgr->CreateImgDecoder((IObjRef**)&pImgDecoderFactory);
 	pRenderFactory->SetImgDecoderFactory(pImgDecoderFactory);
 	
+	::SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED |ES_CONTINUOUS);
 	theApp=new SApplication(pRenderFactory,hInstance);
     theApp->RegisterWndFactory(TplSWindowFactory<CSuiVideo>());
     theApp->RegisterWndFactory(TplSWindowFactory<CKKmclv>());
@@ -297,5 +298,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	_Module.Term();
 	::CoUninitialize();
 
+	::SetThreadExecutionState(ES_CONTINUOUS);
 	return nRet;
 }

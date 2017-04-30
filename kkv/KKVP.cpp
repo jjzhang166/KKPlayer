@@ -167,7 +167,7 @@ ReOpen:
 //buflen+data;
 int InitIPC(){
 	
-
+	if(0){
 		std::wstring kkres=GetModulePath();
 		kkres+=L"//kkres//kkRes.exe";
 
@@ -180,7 +180,7 @@ int InitIPC(){
 		KillProcessFromName(L"kkres.exe");
 		BOOL ret = CreateProcess(kkres.c_str(),NULL, NULL, NULL, FALSE, 0, NULL, NULL,&si, &pi);
 	
-
+	}
 	if(G_pKKV_Rec==NULL)
 	{
          G_pKKV_Rec= new Qy_IPC::CKKV_ReceiveData();
