@@ -52,7 +52,7 @@ namespace Qy_IPC
 		CloseHandle(m_hTheard);
 	}
 
-	void HandleIPCMsg(std::string guidstr,int msgId,unsigned char *dataBuf,int dataLen,unsigned int CacheTime)
+	void HandleIPCMsg(std::string guidstr,int msgId,unsigned char *dataBuf,long long dataLen,unsigned int CacheTime)
 	{
 		G_KKMapLock.Lock();
 		//readœ˚œ¢
@@ -127,7 +127,7 @@ namespace Qy_IPC
 		Json::Value JsValue;
 		if(JsReader.parse(buf,JsValue)){
 			int IPCMSG=0;
-			int DataLen=0;
+			long long DataLen=0;
 			unsigned int CacheTime=0;
 			if(JsValue["IPCMSG"].isInt())
 				IPCMSG=JsValue["IPCMSG"].asInt();
@@ -135,7 +135,7 @@ namespace Qy_IPC
 			std::string guidstr=JsValue["Guid"].asString();
 
 			if(IPCMSG==IPCRead){
-					DataLen=JsValue["DataLen"].asInt();
+				DataLen=JsValue["DataLen"].asInt64();
 					std::string DataHexStr=JsValue["DataHex"].asString();
 					int DataBufLen=DataLen*2;
 					unsigned char* DataBuf=NULL;
@@ -161,7 +161,7 @@ namespace Qy_IPC
 					DataBuf=NULL;
 
 			}else if(IPCMSG==IPCSeek){
-				   DataLen=JsValue["Ret"].asInt();
+				   DataLen=JsValue["Ret"].asInt64();
 			       HandleIPCMsg(guidstr,IPCMSG,0,DataLen, CacheTime);
 			}else if(IPCMSG==IPCURLParser){
 			       std::string UrlJson=JsValue["UrlJson"].asString();

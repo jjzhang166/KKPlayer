@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./json"
+				AdditionalIncludeDirectories=".\;.\json"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;JSON_DLL_BUILD"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

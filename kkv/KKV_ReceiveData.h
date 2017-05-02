@@ -5,7 +5,7 @@
 typedef struct __IPC_DATA_INFO{
 	void *pBuf;
 	int BufLen;
-	int DataSize;
+	long long DataSize;
 	HANDLE hWait;
 	unsigned int CacheTime;
 }IPC_DATA_INFO;
