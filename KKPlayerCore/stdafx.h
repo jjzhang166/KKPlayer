@@ -8,6 +8,7 @@
 #endif
 #ifndef stdafx_H_KK_
 #define stdafx_H_KK_
+   
 	#ifdef WIN32_KK
 			#define WIN32_LEAN_AND_MEAN
 			#ifndef NoNeedWindows_H 
@@ -28,7 +29,8 @@
 
 	#ifdef WIN32
 	       #define snprintf _snprintf
-	#endif
+	#endif 
+    #include "KKError.h"
     //统一分配内存
     void *KK_Malloc_(size_t size);
 	void  KK_Free_(void *ptr);

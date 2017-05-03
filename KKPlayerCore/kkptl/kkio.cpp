@@ -27,6 +27,11 @@ void CalPlayerDelay(void *opaque,int64_t Pts,int AVType)
 		  }
 
 }
+void SetNeedWait(void* PlayerOpaque,bool wait)
+{
+       SKK_VideoState *	is=	(SKK_VideoState *) PlayerOpaque;
+	   is->NeedWait=wait;
+}
 AVIOContext * CreateKKIo(SKK_VideoState *kkAV)
 {
 	/*int int ll=AVERROR_EOF;
@@ -38,6 +43,7 @@ AVIOContext * CreateKKIo(SKK_VideoState *kkAV)
 	pKKP->PlayerOpaque=kkAV;
 	pKKP->FlushQue= Queue_All_Flush;
 	pKKP->CalPlayerDelay=CalPlayerDelay;
+	pKKP->SetNeedWait=SetNeedWait;
 	pKKP->kkirq=kkAV->pFormatCtx->interrupt_callback.callback;
 	pKKP->FirstRead=1;
 	AVIOContext *avio=avio_alloc_context(aviobuffer, len,0,pKKP, pKKP->kkread,NULL,pKKP->kkseek); 

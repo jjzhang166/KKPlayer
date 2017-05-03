@@ -75,7 +75,7 @@ protected:
 	virtual void           OpenMediaStateNotify(char* strURL,EKKPlayerErr err);
 	virtual int            PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
 	/*******视频流结束调用*******/
-	virtual void           AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
+	virtual void           GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 	virtual void           AVReadOverThNotify(void *playerIns);
 	virtual void           AVRender(); 
 /********播放器相关操作*********/

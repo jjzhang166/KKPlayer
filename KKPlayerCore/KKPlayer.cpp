@@ -1215,7 +1215,10 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	memcpy(pVideoInfo->filename, URL, strlen(URL));
 
 	pVideoInfo->realtime = is_realtime2(URL);
-
+    if(pVideoInfo->realtime)
+	{
+	   pVideoInfo->NeedWait=true;
+	}
 	memset(&m_AVPlayInfo,0,sizeof(MEDIA_INFO));
 	//初始化队列
 	packet_queue_init(&pVideoInfo->videoq);
@@ -1538,9 +1541,11 @@ bool KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
 		av_dict_set(&format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE);
 	
 	LOGE("av_format_inject_global_side_data \n");
+
 	av_format_inject_global_side_data(pFormatCtx);
 	
 
+	
 	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
 	{
 		avformat_close_input(&pFormatCtx);
@@ -1589,7 +1594,7 @@ bool KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
 	return true;
 }
 
-void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid,bool flush)
+bool  KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid,bool flush)
 {
 	AVFormatContext*  pFormatCtx=*pAVForCtx;
   
@@ -1598,7 +1603,7 @@ void   KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid,
 	m_AVNextInfo.NeedRead=0;
 	strcpy(m_AVNextInfo.url,"");
 ReOpenAV:
-	m_pPlayUI->AutoMediaCose(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
+	m_pPlayUI->GetNextAVSeg(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
 	if(m_AVNextInfo.NeedRead&&strlen(m_AVNextInfo.url))
 	{
 		 if(OpenInputSegAV(m_AVNextInfo.url,m_AVNextInfo.SegId,flush))
@@ -1612,7 +1617,8 @@ ReOpenAV:
 			  m_AVNextInfo.lstOpSt=false;
 		      goto ReOpenAV;
 		 }
-	}    
+	} 
+	return m_AVNextInfo.NeedRead;
 }
 void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
 {
@@ -1635,7 +1641,8 @@ void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
 
 void        KKPlayer::AvDelayParser()
 {
-	if((m_AvIsSeg||pVideoInfo->realtime)&&pVideoInfo->audio_st!=NULL){
+	if(pVideoInfo->NeedWait&&pVideoInfo->audio_st!=NULL)
+	{
 						if(pVideoInfo->audioq.size==0||pVideoInfo->videoq.size==0)
 						{
 							  m_CacheAvCounter++; 
@@ -1669,7 +1676,7 @@ void        KKPlayer::AvDelayParser()
 								   m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
 							}
 						}
-		}else if((m_AvIsSeg||pVideoInfo->realtime)&&pVideoInfo->audio_st==NULL&&pVideoInfo->video_st!=NULL){
+		}else if(pVideoInfo->NeedWait&&pVideoInfo->audio_st==NULL&&pVideoInfo->video_st!=NULL){
 						if(pVideoInfo->videoq.size==0)
 						{
 							m_CacheAvCounter++; 
@@ -1723,6 +1730,7 @@ void KKPlayer::ReadAV()
 	strcpy(srcurl,pVideoInfo->filename);
 	if(m_pPlayUI->PreOpenUrlCallForSeg(pVideoInfo->filename,(int*)&pVideoInfo->abort_request)){
 	   m_AvIsSeg=1;
+	   pVideoInfo->NeedWait=true;
 	}
 
 	if(KKProtocolAnalyze(pVideoInfo->filename,*pVideoInfo->pKKPluginInfo)==1){	
@@ -1746,7 +1754,7 @@ void KKPlayer::ReadAV()
 	pVideoInfo->OpenTime= av_gettime ()/1000/1000;
 	double Opex=0;
 //	std::string urlxx=filename;
-
+    
 
 	LOGE("call avformat_open_input \n");
 	//此函数是阻塞的
@@ -1778,8 +1786,8 @@ void KKPlayer::ReadAV()
     //文件打开失败
 	if(err<0)
 	{
-		 av_dict_free(&format_opts);
-		 avformat_free_context(pFormatCtx);
+		av_dict_free(&format_opts);
+		avformat_free_context(pFormatCtx);
 		pVideoInfo->pFormatCtx = NULL;
 		char urlx[1024]="";
 		strcpy(urlx,pVideoInfo->filename);
@@ -1812,9 +1820,11 @@ void KKPlayer::ReadAV()
 	LOGE("av_format_inject_global_side_data \n");
 	av_format_inject_global_side_data(pFormatCtx);
 	
-	
+	 AVDictionary **opts;
+	 AVDictionary *codec_opts=NULL;
+	opts=setup_find_stream_info_opts(pFormatCtx, codec_opts);
 	// Retrieve stream information
-	if(avformat_find_stream_info(pFormatCtx, NULL)<0)
+	if(avformat_find_stream_info(pFormatCtx, opts)<0)
 	{
 		 av_dict_free(&format_opts);
 		LOGE("avformat_find_stream_info<0 \n");
@@ -1834,6 +1844,12 @@ void KKPlayer::ReadAV()
 		LOGE("avformat_find_stream_info<0 \n");
 		return; // Couldn't find stream information
     }
+	
+    //err = avformat_find_stream_info(pFormatCtx, opts);
+    for (int i = 0; i < pFormatCtx->nb_streams; i++)
+        av_dict_free(&opts[i]);
+    av_freep(&opts);
+
 	//if(m_bTrace)
 	LOGE("avformat_find_stream_info Ok \n");
 	
@@ -1843,8 +1859,7 @@ void KKPlayer::ReadAV()
 	int64_t stream_start_time;
 	int pkt_in_play_range = 0;
 	AVDictionaryEntry *t;
-	AVDictionary **opts=NULL;
-	int orig_nb_streams;
+
 	int64_t pkt_ts;
     int64_t duration= AV_NOPTS_VALUE;
 	if (start_time != AV_NOPTS_VALUE) 
@@ -1867,12 +1882,21 @@ void KKPlayer::ReadAV()
 	   Sleep(20);
 	}*/
 
- 
+    static const char* wanted_stream_spec[AVMEDIA_TYPE_NB] = {0};
+	wanted_stream_spec[AVMEDIA_TYPE_VIDEO]="vst";
+	wanted_stream_spec[AVMEDIA_TYPE_SUBTITLE]="sst";
+	wanted_stream_spec[AVMEDIA_TYPE_AUDIO]="ast";
 	for (i = 0; i < pFormatCtx->nb_streams; i++) 
 	{
 		AVStream *st = pFormatCtx->streams[i];
 		enum AVMediaType type = st->codec->codec_type;
-		st_index[type] = i;
+
+        st->discard = AVDISCARD_ALL;
+        if (type >= 0 &&  st_index[type] == -1)
+            if (avformat_match_stream_specifier(pFormatCtx, st,wanted_stream_spec[type] ) > 0)
+                st_index[type] = i;
+
+		
 	}
 	/* open the streams */
 	
@@ -2068,18 +2092,21 @@ ReRead:
 			        if(pVideoInfo->bTraceAV) 
 				    LOGE("ret == AVERROR_EOF || avio_feof(pFormatCtx->pb)) && !pVideoInfo->eof \n");
                     pVideoInfo->eof=1;
+					EKKPlayerErr err=KKEOF;
 					if(pVideoInfo->realtime&&m_pPlayUI!=NULL&&!m_AvIsSeg){ 
-						
 						pVideoInfo->nRealtimeDelay=0;
 						pVideoInfo->IsReady=0;
-						m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKRealTimeOver);
-						//m_pPlayUI->AutoMediaCose(this,-1,AVQueSize,m_AVNextInfo);						
+						err=KKRealTimeOver;
+					}else if(-pFormatCtx->pb->error== ERROR_BROKEN_PIPE){
+					    err=KKEOF;
 					}
+					m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,err);
+
 			 }else if (pFormatCtx->pb && pFormatCtx->pb->error&&ret != AVERROR_EOF){
 					 pVideoInfo->eof=1;
 					 pVideoInfo->abort_request=1;
 					 pVideoInfo->nRealtimeDelay=0;
-					 if(pVideoInfo->realtime)
+					/* if(pVideoInfo->realtime)
 					 {
 						 pVideoInfo->IsReady=0;
 						 if(m_pPlayUI!=NULL&&!m_AvIsSeg)
@@ -2087,15 +2114,14 @@ ReRead:
 					 }else {
 						 if(m_pPlayUI!=NULL&&!m_AvIsSeg)
 						     m_pPlayUI->AutoMediaCose(this,pFormatCtx->pb->error,AVQueSize,m_AVNextInfo);
-					 }
+					 }*/
 				 if(pVideoInfo->bTraceAV)
 					 LOGE("pFormatCtx->pb && pFormatCtx->pb->error \n");
 				 break;
 				
 			 }else if(ret == AVERROR_EOF && avio_feof(pFormatCtx->pb)&& pVideoInfo->eof||forceOver)
 			 {
-				        ///用于视频分片，但视频必须是同一格的
-				      
+				        ///用于视频分片，但视频必须是同一格的				      
 				       
 			            if(m_pPlayUI!=NULL&&pVideoInfo->pSegFormatCtx==NULL)
 						{

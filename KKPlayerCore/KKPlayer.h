@@ -120,7 +120,7 @@ private:
 			
 			void        OpenAudioDev();
 			bool        OpenInputSegAV(const char *url,short segid,bool flush);
-			void        loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid=-1,bool flush=false);
+			bool        loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid=-1,bool flush=false);
 			void        InterSeek(AVFormatContext*  pAVForCtx);
 			//Êý¾Ý¶ÁÈ¡
 	        void        ReadAV();

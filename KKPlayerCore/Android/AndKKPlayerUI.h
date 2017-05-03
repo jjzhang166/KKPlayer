@@ -48,7 +48,7 @@ class CAndKKPlayerUI :public  IKKPlayUI
 			virtual int PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
 			 // PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)
 			/*******视频流结束调用*******/
-			virtual void  AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
+			virtual void  GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 			/***视频读取线程结束调用***/
 			virtual void  AVReadOverThNotify(void *playerIns);
 			virtual void AVRender(); 

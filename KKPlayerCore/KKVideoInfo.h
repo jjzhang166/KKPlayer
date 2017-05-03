@@ -212,7 +212,10 @@ typedef struct SKK_VideoState
 	//发送seg切换后使用
 	AVFormatContext *pSegFormatCtx;
     int              SegStreamState;
-	int realtime;
+	///              指示是否为实时流媒体
+	int              realtime;
+	///              指示是否需要出现转转
+	bool             NeedWait;
 
 	SKK_Clock audclk;
 	SKK_Clock vidclk;

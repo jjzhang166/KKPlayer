@@ -11,11 +11,13 @@
 enum EKKPlayerErr
 {
      KKOpenUrlOk=0,          /***播发器打开成功**/
-	 KKOpenUrlOkFailure=1,  /**播发器打开失败***/
+	 KKOpenUrlOkFailure=1,   /**播发器打开失败***/
 	 KKAVNotStream=2,
-	 KKAVReady=3,          ///缓冲已经准备就绪
-	 KKAVWait=4,           ///需要缓冲
+	 KKAVReady=3,            ///缓冲已经准备就绪
+	 KKAVWait=4,             ///需要缓冲
 	 KKRealTimeOver=5,
+	 KKEOF=6,                ///文件结束了。
+
 };
 typedef struct KKPlayerNextAVInfo
 {
@@ -36,8 +38,8 @@ class IKKPlayUI
 			 virtual void OpenMediaStateNotify(char* strURL,EKKPlayerErr err)=0;
 			 ///读取线程打开文件前的回调函数,用于分段，返回1，代表有分段，此时InOutUrl已经被修改。
 			 virtual int PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)=0;
-			 /*******视频流结束调用.*******/
-			 virtual void AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)=0;
+			 /*******视频流结束调用.用于加载下一个分片*******/
+			 virtual void GetNextAVSeg(void *playerIns,int Err,int quesize,KKPlayerNextAVInfo &NextInfo)=0;
 
 			 /***视频读取线程结束调用，只能使用其地址值****/
 			 virtual void  AVReadOverThNotify(void *playerIns)=0;

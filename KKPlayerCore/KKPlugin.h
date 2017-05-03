@@ -33,6 +33,7 @@ extern "C"
 	typedef int  (*fIo_read_packet)(void *opaque, uint8_t *buf, int buf_size);
     //文件seek
 	typedef int64_t  (*fIo_seek)(void *opaque, int64_t offset, int whence);
+	
 	//得到缓存时间
 	typedef unsigned int     (*fGetCacheTime)(void *opaque);
 
@@ -40,20 +41,21 @@ extern "C"
 	typedef char* (*fKKUrlParser)(const char *strurl,int *abort_request);
 	//
 	typedef int  (*fKKIRQ)(void *opaque);  //强制中断函数
-
+    typedef void (*fSetNeedWait)(void* PlayerOpaque,bool wait);
 	typedef struct __KKPlugin
 	{
-        void *opaque;                        //用户数据
-		fIo_read_packet kkread;              //读函数
-		fIo_seek kkseek;                     //写函数
-		fFlushPlayerQue FlushQue;            //参数填入 kkirqOpaque,刷新队列函数
-		fCalPlayerDelay CalPlayerDelay;      //外部回调函数，Player填入
-		fGetCacheTime GetCacheTime;
-		fKKIRQ kkirq;                        //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
-        void *PlayerOpaque;                  //播放器环境
-		char *URL;                           //去掉协议头的地址
-		int RealTime;                        //1为实时，否则应为0
-		int FirstRead;                       //第一次读，1,读后为0，需手动
+        void *opaque;                               //用户数据，      插件设置
+		fIo_read_packet kkread;                     //读函数，        插件设置
+		fIo_seek        kkseek;                     //seek函数        插件设置
+		fFlushPlayerQue FlushQue;                   //参数填入 kkirqOpaque,刷新队列函数
+		fCalPlayerDelay CalPlayerDelay;             //外部回调函数，Player填入
+		fGetCacheTime   GetCacheTime;
+		fKKIRQ          kkirq;                      //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
+		fSetNeedWait    SetNeedWait;                //播放器填入
+        void  *PlayerOpaque;                  //播放器环境
+		char  *URL;                           //去掉协议头的地址
+		int   RealTime;                        //1为实时，否则应为0
+		int   FirstRead;                       //第一次读，1,读后为0，需手动
 	}KKPlugin;
 	
 	//创建一个插件实例

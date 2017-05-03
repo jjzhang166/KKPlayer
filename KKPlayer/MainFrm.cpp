@@ -1061,7 +1061,7 @@ void              CMainFrame::OpenMediaStateNotify(char* strURL,EKKPlayerErr err
 {
      int length=0;
 	 unsigned char* img=GetErrImage(length,0);
-	 if(err==KKOpenUrlOkFailure&&img!=NULL&&length>0&&m_pRender!=NULL)
+	 if((err==KKOpenUrlOkFailure||err==KKEOF) &&img!=NULL&&length>0&&m_pRender!=NULL)
 	 {
 		 m_pRender->SetErrPic(img,length);
 		 m_pRender->ShowErrPic(true);
@@ -1071,19 +1071,19 @@ void              CMainFrame::OpenMediaStateNotify(char* strURL,EKKPlayerErr err
 	    m_ErrNotify(m_pErrNotifyUserData,err);
 	 }
 }
-void              CMainFrame::AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
+void              CMainFrame::GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
 {
 
-	if(Stata==-109)//管道已结束。
-	{
-		int length=0;
-		unsigned char* img=GetErrImage(length,0);
-		if(img!=NULL&&length>0&&m_pRender!=NULL)
-		{
-			m_pRender->SetErrPic(img,length);
-			m_pRender->ShowErrPic(true);
-		}
-	}
+	//if(Stata==-109)//管道已结束。
+	//{
+	//	int length=0;
+	//	unsigned char* img=GetErrImage(length,0);
+	//	if(img!=NULL&&length>0&&m_pRender!=NULL)
+	//	{
+	//		m_pRender->SetErrPic(img,length);
+	//		m_pRender->ShowErrPic(true);
+	//	}
+	//}
 
     m_FileSegLock.Lock();
 	if(m_FileInfos.ItemCount>1)

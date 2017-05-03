@@ -3,7 +3,8 @@
 #include "../../QyIPC/Qy_Ipc_Manage.h"
 #include "KKV_ReceiveData.h"
 #include <map>
-#include <string>
+#include <string> 
+#include "./../KKPlayer/KKPlayerCore/KKError.h"
 #include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
 #include "json/json.h"
 
@@ -289,21 +290,13 @@ KK_DOWN_SPEED_INFO * ParseSpeedInfo(char *jsonstr)
 	return PreInfo;
 }
 
-//json¸ñÊ½
-//{
-//    "IPCMSG":1,
-//	"Url":"md5",
-//	"Guid":"Guid",
-//	"HRW":"hRead",
-//	
-//	"BufLen":1000
-//}
+
 int  __declspec(dllexport) Kkv_read_packet(void *opaque, uint8_t *buf, int buf_size)
 {
 	
 LOOP1:
 	KKPlugin* KKP=(KKPlugin*)opaque;
-	
+	KKP->SetNeedWait(KKP->PlayerOpaque,true);
 
 	std::string strGuid;
 	CreatStrGuid(strGuid);
@@ -359,8 +352,8 @@ LOOP1:
 	{
 
 		if(rext==0)
-			return  AVERROR(109);
-		//KKCloseAVFile(KKP->URL);
+			return  AVERROR(ERROR_BROKEN_PIPE);
+
 		return AVERROR(errno);
 	}
 	
@@ -414,7 +407,7 @@ LOOP1:
 	jsonValue["Guid"]=strGuid;
 	jsonValue["Url"]=KKP->URL;
     jsonValue["HRW"]=(int)hRead;
-    jsonValue["offset"]=(int)offset;
+    jsonValue["offset"]=offset;
     jsonValue["whence"]=whence;
 
 	strGuid=jsonValue.toStyledString();
@@ -456,7 +449,7 @@ LOOP1:
 	GetIPCOpRet(strGuid,RetOk,OutInfo);
 	if(RetOk)
 	{
-		int ret=OutInfo.DataSize;
+		long long ret=OutInfo.DataSize;
 		return ret;
 	}
 	return AVERROR(errno);

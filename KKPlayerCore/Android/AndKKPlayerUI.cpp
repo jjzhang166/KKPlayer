@@ -194,7 +194,7 @@ void  CAndKKPlayerUI::ForceFlushQue()
 {
     m_player.ForceFlushQue();
 }
-void  CAndKKPlayerUI::AutoMediaCose(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
+void  CAndKKPlayerUI::GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
 {
      if(Stata==-1){
          m_bNeedReconnect=true;

@@ -14,8 +14,7 @@ void init_clock(SKK_Clock *c, int *queue_serial);
 int stream_component_open(SKK_VideoState *is, int stream_index);
 //初始化队列
 int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int keep_last);
-//流媒体返回 1 
-int is_realtime(AVFormatContext *s);
+
 /*****计算延迟时间******/
 double compute_target_delay(double delay, SKK_VideoState *is);
 void update_video_pts(SKK_VideoState *is, double pts, int64_t pos, int serial);
@@ -41,3 +40,5 @@ double vp_duration(SKK_VideoState *is, SKK_Frame *vp, SKK_Frame *nextvp);
 void audio_callback(void *userdata, char *stream, int len);
 void RaiseVolume(char* buf, int size, int uRepeat, double vol);
 void Packet_Queue_All_Flush(SKK_VideoState *pVideoInfo);
+
+AVDictionary **setup_find_stream_info_opts(AVFormatContext *s,AVDictionary *codec_opts);
