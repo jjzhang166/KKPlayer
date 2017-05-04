@@ -13,18 +13,17 @@
 #else
 #include "Resource.h"
 #endif
+#define  WM_MediaClose  WM_USER+100
+#define  WM_OpenErr     WM_USER+101
 
-struct SWaitPicInfo
+typedef struct SWaitPicInfo
 {
     unsigned char* Buf;
 	int Len;
 	short Time;
 	int StartTime;
 	int Index;
-};
-#define  WM_MediaClose  WM_USER+100
-#define  WM_OpenErr     WM_USER+101
-
+}SWaitPicInfo;
 
 /*************以下用于文件的分片播放***************/
 typedef struct AVFILE_SEG_ITEM
@@ -55,7 +54,7 @@ typedef struct AVFILE_SEGS_INFO
        memset(this,0,sizeof(AVFILE_SEGS_INFO));
    }
 }AVFILE_SEGS_INFO;
-
+/*************分片结束****************/
 
 //errcode 参考EKKPlayerErr
 typedef void (*fpKKPlayerErrNotify)(void *UserData,int errcode);
@@ -66,18 +65,7 @@ class CMainFrame :
 public:
 	CMainFrame(bool NeedDel=false);
 	~CMainFrame();
-protected:
-/********** IKKPlayUI实现*************/
-	virtual unsigned char* GetErrImage(int &length,int ErrType);
-	virtual unsigned char* GetWaitImage(int &len,int curtime);
-	virtual unsigned char* GetBkImage(int &len);
-	virtual unsigned char* GetCenterLogoImage(int &length);
-	virtual void           OpenMediaStateNotify(char* strURL,EKKPlayerErr err);
-	virtual int            PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
-	/*******视频流结束调用*******/
-	virtual void           GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
-	virtual void           AVReadOverThNotify(void *playerIns);
-	virtual void           AVRender(); 
+
 /********播放器相关操作*********/
 public:
 	int          GetCurTime();
@@ -98,44 +86,7 @@ public:
     void         CloseMedia();
 	//全屏
 	void         FullScreen();
-private:
-	void         OnDraw(HDC& memdc,RECT& rt);
-private:
-    IKKAudio*        m_pSound;
-#ifndef LIBKKPLAYER
-	SOUI::CAVMenu*   m_pAVMenu;
-#endif
-	IkkRender*       m_pRender;
-	   
-	int              LeftWidth;
-	int              LeftNavigationBarWidth;
-    
 
-	CKKLock                            m_FileSegLock;
-	AVFILE_SEGS_INFO                   m_FileInfos;///文件分片信息
-	short                              m_nCurSegId;
-	unsigned int                       m_nMilTimePos;
-	KKPlayer*                          m_pPlayerInstance;
-
-	KKPlayer*                          m_pPlayerInstanceNext;
-	unsigned int                       m_nPlayerInsCount;///播放器实例个数
-	/*********默认背景图片**********/
-	unsigned char*                     m_pBkImage;
-
-	unsigned char*                     m_pCenterLogoImage;
-    int                                m_CenterLogoLen;
-
-	unsigned char*                     m_pErrOpenImage;
-	int                                m_ErrOpenImgLen;
-	std::vector<SWaitPicInfo*>         m_WaitPicList;
-	SWaitPicInfo*                      m_CurWaitPic;
-    bool                               m_bOpen;
-	CPoint                             m_lastPoint;
-	UINT                               m_AVwTimerRes;
-	UINT                               m_AVtimerID;
-    bool                               m_bFullScreen;
-	int                                m_nFullLastTick;
-	int                                m_nCursorCount;
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 	BEGIN_MSG_MAP(CMainFrame)
@@ -169,11 +120,58 @@ protected:
 		LRESULT  OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
+protected:
+		/********** IKKPlayUI实现*************/
+		virtual unsigned char* GetErrImage(int &length,int ErrType);
+		virtual unsigned char* GetWaitImage(int &len,int curtime);
+		virtual unsigned char* GetBkImage(int &len);
+		virtual unsigned char* GetCenterLogoImage(int &length);
+		virtual void           OpenMediaStateNotify(char* strURL,EKKPlayerErr err);
+		virtual int            PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
+		/*******视频流结束调用*******/
+		virtual void           GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
+		virtual void           AVReadOverThNotify(void *playerIns);
+		virtual void           AVRender(); 
+private:
+	    void                   OnDraw(HDC& memdc,RECT& rt);
 private:
 	   bool                  m_bNeedDel;
 	   fpKKPlayerErrNotify   m_ErrNotify;
 	   void*                 m_pErrNotifyUserData;
 	   int                   m_nTipTick;
-int   m_nSeekTip;
+       int                   m_nSeekTip;
+       IKKAudio*             m_pSound;
+#ifndef LIBKKPLAYER
+	   SOUI::CAVMenu*        m_pAVMenu;
+#endif
+	   IkkRender*            m_pRender;
+	   
+	   int                   LeftWidth;
+	   int                   LeftNavigationBarWidth;
+    
+
+	   CKKLock                            m_FileSegLock;
+	   AVFILE_SEGS_INFO                   m_FileInfos;///文件分片信息
+	   short                              m_nCurSegId;
+	   unsigned int                       m_nMilTimePos;
+	   KKPlayer*                          m_pPlayerInstance;
+	   unsigned int                       m_nPlayerInsCount;///播放器实例个数
+	   /*********默认背景图片**********/
+	   unsigned char*                     m_pBkImage;
+
+	   unsigned char*                     m_pCenterLogoImage;
+	   int                                m_CenterLogoLen;
+
+	   unsigned char*                     m_pErrOpenImage;
+	   int                                m_ErrOpenImgLen;
+	   std::vector<SWaitPicInfo*>         m_WaitPicList;
+	   SWaitPicInfo*                      m_CurWaitPic;
+	   bool                               m_bOpen;
+	   CPoint                             m_lastPoint;
+	   UINT                               m_AVwTimerRes;
+	   UINT                               m_AVtimerID;
+	   bool                               m_bFullScreen;
+	   int                                m_nFullLastTick;
+	   int                                m_nCursorCount;
 };
 #endif

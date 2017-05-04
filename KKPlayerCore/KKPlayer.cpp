@@ -1914,6 +1914,7 @@ void KKPlayer::ReadAV()
 	if (st_index[AVMEDIA_TYPE_AUDIO] >= 0) 
 	{
 
+
 		if(!m_bLastOpenAudio)
         {
 		   OpenAudioDev();
