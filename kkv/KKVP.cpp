@@ -21,22 +21,36 @@
 Qy_IPC::Qy_Ipc_Manage *G_pInstance=NULL;
 typedef unsigned char      uint8_t;
 typedef long long          int64_t;
-//    687281b0bee195d415caaf20bd50a8de
-//kkv:614ccd77440dd9c92603667e5cc14bf1|mp4.mp4
-//所有的Ipc操作的结果
-std::map<std::string,IPC_DATA_INFO> G_guidBufMap;
-std::map<std::string,unsigned int>  G_CacheTimeMap;
-std::map<std::string,HANDLE> G_guidHMap;
-std::map<std::string,std::map<std::string,HANDLE>*> G_URLRequestInfoMap;
 
-Qy_IPC::CKKV_ReceiveData *G_pKKV_Rec=NULL;
-Qy_IPC::CKKV_DisConnect *G_pKKV_Dis=NULL;
-Qy_IPC::Qy_IPc_InterCriSec G_KKMapLock;
+//所有的Ipc操作的结果
+std::map<std::string,IPC_DATA_INFO>                 G_guidBufMap;
+std::map<std::string,unsigned int>                  G_CacheTimeMap;
+std::map<std::string,HANDLE>                        G_guidHMap;
+std::map<std::string,std::map<std::string,HANDLE>*> G_URLRequestInfoMap;
+std::map<std::string,std::string>                   G_SpeedInfoMap;
+
+Qy_IPC::CKKV_ReceiveData                            *G_pKKV_Rec=NULL;
+Qy_IPC::CKKV_DisConnect                             *G_pKKV_Dis=NULL;
+Qy_IPC::Qy_IPc_InterCriSec                          G_KKMapLock;
 //IPC 状态函数
 int G_IPC_Read_Write=-1;
 int OpenIPc();
 
-
+bool GetSpeedInfo(const char *strurl,char *jsonBuf,int len)
+{
+	bool aaa=false;
+	G_KKMapLock.Lock();
+	std::map<std::string,std::string>::iterator It=G_SpeedInfoMap.find(strurl);
+	if(It!=G_SpeedInfoMap.end()){
+		if(len>It->second.length())
+		{
+		    strcpy(jsonBuf,It->second.c_str());
+			aaa=true;
+		}
+	}
+	G_KKMapLock.Unlock();
+    return aaa;
+}
 static std::basic_string<TCHAR> g_strModuleFileName;
 const std::basic_string<TCHAR>& XGetModuleFilename()
 {
@@ -149,7 +163,7 @@ ReOpen:
 	if(!Ok){
 		if(recount<20){
 			recount++;
-			Sleep(100);
+			Sleep(20);
 			goto ReOpen;
 		}
 		G_IPC_Read_Write=0;
@@ -166,7 +180,7 @@ ReOpen:
 
 //消息通讯格式规定。
 //buflen+data;
-int InitIPC(){
+int   InitIPC(){
 	
 	if(0){
 		std::wstring kkres=GetModulePath();
@@ -218,7 +232,7 @@ void  CreatStrGuid(std::string &strGuid)
 	strGuid=abcd;
 }
 
-int KKVWritePipe(unsigned char *pBuf,int Len,HANDLE hPipeInst)
+int   KKVWritePipe(unsigned char *pBuf,int Len,HANDLE hPipeInst)
 {
 	int lx=0;
 	G_KKMapLock.Lock();
@@ -257,38 +271,7 @@ void __declspec(dllexport) KKFree(void* p)
 	   free(p);
 }
 
-KK_DOWN_SPEED_INFO * ParseSpeedInfo(char *jsonstr)
-{
-	int lex=sizeof(KK_DOWN_SPEED_INFO);
-	Json::Reader JsonReader;
-	Json::Value jsonvalue;
-	KK_DOWN_SPEED_INFO *PreInfo=NULL;
-	if(jsonstr!=NULL&&JsonReader.parse(jsonstr,jsonvalue))
-	{
-		if(jsonvalue.size()>0){
-			for(int i=0;i <jsonvalue.size();i++)
-			{
-				Json::Value Item=jsonvalue[i];
-				KK_DOWN_SPEED_INFO *info=(KK_DOWN_SPEED_INFO*)::malloc(lex);
-				info->Speed=Item["Speed"].asInt();
-			    info->FileSize=Item["FileSize"].asInt();
-				info->AcSize=Item["AcTotalSize"].asInt();
-				info->Tick=Item["Tick"].asInt();
-				info->Next=NULL;
-				if(PreInfo==NULL)
-				{
-					PreInfo=info;
-				}else{
-					PreInfo->Next=info;
-					PreInfo=info;
-				}
 
-			}
-		}
-
-	}
-	return PreInfo;
-}
 
 
 int  __declspec(dllexport) Kkv_read_packet(void *opaque, uint8_t *buf, int buf_size)
@@ -495,11 +478,31 @@ char __declspec(dllexport)KKStopDownAVFile(char *strUrl)
 	
 	return 0;
 }
+//typedef bool (*fKKDownAVFileSpeedInfo)(const char *strurl,char *jsonBuf,int len);
 
-KK_DOWN_SPEED_INFO __declspec(dllexport) *KKDownAVFileSpeedInfo(char *strurl,int *TotalSpeed)
+///获取下载速度信息
+bool __declspec(dllexport) KKDownAVFileSpeedInfo(const char *strurl,char *jsonBuf,int len)
 {
-	KK_DOWN_SPEED_INFO* pSpeedInfo;
-	return pSpeedInfo; 
+	if(G_IPC_Read_Write!=1)
+		return false;
+	Json::Value jsonValue;
+	jsonValue["IPCMSG"]=IPCSpeed;
+	jsonValue["Guid"]="";
+	jsonValue["Url"]=strurl;
+    jsonValue["HRW"]=0;
+	jsonValue["FirstRead"]=0;
+	
+    int buflen=1024;
+	
+	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
+	memset(IPCbuf,0,buflen);
+	
+	std::string strGuid=jsonValue.toStyledString();
+	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
+	KKVWritePipe(IPCbuf,buflen,0);
+	::free(IPCbuf);
+	
+    return GetSpeedInfo(strurl,jsonBuf,len);
 }
 
 

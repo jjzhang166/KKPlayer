@@ -402,6 +402,7 @@ typedef struct MEDIA_INFO
 	bool              Open;
 	int               KKState;
     short             SegId;
+	char              SpeedInfo[1024];     ///обтькы╤х
 	AVCACHE_INFO      CacheInfo;
 }MEDIA_INFO ;
 

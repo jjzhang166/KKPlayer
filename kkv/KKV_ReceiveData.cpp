@@ -21,7 +21,9 @@
 typedef unsigned char      uint8_t;
 typedef long long          int64_t;
 
-extern std::map<std::string,IPC_DATA_INFO>   G_guidBufMap;
+extern std::map<std::string,IPC_DATA_INFO>                        G_guidBufMap;
+extern std::map<std::string,std::map<std::string,HANDLE>*>        G_URLRequestInfoMap;
+extern std::map<std::string,std::string>                          G_SpeedInfoMap;
 extern Qy_IPC::Qy_IPc_InterCriSec            G_KKMapLock;
 extern std::map<std::string,unsigned int>    G_CacheTimeMap;
 extern int G_IPC_Read_Write;
@@ -94,9 +96,14 @@ namespace Qy_IPC
 
 		}else if(msgId==4){//stop down
 
-		}else if(msgId==5){//speed
-			
-			
+		}else if(msgId==IPCSpeed){//speed
+			std::map<std::string,std::string>::iterator It= G_SpeedInfoMap.find(guidstr);
+			if(It!=G_SpeedInfoMap.end())
+			{
+				It->second=(char*)dataBuf;
+			}else{
+				G_SpeedInfoMap.insert(std::pair<std::string,std::string>(guidstr,(char*)dataBuf));
+			}
 		}else if(msgId==6){
 
 			
@@ -164,9 +171,15 @@ namespace Qy_IPC
 				   DataLen=JsValue["Ret"].asInt64();
 			       HandleIPCMsg(guidstr,IPCMSG,0,DataLen, CacheTime);
 			}else if(IPCMSG==IPCURLParser){
+			
 			       std::string UrlJson=JsValue["UrlJson"].asString();
 				   HandleIPCMsg(guidstr,IPCURLParser,(unsigned char*)UrlJson.c_str(),UrlJson.length(),0);
+			}if(IPCMSG==IPCSpeed){	
+				   guidstr=JsValue["Url"].asString();
+			       std::string JsonSpeedInfo=JsValue["SpeedInfo"].asString();
+				   HandleIPCMsg(guidstr,IPCSpeed,(unsigned char*)JsonSpeedInfo.c_str(),JsonSpeedInfo.length(),0);
 			}
+			if(HRW!=0)
 			::SetEvent(HRW);
 		}
 	}
