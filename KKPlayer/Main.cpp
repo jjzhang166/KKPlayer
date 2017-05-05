@@ -163,7 +163,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		fGetPtlHeader          pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
 		fDeleteKKPlugin        pDel=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
         fKKDownAVFile          pKKDownAVFile=(fKKDownAVFile)GetProcAddress(hdll, "KKDownAVFile");
-		fKKStopDownAVFile      pKKStopDownAVFile=(fKKStopDownAVFile)GetProcAddress(hdll, "KKStopDownAVFile");
+		fKKPauseDownAVFile     pKKPauseDownAVFile=(fKKPauseDownAVFile)GetProcAddress(hdll, "KKPauseDownAVFile");
 		fFree                  pKKFree=(fFree)GetProcAddress(hdll, "KKFree");
         fKKDownAVFileSpeedInfo pKKDownAVFileSpeedInfo=(fKKDownAVFileSpeedInfo)GetProcAddress(hdll, "KKDownAVFileSpeedInfo");
         fKKUrlParser           pKKUrlParser=(fKKUrlParser)GetProcAddress(hdll, "KKUrlParser");
@@ -176,7 +176,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 				Info.DelKKp=pDel;
                 Info.Handle=hdll;
 				Info.KKDownAVFile=pKKDownAVFile;
-				Info.KKStopDownAVFile=pKKStopDownAVFile;
+				Info.KKPauseDownAVFile=pKKPauseDownAVFile;
 				Info.KKFree=pKKFree;
 				Info.KKDownAVFileSpeedInfo=pKKDownAVFileSpeedInfo;
 				Info.KKUrlParser=pKKUrlParser;

@@ -31,7 +31,7 @@ std::map<std::string,std::string>                   G_SpeedInfoMap;
 
 Qy_IPC::CKKV_ReceiveData                            *G_pKKV_Rec=NULL;
 Qy_IPC::CKKV_DisConnect                             *G_pKKV_Dis=NULL;
-Qy_IPC::Qy_IPc_InterCriSec                          G_KKMapLock;
+Qy_IPC::Qy_IPc_InterCriSec                           G_KKMapLock;
 //IPC 状态函数
 int G_IPC_Read_Write=-1;
 int OpenIPc();
@@ -52,7 +52,7 @@ bool GetSpeedInfo(const char *strurl,char *jsonBuf,int len)
     return aaa;
 }
 static std::basic_string<TCHAR> g_strModuleFileName;
-const std::basic_string<TCHAR>& XGetModuleFilename()
+const  std::basic_string<TCHAR>& XGetModuleFilename()
 {
 
 	if (g_strModuleFileName.empty())
@@ -471,13 +471,36 @@ char __declspec(dllexport)KKDownAVFile(char *strUrl)
 {
 	  
 	  return 0;
-  }
-//停止下载文件
-char __declspec(dllexport)KKStopDownAVFile(char *strUrl)
+}
+
+//暂停下载文件
+void __declspec(dllexport)KKPauseDownAVFile(char *strUrl,bool Pause)
 {
+	if(G_IPC_Read_Write!=1)
+		return false;
+	Json::Value jsonValue;
+	if(Pause)
+	    jsonValue["IPCMSG"]=IPCDownPause;
+	else
+		jsonValue["IPCMSG"]=IPCDownResume;
+	jsonValue["Guid"]="";
+	jsonValue["Url"]=strurl;
+    jsonValue["HRW"]=0;
+	jsonValue["FirstRead"]=0;
 	
+    int buflen=1024;
+	
+	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
+	memset(IPCbuf,0,buflen);
+	
+	std::string strGuid=jsonValue.toStyledString();
+	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
+	KKVWritePipe(IPCbuf,buflen,0);
+	::free(IPCbuf);
+
 	return 0;
 }
+
 //typedef bool (*fKKDownAVFileSpeedInfo)(const char *strurl,char *jsonBuf,int len);
 
 ///获取下载速度信息

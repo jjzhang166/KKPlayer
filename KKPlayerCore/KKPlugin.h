@@ -11,8 +11,8 @@ extern "C"
 	typedef void (*fFree)(void*);
     /****下载函数****/
     typedef char (*fKKDownAVFile)(char *strUrl);
-	/********停止下载函数**********/
-	typedef char (*fKKStopDownAVFile)(char *str);
+	/********暂停下载或者重新下载下载函数**********/
+	typedef void (*fKKPauseDownAVFile)(char *strUrl,bool Pause);
 	
 	
 	/************得到下载速度信息*********/
@@ -58,13 +58,13 @@ extern "C"
 		/***插件名称***/
 		char ptl[32];
 		/******创建一个插件******/
-		fCreateKKPlugin CreKKP;
+		fCreateKKPlugin        CreKKP;
 		/**********删除一个插件**************/
-		fDeleteKKPlugin DelKKp;
+		fDeleteKKPlugin        DelKKp;
 		/***********下载文件*****************/
-		fKKDownAVFile     KKDownAVFile;
-		/************停止下载*****************/
-		fKKStopDownAVFile KKStopDownAVFile;
+		fKKDownAVFile          KKDownAVFile;
+		/************暂停或者重新下载*****************/
+		fKKPauseDownAVFile     KKPauseDownAVFile;
 		/*************得到下载速度信息************/
 		fKKDownAVFileSpeedInfo KKDownAVFileSpeedInfo;
 		/*****************释放内存*************/
