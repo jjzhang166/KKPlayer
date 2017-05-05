@@ -19,7 +19,7 @@ translucent="0"
 			            <window pos="10,[0,-0,@20" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
 			                  <text pos="[0,0,@60,@20" font="adding:-2" colorText="#243A61">打开Url:</text>
 							  <richedit pos="[0,0,]-10,@20" rich="1" multilines="1" colorBkgnd="#FFFFFF" vertical="1" 
-							  name="AVInfoUrl" inset="1,1,1,1" 
+							  name="AVInfoUrl" inset="1,1,1,1" maxbuf="2000"
 							  font="adding:-2" colorText="#243A61">
 							  </richedit>
 						</window>

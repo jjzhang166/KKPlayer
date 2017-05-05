@@ -32,10 +32,13 @@ namespace SOUI
 		{
 			::MessageBox(m_hWnd,L"请输入有效的URL地址",L"提示",MB_ICONHAND);
 		}else{
-			char urlx[1024];
-			CChineseCode::wcharTochar(url.GetBuffer(1024),urlx,1024);
+			int len=url.GetLength()+100;
+			char *urlx=(char*)::malloc(len);
+			memset(urlx,0,len);
+			CChineseCode::wcharTochar(url.GetBuffer(len),urlx,len);
 			url.ReleaseBuffer();
             m_pDlgMain->OpenMedia(urlx);
+			free(urlx);
             OnClose();
 		}
 	}

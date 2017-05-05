@@ -1090,10 +1090,13 @@ char * c_left(char *dst,char *src, int n)
 int KKPlayer::KKProtocolAnalyze(char* StrfileName,KKPluginInfo &KKPl)
 {
 	char* pos=strstr(StrfileName,":") ;
+	int ret=0;
 	if(pos!=NULL)
-	{
-		char ProName[256];
-		
+	{ 
+		ret =-1;
+		int Len=strlen(StrfileName)+1024;
+		char *ProName=(char*)::malloc(Len);
+		memset(ProName,0,Len);
 		int lll=pos-StrfileName;
 		c_left(ProName,StrfileName,lll);
 
@@ -1107,17 +1110,18 @@ int KKPlayer::KKProtocolAnalyze(char* StrfileName,KKPluginInfo &KKPl)
 				{
 					strcpy(ProName,pos+1);
 					//strcpy(ProName,"");
-					memset(StrfileName,0,1024);
+					strcpy(StrfileName,"");
 					strcpy(StrfileName,ProName);
 					KKPl=*It;/**/
-					return 1;
+					ret= 1;
 				}
 			}
 		}
-        return -1;
+		::free(ProName);
+      
 		
 	}
-	return 0;
+	return ret;
 }
 int KKPlayer::GetRealtime()
 {
@@ -1167,6 +1171,10 @@ void KKPlayer::SetRender(bool bRender)
 }
 int KKPlayer::OpenMedia(char* URL,char* Other)
 {
+	if(strlen(URL)>2047)
+	{
+	    return -2;
+	}
 	m_AVInfoLock.Lock();
 	if(pVideoInfo!=NULL){
 	    pVideoInfo->abort_request=1;
@@ -1503,10 +1511,10 @@ void KKPlayer::ForceFlushQue()
 
 
 //打开视频文件
-bool KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
+bool  KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
 {
 
-	char filename[1024]="";
+	char filename[2048]="";
 	strcpy(filename,url);
 	if(!strncmp(filename, "rtmp:",5)){
        
@@ -1629,7 +1637,7 @@ ReOpenAV:
 	} 
 	return m_AVNextInfo.NeedRead;
 }
-void   KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
+void  KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
 {
 	if(m_nSeekTime>0&&pVideoInfo!=NULL&&pVideoInfo->IsReady)
 	{
@@ -1735,7 +1743,7 @@ void KKPlayer::ReadAV()
 	}
 	pVideoInfo->pFormatCtx = pFormatCtx;
 	
-	char srcurl[1024]="";
+	char srcurl[2048]="";
 	strcpy(srcurl,pVideoInfo->filename);
 	if(m_pPlayUI->PreOpenUrlCallForSeg(pVideoInfo->filename,(int*)&pVideoInfo->abort_request)){
 	   m_AvIsSeg=1;
@@ -1798,7 +1806,7 @@ void KKPlayer::ReadAV()
 		av_dict_free(&format_opts);
 		avformat_free_context(pFormatCtx);
 		pVideoInfo->pFormatCtx = NULL;
-		char urlx[1024]="";
+		char urlx[2048]="";
 		strcpy(urlx,pVideoInfo->filename);
 		pVideoInfo->abort_request=1;
 		m_PlayerLock.Unlock();

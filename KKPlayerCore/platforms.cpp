@@ -3,15 +3,17 @@
 #ifdef WIN32
 void WindowsLOGE(const char* format,...)
 {
-	//return;
-	char buf[1024]="";
+	int len=strlen(format);
+	
 	
 	va_list ap;  
 	va_start(ap,format);  
+	len+= _vscprintf( format,ap)+1;
+	char *buf=(char*)::malloc(len);
 	vsprintf(buf,format,ap);  
 	va_end(ap);  
 	OutputDebugStringA(buf);  
-
+	::free(buf);
 }
 #endif
 #ifndef Platforms_H_

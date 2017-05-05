@@ -150,16 +150,6 @@ namespace Qy_IPC
 					    DataBuf=(unsigned char*)::malloc(DataBufLen);
 						unsigned long uOutLen=DataBufLen;
 					    bool DecOk=CBase64::Decode(DataHexStr,DataBuf,&uOutLen);
-
-						 char md5buf[512]="";
-					     MD5Data (DataBuf,uOutLen, md5buf);
-						 std::string DataMd5=JsValue["datamd5"].asString();
-						 if(DataMd5!=md5buf)
-						 {
-						    int ii=0;
-							ii++;
-						 }/**/
-						 
 					}
 					HandleIPCMsg(guidstr,IPCMSG,DataBuf,DataLen, CacheTime);
 					

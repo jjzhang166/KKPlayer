@@ -309,11 +309,12 @@ LOOP1:
 
 
 	strGuid=jsonValue.toStyledString();
-	unsigned char *IPCbuf=(unsigned char*)::malloc(1024);
-	memset(IPCbuf,0,1024);
+	int buflen=strGuid.length()+1024;
+	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
+	memset(IPCbuf,0,buflen);
 	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
 
-	int rext=KKVWritePipe(IPCbuf,1024,0);
+	int rext=KKVWritePipe(IPCbuf,buflen,0);
 	while(1&&G_IPC_Read_Write==1&&rext==1)
 	{
 		DWORD ret=::WaitForSingleObject( hRead,50);
@@ -394,11 +395,12 @@ LOOP1:
     jsonValue["whence"]=whence;
 
 	strGuid=jsonValue.toStyledString();
-	unsigned char *IPCbuf=(unsigned char*)::malloc(1024);
-	memset(IPCbuf,0,1024);
+	int buflen=strGuid.length()+1024;
+	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
+	memset(IPCbuf,0,buflen);
 	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
 
-    int rext=KKVWritePipe(IPCbuf,1024,0);
+    int rext=KKVWritePipe(IPCbuf,buflen,0);
 	while(1&&G_IPC_Read_Write==1&&rext==1)
 	{
 		DWORD ret=::WaitForSingleObject( hRead,50);
@@ -456,13 +458,10 @@ KKPlugin __declspec(dllexport) *CreateKKPlugin()
 	
 	return p;
 }
-char __declspec(dllexport)KKStopDownAVFile(char *strUrl);
+
 //删除一个插件实例
 void __declspec(dllexport) DeleteKKPlugin(KKPlugin* p)
 {
-	KKStopDownAVFile(p->URL);
-	/*fclose(TestFb);
-	TestFb=NULL;*/
 	::free(p);
 }
 
@@ -477,28 +476,28 @@ char __declspec(dllexport)KKDownAVFile(char *strUrl)
 void __declspec(dllexport)KKPauseDownAVFile(char *strUrl,bool Pause)
 {
 	if(G_IPC_Read_Write!=1)
-		return false;
+		return ;
 	Json::Value jsonValue;
 	if(Pause)
 	    jsonValue["IPCMSG"]=IPCDownPause;
 	else
 		jsonValue["IPCMSG"]=IPCDownResume;
 	jsonValue["Guid"]="";
-	jsonValue["Url"]=strurl;
+	jsonValue["Url"]=strUrl;
     jsonValue["HRW"]=0;
 	jsonValue["FirstRead"]=0;
-	
-    int buflen=1024;
+	std::string strGuid=jsonValue.toStyledString();
+    int buflen=strGuid.length()+1024;
 	
 	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
 	memset(IPCbuf,0,buflen);
 	
-	std::string strGuid=jsonValue.toStyledString();
+	
 	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
 	KKVWritePipe(IPCbuf,buflen,0);
 	::free(IPCbuf);
 
-	return 0;
+	return;
 }
 
 //typedef bool (*fKKDownAVFileSpeedInfo)(const char *strurl,char *jsonBuf,int len);
@@ -514,13 +513,14 @@ bool __declspec(dllexport) KKDownAVFileSpeedInfo(const char *strurl,char *jsonBu
 	jsonValue["Url"]=strurl;
     jsonValue["HRW"]=0;
 	jsonValue["FirstRead"]=0;
-	
-    int buflen=1024;
+
+	std::string strGuid=jsonValue.toStyledString();
+    int buflen=strGuid.length()+1024;
 	
 	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
 	memset(IPCbuf,0,buflen);
 	
-	std::string strGuid=jsonValue.toStyledString();
+	
 	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
 	KKVWritePipe(IPCbuf,buflen,0);
 	::free(IPCbuf);
@@ -544,19 +544,23 @@ char * c_left(char *dst,char *src, int n)
 char* GetIPCUrlParserRet(const char*Url,int *abort_request);
 char __declspec(dllexport) *KKUrlParser(const char *strurl,int *abort_request)
 {
-	
+	char *ret=NULL;
 	char* pos=(char*)strstr(strurl,":") ;
 	if(pos!=NULL)
 	{
-		char ProName[1024];
+		///int buflen=strGuid.length()+1024;
+		int Len=strlen(strurl)+1024;
+		char *ProName=(char*)::malloc(Len);
+        memset(ProName,0,Len);
 		int lll=pos-strurl;
 		c_left(ProName,(char *)strurl,lll);
 		if(strcmp(ProName,"kkv")==0){
 		      strcpy(ProName,pos+1);
-              return GetIPCUrlParserRet(ProName,abort_request);
+              ret=GetIPCUrlParserRet(ProName,abort_request);
 		}
+		::free(ProName);
 	}
-	return NULL; 
+	return ret; 
 }
 };
 
@@ -588,11 +592,12 @@ char* GetIPCUrlParserRet(const char*Url,int *abort_request)
 	
 
 	strGuid=jsonValue.toStyledString();
-	unsigned char *IPCbuf=(unsigned char*)::malloc(1024);
-	memset(IPCbuf,0,1024);
+	int buflen=strGuid.length()+1024;
+	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
+	memset(IPCbuf,0,buflen);
 	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
 
-	int rext=KKVWritePipe(IPCbuf,1024,0);
+	int rext=KKVWritePipe(IPCbuf,buflen,0);
 	while(rext==1&&*abort_request==0)
 	{
 		DWORD ret=::WaitForSingleObject( hRead,50);

@@ -217,9 +217,9 @@ typedef struct SKK_VideoState
 	///              指示是否需要出现转转
 	bool             NeedWait;
 
-	SKK_Clock audclk;
-	SKK_Clock vidclk;
-	SKK_Clock extclk;
+	SKK_Clock        audclk;
+	SKK_Clock        vidclk;
+	SKK_Clock        extclk;
 
 	/*******视频图片队列*******/
 	SKK_FrameQueue pictq;
