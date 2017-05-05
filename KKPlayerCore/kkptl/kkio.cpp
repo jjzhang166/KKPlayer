@@ -39,7 +39,11 @@ AVIOContext * CreateKKIo(SKK_VideoState *kkAV)
 	size_t len=32768;//1024*4;//
 	unsigned char *aviobuffer=(unsigned char*)av_malloc(len);  
 	KKPlugin* pKKP=kkAV->pKKPluginInfo->CreKKP();
-	pKKP->URL=kkAV->filename;
+	int LenUrl=strlen(kkAV->filename)+1024;
+	pKKP->URL=(char*)::malloc(LenUrl);
+	memset(pKKP->URL,0,LenUrl);
+	strcpy(pKKP->URL,kkAV->filename);
+
 	pKKP->PlayerOpaque=kkAV;
 	pKKP->FlushQue= Queue_All_Flush;
 	pKKP->CalPlayerDelay=CalPlayerDelay;
@@ -62,7 +66,8 @@ void FreeKKIo(SKK_VideoState *kkAV)
 {
 	AVIOContext *io=kkAV->pFormatCtx->pb;
     KKPlugin* pKKP=(KKPlugin*)io->opaque;
-    
+    free(pKKP->URL);
+	pKKP->URL=0;
     kkAV->pKKPluginInfo->DelKKp(pKKP);
 	::av_free(io->buffer);
     io->buffer=NULL;

@@ -115,7 +115,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".\json"
+				AdditionalIncludeDirectories=".\;.\json"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;JSON_DLL_BUILD"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
