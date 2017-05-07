@@ -256,6 +256,17 @@ int   KKVWritePipe(unsigned char *pBuf,int Len,HANDLE hPipeInst)
 	return lx;
 }
 
+//typedef bool (*fKKDownAVFileSpeedInfo)(const char *strurl,char *jsonBuf,int len);
+static std::string GetUrlRemoveKkv(std::string Url)
+{
+	int index=Url.find_first_of("kkv:");
+	if(index>-1)
+	{
+		index+=4;
+		Url=Url.substr(index,Url.length()-index);
+	}
+	return Url;
+}
 extern "C"{
 
 char __declspec(dllexport)KKCloseAVFile(char *strUrl);
@@ -502,17 +513,17 @@ void __declspec(dllexport)KKPauseDownAVFile(char *strUrl,bool Pause)
 	return;
 }
 
-//typedef bool (*fKKDownAVFileSpeedInfo)(const char *strurl,char *jsonBuf,int len);
 
 ///获取下载速度信息
 bool __declspec(dllexport) KKDownAVFileSpeedInfo(const char *strurl,char *jsonBuf,int len)
 {
 	if(G_IPC_Read_Write!=1)
 		return false;
+	std::string url=GetUrlRemoveKkv(strurl);
 	Json::Value jsonValue;
 	jsonValue["IPCMSG"]=IPCSpeed;
 	jsonValue["Guid"]="";
-	jsonValue["Url"]=strurl;
+	jsonValue["Url"]=url;
     jsonValue["HRW"]=0;
 	jsonValue["FirstRead"]=0;
 
@@ -527,7 +538,7 @@ bool __declspec(dllexport) KKDownAVFileSpeedInfo(const char *strurl,char *jsonBu
 	KKVWritePipe(IPCbuf,buflen,0);
 	::free(IPCbuf);
 	
-    return GetSpeedInfo(strurl,jsonBuf,len);
+	return GetSpeedInfo(url.c_str(),jsonBuf,len);
 }
 
 
