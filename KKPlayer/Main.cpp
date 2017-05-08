@@ -19,7 +19,6 @@
 #include "Tool/FileRelation.h"
 #include "../KKPlayerCore/KKPlugin.h"
 #include "../KKPlayerCore/KKPlayer.h"
-#include "../KKPlayerCore/SqlOp/AVInfomanage.h"
 #pragma comment (lib,"Gdiplus.lib")
 #pragma comment (lib,"Kernel32.lib")
 
@@ -118,9 +117,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	std::string pp;
 	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);
 
-	CAVInfoManage AVInfoManage;
-	AVInfoManage.SetPath((char *)pp.c_str());
-	AVInfoManage.InitDb();
+	
 
 
 	CFileRelation FileRelation;

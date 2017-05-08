@@ -74,8 +74,7 @@ class KKPlayer
 			short GetSegId();
 			short GetCurSegId();
 		
-			//获取放播的历史信息
-			void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
+		
 
 			//1为流媒体,没有open返回-1/******是否是流媒体,该方法不是很准确*****/
 			int GetRealtime();
@@ -157,8 +156,7 @@ private:
 			
 			///AV视频信息
 			KKPlayerNextAVInfo m_AVNextInfo;
-			//记录播放信息用
-			CAVInfoManage*     m_pAVInfomanage;
+			
             //播放信息
 			MEDIA_INFO         m_AVPlayInfo;
 			//播放器锁

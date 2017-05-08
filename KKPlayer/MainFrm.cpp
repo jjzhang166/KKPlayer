@@ -356,35 +356,7 @@ int               CMainFrame::DownMedia(char *KKVURL,bool Down)
 {
 	if(m_pPlayerInstance!=NULL)
 	{
-		KKPluginInfo KKPl;
-		memset(&KKPl,0,sizeof(KKPl));
-		std::string urlx=KKVURL;
-        int ret=m_pPlayerInstance->KKProtocolAnalyze(KKVURL,KKPl);
-		if(ret==1){
-            if(KKPl.KKDownAVFile!=NULL){
-				 //kkv:e8a486a4e28480ad18bd5041c2ad34fa|mp4.cc
-				 CAVInfoManage* m_pAVInfomanage=CAVInfoManage::GetInance();
-				 if(m_pAVInfomanage!=NULL){
-
-					 char *strInfo=KKVURL;
-					 char* alias="xx";
-					 char *category="xx";
-					 int FileSize=-1;
-					 int AcSize=0;
-					 int DownOk=0;
-					 m_pAVInfomanage->UpdateDownAVinfo(strInfo,alias,category,FileSize,AcSize,DownOk);
-					
-				 }
-				 if(Down)
-				 {
-                     KKPl.KKDownAVFile(KKVURL);
-					 return 1;
-				 }
-                   
-				 else
-					 return 2;
-			}
-		}
+		
 	}
 	
     return -1;
@@ -874,7 +846,7 @@ void              CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify Er
 }
 void              CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
-	m_pPlayerInstance->GetAVHistoryInfo(slQue);
+
 }
 
 unsigned char*    CMainFrame::GetErrImage(int &length,int ErrType)

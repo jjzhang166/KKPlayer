@@ -56,7 +56,6 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 ,m_AvIsSeg(0)
 ,m_CacheAvCounter(0)
 {
-	m_pAVInfomanage=CAVInfoManage::GetInance();
 	pVideoInfo=NULL;
 	m_bOpen=false;
 	static bool registerFF=true;
@@ -470,13 +469,6 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 	    info=m_AVPlayInfo;
 	}
 	return ok;
-}
-//获取放播的历史信息
-void KKPlayer::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
-{
-   if( m_pAVInfomanage!=NULL){
-	    m_pAVInfomanage->GetAVHistoryInfo(slQue);
-   }
 }
 
 
