@@ -28,6 +28,8 @@ namespace SOUI
 	void CAVOpenUrl::OnOpenUrl()
 	{
 		SOUI::SStringW url=FindChildByName("AVInfoUrl")->GetWindowText();
+        url=url.TrimRight();
+		url=url.TrimLeft();
 		if(url.GetLength()<2)
 		{
 			::MessageBox(m_hWnd,L"请输入有效的URL地址",L"提示",MB_ICONHAND);
