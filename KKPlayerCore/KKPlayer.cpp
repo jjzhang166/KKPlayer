@@ -453,14 +453,7 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 											}
 											strcpy(info.AVinfo,infostr);
 
-											///自定义Io
-											if(pVideoInfo->pFormatCtx->flags == AVFMT_FLAG_CUSTOM_IO){
-											     if(pVideoInfo->pKKPluginInfo!=NULL&&pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo!=NULL){
-													 
-													 pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo(pVideoInfo->filename,infostr,1024);
-													 strcpy(info.SpeedInfo,infostr);
-												 }
-											}
+											
 							}
 							m_AVPlayInfo=info;
 							ok=true;
@@ -469,6 +462,15 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 		m_PlayerLock.Unlock();/**/
 	}else{
 	    info=m_AVPlayInfo;
+	}
+	
+	///自定义Io
+	if(pVideoInfo!=NULL&&pVideoInfo->pFormatCtx->flags == AVFMT_FLAG_CUSTOM_IO){
+	     if(pVideoInfo->pKKPluginInfo!=NULL&&pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo!=NULL){
+			 char infostr[1024]="";
+			 pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo(pVideoInfo->filename,infostr,1024);
+			 strcpy(info.SpeedInfo,infostr);
+		 }
 	}
 	return ok;
 }
