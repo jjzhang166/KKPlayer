@@ -353,8 +353,10 @@ void KKPlayer::CloseMedia()
 		pVideoInfo->pSegFormatCtx=NULL;
 	}
    
-	LOGE("pVideoInfo->pKKPluginInfo\n");
-	KK_Free_(pVideoInfo->pKKPluginInfo);
+	if(pVideoInfo->pKKPluginInfo!=NULL){
+	   LOGE("pVideoInfo->pKKPluginInfo\n");
+	   KK_Free_(pVideoInfo->pKKPluginInfo);
+	}
 
     av_packet_unref(pVideoInfo->pflush_pkt);
 	KK_Free_(pVideoInfo->pflush_pkt);
@@ -1579,6 +1581,7 @@ bool  KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
         av_freep(&opts);
 	}
 	if(err<0){
+		if(pFormatCtx!=NULL)
 		avformat_close_input(&pFormatCtx);
 		return false;
     }
@@ -1740,7 +1743,6 @@ void KKPlayer::ReadAV()
 		scan_all_pmts_set = 1;
 	}
 	pVideoInfo->pFormatCtx = pFormatCtx;
-	
 	char srcurl[2048]="";
 	strcpy(srcurl,pVideoInfo->filename);
 	if(m_pPlayUI->PreOpenUrlCallForSeg(pVideoInfo->filename,(int*)&pVideoInfo->abort_request)){
@@ -1783,6 +1785,10 @@ void KKPlayer::ReadAV()
 	LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
 	m_nPreFile=3;
 	if(!m_bOpen||pVideoInfo->abort_request==1){
+
+		if(pFormatCtx!=NULL)
+		   avformat_free_context(pFormatCtx);
+		pVideoInfo->pFormatCtx = NULL;
 		 m_PlayerLock.Unlock();
 		 return;
 	 }
@@ -1791,7 +1797,8 @@ void KKPlayer::ReadAV()
     //文件打开失败
 	if(err<0){
 		av_dict_free(&format_opts);
-		avformat_free_context(pFormatCtx);
+		if(pFormatCtx!=NULL)
+		   avformat_free_context(pFormatCtx);
 		pVideoInfo->pFormatCtx = NULL;
 		char urlx[2048]="";
 		strcpy(urlx,pVideoInfo->filename);
@@ -1804,7 +1811,7 @@ void KKPlayer::ReadAV()
 		LOGE("avformat_open_input <0 \n");
 		return;
 	}
-	
+
     m_PlayerLock.Unlock();
 
 	if (scan_all_pmts_set)

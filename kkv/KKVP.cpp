@@ -22,13 +22,14 @@ Qy_IPC::Qy_Ipc_Manage *G_pInstance=NULL;
 typedef unsigned char      uint8_t;
 typedef long long          int64_t;
 
-//所有的Ipc操作的结果
+//所有的Ipc操作的结果.
 std::map<std::string,IPC_DATA_INFO>                 G_guidBufMap;
+
 std::map<std::string,unsigned int>                  G_CacheTimeMap;
 std::map<std::string,HANDLE>                        G_guidHMap;
-std::map<std::string,std::map<std::string,HANDLE>*> G_URLRequestInfoMap;
-std::map<std::string,std::string>                   G_SpeedInfoMap;
 
+std::map<std::string,std::string>                   G_URLInfoMap;
+std::map<std::string,std::string>                   G_SpeedInfoMap;
 Qy_IPC::CKKV_ReceiveData                            *G_pKKV_Rec=NULL;
 Qy_IPC::CKKV_DisConnect                             *G_pKKV_Dis=NULL;
 Qy_IPC::Qy_IPc_InterCriSec                           G_KKMapLock;
@@ -86,7 +87,19 @@ void AddIPCGuid(std::string& strGuid,IPC_DATA_INFO &xxda)
 }
 
 
+void IPCFreeData()
+{
+	
+	G_KKMapLock.Lock();
+	std::map<std::string,IPC_DATA_INFO>::iterator Itx=G_guidBufMap.begin();
 
+	for(;Itx!=G_guidBufMap.end();++Itx)
+	{
+		SetEvent(Itx->second.hWait);
+	}
+	G_guidBufMap.clear();
+	G_KKMapLock.Unlock();
+}
 void GetIPCOpRet(std::string& strGuid,bool& Ok,IPC_DATA_INFO &OutInfo)
 {
 	memset(&OutInfo,0,sizeof(OutInfo));
@@ -475,6 +488,7 @@ KKPlugin __declspec(dllexport) *CreateKKPlugin()
 //删除一个插件实例
 void __declspec(dllexport) DeleteKKPlugin(KKPlugin* p)
 {
+    IPCFreeData();
 	::free(p);
 }
 
@@ -576,8 +590,6 @@ char __declspec(dllexport) *KKUrlParser(const char *strurl,int *abort_request)
 	return ret; 
 }
 };
-
-
 ///得到URL分析的结果
 char* GetIPCUrlParserRet(const char*Url,int *abort_request)
 {
