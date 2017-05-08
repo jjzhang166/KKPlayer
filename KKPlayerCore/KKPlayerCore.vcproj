@@ -248,42 +248,6 @@
 			>
 		</Filter>
 		<Filter
-			Name="sqlite"
-			>
-			<File
-				RelativePath=".\sqlite\sqlite3.c"
-				>
-			</File>
-			<File
-				RelativePath=".\sqlite\sqlite3.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sqlite\sqlite3ext.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="SqlOp"
-			>
-			<File
-				RelativePath=".\SqlOp\AVInfomanage.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SqlOp\AVInfomanage.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SqlOp\SqliteOp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SqlOp\SqliteOp.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="MD5"
 			>
 			<File

@@ -1,6 +1,6 @@
 include Android_config.mak
-objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o SqliteOp.o \
-	AVInfomanage.o KKPlayer.o sqlite3.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o \
+objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o \
+	KKPlayer.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o \
 	GlEs2Render.o AndKKAudio.o AndKKPlayerUI.o JniKKPlayer.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
@@ -44,8 +44,7 @@ $(ObjTARGET):$(objects)
 
 md5.o: MD5/md5.c MD5/md5.h
 	$(CC) -c  $(CFLAGS) MD5/md5.c
-sqlite3.o: sqlite/sqlite3ext.h sqlite/sqlite3.h sqlite/sqlite3.c
-	$(CC) -c $(CFLAGS) sqlite/sqlite3.c
+
 platforms.o:platforms.cpp stdafx.h
 	$(CXX) -c $(CFLAGS) platforms.cpp
 KKLock.o: KKLock.cpp KKLock.h platforms.h stdafx.h 
@@ -58,10 +57,7 @@ KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.
 	$(CXX) -c $(CFLAGS) KKInternal.cpp
 kkio.o: KKVideoInfo.h kkptl/kkio.cpp
 	$(CXX) -c $(CFLAGS)  kkptl/kkio.cpp
-SqliteOp.o: sqlite/sqlite3.h SqlOp/SqliteOp.h SqlOp/SqliteOp.cpp
-	$(CXX) -c $(CFLAGS) SqlOp/SqliteOp.cpp
-AVInfomanage.o:	KKVideoInfo.h SqlOp/SqliteOp.h SqlOp/AVInfomanage.h SqlOp/AVInfomanage.cpp
-	$(CXX) -c $(CFLAGS) SqlOp/AVInfomanage.cpp
+
 srs_librtmp.o: srs_librtmp.h srs_librtmp.cpp
 	$(CXX) -c $(CFLAGS) srs_librtmp.cpp
 SrsRtmpPlugin.o: srs_librtmp.h rtmp/SrsRtmpPlugin.h rtmp/SrsRtmpPlugin.cpp
