@@ -4,12 +4,15 @@
 #include "KKV_ReceiveData.h"
 #include <map>
 #include <string> 
+#include <algorithm>
 #include "./../KKPlayer/KKPlayerCore/KKError.h"
 #include "../../KKPlayer/KKPlayerCore/KKPlugin.h"
 #include "json/json.h"
 
 #include <process.h>
 #include <tlhelp32.h>
+
+
 
 #define KKMKTAG(a,b,c,d)                 ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
 #define KKPERRTAG(a, b, c, d)            (-(int)KKMKTAG(a, b, c, d))
@@ -134,9 +137,7 @@ bool KillProcessFromName(std::wstring strProcessName)
 		return false;  
 	}  
 
-	//将字符串转换为小写  
-	//strProcessName.MakeLower();  
-
+	bool ok=false;
 	//如果句柄有效  则一直获取下一个句柄循环下去  
 	while (Process32Next(hSnapShot,&pe))  
 	{  
@@ -158,11 +159,11 @@ bool KillProcessFromName(std::wstring strProcessName)
 			HANDLE hProcess = ::OpenProcess(PROCESS_TERMINATE,FALSE,dwProcessID);  
 			::TerminateProcess(hProcess,0);  
 			CloseHandle(hProcess);  
-			return true;  
+			ok= true;  
 		}  
 
 	}  
-	return false;  
+	return ok;  
 }  
 
 //FILE *TestFb=NULL;
@@ -172,11 +173,27 @@ int OpenIPc()
 ReOpen:
 	if(G_pInstance==NULL)
 		return 0;
+
+	//KillProcessFromName(L"kkres.exe");
 	bool Ok=G_pInstance->OpenServerPipe("\\\\.\\Pipe\\KKPlayer_Res_70ic");
 	if(!Ok){
 		if(recount<20){
 			recount++;
-			Sleep(20);
+#ifndef _DEBUG
+				{
+					std::wstring kkres=GetModulePath();
+					kkres+=L"//kkres//kkRes.exe";
+
+					PROCESS_INFORMATION pi;
+					STARTUPINFO si;
+
+					memset(&pi,0,sizeof(pi));
+					memset(&si,0,sizeof(si));
+					KillProcessFromName(L"kkres.exe");
+					BOOL ret = CreateProcess(kkres.c_str(),NULL, NULL, NULL, FALSE, 0, NULL, NULL,&si, &pi);
+				    Sleep(1000);
+				}
+#endif
 			goto ReOpen;
 		}
 		G_IPC_Read_Write=0;
@@ -185,9 +202,6 @@ ReOpen:
 		G_IPC_Read_Write=1;
 	}
 	G_pInstance->Start();
-	/*if(TestFb!=NULL)
-		fclose(TestFb);
-	TestFb=fopen("D:/sssssss.mp4","wb");*/
 	return 1;
 }
 
@@ -195,22 +209,7 @@ ReOpen:
 //buflen+data;
 int   InitIPC(){
 	
-#ifndef _DEBUG
-	{
-		std::wstring kkres=GetModulePath();
-		kkres+=L"//kkres//kkRes.exe";
 
-
-		PROCESS_INFORMATION pi;
-		STARTUPINFO si;
-
-		memset(&pi,0,sizeof(pi));
-		memset(&si,0,sizeof(si));
-		KillProcessFromName(L"kkres.exe");
-		BOOL ret = CreateProcess(kkres.c_str(),NULL, NULL, NULL, FALSE, 0, NULL, NULL,&si, &pi);
-	
-	}
-#endif
 	if(G_pKKV_Rec==NULL)
 	{
          G_pKKV_Rec= new Qy_IPC::CKKV_ReceiveData();
