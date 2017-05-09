@@ -272,7 +272,7 @@ int   KKVWritePipe(unsigned char *pBuf,int Len,HANDLE hPipeInst)
 //typedef bool (*fKKDownAVFileSpeedInfo)(const char *strurl,char *jsonBuf,int len);
 static std::string GetUrlRemoveKkv(std::string Url)
 {
-	int index=Url.find_first_of("kkv:");
+	int index=Url.find("kkv:");
 	if(index>-1)
 	{
 		index+=4;

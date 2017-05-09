@@ -160,6 +160,14 @@ bool CRenderD3D::init(HWND hView)
 		if(hD3dx9_43)
 		{
 			fpDX9CTFromFileInMemory= (DX9CTFromFileInMemory)GetProcAddress(hD3dx9_43, "D3DXCreateTextureFromFileInMemory");
+		}else{
+		     std::wstring path=GetModulePath();
+			 path+=L"\\dx\\D3dx9_43.dll";
+			 hD3dx9_43 = LoadLibrary(path.c_str());
+			 if(hD3dx9_43)
+		     {
+			      fpDX9CTFromFileInMemory= (DX9CTFromFileInMemory)GetProcAddress(hD3dx9_43, "D3DXCreateTextureFromFileInMemory");
+			 }
 		}
 		
 		
@@ -440,7 +448,7 @@ void CRenderD3D::SetErrPic(unsigned char* buf,int len)
 	//	//assert(0);
 	//	return;// S_FALSE;
 	//}
-	if ( FAILED(fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, &m_ErrTexture))){
+	if (fpDX9CTFromFileInMemory!=NULL&& FAILED(fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, &m_ErrTexture))){
 	   return;
 	}
 	D3DSURFACE_DESC rc;
@@ -978,7 +986,7 @@ void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 	if (!LostDeviceRestore())
 		return;
 
-	if(m_CenterLogoTexture==NULL)
+	if(m_CenterLogoTexture==NULL&&fpDX9CTFromFileInMemory!=NULL)
 	{
 
 		if ( FAILED(fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, & m_CenterLogoTexture))){

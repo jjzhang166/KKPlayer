@@ -471,7 +471,7 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 			 pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo(pVideoInfo->filename,infostr,1024);
 			 strcpy(info.SpeedInfo,infostr);
 		 }
-	}
+	}/**/
 	return ok;
 }
 
