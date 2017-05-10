@@ -153,6 +153,7 @@ namespace SOUI
 			 int BufLen=128*128*4;
 			 void* Buf=::malloc(BufLen);
 			 m_VideoWnd.GrabAvPicBGRA(Buf,BufLen,128,128);
+			 free(Buf);
 			 m_VideoWnd.CloseMedia();
 			 ret= m_VideoWnd.OpenMedia(str);
 			 if(ret<0)

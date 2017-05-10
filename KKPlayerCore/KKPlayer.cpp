@@ -497,7 +497,7 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 	}
 	
 	///×Ô¶¨ÒåIo
-	if(pVideoInfo!=NULL&&pVideoInfo->pFormatCtx->flags == AVFMT_FLAG_CUSTOM_IO){
+	if(pVideoInfo!=NULL&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags == AVFMT_FLAG_CUSTOM_IO){
 	     if(pVideoInfo->pKKPluginInfo!=NULL&&pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo!=NULL){
 			 char infostr[1024]="";
 			 pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo(pVideoInfo->filename,infostr,1024);
