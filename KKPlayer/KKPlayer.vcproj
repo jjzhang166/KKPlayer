@@ -271,8 +271,16 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="DownManage"
+			Name="Model"
 			>
+			<File
+				RelativePath=".\Model\HistoryAdapter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Model\HistoryAdapter.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="MainPage"
@@ -423,6 +431,30 @@
 			</File>
 			<File
 				RelativePath=".\Control\kkseek.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="SqlOp"
+			>
+			<File
+				RelativePath=".\SqlOp\DbDescription.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\SqlOp\HistoryInfoMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SqlOp\HistoryInfoMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SqlOp\SqliteOp.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SqlOp\SqliteOp.h"
 				>
 			</File>
 		</Filter>

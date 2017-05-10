@@ -16,7 +16,6 @@
 
 #include "KKLock.h"
 #include "KKVideoInfo.h"
-#include "SqlOp/AVInfomanage.h"
 #include "KKPlugin.h"
 #ifndef KKPlayer_H_
 #define KKPlayer_H_

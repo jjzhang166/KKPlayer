@@ -7,7 +7,6 @@
 #include <vector>
 #include "KKSound.h"
 #include "SDLSound.h"
-
 #ifndef LIBKKPLAYER
 #include "MainPage/AVMenu.h"
 #else
@@ -75,7 +74,6 @@ public:
 	void         OnAccelerate();
 	void         SetErrNotify(void *UserData,fpKKPlayerErrNotify m_ErrNotify);
 
-	void         GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 	int          GetRealtime();
     bool         GetMediaInfo(MEDIA_INFO& info);
 	void         SetVolume(long value);

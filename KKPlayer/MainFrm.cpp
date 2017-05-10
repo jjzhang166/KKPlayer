@@ -844,10 +844,7 @@ void              CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify Er
     m_ErrNotify=ErrNotify;
 	m_pErrNotifyUserData=UserData;
 }
-void              CMainFrame::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
-{
 
-}
 
 unsigned char*    CMainFrame::GetErrImage(int &length,int ErrType)
 {

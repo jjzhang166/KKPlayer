@@ -24,11 +24,7 @@ namespace SOUI
 			::ShowWindow(m_VideoWnd.m_hWnd,SW_HIDE);
 		}
 	}
-	//获取放播的历史信息
-	void CSuiVideo::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
-	{
-         m_VideoWnd.GetAVHistoryInfo(slQue);
-	}
+	
 	HWND CSuiVideo::GetPlayerHwnd()
 	{
 	          return m_VideoWnd.m_hWnd;

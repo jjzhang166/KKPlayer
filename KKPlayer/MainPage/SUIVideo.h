@@ -26,8 +26,6 @@ namespace SOUI
 
 		   void OnDecelerate();
 		   void OnAccelerate();
-		   //获取放播的历史信息
-		   void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 		   HWND GetPlayerHwnd();
 		   void FullScreen();
 	  protected:
