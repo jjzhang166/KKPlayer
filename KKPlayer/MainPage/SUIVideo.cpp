@@ -71,6 +71,10 @@ namespace SOUI
 	{
        return     m_VideoWnd.GetMediaInfo(info);
 	}
+	bool CSuiVideo::GrabAvPicBGRA(void* buf,int len,int w,int h)
+	{
+	    return    GrabAvPicBGRA(buf,len,w,h);
+	}
 	void CSuiVideo::OnPaint(IRenderTarget *pRT)
 	{
           __super::OnPaint(pRT);
@@ -146,6 +150,9 @@ namespace SOUI
          int ret= m_VideoWnd.OpenMedia(str);
 		 if(ret==-1)
 		 {
+			 int BufLen=128*128*4;
+			 void* Buf=::malloc(BufLen);
+			 m_VideoWnd.GrabAvPicBGRA(Buf,BufLen,128,128);
 			 m_VideoWnd.CloseMedia();
 			 ret= m_VideoWnd.OpenMedia(str);
 			 if(ret<0)

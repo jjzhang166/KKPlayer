@@ -401,6 +401,14 @@
 				RelativePath=".\Tool\FileRelation.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Tool\WinDir.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Tool\WinDir.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Dir"

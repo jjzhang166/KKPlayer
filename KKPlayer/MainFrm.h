@@ -73,7 +73,8 @@ public:
 	void         OnDecelerate();
 	void         OnAccelerate();
 	void         SetErrNotify(void *UserData,fpKKPlayerErrNotify m_ErrNotify);
-
+    ///ץȡ��ƵͼƬ
+    bool         GrabAvPicBGRA(void* buf,int len,int w,int h);
 	int          GetRealtime();
     bool         GetMediaInfo(MEDIA_INFO& info);
 	void         SetVolume(long value);

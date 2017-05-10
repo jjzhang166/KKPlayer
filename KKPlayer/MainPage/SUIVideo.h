@@ -19,6 +19,7 @@ namespace SOUI
 		   void Close();
 		   void SetPlayStat(int state);
 		   bool GetMeadiaInfo(MEDIA_INFO &info);
+		   bool GrabAvPicBGRA(void* buf,int len,int w,int h);
 		   void SetVolume(long value);
 		   long GetVolume();
 		   void AvSeek(int value);

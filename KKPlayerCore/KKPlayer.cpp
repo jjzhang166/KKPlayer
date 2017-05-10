@@ -29,10 +29,42 @@ extern AVPixelFormat DstAVff;//=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA;
 void KKPlayer::SetBGRA()
 {
 	DstAVff=AV_PIX_FMT_BGRA;
-	std::string aaa="xxx";
-	aaa="";
 }
+bool KKPlayer::GrabAvPicBGRA(void* buf,int len,int w,int h)
+{
+	bool Ok=false;
 
+	if(len<w*h*4)
+		return false;
+	if(pVideoInfo!=NULL&& pVideoInfo->video_st!=NULL&&buf!=NULL){
+		   pVideoInfo->pictq.mutex->Lock();
+		   SKK_Frame *vp =frame_queue_peek_last(&pVideoInfo->pictq);
+		  
+            if(vp!=NULL)
+			{
+				AVPixelFormat srcFF=DstAVff;
+				SwsContext * imgctx = NULL;
+				imgctx = sws_getCachedContext( imgctx ,
+				   vp->width,  vp->height ,srcFF ,
+				   w,       h,               AV_PIX_FMT_BGRA,                
+				 SWS_FAST_BILINEAR,
+				 NULL, NULL, NULL);
+
+				if( imgctx  !=NULL){
+					 AVPicture               Bmp;
+					 avpicture_fill((AVPicture *)&Bmp, ( uint8_t *)buf,AV_PIX_FMT_BGRA, w,h);
+					 sws_scale( imgctx ,vp->Bmp.data, vp->Bmp.linesize,0,vp->height,Bmp.data, Bmp.linesize);
+					 Ok=true;
+					 sws_freeContext( imgctx );
+					 imgctx=NULL;
+				}
+				
+			}
+			pVideoInfo->pictq.mutex->Unlock();
+	}
+	return Ok;
+///DstAVff
+}
 //如果定义安卓平台。
 #ifdef Android_Plat
 void* kk_jni_attach_env();
@@ -2268,6 +2300,7 @@ void KKPlayer::PacketQueuefree()
 		frame_queue_destory(&pVideoInfo->sampq);
    }
 }
+
 void KKPlayer::SetVolume(long value)
 { 
 	if(m_pSound!=NULL)

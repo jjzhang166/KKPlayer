@@ -210,9 +210,12 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 
 CMainFrame::      ~CMainFrame()
 {
-    m_pPlayerInstance->CloseMedia();
-	pfnDelRender(m_pRender,0);
+	if(m_pPlayerInstance!=NULL)
+       m_pPlayerInstance->CloseMedia();
+	if(pfnDelRender)
+	   pfnDelRender(m_pRender,0);
 	m_pRender=NULL;
+	if(m_pSound)
 	m_pSound->CloseAudio();
 	delete m_pSound;
 	delete m_pPlayerInstance;
@@ -227,6 +230,8 @@ int               CMainFrame::GetRealtime()
 
 void              CMainFrame::AvSeek(int value)
 { 
+	if(m_pPlayerInstance==NULL)
+		return;
 	int seektime=0;
 	if(m_FileInfos.ItemCount<2)
 	{
@@ -269,16 +274,19 @@ void              CMainFrame::SetVolume(long value)
 		m_nTipTick=GetTickCount();
 		m_pRender->SetLeftPicStr(Tip);
 	}
+	if(m_pPlayerInstance!=NULL)
 	m_pPlayerInstance->SetVolume(value);
 }
 long              CMainFrame::GetVolume()
 {
+	if(m_pPlayerInstance==NULL)
+		return 0;
    return m_pPlayerInstance->GetVolume();
 }
 bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 {
 
-   if(m_pPlayerInstance->GetMediaInfo(info)){
+   if(m_pPlayerInstance!=NULL&&m_pPlayerInstance->GetMediaInfo(info)){
 	   m_nMilTimePos=0;
 	   
 	   if(m_FileInfos.ItemCount>1)
@@ -346,6 +354,8 @@ bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 }
 int               CMainFrame::GetCurTime()
 {
+	if(!m_pPlayerInstance)
+		return 0;
 	return m_pPlayerInstance->GetCurTime();
 }
 
@@ -363,6 +373,8 @@ int               CMainFrame::DownMedia(char *KKVURL,bool Down)
 }
 int               CMainFrame::OpenMedia(std::string url)
 {
+	if(!m_pPlayerInstance)
+		return -2;
 	RECT rt;
 	::GetClientRect(m_hWnd,&rt);
 	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
@@ -444,6 +456,8 @@ int               CMainFrame::OpenMedia(std::string url)
 }
 void              CMainFrame::CloseMedia()
 {
+	if(!m_pPlayerInstance)
+		return;
    m_pPlayerInstance->CloseMedia();
    m_bOpen=false;
    m_nCurSegId=0;
@@ -476,20 +490,28 @@ void              CMainFrame::FullScreen()
 
 int               CMainFrame::PktSerial()
 {
+	if(m_pPlayerInstance==NULL)
+		return 0;
   return m_pPlayerInstance->GetPktSerial();
 }
 void              CMainFrame::OnDecelerate()
 {
+	if(m_pPlayerInstance==NULL)
+		return ;
     m_pPlayerInstance->OnDecelerate();
     int Rate=m_pPlayerInstance->GetAVRate();
 }
 void              CMainFrame::OnAccelerate()
 {
+   if(m_pPlayerInstance==NULL)
+		return;
    m_pPlayerInstance->OnAccelerate();
    int Rate=m_pPlayerInstance->GetAVRate();
 }
 int               CMainFrame::Pause()
 {
+   if(m_pPlayerInstance==NULL)
+		return 0;
 	m_pPlayerInstance->Pause();
 	return 0;
 }
@@ -527,7 +549,7 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	
 	this->SetFocus();
 	this->EnableWindow(true);
-	::SetTimer(this->m_hWnd,10010,40,NULL);
+	::SetTimer(this->m_hWnd,10010,50,NULL);
 
 	char Out=1;
 	m_pRender=(IkkRender*) pfnCreateRender(m_hWnd,&Out);
@@ -561,6 +583,9 @@ LRESULT           CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	if( m_bOpen)
 	{
 		m_bOpen=false;
+        
+		if(m_pPlayerInstance==NULL)
+		     return 0;
 		m_pPlayerInstance->CloseMedia();
 	}
 	//DWORD Id=GetCurrentThreadId();
@@ -573,7 +598,10 @@ LRESULT           CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 LRESULT           CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	 
+
 	 bHandled=true;
+     if(m_pPlayerInstance==NULL)
+		return 0;
 	 if(!m_bOpen)
 	 {
 		 PAINTSTRUCT ps = { 0 };
@@ -719,8 +747,8 @@ LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 	}else{
 	     
 	}
-	bHandled=true;
-	return 1;
+	this->SetMsgHandled(FALSE);
+	return 0;
 }
 
 
@@ -823,7 +851,9 @@ LRESULT           CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPAR
 #endif
 	m_lastPoint.x=xPos;
 	m_lastPoint.y=yPos;
-	return 0;
+
+	this->SetMsgHandled(false);
+	return 1;
 }
 
 LRESULT           CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
@@ -845,7 +875,13 @@ void              CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify Er
 	m_pErrNotifyUserData=UserData;
 }
 
-
+bool         CMainFrame::GrabAvPicBGRA(void* buf,int len,int w,int h)
+{
+	if(m_pPlayerInstance!=NULL){
+	        return m_pPlayerInstance->GrabAvPicBGRA(buf,len,w,h);
+	}
+	return 0;
+}
 unsigned char*    CMainFrame::GetErrImage(int &length,int ErrType)
 {
 	if(m_pErrOpenImage==NULL)

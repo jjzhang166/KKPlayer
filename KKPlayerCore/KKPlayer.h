@@ -80,7 +80,8 @@ class KKPlayer
 
 			//解码成BGRA格式
 			void SetBGRA();
-			
+			///抓取视频图片
+			bool GrabAvPicBGRA(void* buf,int len,int w,int h);
 			/******是否准备好了,准备好返回1，否则返回0，没有open返回-1*******/
 			int GetIsReady();
 			
@@ -139,6 +140,8 @@ private:
 			//读音频回调
 			void        ReadAudioCall();
 			void        PacketQueuefree();
+
+			
 			KKPlayer(const KKPlayer& cs);
 			KKPlayer operator = (const KKPlayer& cs);
 private:

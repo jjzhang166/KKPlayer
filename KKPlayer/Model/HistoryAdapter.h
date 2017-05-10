@@ -7,6 +7,8 @@
 #include <control/SListView.h>
 #include <helper/SAdapterBase.h>
 #include <map>
+
+#include "../SqlOp/HistoryInfoMgr.h"
 namespace SOUI
 {
 	class CHistoryAdapterFix : public SAdapterBase
@@ -19,7 +21,8 @@ namespace SOUI
 				void         getView(int position, SWindow * pItem,pugi::xml_node xmlTemplate);
 				bool         OnCbxSelChange(EventArgs *pEvt);
 		private:	
-			    std::map<int,IBitmap*> m_BitMap;
+			    std::map<int,IBitmap*>       m_BitMap;
+				std::vector<AV_Hos_Info *>   m_slQue;
 	};
 }
 #endif

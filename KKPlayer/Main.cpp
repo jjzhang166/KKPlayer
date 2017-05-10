@@ -17,6 +17,9 @@
 #include "Tool/CFileMgr.h"
 #include "Tool/cchinesecode.h"
 #include "Tool/FileRelation.h"
+#include "Tool/WinDir.h"
+
+#include "SqlOp/HistoryInfoMgr.h"
 #include "../KKPlayerCore/KKPlugin.h"
 #include "../KKPlayerCore/KKPlayer.h"
 #pragma comment (lib,"Gdiplus.lib")
@@ -25,32 +28,8 @@
 void DeclareDumpFile();
 CAppModule _Module;
 
-std::basic_string<TCHAR> g_strModuleFileName;
+
 SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
-const std::basic_string<TCHAR>& XGetModuleFilename()
-{
-	if (g_strModuleFileName.empty()){
-		if(g_strModuleFileName.empty()){
-			TCHAR filename[MAX_PATH] = { 0 };
-			::GetModuleFileName(NULL, filename, _countof(filename));
-			g_strModuleFileName = filename;
-		}
-	}
-	
-	return g_strModuleFileName;
-}
-std::basic_string<TCHAR> GetModulePath()
-{
-	std::basic_string<TCHAR> strModuleFileName = XGetModuleFilename();
-	unsigned int index = strModuleFileName.find_last_of(_T("\\"));
-	if (index != std::string::npos)
-	{
-		return strModuleFileName.substr(0, index);
-	}
-	return _T("");
-}
-
-
 HWND G_Parent=NULL;
 CMainFrame *pWnd;
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
@@ -96,8 +75,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 			   urlpath+=L" ";
 		 }
 	} 
-	/*if(urlpath.length()>1)
-		::MessageBox(NULL,urlpath.c_str(),L"xxx",0);*/
 	LocalFree(szArglist);
 
     DeclareDumpFile();
@@ -109,21 +86,23 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	   spdpia();
 	}
 
-	std::wstring Propath=GetModulePath();
-	Propath+=L"\\Db";
-	CFileMgr mgr;
-	mgr.CreateDirectory(Propath.c_str());
-	Propath+=L"\\mv";
+	CWinDir windir;
+	std::wstring Propath=windir.GetUserAppDir();
+	Propath+=L"\\kkplayer\\";
+	windir.CreateDir(Propath.c_str());
+	Propath+=L"DB";
 	std::string pp;
-	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);
+	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);/**/
 
 	
-
+	CHistoryInfoMgr *hismgr=CHistoryInfoMgr::GetInance();
+	hismgr->SetPath(pp.c_str());
+	hismgr->InitDb();
 
 	CFileRelation FileRelation;
 	bool xx=FileRelation.CheckFileRelation(L".mp4",L"KKPlayer.mp4");
 	if( 1){
-		Propath=GetModulePath();
+		Propath=windir.GetModulePath();
         Propath+=_T("\\KKplayer.exe");
 		FileRelation.RegisterFileRelation(_T(".mp4"),(LPTSTR)Propath.c_str(),_T("KKPlayer.mp4"),(LPTSTR)Propath.c_str(),_T(".mp4"));
 	}
@@ -140,6 +119,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	dir::listFiles(DllPathInfoList,strPath,"dll");
 	std::list<std::string>::iterator It=DllPathInfoList.begin();
 	int Lenxx=sizeof( __KKPluginInfo);
+	//
 	for (;It!=DllPathInfoList.end();++It)
 	{
 
@@ -187,6 +167,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		i++;
 	}
 
+	DllPathInfoList.clear();
 	int ll=sizeof(ULONG_PTR);
 	HRESULT hRes = ::CoInitialize(NULL);
     G_Parent =(HWND)_wtoi(lpstrCmdLine);
@@ -204,10 +185,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	ATLASSERT(SUCCEEDED(hRes));
 
 	AtlAxWinInit();
-	Gdiplus::GdiplusStartupInput StartupInput; 
-	ULONG_PTR m_gdiplusToken;
-	GdiplusStartup(&m_gdiplusToken,&StartupInput,NULL); 
-
+	
 
 	using namespace SOUI;
 	SComMgr * pComMgr = new SComMgr;
@@ -270,7 +248,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	//CAVDownManage Dow;
 	//Dow.Start();
-	std::wstring path=GetModulePath();
+	std::wstring path=windir.GetModulePath();
 	
 	SOUI::SStringT str;
 	SOUI::CMainDlg dlgMain;
@@ -290,8 +268,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	//int nRet =  Run(lpstrCmdLine, nCmdShow);
 	int 	nRet = theApp->Run(dlgMain.m_hWnd);
 
-   // Dow.Stop();
-	Gdiplus::GdiplusShutdown(m_gdiplusToken);
+ 
 	_Module.Term();
 	::CoUninitialize();
 

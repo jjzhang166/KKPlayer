@@ -986,18 +986,11 @@ void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 	if (!LostDeviceRestore())
 		return;
 
-	if(m_CenterLogoTexture==NULL&&fpDX9CTFromFileInMemory!=NULL)
-	{
+	if(m_CenterLogoTexture==NULL&&fpDX9CTFromFileInMemory!=NULL){
 
-		if ( FAILED(fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, & m_CenterLogoTexture))){
-	   return;
-	}
-		// 将刚才构建好的bmp数据，转成IDirect3DTexture9*  的纹理  
-		//if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, & m_CenterLogoTexture))){
-		//	//assert(0);
-		//	int i=0;
-		//	i++;
-		//	return;// S_FALSE;
-		//}
+		if ( FAILED(fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, & m_CenterLogoTexture)))
+		{
+	          return;
+	    }
 	}
 }

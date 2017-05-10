@@ -5,7 +5,7 @@
 #include "SqliteOp.h"
 #include "../../KKPlayerCore/KKLock.h"
 typedef struct _AV_Hos_Info{
-     char url[2048];
+     char *url;
 	 unsigned char* pBuffer;
 	 int bufLen;
 	 int width;
