@@ -20,10 +20,12 @@ namespace SOUI
 	{
 		if(bVisible==TRUE)
 		{
-			::ShowWindow(m_VideoWnd.m_hWnd,SW_SHOW);
+			if(!::IsWindowVisible(m_VideoWnd.m_hWnd))
+			   ::ShowWindow(m_VideoWnd.m_hWnd,SW_SHOW);
 		}else
 		{
-			::ShowWindow(m_VideoWnd.m_hWnd,SW_HIDE);
+			if(::IsWindowVisible(m_VideoWnd.m_hWnd))
+			   ::ShowWindow(m_VideoWnd.m_hWnd,SW_HIDE);
 		}
 	}
 	
