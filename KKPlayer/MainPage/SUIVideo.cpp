@@ -2,6 +2,8 @@
 #include "SUIVideo.h"
 #include "MainDlg.h"
 #include "../Tool/cchinesecode.h"
+#include "../SqlOp/HistoryInfoMgr.h"
+
 #include <string>
 extern SOUI::CMainDlg *m_pDlgMain;
 namespace SOUI
@@ -71,9 +73,9 @@ namespace SOUI
 	{
        return     m_VideoWnd.GetMediaInfo(info);
 	}
-	bool CSuiVideo::GrabAvPicBGRA(void* buf,int len,int w,int h)
+	bool CSuiVideo::GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale)
 	{
-	    return    GrabAvPicBGRA(buf,len,w,h);
+	    return     m_VideoWnd.GrabAvPicBGRA(buf,len,w,h,keepscale);
 	}
 	void CSuiVideo::OnPaint(IRenderTarget *pRT)
 	{
@@ -95,7 +97,7 @@ namespace SOUI
 			int w=rtx.right-rtx.left;
 			if(w>=cx&&h>=cy)
 			{
-                ::SetWindowPos(m_VideoWnd.m_hWnd,0,0,0,cx,cy,SWP_NOZORDER);
+                   ::SetWindowPos(m_VideoWnd.m_hWnd,0,0,0,cx,cy,SWP_NOZORDER);
 			}else{
                    ::SetWindowPos(m_VideoWnd.m_hWnd,0,rt.left,rt.top,size.cx,size.cy,SWP_NOZORDER);
 			}
@@ -145,24 +147,33 @@ namespace SOUI
 		int ret= m_VideoWnd.DownMedia(KKVURL);
 	    return ret;
 	}
-	 int CSuiVideo::OpenMedia(const char *str)
-	 {
+	void CSuiVideo::SaveSnapshoot()
+	{
+	         int BufLen=128*128*4;
+			 void* Buf=::malloc(BufLen);
+			 int w=128,h=128;
+			 if(m_VideoWnd.GrabAvPicBGRA(Buf,BufLen,w,h)){
+				 int curTime=m_VideoWnd.GetPlayTime();
+				 int TotalTime=m_VideoWnd.GetTotalTime();
+				 CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
+				 InfoMgr->UpDataAVinfo(m_url.c_str(),curTime,TotalTime,(unsigned char*)Buf,BufLen,w,h);
+			 }
+			 free(Buf);
+	}
+	int CSuiVideo::OpenMedia(const char *str)
+	{
          int ret= m_VideoWnd.OpenMedia(str);
 		 if(ret==-1)
 		 {
-			 int BufLen=128*128*4;
-			 void* Buf=::malloc(BufLen);
-			 m_VideoWnd.GrabAvPicBGRA(Buf,BufLen,128,128);
-			 free(Buf);
+			 SaveSnapshoot();
 			 m_VideoWnd.CloseMedia();
 			 ret= m_VideoWnd.OpenMedia(str);
 			 if(ret<0)
 				 return -1;
-			
 		 }
-		 WCHAR abcd[1024];
-		 std::string title2;
 		 
+		 std::string title2;
+		 m_url=str;
 		 std::wstring title=L"KKÓ°Òô-";
          title2=str;
 		 if(! is_realtime2((char*)str))
@@ -182,10 +193,10 @@ namespace SOUI
 					 }
 				 }
 		 }
-
-		 CChineseCode::charTowchar(title2.c_str(),abcd,1024);
+		 
+		 /*CChineseCode::charTowchar(title2.c_str(),abcd,1024);
 		 title+=abcd;
-		 m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(title.c_str());
+		 m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(title.c_str());*/
 		  return ret;
 	 }
 	 void CSuiVideo::OnDecelerate()

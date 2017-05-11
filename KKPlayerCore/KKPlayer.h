@@ -26,52 +26,48 @@ class KKPlayer
 	        KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound);
 	        ~KKPlayer(void);
 			/******Windows平台调用**********/
-			void SetWindowHwnd(HWND hwnd);
+			void          SetWindowHwnd(HWND hwnd);
 
 			
 			///强制中断。
-			void ForceAbort();
+			void          ForceAbort();
 
 			///设置最后打开音频
-			void SetLastOpenAudio(bool bLastOpenAudio);
+			void          SetLastOpenAudio(bool bLastOpenAudio);
 			///设置是否呈现
-			void SetRender(bool bRender);
+			void          SetRender(bool bRender);
 			/*********打开媒体.成功返回0，失败返回-1.************/
-			int OpenMedia(char* URL,char* Other=""); 
+			int           OpenMedia(char* URL,char* Other=""); 
 			
 			/*********关闭播放器*********/
-			void CloseMedia(); 
-    		
-			//获取播放的时间
-            int GetCurTime();
+			void          CloseMedia(); 
+			void          RenderImage(IkkRender *pRender,bool Force);
 			
-			void RenderImage(IkkRender *pRender,bool Force);
-			
-			void OnDecelerate();
-			void OnAccelerate();
-			int  GetAVRate();
+			void          OnDecelerate();
+			void          OnAccelerate();
+			int           GetAVRate();
 #ifdef WIN32_KK
 			/*****Gdi*****/
-			void OnDrawImageByDc(HDC memdc);
-			void VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,long long pos,double diff);
+			void          OnDrawImageByDc(HDC memdc);
+			void          VideoDisplay(void *buf,int w,int h,void *usadata,double last_duration,double pts,double duration,long long pos,double diff);
 #endif           
-			void SetVolume(long value);
-			long GetVolume();
+			void          SetVolume(long value);
+			long          GetVolume();
 			//暂停
-			void Pause();
+			void          Pause();
 			//快进快退，相对
-			int KKSeek( SeekEnum en,int value);
+			int           KKSeek( SeekEnum en,int value);
 			//单位时间秒
-			int AVSeek(int value,short segid=-1);
+			int           AVSeek(int value,short segid=-1);
 			
 			
 			//获取播放信息
-			bool GetMediaInfo(MEDIA_INFO &info);
+			bool          GetMediaInfo(MEDIA_INFO &info);
 			
 			//得到包序列号
-			int   GetPktSerial();	
-			short GetSegId();
-			short GetCurSegId();
+			int           GetPktSerial();	
+			short         GetSegId();
+			short         GetCurSegId();
 		
 		
 
@@ -81,7 +77,7 @@ class KKPlayer
 			//解码成BGRA格式
 			void SetBGRA();
 			///抓取视频图片
-			bool GrabAvPicBGRA(void* buf,int len,int w,int h);
+			bool GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale=true);
 			/******是否准备好了,准备好返回1，否则返回0，没有open返回-1*******/
 			int GetIsReady();
 			
@@ -96,6 +92,9 @@ class KKPlayer
 			//显示视频追踪信息,返回1成功
 			int ShowTraceAV(bool Show);
 
+			//获取播放的时间
+			int GetPlayTime();
+			int GetTotalTime();
 
 			/*******************插件分析,返回1有对应的插件*********************/
 			int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
@@ -150,44 +149,45 @@ private:
 
 			
 			//缓存信息
-			AVCACHE_INFO m_AVCacheInfo;
+			AVCACHE_INFO                    m_AVCacheInfo;
 
 	        //视频信息
-	        SKK_VideoState *pVideoInfo; 
+	        SKK_VideoState*                 pVideoInfo; 
 
 			
 			///AV视频信息
-			KKPlayerNextAVInfo m_AVNextInfo;
+			KKPlayerNextAVInfo              m_AVNextInfo;
 			
             //播放信息
-			MEDIA_INFO         m_AVPlayInfo;
+			MEDIA_INFO                      m_AVPlayInfo;
 			//播放器锁
-	        CKKLock            m_PlayerLock;
+	        CKKLock                         m_PlayerLock;
             
-			CKKLock            m_AVInfoLock;
+			CKKLock                         m_AVInfoLock;
 			///指示是否有分片
-			int                m_AvIsSeg;
+			int                             m_AvIsSeg;
 			///缓存计数
-			int                m_CacheAvCounter;
+			int                             m_CacheAvCounter;
 			///是否显示
-			bool               m_bRender;
-			bool               m_bLastOpenAudio;
-            volatile int       m_nPreFile;
+			bool                            m_bRender;
+			bool                            m_bLastOpenAudio;
+            volatile int                    m_nPreFile;
 
-	        volatile  bool m_bOpen;
-	        IKKPlayUI* m_pPlayUI;
+	        volatile  bool                  m_bOpen;
+	        IKKPlayUI*                      m_pPlayUI;
 	       
 			//当前包序列号
-			volatile int m_PktSerial;
-	        IKKAudio*    m_pSound;
-			HWND         m_hwnd;
-			int64_t      start_time;
+			volatile int                    m_PktSerial;
+	        IKKAudio*                       m_pSound;
+			HWND                            m_hwnd;
+			int64_t                         start_time;
 			
 			///seektime
-			int          m_nSeekTime;
-			short        m_nSeekSegId;
+			int                             m_nSeekTime;
+			short                           m_nSeekSegId;
 			//当前时间
-			int m_CurTime;
+			int                             m_CurTime;
+			int                             m_TotalTime;
 			//视频读取线程
 			SKK_ThreadInfo m_ReadThreadInfo;
 			//视频刷新线程

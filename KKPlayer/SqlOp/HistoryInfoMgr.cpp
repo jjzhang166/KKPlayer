@@ -26,7 +26,7 @@ void CHistoryInfoMgr::InitDb()
 	  m_Lock.Unlock();
 }
 /*******播放进度更新信息***********/
-void CHistoryInfoMgr::UpDataAVinfo(char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height)
+void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height)
 {
     sqlite3* pDb=( sqlite3* )m_pDb;
 	sqlite3_stmt *pStmt = 0;  
@@ -67,7 +67,8 @@ void CHistoryInfoMgr::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 	{
 		AV_Hos_Info *sl=(AV_Hos_Info *)::malloc(SlLen);
 		memset(sl,0,SlLen);
-
+		sl->url=(char*)::malloc(2048);
+		memset(sl->url,0,2048);
 		int index=0;
 		const unsigned char *pPath= sqlite3_column_text(pStmt, index++);
 		strcpy(sl->url,(char*)pPath);

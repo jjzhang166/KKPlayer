@@ -352,13 +352,6 @@ bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
    
    return 	false;
 }
-int               CMainFrame::GetCurTime()
-{
-	if(!m_pPlayerInstance)
-		return 0;
-	return m_pPlayerInstance->GetCurTime();
-}
-
 
 
 
@@ -875,10 +868,24 @@ void              CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify Er
 	m_pErrNotifyUserData=UserData;
 }
 
-bool         CMainFrame::GrabAvPicBGRA(void* buf,int len,int w,int h)
+bool         CMainFrame::GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale)
 {
 	if(m_pPlayerInstance!=NULL){
-	        return m_pPlayerInstance->GrabAvPicBGRA(buf,len,w,h);
+	        return m_pPlayerInstance->GrabAvPicBGRA(buf,len,w,h,keepscale);
+	}
+	return 0;
+}
+int          CMainFrame::GetPlayTime()
+{
+    if(m_pPlayerInstance!=NULL){
+	        return m_pPlayerInstance->GetPlayTime();
+	}
+	return 0;
+}
+int          CMainFrame::GetTotalTime()
+{
+    if(m_pPlayerInstance!=NULL){
+	        return m_pPlayerInstance->GetTotalTime();
 	}
 	return 0;
 }

@@ -1,16 +1,18 @@
 #include "HistoryAdapter.h"
 #include "../Tool/cchinesecode.h"
+#include "../SqlOp/HistoryInfoMgr.h"
 extern SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
 namespace SOUI
 {
 	
 	CHistoryAdapterFix::CHistoryAdapterFix()
 	{
-	
+	        UpdateData();
 	}
 	CHistoryAdapterFix::~CHistoryAdapterFix()
 	{
-	
+        ClearData();
+		
 	}
 	int          CHistoryAdapterFix::getCount()
 	{
@@ -32,6 +34,7 @@ namespace SOUI
 		pSItme->SetUserData((ULONG_PTR)pAVPic);
 		pSItme->GetEventSet()->subscribeEvent(EVT_ITEMPANEL_DBCLICK,Subscriber(&CHistoryAdapterFix::OnCbxSelChange,this));
 		SImageWnd  *pAV_img= pItem->FindChildByName2<SImageWnd>(L"AV_img");
+		int picw=0,pich=0;
 		std::map<int,IBitmap*>::iterator _It=m_BitMap.find(position);
 		if(_It==m_BitMap.end())
 		{
@@ -62,8 +65,8 @@ namespace SOUI
 
 
 			int Totl=sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER)+pAVPic->bufLen;
-			unsigned char *bufx=(unsigned char *)::malloc(Totl);
-			unsigned char *bufx2=bufx;
+			unsigned char *Imgbufx=(unsigned char *)::malloc(Totl);
+			unsigned char *bufx2=Imgbufx;
 			memcpy(bufx2,&bmpFileHeader, sizeof(BITMAPFILEHEADER));
 
 			bufx2+=sizeof(BITMAPFILEHEADER);
@@ -73,20 +76,33 @@ namespace SOUI
 			memcpy(bufx2,pAVPic->pBuffer, pAVPic->bufLen);
 			IBitmap *pImg=NULL;
 			pRenderFactory->CreateBitmap(&pImg);
-			HRESULT  ll=0;//pImg->LoadFromFile(L"D:/pic/0.bmp");
-
-			ll=pImg->LoadFromMemory(bufx,Totl);
-			/*IBitmap *pImg = new IBitmap();*/
-
+			if(pImg!=NULL){
+			    HRESULT  ll=0;
+			    ll=pImg->LoadFromMemory(Imgbufx,Totl);
+			}
+			picw=pImg->Width();
+			pich=pImg->Height();
 			pAV_img->SetImage(pImg);
-
 			m_BitMap.insert(std::pair<int,IBitmap*>(position,pImg));
-			::free(bufx);
-		}else
-		{
+			
+			::free(Imgbufx);
+		}else{
 			 pAV_img->SetImage(_It->second);
+			 picw=_It->second->Width();
+			 pich=_It->second->Height();
 		}
-		
+		if(pich<128)
+		{
+		     int hh=(128-pich)/2;
+			 SStringT form;
+			 form.Format(_T("2,%d,@128,@%d"),hh,pich);
+			 pAV_img->SetAttribute(_T("pos"),form);
+			 form.Format(_T("[5,%d"),hh);
+			 pItem->FindChildByName(L"winAVInfo")->SetAttribute(_T("pos"),form);
+		}else{
+		     pAV_img->SetAttribute(_T("pos"),_T("2,2,@128,@128"));
+			  pItem->FindChildByName(L"winAVInfo")->SetAttribute(_T("pos"),_T("[5,5"));
+		}
 		
         wchar_t strtmp[2048]=L"";
 		std::wstring CurTimeStr;
@@ -179,8 +195,26 @@ namespace SOUI
 		SStatic *pAV_Time= pItem->FindChildByName2<SStatic>(L"AV_Time");
 		pAV_Time->SetWindowText(CurTimeStr.c_str());
 	}
-	bool CHistoryAdapterFix::OnCbxSelChange(EventArgs *pEvt)
+	bool         CHistoryAdapterFix::OnCbxSelChange(EventArgs *pEvt)
 	{
 	     return true;
+	}
+	void         CHistoryAdapterFix::UpdateData()
+	{
+		         ClearData();
+		         CHistoryInfoMgr* InfoMgr=CHistoryInfoMgr::GetInance();
+		         InfoMgr->GetAVHistoryInfo(m_slQue);
+	}
+	void         CHistoryAdapterFix::ClearData()
+	{
+		m_BitMap.clear();
+	    for(int i=0;i!=m_slQue.size();i++)
+		{
+			AV_Hos_Info *Item=m_slQue.at(i);
+			free(Item->url);
+			free(Item->pBuffer);
+			free(Item);
+		}
+		m_slQue.clear();
 	}
 }

@@ -20,6 +20,9 @@ namespace SOUI
 				bool         OnButtonClick(EventArgs *pEvt);
 				void         getView(int position, SWindow * pItem,pugi::xml_node xmlTemplate);
 				bool         OnCbxSelChange(EventArgs *pEvt);
+	public:
+		        void UpdateData();
+				void ClearData();
 		private:	
 			    std::map<int,IBitmap*>       m_BitMap;
 				std::vector<AV_Hos_Info *>   m_slQue;

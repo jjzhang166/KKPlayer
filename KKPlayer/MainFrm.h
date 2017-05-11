@@ -67,14 +67,17 @@ public:
 
 /********播放器相关操作*********/
 public:
-	int          GetCurTime();
 	int          Pause();
 	int          PktSerial();
 	void         OnDecelerate();
 	void         OnAccelerate();
 	void         SetErrNotify(void *UserData,fpKKPlayerErrNotify m_ErrNotify);
     ///抓取视频图片
-    bool         GrabAvPicBGRA(void* buf,int len,int w,int h);
+    bool         GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale=true);
+
+	//获取播放的时间
+	int          GetPlayTime();
+	int          GetTotalTime();
 	int          GetRealtime();
     bool         GetMediaInfo(MEDIA_INFO& info);
 	void         SetVolume(long value);

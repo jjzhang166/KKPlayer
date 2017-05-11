@@ -30,18 +30,22 @@ void KKPlayer::SetBGRA()
 {
 	DstAVff=AV_PIX_FMT_BGRA;
 }
-bool KKPlayer::GrabAvPicBGRA(void* buf,int len,int w,int h)
+bool KKPlayer::GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale)
 {
 	bool Ok=false;
 
 	if(len<w*h*4)
 		return false;
-	if(pVideoInfo!=NULL&& pVideoInfo->video_st!=NULL&&buf!=NULL){
+	if(pVideoInfo!=NULL&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->video_st!=NULL&&buf!=NULL){
 		   pVideoInfo->pictq.mutex->Lock();
 		   SKK_Frame *vp =frame_queue_peek_last(&pVideoInfo->pictq);
 		  
             if(vp!=NULL)
 			{
+				if(keepscale)
+				{
+				   h= vp->height*w/vp->width;
+				}
 				AVPixelFormat srcFF=DstAVff;
 				SwsContext * imgctx = NULL;
 				imgctx = sws_getCachedContext( imgctx ,
@@ -87,9 +91,13 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 ,m_bLastOpenAudio(0)
 ,m_AvIsSeg(0)
 ,m_CacheAvCounter(0)
+,m_TotalTime(0)
+,start_time(AV_NOPTS_VALUE)
+,m_CurTime(0)
+,pVideoInfo(0)
+,m_bOpen(false)
 {
-	pVideoInfo=NULL;
-	m_bOpen=false;
+	
 	static bool registerFF=true;
 	if(registerFF)
 	{
@@ -128,8 +136,7 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 		hwaccel=av_hwaccel_next(hwaccel);
 	}
 #endif
-	start_time=AV_NOPTS_VALUE;
-	m_CurTime=0;
+	
 
 	
      
@@ -397,7 +404,7 @@ void KKPlayer::CloseMedia()
 
 	start_time=AV_NOPTS_VALUE;
 	m_CurTime=0;
-
+    m_TotalTime=0;
 
 	if(m_pAudioPicBuf!=NULL){
 		m_AudioPicBufLen=0;
@@ -419,19 +426,8 @@ void KKPlayer::CloseMedia()
 bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 {
 	bool ok=false;
-	//info.FileSize=0;
-	//info.CurTime=0;
-	//info.FileSize=0;
-	//info.CurTime=0;
-	//info.TotalTime=0;//×ÜÊ±³¤
-	//info.serial=0;
-	//info.Open=0;
-	//info.KKState=0;
- //   info.SegId=-1;
-	//info.Speed=0;
 	if(m_PlayerLock.TryLock()){
-		if(m_bOpen&&pVideoInfo!=NULL&&m_nPreFile==3&&!pVideoInfo->abort_request)
-				{	
+		if(m_bOpen&&pVideoInfo!=NULL&&m_nPreFile==3&&!pVideoInfo->abort_request){	
 						
 						info.Open=m_bOpen;
 						
@@ -1517,7 +1513,14 @@ void KKPlayer::ForceFlushQue()
 		return 0;
  }
 
-
+int  KKPlayer::GetPlayTime()
+{
+    return m_CurTime;
+}
+int  KKPlayer::GetTotalTime()
+{
+    return m_TotalTime;
+}
 
  void  KKPlayer::OpenAudioDev()
  {
@@ -1943,6 +1946,7 @@ void KKPlayer::ReadAV()
 	pVideoInfo->max_frame_duration = (pVideoInfo->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 	pVideoInfo->IsReady=1;	
 
+	m_TotalTime=pVideoInfo->pFormatCtx->duration/1000/1000;
 	if(m_pPlayUI!=NULL)
 	{
 		m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
@@ -2314,10 +2318,6 @@ long KKPlayer::GetVolume()
 	     return m_pSound->GetVolume();
 	return 0;
 }
- int KKPlayer::GetCurTime()
- {
-	 return m_CurTime;
- }
 void KKPlayer::Pause()
 {
 	this->m_PlayerLock.Lock();

@@ -21,7 +21,7 @@ public:
          void SetPath(const char *Path) ;
 		 void InitDb();
 		 /*******播放进度更新信息***********/
-		 void UpDataAVinfo(char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height);
+		 void UpDataAVinfo(const char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height);
        
 		 //获取放播的历史信息
 		 void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
