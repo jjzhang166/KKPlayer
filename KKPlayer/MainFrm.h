@@ -129,7 +129,7 @@ protected:
 		virtual unsigned char* GetBkImage(int &len);
 		virtual unsigned char* GetCenterLogoImage(int &length);
 		virtual void           OpenMediaStateNotify(char* strURL,EKKPlayerErr err);
-		virtual int            PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
+		virtual int            PreOpenUrlCallForSeg(char *InOutUrl,int *AvIsSeg,int *Interrupt);
 		/*******视频流结束调用*******/
 		virtual void           GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 		virtual void           AVReadOverThNotify(void *playerIns);

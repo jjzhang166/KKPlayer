@@ -37,7 +37,7 @@ class IKKPlayUI
 			 //打开失败
 			 virtual void OpenMediaStateNotify(char* strURL,EKKPlayerErr err)=0;
 			 ///读取线程打开文件前的回调函数,用于分段，返回1，代表有分段，此时InOutUrl已经被修改。
-			 virtual int PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)=0;
+			 virtual int PreOpenUrlCallForSeg(char *InOutUrl,int *AvIsSeg,int *Interrupt)=0;
 			 /*******视频流结束调用.用于加载下一个分片*******/
 			 virtual void GetNextAVSeg(void *playerIns,int Err,int quesize,KKPlayerNextAVInfo &NextInfo)=0;
 

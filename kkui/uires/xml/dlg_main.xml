@@ -9,7 +9,7 @@ translucent="0"
 				   pos="7,15" focusable="0" focusable="0" width="20" height="20" tip="播放列表" />
                    <text pos="[8,17," width="50" name="TxtAVTitle" font="宋体" colorText="#999999">KK影音</text>
 				   
-				   <window pos="[8,10" width="150" height="40" >
+				   <window pos="[8,10" width="130" height="40" >
 				        <imgbtn name="btn_TopPlay_Opt" skin="_skin.TOU"  
 						font="face:宋体,bold:0" valign="top" pos="10,8" width="32" height="38" 
 						colorText="#999999" animate="0">播放</imgbtn>
@@ -19,12 +19,7 @@ translucent="0"
 						<window pos="2,38" name="TopPlay_Opt_Line" visible="0" width="50" colorBkgnd="#46C832" height="2" />
 						<window pos="[7,38" name="TopRes_Opt_Line" width="50" colorBkgnd="#46C832" height="2" />
 				   </window>
-				   
-				   <window pos="[8,17" width="150" skin="_skin.Search1" height="22">
-				        <edit  pos="[10,1" maxBuf="15"  name="Edit_Search"  colorText="#FFFFFF" width="140" height="20" ></edit>
-				   </window>
-				   <imgbtn name="btn_TopSearch"  pos="[0,17" width="75" height="22" skin="_skin.Search2" animate="0" />
-				   
+				   <text pos="[0,15,]10,@20" name="AVNameTitle"  font="宋体" colorText="#999999"/>
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-40,10" tip="关闭" animate="0"/>
                    <imgbtn name="btn_max" skin="_skin.Win_Max"  pos="-70,10"  tip="最大化" animate="0" />
                    <imgbtn name="btn_restore" skin="_skin.Win_Max2"  pos="-70,10" tip="恢复"  show="0" animate="0" />

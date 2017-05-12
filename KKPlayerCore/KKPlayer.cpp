@@ -1780,10 +1780,9 @@ void KKPlayer::ReadAV()
 		scan_all_pmts_set = 1;
 	}
 	pVideoInfo->pFormatCtx = pFormatCtx;
-	char srcurl[2048]="";
-	strcpy(srcurl,pVideoInfo->filename);
-	if(m_pPlayUI->PreOpenUrlCallForSeg(pVideoInfo->filename,(int*)&pVideoInfo->abort_request)){
-	   m_AvIsSeg=1;
+	
+	if(m_pPlayUI->PreOpenUrlCallForSeg(pVideoInfo->filename,&m_AvIsSeg,(int*)&pVideoInfo->abort_request)){
+	  
 	   pVideoInfo->NeedWait=true;
 	}
 
@@ -1817,7 +1816,6 @@ void KKPlayer::ReadAV()
 		    err=-1;
 		}
 	}
-	strcpy(pVideoInfo->filename,srcurl);
 	
 	LOGE("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
 	m_nPreFile=3;
@@ -2079,6 +2077,14 @@ void KKPlayer::ReadAV()
 		
 ReRead:
 		bool forceOver=false;
+
+		  ///seek.
+		if(m_nSeekSegId==-1)
+		     InterSeek(pFormatCtx);
+		else if(m_nSeekSegId>=-1)
+		{
+		
+		}
 		ret = av_read_frame(pFormatCtx, pkt);
 		
         if(ret>=0&&m_nSeekSegId>-1)
@@ -2194,13 +2200,7 @@ ReRead:
 			
 		}
 
-         ///seek.
-		if(m_nSeekSegId==-1)
-		     InterSeek(pFormatCtx);
-		else if(m_nSeekSegId>=-1)
-		{
-		
-		}
+       
 		
 		/* check if packet is in play range specified by user, then queue, otherwise discard */
 		stream_start_time = pFormatCtx->streams[pkt->stream_index]->start_time;

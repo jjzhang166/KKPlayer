@@ -176,30 +176,26 @@ namespace SOUI
 		 
 		 std::string title2;
 		 m_url=str;
-		 std::wstring title=L"KKÓ°Òô-";
+		 std::wstring title=L"KKÓ°Òô";
          title2=str;
 		 if(! is_realtime2((char*)str))
 		 {		
-				 int index=title2.find_last_of(".");
-				 if(index>-1)
-				 {
-					 title2=title2.substr(0,index);
-					 index=title2.find_last_of("/");
-					 if(index<0)
-						 index=title2.find_last_of("\\");
-					 if(index>-1)
-					 {
-						 title2=title2.substr(index+1,title2.length()-index-1);
-					 }else{
-						  title2=str;
-					 }
-				 }
+			 int index=title2.find_last_of("/");
+			 if(index<0)
+				 index=title2.find_last_of("\\");
+			 if(index>-1)
+			 {
+				 title2=title2.substr(index+1,title2.length()-index-1);
+			 }else{
+				  title2=str;
+			 }
+				
 		 }
-		 
-		 /*CChineseCode::charTowchar(title2.c_str(),abcd,1024);
-		 title+=abcd;
-		 m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(title.c_str());*/
-		  return ret;
+		 wchar_t abcd[1024]=L"";
+		 CChineseCode::charTowchar(title2.c_str(),abcd,1024);
+		 title=abcd;
+		 m_pDlgMain->FindChildByName("AVNameTitle")->SetWindowText(title.c_str());/**/
+		 return ret;
 	 }
 	 void CSuiVideo::OnDecelerate()
 	 {
