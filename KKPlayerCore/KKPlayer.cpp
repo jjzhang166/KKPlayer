@@ -1777,7 +1777,11 @@ void KKPlayer::ReadAV()
 
 	if (!av_dict_get(format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
 		av_dict_set(&format_opts, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
+		
 		scan_all_pmts_set = 1;
+	}
+	if(!strncmp(pVideoInfo->filename, "http:",4)){
+		av_dict_set(&format_opts,"user-agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.15) Gecko/20110303 Firefox/3.6.15", AV_DICT_DONT_OVERWRITE);
 	}
 	pVideoInfo->pFormatCtx = pFormatCtx;
 	
@@ -1806,7 +1810,7 @@ void KKPlayer::ReadAV()
 
 	LOGE("call avformat_open_input \n");
 	//此函数是阻塞的
-	err =avformat_open_input(&pFormatCtx,pVideoInfo->filename,pVideoInfo->iformat,    &format_opts);
+	err =avformat_open_input(&pFormatCtx,pVideoInfo->filename,pVideoInfo->iformat,   &format_opts);
     
 	if(pFormatCtx!=0&&(strncmp(pVideoInfo->filename, "rtmp:",5)==0||strncmp(pVideoInfo->filename, "rtsp:",5)==0)){
 		pFormatCtx->probesize = 100 *1024;
