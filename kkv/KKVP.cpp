@@ -373,7 +373,7 @@ LOOP1:
 	if(RetOk)
 	{
 		int ret=OutInfo.DataSize;
-		if(ret==-1001){
+		if(ret<0){
 		    return AVERROR_EOF;
 		}
 			

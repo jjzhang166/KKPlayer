@@ -162,7 +162,7 @@ namespace SOUI
 			 }
 			 free(Buf);
 	}
-	int CSuiVideo::OpenMedia(const char *str)
+	int CSuiVideo::OpenMedia(const char *str,const char* avname)
 	{
          int ret= m_VideoWnd.OpenMedia(str);
 		 if(ret==-1)
@@ -192,7 +192,11 @@ namespace SOUI
 				
 		 }
 		 wchar_t abcd[1024]=L"";
-		 CChineseCode::charTowchar(title2.c_str(),abcd,1024);
+		 if(avname!=NULL){
+		       CChineseCode::UTF8StrToUnicode(avname,strlen(avname),abcd,1024);
+		 }else{
+		       CChineseCode::charTowchar(title2.c_str(),abcd,1024);
+		 }
 		 title=abcd;
 		 m_pDlgMain->FindChildByName("AVNameTitle")->SetWindowText(title.c_str());/**/
 		 return ret;

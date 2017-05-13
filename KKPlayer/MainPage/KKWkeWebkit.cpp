@@ -12,12 +12,13 @@ extern SOUI::CMainDlg *m_pDlgMain;
 jsValue JS_CALL  FunCallAVPlayer(jsExecState es)
 {
      char *pp=(char*)jsToString(es,jsArg(es,0));
+	 char *name=(char*)jsToString(es,jsArg(es,1));
 	 if(pp!=NULL){
 		 std::string Out="";
 		 CChineseCode::UTF_8ToGBK(Out,pp);
 		 if(m_pDlgMain!=NULL){
 			 m_pDlgMain->WinTabShow(1);
-			 m_pDlgMain->OpenMedia((char*)Out.c_str());
+			 m_pDlgMain->OpenMedia((char*)Out.c_str(),name);
 		 }
 		 
 	 }

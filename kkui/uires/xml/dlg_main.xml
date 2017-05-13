@@ -1,5 +1,5 @@
 <SOUI name="mainWindow" title="KKplayer" 
-width="1000" height="600"  margin="5,5,5,5"  resizable="1"
+width="830" height="500"  margin="5,5,5,5"  resizable="1"
 appWnd="1" minsize="800,500"  bigIcon="ICON_LOGO:32"
 translucent="0"
 >
