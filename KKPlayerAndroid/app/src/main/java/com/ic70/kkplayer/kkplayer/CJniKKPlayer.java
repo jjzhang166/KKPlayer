@@ -20,7 +20,7 @@ public class CJniKKPlayer {
     }
     static{
         System.loadLibrary("z");
-        System.loadLibrary("android");
+       // System.loadLibrary("android");
        // System.loadLibrary("dvbcsa");
         System.loadLibrary("avutil-55");
         System.loadLibrary("swresample-2");

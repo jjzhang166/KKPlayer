@@ -64,7 +64,7 @@ SrsRtmpPlugin.o: srs_librtmp.h rtmp/SrsRtmpPlugin.h rtmp/SrsRtmpPlugin.cpp
 	$(CXX) -c $(CFLAGS) rtmp/SrsRtmpPlugin.cpp
 FlvEncode.o: rtmp/FlvEncode.h rtmp/FlvEncode.cpp
 	$(CXX) -c $(CFLAGS) rtmp/FlvEncode.cpp
-KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h SqlOp/AVInfomanage.h rtmp/SrsRtmpPlugin.h
+KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h rtmp/SrsRtmpPlugin.h
 	$(CXX) -c $(CFLAGS) KKPlayer.cpp
 
 AndKKAudio.o: Android/AndKKAudio.cpp Android/AndKKAudio.h KKCond_t.h KKLock.h IKKAudio.h

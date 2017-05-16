@@ -45,7 +45,7 @@ class CAndKKPlayerUI :public  IKKPlayUI
 			virtual unsigned char* GetCenterLogoImage(int &length);
 			virtual void OpenMediaStateNotify(char* strURL,EKKPlayerErr err);
 			///读取线程打开文件前的回调函数
-			virtual int PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt);
+			virtual int PreOpenUrlCallForSeg(char *InOutUrl,int *AvIsSeg,int *Interrupt);
 			 // PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)
 			/*******视频流结束调用*******/
 			virtual void  GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);

@@ -175,7 +175,7 @@ void CAndKKPlayerUI::OpenMediaStateNotify(char *strURL,EKKPlayerErr err)
         m_playerState=-2;
     return;
 }
-int CAndKKPlayerUI::PreOpenUrlCallForSeg(char *InOutUrl,int *Interrupt)
+int CAndKKPlayerUI::PreOpenUrlCallForSeg(char *InOutUrl,int *AvIsSeg,int *Interrupt)
 {
 	
 	return 0;
