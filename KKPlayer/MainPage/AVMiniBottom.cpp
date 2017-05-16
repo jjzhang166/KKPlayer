@@ -12,6 +12,20 @@ namespace SOUI
 
 	}
 
+	void CAVMiniBottom::SetPlayState(bool s)
+	{
+		SImageButton* pPlay=(SImageButton*)FindChildByName(L"AVPlayBtn");
+		if(s){
+		   pPlay->SetAttribute(L"skin",L"_skin.PLAY30",TRUE);
+		}else{
+		   pPlay->SetAttribute(L"skin",L"_skin.Pause30",TRUE);
+		}
+	}
+	
+	void CAVMiniBottom::OnAVPlay()
+	{
+	     m_pDlgMain->OnAVPlay();
+	}
 	bool CAVMiniBottom::OnSliderVideo(EventArgs *pEvt)
 	{
 		m_pDlgMain->OnSliderVideo(pEvt);

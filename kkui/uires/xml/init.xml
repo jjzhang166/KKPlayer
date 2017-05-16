@@ -32,8 +32,14 @@
 		<imglist name="_skin.TOU" src="PNG:ID_PNG_TOU"/>
 		<imglist name="_skin.TittleBg" src="PNG:ID_PNG_BG_GRAY"/>
 		<imglist name="_skin.ButtonBg" src="PNG:ID_PNG_BG_BUTTON"/>
+		
 		<imglist name="_skin.PLAY" src="PNG:ID_PNG_PLAY" states="3" />
 		<imglist name="_skin.Pause" src="PNG:ID_PNG_PAUSE" states="3" />
+		
+		<imglist name="_skin.PLAY30" src="PNG:ID_PNG_PLAY30" states="3" />
+		<imglist name="_skin.Pause30" src="PNG:ID_PNG_PAUSE30" states="3" />
+		
+		
 		
 		<imglist name="_skin.AUDIO2" src="PNG:ID_PNG_AUDIO2" states="3" />
 		<imglist name="_skin.List_Button" src="PNG:ID_PNG_LIST_BUTTON" states="3" />

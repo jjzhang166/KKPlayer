@@ -10,7 +10,22 @@ translucent="0"
 				   thumbInRail="0" pos="0,0,-0,-0"  value="0" min="0" max="1000" />
 			</window>
 			<window pos="0,-38,-0,-0" name="AV_Bottom" margin="0,0,0,0" skin="_skin.ButtonBg" show="1" font="adding:0" >
-				    <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
+			          <imgbtn  skin="_skin.PLAY30" name="AVPlayBtn" pos="5, 5,@30,@30" 
+					  tip="开始播放或者暂停" focusable="0" />
+					  
+					  
+					  <button  skin="_skin.AUDIO2" name="btn_audio" 
+					  pos="]-10,20,@22,@22"
+					  offset="-0.5,-0.5" focusable="0" >
+					  </button><!---->
+					  <sliderbar name="AvAudio" thumbSkin="_skin.VOL_BLOCK" bkgndSkin="_skin.Vol_Bg"
+					  posskin="_skin.Vol_Pre"
+					  thumbInRail="0" pos="]-120,13,@100,@15" alpha="200"
+					  value="100" min="0" max="100" />
+					  
+					  <text font="size:10" name="AV_CurTimeTxt" 
+					  pos="]-100,10,@100,@20" colorText="#FFFFFF">00:00:00 / 00:00:00</text>
+				      <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
 					  pos="-30,20" offset="-0.5,-0.5"   colorText="#FFFFFF"
 					  width="29" height="36" animate="0" tip="打开本地文件" />
 			</window>

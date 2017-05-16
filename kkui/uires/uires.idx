@@ -34,6 +34,10 @@
 	   <file name="ID_PNG_BG_BUTTON" path="image\button.png" />
 	   <file name="ID_PNG_PLAY" path="image\Play.png" />
 	   <file name="ID_PNG_PAUSE" path="image\pause.png" />
+	   
+	   
+	   <file name="ID_PNG_PLAY30" path="image\Play30.png" />
+	    <file name="ID_PNG_PAUSE30" path="image\pause30.png" />
 	   <file name="ID_PNG_AUDIO2" path="image\audio2.png" />
 	   <file name="ID_PNG_LIST_BUTTON" path="image\listbutton1.png" />
 	   <file name="ID_PNG_VOL_BLOCK" path="image\vol_block.png" />
