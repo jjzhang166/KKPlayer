@@ -275,7 +275,7 @@ void              CMainFrame::SetVolume(long value)
 		m_pRender->SetLeftPicStr(Tip);
 	}
 	if(m_pPlayerInstance!=NULL)
-	m_pPlayerInstance->SetVolume(value);
+	       m_pPlayerInstance->SetVolume(value);
 }
 long              CMainFrame::GetVolume()
 {
@@ -681,16 +681,11 @@ LRESULT           CMainFrame::OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM
 	int seek=60;
 	switch(wParam)
 	{
-	    case VK_UP:
-                           ll=m_pPlayerInstance->GetVolume()+10;
-						   SetVolume(ll);
-		        	       break;
+	case VK_UP:
 		case VK_DOWN:
 			{
-						   ll=m_pPlayerInstance->GetVolume()-10;
-									if(ll<0)
-										ll=0;
-						   SetVolume(ll);
+				HWND h=::GetParent(m_hWnd);
+			            ::PostMessage(h,WM_KEYDOWN,wParam,lParam);
 			               break;
 			}
 		case VK_LEFT:

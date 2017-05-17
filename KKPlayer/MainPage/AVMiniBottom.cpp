@@ -21,7 +21,20 @@ namespace SOUI
 		   pPlay->SetAttribute(L"skin",L"_skin.Pause30",TRUE);
 		}
 	}
-	
+	void CAVMiniBottom::SetVolume(int volume)
+	{
+	    SSliderBar *VolBar=(SSliderBar *)FindChildByName(L"AvAudio");
+		VolBar->SetValue(volume);
+	}
+	bool CAVMiniBottom::OnSliderAudio(EventArgs *pEvt)
+	{
+	    EventSliderPos *pEvt2 = sobj_cast<EventSliderPos>(pEvt);
+		SASSERT(pEvt2);
+		long vol=pEvt2->nPos;
+		
+        m_pDlgMain->SetVolume(vol,true);
+		return true;
+	}
 	void CAVMiniBottom::OnAVPlay()
 	{
 	     m_pDlgMain->OnAVPlay();

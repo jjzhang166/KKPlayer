@@ -2005,11 +2005,10 @@ void KKPlayer::ReadAV()
 			int64_t seek_max    =pVideoInfo->seek_rel < 0 ? seek_target - pVideoInfo->seek_rel - 2: INT64_MAX;//=pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
 
 
-			if(pVideoInfo->seek_req==2)
-			{
+			if(pVideoInfo->seek_req==2){
 				seek_min=seek_target;
 				if(pVideoInfo->audio_st!=0)
-                seek_max =seek_target + 1000000;
+                      seek_max =seek_target + 1000000;
 			}
 			//int64_t seek_min    =pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
 			//int64_t seek_max    =pVideoInfo->seek_pos+10 * AV_TIME_BASE; //

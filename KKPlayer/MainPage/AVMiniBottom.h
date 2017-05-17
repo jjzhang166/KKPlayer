@@ -10,10 +10,13 @@ namespace SOUI
 		       ~CAVMiniBottom();
 			   
 			   void SetPlayState(bool s);
+			   void SetVolume(int volume);
                void OnAVPlay();
 			   bool OnSliderVideo(EventArgs *pEvtBase);
+			   bool OnSliderAudio(EventArgs *pEvtBase);
 				EVENT_MAP_BEGIN()
 					EVENT_NAME_COMMAND(L"AVPlayBtn",OnAVPlay)
+					    EVENT_NAME_HANDLER(L"AvAudio",EventSliderPos::EventID,OnSliderAudio)
 				        EVENT_NAME_HANDLER(L"slider_video_Seek",EventSliderPos::EventID,OnSliderVideo)
 				EVENT_MAP_END()	
 				BEGIN_MSG_MAP_EX(CAVMiniBottom)
