@@ -14,7 +14,9 @@ namespace SOUI
                void OnAVPlay();
 			   bool OnSliderVideo(EventArgs *pEvtBase);
 			   bool OnSliderAudio(EventArgs *pEvtBase);
+			   void OnMuteAudio();
 				EVENT_MAP_BEGIN()
+					EVENT_NAME_COMMAND(L"btn_audio",OnMuteAudio)
 					EVENT_NAME_COMMAND(L"AVPlayBtn",OnAVPlay)
 					    EVENT_NAME_HANDLER(L"AvAudio",EventSliderPos::EventID,OnSliderAudio)
 				        EVENT_NAME_HANDLER(L"slider_video_Seek",EventSliderPos::EventID,OnSliderVideo)

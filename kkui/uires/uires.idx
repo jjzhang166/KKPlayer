@@ -39,6 +39,8 @@
 	   <file name="ID_PNG_PLAY30" path="image\Play30.png" />
 	    <file name="ID_PNG_PAUSE30" path="image\pause30.png" />
 	   <file name="ID_PNG_AUDIO2" path="image\audio2.png" />
+	   <file name="ID_PNG_AUDIO3" path="image\audio3.png" />
+	   
 	   <file name="ID_PNG_LIST_BUTTON" path="image\listbutton1.png" />
 	   <file name="ID_PNG_VOL_BLOCK" path="image\vol_block.png" />
 	   

@@ -42,6 +42,7 @@
 		
 		
 		<imglist name="_skin.AUDIO2" src="PNG:ID_PNG_AUDIO2" states="3" />
+		<imglist name="_skin.AUDIO3" src="PNG:ID_PNG_AUDIO3" states="3" />
 		<imglist name="_skin.List_Button" src="PNG:ID_PNG_LIST_BUTTON" states="3" />
 		<imglist name="_skin.VOL_BLOCK" src="PNG:ID_PNG_VOL_BLOCK" states="3" />
 		

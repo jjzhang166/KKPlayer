@@ -35,6 +35,10 @@ namespace SOUI
         m_pDlgMain->SetVolume(vol,true);
 		return true;
 	}
+	 void CAVMiniBottom::OnMuteAudio()
+	 {
+	     m_pDlgMain->OnMuteAudio();
+	 }
 	void CAVMiniBottom::OnAVPlay()
 	{
 	     m_pDlgMain->OnAVPlay();
