@@ -44,7 +44,7 @@ protected:
 		if (size == m_sizeWnd)
 			return;
 
-		CRect rcWindow, rcClient;
+	/*	CRect rcWindow, rcClient;
 		CRgn rgnWindow, rgnMinus, rgnAdd;
 
 		pT->CSimpleWnd::GetWindowRect(rcWindow);
@@ -65,7 +65,7 @@ protected:
 			rgnWindow.CombineRgn(rgnAdd, RGN_OR);
 		}
 		
-			pT->CSimpleWnd::SetWindowRgn(rgnWindow);
+			pT->CSimpleWnd::SetWindowRgn(rgnWindow);*/
 		
 		pT->SetMsgHandled(FALSE);
 		m_sizeWnd = size;

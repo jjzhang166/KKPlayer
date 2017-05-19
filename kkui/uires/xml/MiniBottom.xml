@@ -4,7 +4,7 @@ appWnd="0" minsize="600,48"
 translucent="0"
 >
 	<root skin="_skin.shadow">
-	        <window pos="10,0,-8,@10" margin="0,0,0,0" name="SeekWin" colorBkgnd="#000000">
+	        <window pos="0,0,-0,@10" margin="0,0,0,0" name="SeekWin" colorBkgnd="#000000">
 				   <avseekbar name="slider_video_Seek" thumbSkin="_skin.Pro_SeekThBt" 
 				   bkgndSkin="_skin.Pro_Bg" posskin="_skin.Pro_Play" cachePosSkin="_skin.Pro_Mask"
 				   thumbInRail="0" pos="0,0,-0,-0"  value="0" min="0" max="1000" />
