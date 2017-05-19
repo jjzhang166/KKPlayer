@@ -1724,7 +1724,7 @@ void KKPlayer::AvDelayParser()
 				}
 				
 			}
-			/********刷新后缓存一会儿********/
+			/********刷新后缓存一会儿,这里有问题********/
 			if((pVideoInfo->audioq.size>2000&&pVideoInfo->videoq.size>2000||pVideoInfo->eof)&&!pVideoInfo->IsReady){
 				pVideoInfo->IsReady=1;
 				pVideoInfo->paused^=0x010;
