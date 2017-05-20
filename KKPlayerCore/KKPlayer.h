@@ -188,6 +188,11 @@ private:
 			//当前时间
 			int                             m_CurTime;
 			int                             m_TotalTime;
+			/// 
+			//0x0001   视频;
+			//0x0010    音频， 
+			//0x0100    字幕， 
+			int                             m_nhasVideoAudio;
 			//视频读取线程
 			SKK_ThreadInfo m_ReadThreadInfo;
 			//视频刷新线程

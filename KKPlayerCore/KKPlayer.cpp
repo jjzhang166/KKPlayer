@@ -96,6 +96,7 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 ,m_CurTime(0)
 ,pVideoInfo(0)
 ,m_bOpen(false)
+,m_nhasVideoAudio(0)
 {
 	
 	static bool registerFF=true;
@@ -413,6 +414,7 @@ void KKPlayer::CloseMedia()
 	}
 
 
+	m_nhasVideoAudio=0;
 	m_bOpen=false;
 	m_PlayerLock.Unlock();
 
@@ -1323,6 +1325,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo->InAudioSrc=NULL;
 	pVideoInfo->OutAudioSink=NULL;
 	pVideoInfo->AudioGraph=NULL;
+	m_nhasVideoAudio=0;
 	LOGE("创建线程\n");
 #ifdef WIN32_KK
 	m_ReadThreadInfo.ThreadHandel=(HANDLE)_beginthreadex(NULL, NULL, ReadAV_thread, (LPVOID)this, 0,&m_ReadThreadInfo.Addr);
@@ -1704,6 +1707,9 @@ void  KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
 
 void KKPlayer::AvDelayParser()
 {
+
+	int pkgsize=pVideoInfo->audioq.size+pVideoInfo->videoq.size;
+	///有音频有视频
 	if(pVideoInfo->NeedWait&&pVideoInfo->audio_st!=NULL){
 			if(pVideoInfo->audioq.size==0||pVideoInfo->videoq.size==0){
 				  m_CacheAvCounter++; 
@@ -1712,9 +1718,22 @@ void KKPlayer::AvDelayParser()
 			if(pVideoInfo->bTraceAV)
 			   LOGE("de %.3fs,que audioq:%d,videoq:%d,subtitleq:%d \n",pVideoInfo->nRealtimeDelay,pVideoInfo->audioq.size,pVideoInfo->videoq.size,pVideoInfo->subtitleq.size);
 			
+			bool Ok=false;
 			//开始缓存&&avsize>100
 			if(pVideoInfo->nRealtimeDelay<=2){
-				if(pVideoInfo->audioq.size<=1000&&pVideoInfo->videoq.size<=1000&&pVideoInfo->IsReady&&!pVideoInfo->eof){
+				
+				
+				///有音频，有视频
+				if((m_nhasVideoAudio^0x0010)==0x0010&&(m_nhasVideoAudio^0x0001)==0x0001){
+				    if(pVideoInfo->audioq.size<=1000&&pVideoInfo->videoq.size<=1000)
+						 Ok= true;
+				}else {
+					   if(m_nhasVideoAudio^0x0001==0x0001)///视频
+                            Ok=  pkgsize<=500 ? true:false;
+					   else
+					        Ok=  pkgsize<=1000 ? true:false;
+				}
+				if(Ok&&pVideoInfo->IsReady&&!pVideoInfo->eof){
 					pVideoInfo->IsReady=0;
 					pVideoInfo->paused|=0x010;
 					m_CacheAvCounter=0;
@@ -1724,8 +1743,14 @@ void KKPlayer::AvDelayParser()
 				}
 				
 			}
+
+            if((m_nhasVideoAudio^0x0010)==0x0010&&(m_nhasVideoAudio^0x0001)==0x0001){
+                    Ok=pVideoInfo->audioq.size>2000&&pVideoInfo->videoq.size>2000;
+			}else{
+				    Ok=pkgsize>4000? true:false;
+			}
 			/********刷新后缓存一会儿,这里有问题********/
-			if((pVideoInfo->audioq.size>2000&&pVideoInfo->videoq.size>2000||pVideoInfo->eof)&&!pVideoInfo->IsReady){
+			if((Ok|| pVideoInfo->eof)&&!pVideoInfo->IsReady){
 				pVideoInfo->IsReady=1;
 				pVideoInfo->paused^=0x010;
 
@@ -1760,6 +1785,7 @@ void KKPlayer::AvDelayParser()
 /*****读取视频信息******/
 void KKPlayer::ReadAV()
 {
+	
 	//rtmp://117.135.131.98/771/003 live=1
 	m_PlayerLock.Lock();
 	m_ReadThreadInfo.ThOver=false;
@@ -2233,6 +2259,7 @@ ReRead:
 			{
 				m_AVCacheInfo.MaxTime=pkt_ts;
 			}
+			m_nhasVideoAudio|=0x0010;
 		} //视频
 		else if (
 			pkt->stream_index == pVideoInfo->video_stream && pkt_in_play_range
@@ -2248,11 +2275,13 @@ ReRead:
 			{
                  m_AVCacheInfo.MaxTime=pkt_ts;
 			}
+			m_nhasVideoAudio|=0x0001;
 		}//字幕
 		else if (pkt->stream_index == pVideoInfo->subtitle_stream && pkt_in_play_range&&pkt->data!=NULL) 
 		{
 			//printf("subtitleq\n");
 			packet_queue_put(&pVideoInfo->subtitleq, pkt,pVideoInfo->pflush_pkt,pVideoInfo->segid);
+			m_nhasVideoAudio|=0x0100;
 		} else
 		{
 			av_packet_unref(pkt);
