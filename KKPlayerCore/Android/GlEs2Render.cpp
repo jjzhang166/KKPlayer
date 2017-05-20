@@ -347,14 +347,14 @@ void GlEs2Render::AVTexCoords_cropRight(GLfloat cropRight)
 
 void GlEs2Render::GlViewRender(bool ReLoad)
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	 //return;
     if(g_glProgram==0|| m_vertexShader==0||m_fragmentShader==0)
 	{
 		 LOGE("g_glProgram=%d m_vertexShader=%d||m_fragmentShader=%d \n", g_glProgram,m_vertexShader,m_fragmentShader);
          return;
 	}
 
-	 
+	glClear(GL_COLOR_BUFFER_BIT);
     if(!m_bAdJust&&m_Picwidth!=0&& m_Picheight!=0)
     {
         float width     =m_Picwidth;

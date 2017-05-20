@@ -1447,10 +1447,9 @@ LXXXX:
 						av_frame_unref(pFrame);
 					}
 					
-			}else
-			{
+			}else {
 				//av_frame_unref(pFrame);
-				LOGE("avcodec_flush_buffers video \n");
+				LOGE(" video2 avcodec_flush_buffers \n");
 				avcodec_flush_buffers(d->avctx);
 				
 				if(lastsegid!=segid&&is->pSegFormatCtx!=NULL){
@@ -1806,6 +1805,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 	//½âÂë²Ù×÷
 	do {
 		
+		if(is->abort_request)
+			 break;
 		
 		if ((got_frame = audio_decode_frame(is, frame,&segid,&lastsegid,reconfigure)) < 0)
 			goto the_end;
@@ -1892,6 +1893,8 @@ unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 				while ((ret = av_buffersink_get_frame_flags(is->OutAudioSink, frame, 0)) >= 0) 
 				{
 
+					if(is->abort_request)
+						break;
 					tb = is->OutAudioSink->inputs[0]->time_base;
 					if (!(af = frame_queue_peek_writable(&is->sampq)))
 					{

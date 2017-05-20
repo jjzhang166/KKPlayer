@@ -265,7 +265,8 @@ public class CPlayerActivity extends Activity {
     }
     public void WaitGif()
     {
-        ImageView infoOperatingIV = (ImageView)findViewById(R.id.WaitRImageView);
+
+       ImageView infoOperatingIV = (ImageView)findViewById(R.id.WaitRImageView);
         Animation operatingAnim = AnimationUtils.loadAnimation(this, R.anim.dirtiprotate);
         LinearInterpolator lin = new LinearInterpolator();
         operatingAnim.setInterpolator(lin);
@@ -273,7 +274,7 @@ public class CPlayerActivity extends Activity {
             infoOperatingIV.startAnimation(operatingAnim);
             infoOperatingIV.bringToFront();
             infoOperatingIV.setVisibility(View.VISIBLE);
-        }
+        } /**/
     }
     public void onConfigurationChanged (Configuration newConfig){
         super.onConfigurationChanged(newConfig);

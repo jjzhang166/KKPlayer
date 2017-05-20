@@ -270,7 +270,7 @@ void CAndKKAudio::ReadAudio()
         m_ReadLock.Unlock();
         return;
     }
-   // LOGI("ReadAudio\n");
+    LOGI("ReadAudio\n");
     m_ReadLock.Unlock();
     if(m_pFun!=NULL&&m_bqPlayerPlay!=NULL)
     {
@@ -318,7 +318,9 @@ void CAndKKAudio::ReadAudio()
         //LOGE("audio:%d,%d,%d,%d",t_end-t_start,m_nnext_buffer_index,lx,SL_PLAYSTATE_PLAYING);
         m_pNext_buffer = m_pBuf + m_nnext_buffer_index * bytes_per_buffer;
         m_nnext_buffer_index = (m_nnext_buffer_index + 1) % 4;
-    }
+    }else{
+		 usleep(400);
+	}
 }
 void CAndKKAudio::Start()
 {

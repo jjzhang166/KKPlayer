@@ -235,6 +235,10 @@ void KKPlayer::CloseMedia()
 			,pVideoInfo->auddec.decoder_tid.ThOver
 			,pVideoInfo->subdec.decoder_tid.ThOver
 			);
+		if(!pVideoInfo->viddec.decoder_tid.ThOver){
+			pVideoInfo->videoq.m_pWaitCond->SetCond();
+			pVideoInfo->pictq.m_pWaitCond->SetCond();
+		}
 		 av_usleep(10000);
 	}
 
