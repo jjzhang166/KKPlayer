@@ -2172,7 +2172,7 @@ ReRead:
 					 LOGE("pFormatCtx->pb && pFormatCtx->pb->error \n");
 				 break;
 				
-			 }else if(ret == AVERROR_EOF && avio_feof(pFormatCtx->pb)&& pVideoInfo->eof||forceOver)
+			 }else if(ret == AVERROR_EOF && pVideoInfo->eof||forceOver)
 			 {
 				        ///用于视频分片，但视频必须是同一格的				      
 				       
