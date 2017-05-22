@@ -54,18 +54,18 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "Icons\\3gp.ico"
-IDI_ICON2               ICON                    "Icons\\avi.ico"
-IDI_ICON3               ICON                    "Icons\\bt.ico"
-IDI_ICON4               ICON                    "Icons\\flv.ico"
-IDI_ICON5               ICON                    "Icons\\mkv.ico"
-IDI_ICON6               ICON                    "Icons\\mov.ico"
-IDI_ICON7               ICON                    "Icons\\MP4.ico"
-IDI_ICON8               ICON                    "Icons\\mpg.ico"
-IDI_ICON9               ICON                    "Icons\\rm.ico"
-IDI_ICON10              ICON                    "Icons\\rmvb.ico"
-IDI_ICON11              ICON                    "Icons\\wma.ico"
-IDI_ICON12              ICON                    "Icons\\wmv.ico"
+IDI_ICON_3GP               ICON                    "Icons\\3gp.ico"
+IDI_ICON_AVI               ICON                    "Icons\\avi.ico"
+IDI_ICON_BT               ICON                    "Icons\\bt.ico"
+IDI_ICON_FLV               ICON                    "Icons\\flv.ico"
+IDI_ICON_MKV               ICON                    "Icons\\mkv.ico"
+IDI_ICON_MOV               ICON                    "Icons\\mov.ico"
+IDI_ICON_MP4               ICON                    "Icons\\MP4.ico"
+IDI_ICON_MPG               ICON                    "Icons\\mpg.ico"
+IDI_ICON_RM               ICON                    "Icons\\rm.ico"
+IDI_ICON_RMVB              ICON                    "Icons\\rmvb.ico"
+IDI_ICON_WMA              ICON                    "Icons\\wma.ico"
+IDI_ICON_WMV              ICON                    "Icons\\wmv.ico"
 #endif    // 中文(中华人民共和国) resources
 /////////////////////////////////////////////////////////////////////////////
 

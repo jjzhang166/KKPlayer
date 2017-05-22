@@ -2,20 +2,21 @@
 // Microsoft Visual C++ generated include file.
 // Used by KKIcons.rc
 //
-#define IDI_ICON1                       101
-#define IDI_ICON2                       102
-#define IDI_ICON3                       103
-#define IDI_ICON4                       104
-#define IDI_ICON5                       105
-#define IDI_ICON6                       106
-#define IDI_ICON7                       107
-#define IDI_ICON8                       108
-#define IDI_ICON9                       109
-#define IDI_ICON10                      110
-#define IDI_ICON11                      111
-#define IDI_ICON12                      112
+#define      IDI_ICON_3GP                   101
+#define      IDI_ICON_AVI                   102
+#define      IDI_ICON_BT                  103
+#define      IDI_ICON_FLV                   104
+#define      IDI_ICON_MKV                  105
+#define      IDI_ICON_MOV                  106
+#define      IDI_ICON_MP4                   107
+#define      IDI_ICON_MPG                  108
+#define      IDI_ICON_RM                   109
+#define     IDI_ICON_RMVB                  110
+#define     IDI_ICON_WMA                   111
+#define     IDI_ICON_WMV                   112
 
-// Next default values for new objects
+
+         
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS

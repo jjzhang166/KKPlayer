@@ -59,6 +59,89 @@ CreateRender pfnCreateRender = NULL;
 DelRender pfnDelRender=NULL;
 SOUI::SApplication *theApp=NULL;
 HINSTANCE GhInstance;
+void RelationIco()
+{
+    CFileRelation FileRelation;
+	CWinDir windir;
+	std::wstring Localpath=windir.GetModulePath();
+	std::wstring pathIco=Localpath+L"KKIcons.dll,"; 
+	std::wstring Propath=Localpath+_T("\\KKplayer.exe");
+	
+	
+	bool bReIcon=FileRelation.CheckFileRelation(L".3gp",L"KKPlayer.3gp");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-101"; 
+       
+		FileRelation.RegisterFileRelation(_T(".3gp"),(LPTSTR)Propath.c_str(),_T("KKPlayer.3gp"),(LPTSTR)pathIco.c_str(),_T(".3gp"));
+	}
+
+	bReIcon=FileRelation.CheckFileRelation(L".avi",L"KKPlayer.avi");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-102"; 
+       
+		FileRelation.RegisterFileRelation(_T(".avi"),(LPTSTR)Propath.c_str(),_T("KKPlayer.avi"),(LPTSTR)pathIco.c_str(),_T(".avi"));
+	}
+	bReIcon=FileRelation.CheckFileRelation(L".bt",L"KKPlayer.bt");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-103"; 
+       
+		FileRelation.RegisterFileRelation(_T(".bt"),(LPTSTR)Propath.c_str(),_T("KKPlayer.bt"),(LPTSTR)pathIco.c_str(),_T(".bt"));
+	}
+
+    bReIcon=FileRelation.CheckFileRelation(L".flv",L"KKPlayer.flv");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-104"; 
+       
+		FileRelation.RegisterFileRelation(_T(".flv"),(LPTSTR)Propath.c_str(),_T("KKPlayer.flv"),(LPTSTR)pathIco.c_str(),_T(".flv"));
+	}
+	bReIcon=FileRelation.CheckFileRelation(L".mkv",L"KKPlayer.mkv");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-105"; 
+       
+		FileRelation.RegisterFileRelation(_T(".mkv"),(LPTSTR)Propath.c_str(),_T("KKPlayer.mkv"),(LPTSTR)pathIco.c_str(),_T(".mkv"));
+	}
+	bReIcon=FileRelation.CheckFileRelation(L".mov",L"KKPlayer.mov");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-106"; 
+       
+		FileRelation.RegisterFileRelation(_T(".mov"),(LPTSTR)Propath.c_str(),_T("KKPlayer.mov"),(LPTSTR)pathIco.c_str(),_T(".mov"));
+	}
+
+	bReIcon=FileRelation.CheckFileRelation(L".mp4",L"KKPlayer.mp4");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-107"; 
+       
+		FileRelation.RegisterFileRelation(_T(".mp4"),(LPTSTR)Propath.c_str(),_T("KKPlayer.mp4"),(LPTSTR)pathIco.c_str(),_T(".mp4"));
+	}
+	
+	bReIcon=FileRelation.CheckFileRelation(L".mov",L"KKPlayer.mpg");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-108"; 
+       
+		FileRelation.RegisterFileRelation(_T(".mpg"),(LPTSTR)Propath.c_str(),_T("KKPlayer.mpg"),(LPTSTR)pathIco.c_str(),_T(".mpg"));
+	}
+
+	bReIcon=FileRelation.CheckFileRelation(L".rm",L"KKPlayer.rm");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-109"; 
+       
+		FileRelation.RegisterFileRelation(_T(".rm"),(LPTSTR)Propath.c_str(),_T("KKPlayer.rm"),(LPTSTR)pathIco.c_str(),_T(".rm"));
+	}
+
+	bReIcon=FileRelation.CheckFileRelation(L".rmvb",L"KKPlayer.rmvb");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-110"; 
+       
+		FileRelation.RegisterFileRelation(_T(".rmvb"),(LPTSTR)Propath.c_str(),_T("KKPlayer.rmvb"),(LPTSTR)pathIco.c_str(),_T(".rmvb"));
+	}
+
+	bReIcon=FileRelation.CheckFileRelation(L".wma",L"KKPlayer.wma");
+	if(!bReIcon){
+		pathIco=Localpath+L"KKIcons.dll,-111"; 
+		FileRelation.RegisterFileRelation(_T(".wma"),(LPTSTR)Propath.c_str(),_T("KKPlayer.wma"),(LPTSTR)pathIco.c_str(),_T(".wma"));
+	}
+	
+}
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 
@@ -94,18 +177,13 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	std::string pp;
 	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);/**/
 
+	RelationIco();
 	
 	CHistoryInfoMgr *hismgr=CHistoryInfoMgr::GetInance();
 	hismgr->SetPath(pp.c_str());
 	hismgr->InitDb();
 
-	CFileRelation FileRelation;
-	bool xx=FileRelation.CheckFileRelation(L".mp4",L"KKPlayer.mp4");
-	if( 1){
-		Propath=windir.GetModulePath();
-        Propath+=_T("\\KKplayer.exe");
-		FileRelation.RegisterFileRelation(_T(".mp4"),(LPTSTR)Propath.c_str(),_T("KKPlayer.mp4"),(LPTSTR)Propath.c_str(),_T(".mp4"));
-	}
+	
 	HMODULE hRender = LoadLibraryA("Render.dll");
 	if(hRender){
           pfnCreateRender = (CreateRender)GetProcAddress(hRender, "CreateRender");
