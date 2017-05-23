@@ -14,7 +14,7 @@ KKWinSdkPath和KKWinDx9Path
 KKWinDx9Path=C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)
 KKWinSdkPath=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A
 
-rtmpt延迟格式控制请使用以下格式srs:rtmp:xxxxxxxxxxxxxxxxxxxxxx
+rtmpt延迟格式控制请使用以下格式librtmp:rtmp:xxxxxxxxxxxxxxxxxxxxxx
 
 		
 
@@ -76,3 +76,9 @@ windowVc(Vs2010)编译ffmpeg(https://ffmpeg.org/platform.html#Microsoft-Visual-C
 		cc_default="c99wrap cl"
 例如(启用共享库，关闭所有编码器):
 ./configure --toolchain=msvc --extra-cflags='-IC:/msinttypes' --prefix='./ffmpegBin'   --incdir='./ffmpegBin/incdir' --enable-shared --disable-encoders
+更新日志：
+          2017-5-23              移除srslibrtmpplugin. 添加librtmpplugin
+		                         支持视频分片(像优酷那种视频分片)
+								 整合FFmpeg的mediacode解码
+								 intermedia h264解码
+		                         ffmpge更新到3.2.4

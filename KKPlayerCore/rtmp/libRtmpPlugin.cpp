@@ -8,7 +8,8 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
   if(plu->opaque==NULL){
       RTMP *rtmp=RTMP_Alloc();  
       RTMP_Init(rtmp);
-	  char url[1024]="rtmp://live.hkstv.hk.lxdns.com/live/hks";
+	  char url[2048]="rtmp://live.hkstv.hk.lxdns.com/live/hks";
+	  strcpy(url,plu->URL);
 	  if(!RTMP_SetupURL(rtmp,url))  
       { 
 		   return KK_AVERROR(EAGAIN);
