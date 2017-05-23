@@ -10,7 +10,6 @@
 //#include "kk2dop.h"
 #include "KKPlayer.h"
 #include "KKInternal.h"
-#include "rtmp/SrsRtmpPlugin.h"
 #include "rtmp/libRtmpPlugin.h"
 #include "MD5/md5.h"
 #include <string>
@@ -114,7 +113,6 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
        // register_Kkv();
 		
 		registerFF=false;
-        AddSrsRtmpPluginInfo();
 		AddlibRtmpPluginInfo();
 	}
 	

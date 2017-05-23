@@ -14,7 +14,7 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
 		   return KK_AVERROR(EAGAIN);
 	  }
 	 
-	  RTMP_SetBufferMS(rtmp, 1000);        
+	  RTMP_SetBufferMS(rtmp, 100);        
       
       if(!RTMP_Connect(rtmp,NULL)){  
       //  RTMP_Log(RTMP_LOGERROR,"Connect Err\n");  
@@ -37,27 +37,29 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
       return  KK_AVERROR_EOF;
    }
    
-   if(plu->CalPlayerDelay!=NULL&&rtmp->m_read.timestamp>0&&rtmp->m_read.pkgtype == RTMP_PACKET_TYPE_AUDIO)
-		{
+   if(plu->CalPlayerDelay!=NULL&&rtmp->m_read.timestamp>0&&rtmp->m_read.pkgtype == RTMP_PACKET_TYPE_AUDIO){
 			plu->CalPlayerDelay(plu->PlayerOpaque,rtmp->m_read.timestamp,0);
-		}
+	}
   
    return nRead;
 }
-
+void DellibRtmpPlugin(KKPlugin* p)
+{
+	RTMP *rtmp= (RTMP *)p->opaque;
+	RTMP_Close(rtmp);  
+    RTMP_Free(rtmp);
+	::free(p);
+}
 extern "C"{
 	    
 		
 		KKPlugin* CreatelibRtmpPlugin()
-		{
-
-			
+		{			
 			KKPlugin* librtmp_plugin =(KKPlugin* ) ::malloc(sizeof(KKPlugin));
 			memset(librtmp_plugin,0,sizeof(KKPlugin));
             librtmp_plugin->RealTime=1;
 			librtmp_plugin->kkread=librtmp_read_packet;
 			return  librtmp_plugin;
-
 		}
 };
 
@@ -67,7 +69,7 @@ void AddlibRtmpPluginInfo()
 	memset(&PluInfo,0,sizeof(KKPluginInfo));
 
 	PluInfo.CreKKP=CreatelibRtmpPlugin;
-	//PluInfo.DelKKp=DelSrsRtmpPlugin;
+	PluInfo.DelKKp=DellibRtmpPlugin;
 	strcpy(PluInfo.ptl,"librtmp");
 	KKPlayer::AddKKPluginInfo(PluInfo);
 }

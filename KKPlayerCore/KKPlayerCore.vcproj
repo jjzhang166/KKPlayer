@@ -286,22 +286,6 @@
 				RelativePath=".\rtmp\libRtmpPlugin.h"
 				>
 			</File>
-			<File
-				RelativePath=".\srs_librtmp.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\srs_librtmp.h"
-				>
-			</File>
-			<File
-				RelativePath=".\rtmp\SrsRtmpPlugin.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\rtmp\SrsRtmpPlugin.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Qsv"

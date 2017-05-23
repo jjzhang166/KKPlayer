@@ -9,13 +9,14 @@ FFMPEGLib=../libarm/ffmpeg/lib/
 #此处需要修改
 #FFMPEGINCLUDE=D:/work/Projects/KKPlayer/ffmpeg/include
 FFMPEGINCLUDE=../ffmpeg/include
+libRtmp=../librtmp
 #此处需要修改 windows/bin
 COMPILERDIR=windows-x86_64/bin
 ARM_LINUX_ANDROIDE_API=arm-linux-androideabi-4.9
 PLATFORMS=android-9
 BASELib=$(NDK_PATH)/platforms/android-9/arch-arm/usr/lib
 STLLib=$(NDK_PATH)/sources/cxx-stl/stlport/libs/armeabi/
-CFLAGS = -I$(NDK_PATH)/platforms/$(PLATFORMS)/arch-arm/usr/include -I$(NDK_PATH)/sources/cxx-stl/stlport/stlport -I$(FFMPEGINCLUDE)
+CFLAGS = -I$(NDK_PATH)/platforms/$(PLATFORMS)/arch-arm/usr/include -I$(NDK_PATH)/sources/cxx-stl/stlport/stlport -I$(FFMPEGINCLUDE) -I$(libRtmp)
 #LDFLAGS = -L$(FFMPEGLib) -nostdlib
 #LIBS = 	-llibavcodec-56.so -llibavdevice-56.so -llibavfilter-5.so -llibavformat-56.so -llibavutil-54.so -llibswresample-1.so -llibswscale-3.so 
 #-std=c99

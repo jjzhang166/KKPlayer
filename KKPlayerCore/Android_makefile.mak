@@ -1,6 +1,7 @@
 include Android_config.mak
 objects=platforms.o KKLock.o KKMutex.o KKCond_t.o KKInternal.o kkio.o \
-	KKPlayer.o md5.o srs_librtmp.o SrsRtmpPlugin.o FlvEncode.o \
+	log.o amf.o parseurl.o hashswf.o rtmp.o libRtmpPlugin.o \
+	KKPlayer.o md5.o FlvEncode.o \
 	GlEs2Render.o AndKKAudio.o AndKKPlayerUI.o JniKKPlayer.o
 #ln -fs $(BASELib)/libc.so libc.so.1;
 #SHARE_LIB   :=KKPayerCore.so  
@@ -57,11 +58,21 @@ KKInternal.o: KKInternal.cpp KKInternal.h  KKLock.h Includeffmpeg.h KKVideoInfo.
 	$(CXX) -c $(CFLAGS) KKInternal.cpp
 kkio.o: KKVideoInfo.h kkptl/kkio.cpp
 	$(CXX) -c $(CFLAGS)  kkptl/kkio.cpp
+#libtrmp
+log.o: ../librtmp/log.h ../librtmp/log.c
+	$(CC) -c $(CFLAGS) ../librtmp/log.c
+amf.o: ../librtmp/rtmp_sys.h ../librtmp/log.h  ../librtmp/bytes.h ../librtmp/amf.h ../librtmp/amf.c
+	$(CC) -c $(CFLAGS) ../librtmp/amf.c
+parseurl.o: ../librtmp/rtmp_sys.h ../librtmp/log.h ../librtmp/parseurl.c
+	$(CC) -c $(CFLAGS) ../librtmp/parseurl.c
+hashswf.o: ../librtmp/rtmp_sys.h ../librtmp/log.h ../librtmp/http.h ../librtmp/hashswf.c
+	$(CC) -c $(CFLAGS) ../librtmp/hashswf.c
+rtmp.o: ../librtmp/amf.h ../librtmp/rtmp.h ../librtmp/rtmp_sys.h ../librtmp/log.h ../librtmp/rtmp.c
+	$(CC) -c $(CFLAGS) ../librtmp/rtmp.c
+		
+libRtmpPlugin.o: rtmp/libRtmpPlugin.h rtmp/libRtmpPlugin.cpp
+	$(CXX) -c $(CFLAGS) rtmp/libRtmpPlugin.cpp
 
-srs_librtmp.o: srs_librtmp.h srs_librtmp.cpp
-	$(CXX) -c $(CFLAGS) srs_librtmp.cpp
-SrsRtmpPlugin.o: srs_librtmp.h rtmp/SrsRtmpPlugin.h rtmp/SrsRtmpPlugin.cpp
-	$(CXX) -c $(CFLAGS) rtmp/SrsRtmpPlugin.cpp
 FlvEncode.o: rtmp/FlvEncode.h rtmp/FlvEncode.cpp
 	$(CXX) -c $(CFLAGS) rtmp/FlvEncode.cpp
 KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoInfo.h KKInternal.h rtmp/SrsRtmpPlugin.h
