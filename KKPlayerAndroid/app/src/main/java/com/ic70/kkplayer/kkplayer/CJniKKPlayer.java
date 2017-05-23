@@ -31,7 +31,6 @@ public class CJniKKPlayer {
        // System.loadLibrary("avdevice-57");/**/
         System.loadLibrary("KKPlayerCore");
     }
-
     /**
      * 初始化一个KKplayer实例
      * @param RenderType 0 glview 1 surfaceview
@@ -76,6 +75,15 @@ public class CJniKKPlayer {
     //get about of movie info
     public native  String GetMediaInfo(int obj);
     public native  int  KKCloseMedia(int obj);
+
+    //KKOpenUrlOk=0,          /***播发器打开成功**/
+    //KKOpenUrlOkFailure=1,   /**播发器打开失败***/
+    //KKAVNotStream=2,
+    //KKAVReady=3,            ///缓冲已经准备就绪
+    //KKAVWait=4,             ///需要缓冲
+    //KKRealTimeOver=5,
+    //KKEOF=6,                ///文件结束了。
+
     public native  int  KKGetPlayerState (int obj);
     public native  int  KKIsReady(int obj);
     public native  int  KKGetRealtime(int obj);

@@ -171,8 +171,7 @@ unsigned char* CAndKKPlayerUI::GetBkImage(int &length)
 void CAndKKPlayerUI::OpenMediaStateNotify(char *strURL,EKKPlayerErr err)
 {
     LOGE("Open Err %d \n",m_playerState);
-	if(err==KKOpenUrlOkFailure)
-        m_playerState=-2;
+    m_playerState=(int)err;
     return;
 }
 int CAndKKPlayerUI::PreOpenUrlCallForSeg(char *InOutUrl,int *AvIsSeg,int *Interrupt)
@@ -196,14 +195,7 @@ void  CAndKKPlayerUI::ForceFlushQue()
 }
 void  CAndKKPlayerUI::GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
 {
-     if(Stata==-1){
-         m_bNeedReconnect=true;
-		  LOGE("Stata %d \n", Stata);
-     }
-	 m_playerState=-3;
-	 LOGE("AutoMediaCose %d \n", m_playerState);
-     memset(&NextInfo,0,sizeof(KKPlayerNextAVInfo));
-	 
+     memset(&NextInfo,0,sizeof(KKPlayerNextAVInfo));	 
 }
 void  CAndKKPlayerUI::AVReadOverThNotify(void *playerIns)
 {

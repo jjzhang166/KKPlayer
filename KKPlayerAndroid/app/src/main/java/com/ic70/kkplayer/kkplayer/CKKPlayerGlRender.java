@@ -96,14 +96,38 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
 
     /***
      *播放器状态
-     * @return -1 播放器关闭状态 -2，媒体打开失败。如果是实时媒体-2是流终断 。 -3，媒体播放关闭,如果是流媒体这表示需要重连
-     */
-    public int GetPlayerState()
+     * @return -1 播放器关闭状态
+     ***/
+     public enum EKKPlayerErr {
+
+        KKOpenUrlOk,       //播发器打开成功
+        KKOpenUrlOkFailure,   //播发器打开失败
+        KKAVNotStream,
+        KKAVReady,            //缓冲已经准备就绪
+        KKAVWait,             //需要缓冲
+        KKRealTimeOver,
+        KKEOF,                //文件结束了。
+    }
+    public EKKPlayerErr GetPlayerState()
     {
         if(m_nKKPlayer!=0) {
-            return m_JniKKPlayer.KKGetPlayerState(m_nKKPlayer);
+            int err =m_JniKKPlayer.KKGetPlayerState(m_nKKPlayer);
+            if(err==0)
+                return EKKPlayerErr.KKOpenUrlOk;
+            else if(err==1)
+                return EKKPlayerErr.KKOpenUrlOkFailure;
+            else if(err==2)
+                return EKKPlayerErr.KKAVNotStream;
+            else if(err==3)
+                return EKKPlayerErr.KKAVReady;
+            else if(err==4)
+                return EKKPlayerErr.KKAVWait;
+            else if(err==5)
+                return EKKPlayerErr.KKRealTimeOver;
+            else if(err==6)
+                return EKKPlayerErr.KKEOF;
         }
-        return -1;
+        return         EKKPlayerErr.KKOpenUrlOk;
     }
     public int GetReady()
     {

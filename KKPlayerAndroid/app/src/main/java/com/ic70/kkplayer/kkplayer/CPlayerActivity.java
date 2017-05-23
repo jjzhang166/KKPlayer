@@ -78,13 +78,7 @@ public class CPlayerActivity extends Activity {
             {
 
                 int llx = m_KKPlayer.GetReady();
-                if(llx==0&& m_KKPlayer.GetPlayerState() > -1&&m_OpenCouner==0)
-                {
-                   // PlayerStata=EnumPlayerStata.Opening;
-                }else if(llx== 1&&m_OpenCouner==0)
-                {
-                    //PlayerStata=EnumPlayerStata.Play;
-                }
+
                 if(true)
                 {
                     int ll=m_KKPlayer.GetRealtimeDelay() ;
@@ -94,8 +88,9 @@ public class CPlayerActivity extends Activity {
                     xxll.setText(lllxx);
                 }
              //  Log.v("xxxxx:", m_KKPlayer.GetPlayerState() + "==="+m_OpenCouner);
-                if(   m_KKPlayer.GetPlayerState()==-2 &&m_OpenCouner==0&&  PlayerStata==EnumPlayerStata.Play)
-                    { /*********文件打开失败***********/
+                /*********文件打开失败***********/
+                if(   m_KKPlayer.GetPlayerState()== CKKPlayerGlRender.EKKPlayerErr.KKOpenUrlOkFailure &&m_OpenCouner==0&&  PlayerStata==EnumPlayerStata.Play) {
+
                         PlayerStata = EnumPlayerStata.OpenFailure;
                         Button NetButton = (Button) findViewById(R.id.NetButton);
                         NetButton.setText("文件打开失败");
@@ -104,20 +99,22 @@ public class CPlayerActivity extends Activity {
                         ImageV.setVisibility(View.GONE);
                         ImageV.setAnimation(null);
                         PlayerStata=EnumPlayerStata.OpenFailure;
-                    }
+                }
 
-                if (((llx == 0 && m_KKPlayer.GetPlayerState() > -1) || m_OpenCouner >= 2)|| (PlayerStata==EnumPlayerStata.Play&& m_KKPlayer.GetRealtimeDelay()>m_MinRealtimeDelay)) {
+                if (((llx == 0 && m_KKPlayer.GetPlayerState()== CKKPlayerGlRender.EKKPlayerErr.KKAVWait) || m_OpenCouner >= 2)|| (PlayerStata==EnumPlayerStata.Play&& m_KKPlayer.GetRealtimeDelay()>m_MinRealtimeDelay))
+                {
+                    ///需要缓冲
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     if (ImageV.getVisibility() != View.VISIBLE)
                          WaitGif();
-                } else if ((llx ==1 && m_KKPlayer.GetPlayerState() > -1)&& m_OpenCouner == 0) {
+                } else if ((llx ==1 && (m_KKPlayer.GetPlayerState()==CKKPlayerGlRender.EKKPlayerErr.KKAVReady||m_KKPlayer.GetPlayerState()==CKKPlayerGlRender.EKKPlayerErr.KKOpenUrlOk))&& m_OpenCouner == 0) {
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     ImageV.setVisibility(View.GONE);
                     ImageV.setAnimation(null);
 
                     Button NetButton = (Button) findViewById(R.id.NetButton);
                     NetButton.setVisibility(View.GONE);
-                }else if (m_OpenCouner == 0&& m_KKPlayer.GetPlayerState() > -1 && m_KKPlayer.GetRealtimeDelay() < 5 && llx ==1)
+                }else if (m_OpenCouner == 0&& m_KKPlayer.GetPlayerState() !=CKKPlayerGlRender.EKKPlayerErr.KKOpenUrlOk && m_KKPlayer.GetRealtimeDelay() < 5 && llx ==1)
                 {
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
                     ImageV.setVisibility(View.GONE);
