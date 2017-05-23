@@ -126,7 +126,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="..\libx86\openssl\lib\libeay32.lib ..\libx86\openssl\lib\ssleay32.lib F:\Pro\KKRealse\zlibstat.lib Ws2_32.lib winmm.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

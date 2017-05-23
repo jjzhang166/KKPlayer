@@ -9,8 +9,9 @@
 #pragma comment (lib,"../Debug/libx86/librtmp.lib");
 #else
 #pragma comment (lib,"../Release/jsoncpp.lib")
+#pragma comment (lib,"../Release/libx86/librtmp.lib");
 #endif
-
+#pragma comment (lib,"ws2_32.lib")
 #pragma comment (lib,"winmm.lib")
 #ifndef LIBKKPLAYER
 #include "MainPage/MainDlg.h"
