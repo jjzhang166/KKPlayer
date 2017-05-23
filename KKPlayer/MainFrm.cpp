@@ -6,9 +6,12 @@
 #include "json/json.h"
 #ifdef _DEBUG
 #pragma comment (lib,"../Debug/jsoncpp.lib")
+#pragma comment (lib,"../Debug/libx86/librtmp.lib");
 #else
 #pragma comment (lib,"../Release/jsoncpp.lib")
 #endif
+
+#pragma comment (lib,"winmm.lib")
 #ifndef LIBKKPLAYER
 #include "MainPage/MainDlg.h"
 #include "Tool/cchinesecode.h"

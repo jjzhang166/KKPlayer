@@ -14,11 +14,7 @@
 
 
 
-#define KKMKTAG(a,b,c,d)                 ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
-#define KKPERRTAG(a, b, c, d)            (-(int)KKMKTAG(a, b, c, d))
-#define AVERROR_EOF                       KKPERRTAG( 'E','O','F',' ') ///< End of file
-#define AVERROR(e)                       (-(e))
-#define AVERROR_HTTP_NOT_FOUND           FFERRTAG(0xF8,'4','0','4')
+
 
 
 Qy_IPC::Qy_Ipc_Manage *G_pInstance=NULL;
@@ -361,9 +357,9 @@ LOOP1:
 	{
 
 		if(rext==0)
-			return  AVERROR(ERROR_BROKEN_PIPE);
+			return  KK_AVERROR(ERROR_BROKEN_PIPE);
 
-		return AVERROR(errno);
+		return KK_AVERROR(errno);
 	}
 	
 	IPC_DATA_INFO OutInfo;
@@ -374,7 +370,7 @@ LOOP1:
 	{
 		int ret=OutInfo.DataSize;
 		if(ret<0){
-		    return AVERROR_EOF;
+		    return KK_AVERROR_EOF;
 		}
 			
 		if(KKP->CalPlayerDelay!=NULL)
@@ -384,8 +380,7 @@ LOOP1:
 		return ret;
 	}
 	
-
-	return AVERROR_EOF;
+	return KK_AVERROR_EOF;
 }
 
 //buflen+data;
@@ -448,9 +443,9 @@ LOOP1:
 	{
 
 		if(rext==0)
-			return  AVERROR(109);
+			return  KK_AVERROR(109);
 		//KKCloseAVFile(KKP->URL);
-		return AVERROR(errno);
+		return KK_AVERROR(errno);
 	}
 
 	IPC_DATA_INFO OutInfo;
@@ -462,7 +457,7 @@ LOOP1:
 		long long ret=OutInfo.DataSize;
 		return ret;
 	}
-	return AVERROR(errno);
+	return KK_AVERROR(errno);
 }
 
 

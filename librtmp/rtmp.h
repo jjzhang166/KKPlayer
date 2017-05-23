@@ -229,6 +229,7 @@ extern "C"
     uint32_t nInitialFrameSize;
     uint32_t nIgnoredFrameCounter;
     uint32_t nIgnoredFlvFrameCounter;
+	int      pkgtype;
   } RTMP_READ;
 
   typedef struct RTMP_METHOD

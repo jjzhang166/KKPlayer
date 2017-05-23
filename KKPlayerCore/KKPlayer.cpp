@@ -11,6 +11,7 @@
 #include "KKPlayer.h"
 #include "KKInternal.h"
 #include "rtmp/SrsRtmpPlugin.h"
+#include "rtmp/libRtmpPlugin.h"
 #include "MD5/md5.h"
 #include <string>
 #define MaxTimeOutStr "50000000"
@@ -114,7 +115,7 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 		
 		registerFF=false;
         AddSrsRtmpPluginInfo();
-		
+		AddlibRtmpPluginInfo();
 	}
 	
 #ifdef Android_Plat
@@ -1225,7 +1226,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
 	
 
-	pVideoInfo->nMaxRealtimeDelay=3600;//单位s
+	pVideoInfo->nMaxRealtimeDelay=3;//3600;//单位s
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
 

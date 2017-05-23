@@ -2,6 +2,12 @@ typedef unsigned char      uint8_t;
 typedef long long          int64_t;
 #ifndef KKPlugin_H_
 #define KKPlugin_H_
+
+#define KK_MKTAG(a,b,c,d)                 ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
+#define KK_PERRTAG(a, b, c, d)            (-(int)KK_MKTAG(a, b, c, d))
+#define KK_AVERROR_EOF                       KK_PERRTAG( 'E','O','F',' ') ///< End of file
+#define KK_AVERROR(e)                       (-(e))
+#define KK_ERROR_HTTP_NOT_FOUND           FFERRTAG(0xF8,'4','0','4')
 extern "C"
 {  
 	

@@ -4827,7 +4827,7 @@ Read_1_Packet(RTMP *r, char *buf, unsigned int buflen)
 	{
 	  nTimeStamp = r->m_read.nResumeTS + packet.m_nTimeStamp;
 	  prevTagSize = 11 + nPacketLen;
-
+	  r->m_read.pkgtype=packet.m_packetType;
 	  *ptr = packet.m_packetType;
 	  ptr++;
 	  ptr = AMF_EncodeInt24(ptr, pend, nPacketLen);
