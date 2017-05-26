@@ -20,15 +20,17 @@ void Init(){
 extern "C"{
 	
 	///创建一个带窗口的播放器
-	void __declspec(dllexport) *CreateKKPlayer(HWND h,RECT Rt,DWORD style,HWND *OutHwnd)
+	void __declspec(dllexport) *CreateKKPlayer(HWND h,RECT Rt,DWORD style,HWND *OutHwnd,bool yuv420)
 	{
 			Init();
 			RECT rt={0,100,200,300};
 			//WS_CHILDWINDOW| WS_CLIPCHILDREN 
-			CMainFrame *m_pVideoWnd = new CMainFrame(true);
+			CMainFrame *m_pVideoWnd = new CMainFrame(yuv420,true);
+			
 			if(m_pVideoWnd->CreateEx(h,Rt, style) == NULL){
 					return 0;
 			}
+			
 			*OutHwnd=m_pVideoWnd->m_hWnd;
 			return m_pVideoWnd;
 	}
@@ -79,7 +81,9 @@ extern "C"{
    {
         CMainFrame *Player = static_cast<CMainFrame *>(player);
 		if(Player!=NULL){
-			
+			if(::IsWindow(Player->m_hWnd))
+			::SendMessage(Player->m_hWnd,WM_CLOSE,0,0);
+			// delete Player;
 		}
    }
 }

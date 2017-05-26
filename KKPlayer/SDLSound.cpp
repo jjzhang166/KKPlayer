@@ -9,13 +9,10 @@
    #pragma comment (lib,"../Release/SDL.lib")
 #endif
 long CSDLSound::m_Vol=100;
-CSDLSound::CSDLSound()
+CSDLSound::CSDLSound():m_pSdlAudio(0)
 {
     m_UserData=NULL;
 	m_pFun=NULL;
-	
-
-//	SDL_SetVideoMode
 }
 CSDLSound::~CSDLSound()
 {
@@ -35,7 +32,7 @@ void CSDLSound::SetUserData(void* UserData){
 
 	m_lock.Lock();
 	m_UserData=UserData;
-m_lock. Unlock();
+    m_lock. Unlock();
 }
 	 /********设置音频回到函数*********/
 void CSDLSound::SetAudioCallBack(pfun fun)
@@ -49,8 +46,7 @@ void CSDLSound::SetAudioCallBack(pfun fun)
 void sdl_audio_callback(void *userdata, Uint8 *stream, int len)
 {
 	 CSDLSound* m_pFun=(CSDLSound* )userdata;
-	
-	m_pFun->KKSDLCall( stream,len);
+	 m_pFun->KKSDLCall( stream,len);
 }
 
 void  CSDLSound::KKSDLCall(Uint8 *stream, int len)
@@ -72,8 +68,8 @@ int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, 
 {
 
 	
-	
-	SDL_CloseAudio();
+	if(m_pSdlAudio)
+	SDL_CloseAudio(m_pSdlAudio);
 	/*int wanted_sample_rate=32000;
 	int wanted_nb_channels =2;
 	int wanted_channel_layout =0;*/
@@ -113,7 +109,7 @@ int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, 
 	wanted_spec.callback =sdl_audio_callback;
 	wanted_spec.userdata = this;
 	
-	while (SDL_OpenAudio(&wanted_spec, &spec) < 0) {
+	while ( (m_pSdlAudio=SDL_OpenAudio(&wanted_spec, &spec)) ==NULL) {
 	
 		wanted_spec.channels = next_nb_channels[FFMIN(7, wanted_spec.channels)];
 		if (!wanted_spec.channels) {
@@ -130,31 +126,33 @@ int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, 
 	{
 		return -1;
 	}	
-	SDL_PauseAudio(0);
+	SDL_PauseAudio(m_pSdlAudio,0);
 	return 0;
 }
  /*******读取音频数据********/
  void CSDLSound::ReadAudio()
  {
-	 Sleep(50);
+	 Sleep(520);
  }
- void CSDLSound::Start(){
-	 SDL_PauseAudio(0);
-	
+ void CSDLSound::Start()
+ {
+	 SDL_PauseAudio(m_pSdlAudio,0);
  } 
- void CSDLSound::Stop(){
-	 SDL_PauseAudio(1);
+ void CSDLSound::Stop()
+ {
+	 SDL_PauseAudio(m_pSdlAudio,1);
  }   
  /*********关闭**********/
  void CSDLSound::CloseAudio()
  {
-     SDL_CloseAudio();
+     SDL_CloseAudio(m_pSdlAudio);
  }	
  /*********设置音量************/
  void CSDLSound::SetVolume(long value)
  {
         m_Vol=value;
  }
- long CSDLSound::GetVolume(){
+ long CSDLSound::GetVolume()
+ {
 	 return m_Vol;
  }

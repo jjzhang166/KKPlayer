@@ -54,7 +54,7 @@ std::basic_string<char> GetModulePathA()
 
 std::basic_string<TCHAR> GetModulePath();
 
-CMainFrame::CMainFrame(bool NeedDel):
+CMainFrame::CMainFrame(bool yuv420p,bool NeedDel):
 m_pBkImage(NULL),m_pCenterLogoImage(NULL),
 m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_bFullScreen(false)
@@ -67,6 +67,7 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_nMilTimePos(0)
 ,m_nTipTick(0)
 ,m_nSeekTip(0)
+,m_bYuv420p(yuv420p)
 {
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
@@ -549,6 +550,10 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	::SetTimer(this->m_hWnd,10010,50,NULL);
 
 	char Out=1;
+	if(!m_bYuv420p){
+	    m_pPlayerInstance->SetBGRA();
+		 Out=0;
+	}
 	m_pRender=(IkkRender*) pfnCreateRender(m_hWnd,&Out);
 	if(Out==0)
 	{
@@ -750,6 +755,7 @@ LRESULT           CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LP
 	int xPos = GET_X_LPARAM(lParam); 
 	int yPos = GET_Y_LPARAM(lParam);
 	
+	::PostMessage(m_hWnd ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
 #ifndef LIBKKPLAYER
 	::PostMessage(::GetParent(m_hWnd) ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
 

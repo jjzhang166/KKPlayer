@@ -118,45 +118,50 @@ void CRenderGDI::createBitmap(unsigned int w, unsigned int h)
 }
 
 
-void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h)
+void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int picw,int pich)
 {
-	if(buf!=NULL&&w>0&&h>0)
+	if(buf!=NULL&&picw>0&&pich>0)
 	{
 		int offx=0;
 		int offy=0;
-		if(m_width>m_Picwidth)
+
+
+        SkRect destRt;
+		destRt.fLeft=0;
+		destRt.fTop=0;
+		destRt.fRight =m_width;
+		destRt.fBottom=m_height;
+        int  dh=m_height;
+		int  dw=m_width;
+		int  h=dh,w=dw;
+		//if(dw>width)
 		{
-			offx=(m_width-m_Picwidth)/2;
+            dh=dw*pich/picw;
 		}
-		if(m_height>m_Picheight)
+		if(dh>h)
 		{
-			offy=(m_height-m_Picheight)/2;
+			dh=h;
+			dw=picw*dh/pich;
 		}
-		int totalLen=w*h*4;
+        if(dw<w)
+		{
+			destRt.fLeft=(w-dw)/2;
+			destRt.fRight=destRt.fLeft+dw;
+		}
+		if(dh<h)
+		{
+			destRt.fTop=(h-dh)/2;
+			destRt.fBottom=destRt.fTop+dh;
+		}
+
 		SkBitmap AVSkbit;
 
-		AVSkbit.setInfo(SkImageInfo::Make(w,h,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
+		AVSkbit.setInfo(SkImageInfo::Make(picw,pich,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
 		AVSkbit.setPixels(buf);
 		AVSkbit.notifyPixelsChanged();
 
 
-		SkRect destRt;
-		destRt.fLeft=offx;
-		destRt.fTop=offy;
-		destRt.fRight=m_width;
-		destRt.fBottom=m_height;
 
-		if(m_width>m_Picwidth)
-		{
-			destRt.fRight=offx+w;
-
-		}
-		if(m_height>m_Picheight)
-		{
-			destRt.fBottom=offy+h;
-		}
-
-	
 		canvas.drawBitmapRect(AVSkbit,destRt,&m_Paint);
 	}
 }

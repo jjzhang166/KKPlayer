@@ -32,7 +32,7 @@ extern "C"{
 		 }
 		
 		 IkkRender *m_pRender = NULL;
-		 if(Oput==0){
+		 if(*Oput==0){
 		            m_pRender =new CRenderGDI();
 					m_pRender->init(h);
 					*Oput=0;

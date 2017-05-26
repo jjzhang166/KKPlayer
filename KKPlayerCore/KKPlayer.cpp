@@ -24,11 +24,11 @@ static int64_t sws_flags = SWS_BICUBIC;
 static int av_sync_type =AV_SYNC_AUDIO_MASTER;//AV_SYNC_EXTERNAL_CLOCK;//AV_SYNC_AUDIO_MASTER;//AV_SYNC_VIDEO_MASTER;// AV_SYNC_AUDIO_MASTER;
 double rdftspeed = 0.02;
 
-extern AVPixelFormat DstAVff;//=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA;
+//extern AVPixelFormat DstAVff;//=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA;
 //解码成BGRA格式
 void KKPlayer::SetBGRA()
 {
-	DstAVff=AV_PIX_FMT_BGRA;
+	m_DstAVff=AV_PIX_FMT_BGRA;
 }
 bool KKPlayer::GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale)
 {
@@ -46,7 +46,7 @@ bool KKPlayer::GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale)
 				{
 				   h= vp->height*w/vp->width;
 				}
-				AVPixelFormat srcFF=DstAVff;
+				AVPixelFormat srcFF=pVideoInfo->DstAVff;
 				SwsContext * imgctx = NULL;
 				imgctx = sws_getCachedContext( imgctx ,
 				   vp->width,  vp->height ,srcFF ,
@@ -97,6 +97,7 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 ,pVideoInfo(0)
 ,m_bOpen(false)
 ,m_nhasVideoAudio(0)
+,m_DstAVff(AV_PIX_FMT_YUV420P)
 {
 	
 	static bool registerFF=true;
@@ -818,7 +819,7 @@ void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 
                 if(s->img_convert_ctx ==NULL)
 				s->img_convert_ctx = sws_getCachedContext(s->img_convert_ctx,width, height ,AV_PIX_FMT_BGRA,
-					            width, height,               DstAVff,                
+					            width, height,               s->DstAVff,                
 			                    SWS_FAST_BILINEAR,
 			                    NULL, NULL, NULL);
 				 if (s->img_convert_ctx == NULL) 
@@ -832,9 +833,9 @@ void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 				 avpicture_fill((AVPicture *)&InBmp,(uint8_t *) m_pAudioPicBuf,AV_PIX_FMT_BGRA, width,height);
 
 				 AVPicture  OutBmp; 
-				 int numBytes=avpicture_get_size(DstAVff,width,height); //pFrame->width,pFrame->height
+				 int numBytes=avpicture_get_size(s->DstAVff,width,height); //pFrame->width,pFrame->height
 		         static   uint8_t * OutBmpbuffer=(uint8_t *)KK_Malloc_(numBytes)+100;
-                 avpicture_fill((AVPicture *)&OutBmp, OutBmpbuffer,DstAVff, width,height);
+                 avpicture_fill((AVPicture *)&OutBmp, OutBmpbuffer,s->DstAVff, width,height);
 
 			      sws_scale(s->img_convert_ctx, InBmp.data, InBmp.linesize,0,height,
 					 OutBmp.data,OutBmp.linesize);
@@ -1227,6 +1228,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo->nMaxRealtimeDelay=3600;//单位s
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
+    pVideoInfo->DstAVff=m_DstAVff;
 
     m_PktSerial=0;
 	m_nSeekTime=0;
@@ -1918,7 +1920,6 @@ void KKPlayer::ReadAV()
 	AVPacket pkt1, *pkt = &pkt1;
 	int64_t stream_start_time;
 	int pkt_in_play_range = 0;
-	AVDictionaryEntry *t;
 
 	int64_t pkt_ts;
     int64_t duration= AV_NOPTS_VALUE;
@@ -2107,7 +2108,6 @@ void KKPlayer::ReadAV()
 		}
 
 		
-ReRead:
 		bool forceOver=false;
 
 		  ///seek.
@@ -2371,7 +2371,7 @@ void KKPlayer::Pause()
 int KKPlayer::KKSeek( SeekEnum en,int value)
 {
 	if(pVideoInfo!=NULL&&m_nPreFile==3&&!pVideoInfo->realtime){
-	   double incr, pos, frac;
+	   double incr, pos;
 	   incr=value;
 	   pos = get_master_clock(pVideoInfo);
 	   if (isNAN(pos))

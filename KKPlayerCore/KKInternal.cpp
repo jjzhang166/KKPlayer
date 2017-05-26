@@ -35,7 +35,7 @@ void  KK_Free_(void *ptr)
 	  void KKFreeQsv(AVCodecContext *avct);
 #endif
 	  
-AVPixelFormat DstAVff=AV_PIX_FMT_YUV420P;
+
 	 // AVPixelFormat DstAVff=AV_PIX_FMT_BGRA;
  //<tgmath.h> 
 /***********KKPlaye 内部实现*************/
@@ -54,9 +54,6 @@ inline long rint(double x)
 }
 #endif
 
-
-
-int quit = 0;
 
 int GetW(AVCodecContext  *pCodecCtx);
 int GetH(AVCodecContext  *pCodecCtx);
@@ -1312,23 +1309,23 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			 vp->height=   is->last_height;//FFALIGN(pFrame->height, 2);
 			 vp->pitch =   is->last_width;
 			 
-		     int numBytes=avpicture_get_size(DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
+		     int numBytes=avpicture_get_size(is->DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
 		     vp->buflen=numBytes*sizeof(uint8_t)+100;
 		     av_free(vp->buffer);
 		     vp->buffer=(uint8_t *)KK_Malloc_(vp->buflen);
-		     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,DstAVff, vp->width,vp->height);
+		     avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,is->DstAVff, vp->width,vp->height);
 		}
         
 		//
          PixelFormat xx=(PixelFormat)(pOutAV->format);
 		
 		 int  OpenTime= av_gettime ()/1000;
-		 if(0&&pOutAV->format==AV_PIX_FMT_NV12&&DstAVff==AV_PIX_FMT_YUV420P){
+		 if(0&&pOutAV->format==AV_PIX_FMT_NV12&&is->DstAVff==AV_PIX_FMT_YUV420P){
                QsvNv12toFrameI420(pOutAV,(AVFrame *)&vp->Bmp);
 		 }else{
 		     is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			 pOutAV->width,  pOutAV->height ,xx ,
-			 pOutAV->width,       pOutAV->height,               DstAVff,                
+			 pOutAV->width,       pOutAV->height,               is->DstAVff,                
 			 SWS_FAST_BILINEAR,
 			 NULL, NULL, NULL);
 			 if (is->img_convert_ctx == NULL) 

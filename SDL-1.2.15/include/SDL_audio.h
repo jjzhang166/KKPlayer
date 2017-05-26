@@ -147,8 +147,8 @@ typedef struct SDL_AudioCVT {
  * You should normally use SDL_Init() or SDL_InitSubSystem().
  */
 /*@{*/
-extern DECLSPEC int SDLCALL SDL_AudioInit(const char *driver_name);
-extern DECLSPEC void SDLCALL SDL_AudioQuit(void);
+extern DECLSPEC void* SDLCALL SDL_AudioInit(const char *driver_name);
+extern DECLSPEC void SDLCALL SDL_AudioQuit(void* audio);
 /*@}*/
 
 /**
@@ -156,7 +156,7 @@ extern DECLSPEC void SDLCALL SDL_AudioQuit(void);
  * current audio driver, and returns a pointer to it if the audio driver has
  * been initialized.  It returns NULL if no driver has been initialized.
  */
-extern DECLSPEC char * SDLCALL SDL_AudioDriverName(char *namebuf, int maxlen);
+extern DECLSPEC char * SDLCALL SDL_AudioDriverName(void* audio2, char *namebuf, int maxlen);
 
 /**
  * This function opens the audio device with the desired parameters, and
@@ -175,7 +175,7 @@ extern DECLSPEC char * SDLCALL SDL_AudioDriverName(char *namebuf, int maxlen);
  *
  * @sa SDL_AudioSpec
  */
-extern DECLSPEC int SDLCALL SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained);
+extern DECLSPEC void* SDLCALL SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained);
 
 typedef enum {
 	SDL_AUDIO_STOPPED = 0,
@@ -184,7 +184,7 @@ typedef enum {
 } SDL_audiostatus;
 
 /** Get the current audio state */
-extern DECLSPEC SDL_audiostatus SDLCALL SDL_GetAudioStatus(void);
+extern DECLSPEC SDL_audiostatus SDLCALL SDL_GetAudioStatus(void* audio2);
 
 /**
  * This function pauses and unpauses the audio callback processing.
@@ -193,7 +193,7 @@ extern DECLSPEC SDL_audiostatus SDLCALL SDL_GetAudioStatus(void);
  * data for your callback function after opening the audio device.
  * Silence will be written to the audio device during the pause.
  */
-extern DECLSPEC void SDLCALL SDL_PauseAudio(int pause_on);
+extern DECLSPEC void SDLCALL SDL_PauseAudio(void* audio,int pause_on);
 
 /**
  * This function loads a WAVE from the data source, automatically freeing
@@ -255,7 +255,7 @@ extern DECLSPEC int SDLCALL SDL_ConvertAudio(SDL_AudioCVT *cvt);
  * for full audio volume.  Note this does not change hardware volume.
  * This is provided for convenience -- you can mix your own audio data.
  */
-extern DECLSPEC void SDLCALL SDL_MixAudio(Uint8 *dst, const Uint8 *src, Uint32 len, int volume);
+extern DECLSPEC void SDLCALL SDL_MixAudio(void* laudio,Uint8 *dst, const Uint8 *src, Uint32 len, int volume);
 
 /**
  * @name Audio Locks
@@ -265,14 +265,14 @@ extern DECLSPEC void SDLCALL SDL_MixAudio(Uint8 *dst, const Uint8 *src, Uint32 l
  * function or you will cause deadlock.
  */
 /*@{*/
-extern DECLSPEC void SDLCALL SDL_LockAudio(void);
-extern DECLSPEC void SDLCALL SDL_UnlockAudio(void);
+extern DECLSPEC void SDLCALL SDL_LockAudio(void* audio);
+extern DECLSPEC void SDLCALL SDL_UnlockAudio(void* audio);
 /*@}*/
 
 /**
  * This function shuts down audio processing and closes the audio device.
  */
-extern DECLSPEC void SDLCALL SDL_CloseAudio(void);
+extern DECLSPEC void SDLCALL SDL_CloseAudio(void* audio);
 
 
 /* Ends C function definitions when using C++ */

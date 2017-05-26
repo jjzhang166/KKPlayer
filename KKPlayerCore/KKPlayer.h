@@ -194,17 +194,18 @@ private:
 			//0x0100    字幕， 
 			int                             m_nhasVideoAudio;
 			//视频读取线程
-			SKK_ThreadInfo m_ReadThreadInfo;
+			SKK_ThreadInfo                  m_ReadThreadInfo;
 			//视频刷新线程
-			SKK_ThreadInfo m_VideoRefreshthreadInfo;
+			SKK_ThreadInfo                  m_VideoRefreshthreadInfo;
             //音频数据回调线程
-			SKK_ThreadInfo m_AudioCallthreadInfo;
-			int64_t m_lstPts;
+			SKK_ThreadInfo                  m_AudioCallthreadInfo;
+			int64_t                         m_lstPts;
 			
-            //用于渲染音频波形
-			void *m_pAudioPicBuf;
-			int   m_AudioPicBufLen;
-			
+            //用于渲染音频波形的缓存
+			void*                           m_pAudioPicBuf;
+			int                             m_AudioPicBufLen;
+			//解码后图形的格式
+			AVPixelFormat                   m_DstAVff;
 			
 #ifdef Android_Plat
 			void *  m_pVideoRefreshJNIEnv;

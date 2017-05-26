@@ -102,85 +102,20 @@ typedef struct AudioBootStrap {
 	SDL_AudioDevice *(*create)(int devindex);
 } AudioBootStrap;
 
-#if SDL_AUDIO_DRIVER_BSD
-extern AudioBootStrap BSD_AUDIO_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_PULSE
-extern AudioBootStrap PULSE_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_ALSA
-extern AudioBootStrap ALSA_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_OSS
-extern AudioBootStrap DSP_bootstrap;
-extern AudioBootStrap DMA_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_QNXNTO
-extern AudioBootStrap QNXNTOAUDIO_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_SUNAUDIO
-extern AudioBootStrap SUNAUDIO_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_DMEDIA
-extern AudioBootStrap DMEDIA_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_ARTS
-extern AudioBootStrap ARTS_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_ESD
-extern AudioBootStrap ESD_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_NAS
-extern AudioBootStrap NAS_bootstrap;
-#endif
+
 #if SDL_AUDIO_DRIVER_DSOUND
 extern AudioBootStrap DSOUND_bootstrap;
 #endif
 #if SDL_AUDIO_DRIVER_WAVEOUT
 extern AudioBootStrap WAVEOUT_bootstrap;
 #endif
-#if SDL_AUDIO_DRIVER_PAUD
-extern AudioBootStrap Paud_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_BAUDIO
-extern AudioBootStrap BAUDIO_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_COREAUDIO
-extern AudioBootStrap COREAUDIO_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_SNDMGR
-extern AudioBootStrap SNDMGR_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_MINT
-extern AudioBootStrap MINTAUDIO_GSXB_bootstrap;
-extern AudioBootStrap MINTAUDIO_MCSN_bootstrap;
-extern AudioBootStrap MINTAUDIO_STFA_bootstrap;
-extern AudioBootStrap MINTAUDIO_XBIOS_bootstrap;
-extern AudioBootStrap MINTAUDIO_DMA8_bootstrap;
-#endif
+
 #if SDL_AUDIO_DRIVER_DISK
 extern AudioBootStrap DISKAUD_bootstrap;
 #endif
 #if SDL_AUDIO_DRIVER_DUMMY
 extern AudioBootStrap DUMMYAUD_bootstrap;
 #endif
-#if SDL_AUDIO_DRIVER_DC
-extern AudioBootStrap DCAUD_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_NDS
-extern AudioBootStrap NDSAUD_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_MMEAUDIO
-extern AudioBootStrap MMEAUDIO_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_DART
-extern AudioBootStrap DART_bootstrap;
-#endif
-#if SDL_AUDIO_DRIVER_EPOCAUDIO
-extern AudioBootStrap EPOCAudio_bootstrap; 
-#endif
 
-/* This is the current audio device */
-extern SDL_AudioDevice *current_audio;
 
 #endif /* _SDL_sysaudio_h */

@@ -28,69 +28,14 @@
 #include "SDL_audiomem.h"
 #include "SDL_sysaudio.h"
 
-#ifdef __OS2__
-/* We'll need the DosSetPriority() API! */
-#define INCL_DOSPROCESS
-#include <os2.h>
-#endif
 
 /* Available audio drivers */
 static AudioBootStrap *bootstrap[] = {
-#if SDL_AUDIO_DRIVER_PULSE
-	&PULSE_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_ALSA
-	&ALSA_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_BSD
-	&BSD_AUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_OSS
-	&DSP_bootstrap,
-	&DMA_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_QNXNTO
-	&QNXNTOAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_SUNAUDIO
-	&SUNAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_DMEDIA
-	&DMEDIA_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_ARTS
-	&ARTS_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_ESD
-	&ESD_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_NAS
-	&NAS_bootstrap,
-#endif
 #if SDL_AUDIO_DRIVER_DSOUND
 	&DSOUND_bootstrap,
 #endif
 #if SDL_AUDIO_DRIVER_WAVEOUT
 	&WAVEOUT_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_PAUD
-	&Paud_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_BAUDIO
-	&BAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_COREAUDIO
-	&COREAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_SNDMGR
-	&SNDMGR_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_MINT
-	&MINTAUDIO_GSXB_bootstrap,
-	&MINTAUDIO_MCSN_bootstrap,
-	&MINTAUDIO_STFA_bootstrap,
-	&MINTAUDIO_XBIOS_bootstrap,
-	&MINTAUDIO_DMA8_bootstrap,
 #endif
 #if SDL_AUDIO_DRIVER_DISK
 	&DISKAUD_bootstrap,
@@ -98,28 +43,14 @@ static AudioBootStrap *bootstrap[] = {
 #if SDL_AUDIO_DRIVER_DUMMY
 	&DUMMYAUD_bootstrap,
 #endif
-#if SDL_AUDIO_DRIVER_DC
-	&DCAUD_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_NDS
-	&NDSAUD_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_MMEAUDIO
-	&MMEAUDIO_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_DART
-	&DART_bootstrap,
-#endif
-#if SDL_AUDIO_DRIVER_EPOCAUDIO
-	&EPOCAudio_bootstrap,
-#endif
 	NULL
 };
-SDL_AudioDevice *current_audio = NULL;
+
 
 /* Various local functions */
-int SDL_AudioInit(const char *driver_name);
-void SDL_AudioQuit(void);
+void* SDL_AudioInit(const char *driver_name);
+
+void SDL_AudioQuit(void *audio);
 
 /* The general mixing thread function */
 int SDLCALL SDL_RunAudio(void *audiop)
@@ -153,26 +84,7 @@ int SDLCALL SDL_RunAudio(void *audiop)
 		stream_len = audio->spec.size;
 	}
 
-#ifdef __OS2__
-        /* Increase the priority of this thread to make sure that
-           the audio will be continuous all the time! */
-#ifdef USE_DOSSETPRIORITY
-        if (SDL_getenv("SDL_USE_TIMECRITICAL_AUDIO"))
-        {
-#ifdef DEBUG_BUILD
-          printf("[SDL_RunAudio] : Setting priority to TimeCritical+0! (TID%d)\n", SDL_ThreadID());
-#endif
-          DosSetPriority(PRTYS_THREAD, PRTYC_TIMECRITICAL, 0, 0);
-        }
-        else
-        {
-#ifdef DEBUG_BUILD
-          printf("[SDL_RunAudio] : Setting priority to ForegroundServer+0! (TID%d)\n", SDL_ThreadID());
-#endif
-          DosSetPriority(PRTYS_THREAD, PRTYC_FOREGROUNDSERVER, 0, 0);
-        }
-#endif
-#endif
+
 
 	/* Loop, filling the audio buffers */
 	while ( audio->enabled ) {
@@ -228,11 +140,6 @@ int SDLCALL SDL_RunAudio(void *audiop)
 		audio->WaitDone(audio);
 	}
 
-#ifdef __OS2__
-#ifdef DEBUG_BUILD
-        printf("[SDL_RunAudio] : Task exiting. (TID%d)\n", SDL_ThreadID());
-#endif
-#endif
 	return(0);
 }
 
@@ -284,9 +191,6 @@ static Uint16 SDL_ParseAudioFormat(const char *string)
 			format |= 0x0000;
 		}
 		if ( SDL_strcmp(string, "MSB") == 0
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		     || SDL_strcmp(string, "SYS") == 0
-#endif
 		    ) {
 			format |= 0x1000;
 		}
@@ -297,56 +201,12 @@ static Uint16 SDL_ParseAudioFormat(const char *string)
 	return format;
 }
 
-int SDL_AudioInit(const char *driver_name)
+void* SDL_AudioInit(const char *driver_name)
 {
-	SDL_AudioDevice *audio;
-	int i = 0, idx;
-
-	/* Check to make sure we don't overwrite 'current_audio' */
-	if ( current_audio != NULL ) {
-		SDL_AudioQuit();
-	}
-
-	/* Select the proper audio driver */
-	audio = NULL;
-	idx = 0;
-#if SDL_AUDIO_DRIVER_ESD
-	if ( (driver_name == NULL) && (SDL_getenv("ESPEAKER") != NULL) ) {
-		/* Ahem, we know that if ESPEAKER is set, user probably wants
-		   to use ESD, but don't start it if it's not already running.
-		   This probably isn't the place to do this, but... Shh! :)
-		 */
-		for ( i=0; bootstrap[i]; ++i ) {
-			if ( SDL_strcasecmp(bootstrap[i]->name, "esd") == 0 ) {
-#ifdef HAVE_PUTENV
-				const char *esd_no_spawn;
-
-				/* Don't start ESD if it's not running */
-				esd_no_spawn = getenv("ESD_NO_SPAWN");
-				if ( esd_no_spawn == NULL ) {
-					putenv("ESD_NO_SPAWN=1");
-				}
-#endif
-				if ( bootstrap[i]->available() ) {
-					audio = bootstrap[i]->create(0);
-					break;
-				}
-#ifdef HAVE_UNSETENV
-				if ( esd_no_spawn == NULL ) {
-					unsetenv("ESD_NO_SPAWN");
-				}
-#endif
-			}
-		}
-	}
-#endif /* SDL_AUDIO_DRIVER_ESD */
+	SDL_AudioDevice *audio = NULL;
+	int i = 0, idx=0;
 	if ( audio == NULL ) {
 		if ( driver_name != NULL ) {
-#if 0	/* This will be replaced with a better driver selection API */
-			if ( SDL_strrchr(driver_name, ':') != NULL ) {
-				idx = atoi(SDL_strrchr(driver_name, ':')+1);
-			}
-#endif
 			for ( i=0; bootstrap[i]; ++i ) {
 				if (SDL_strcasecmp(bootstrap[i]->name, driver_name) == 0) {
 					if ( bootstrap[i]->available() ) {
@@ -367,52 +227,40 @@ int SDL_AudioInit(const char *driver_name)
 		}
 		if ( audio == NULL ) {
 			SDL_SetError("No available audio device");
-#if 0 /* Don't fail SDL_Init() if audio isn't available.
-         SDL_OpenAudio() will handle it at that point.  *sigh*
-       */
-			return(-1);
-#endif
 		}
 	}
-	current_audio = audio;
-	if ( current_audio ) {
-		current_audio->name = bootstrap[i]->name;
-		if ( !current_audio->LockAudio && !current_audio->UnlockAudio ) {
-			current_audio->LockAudio = SDL_LockAudio_Default;
-			current_audio->UnlockAudio = SDL_UnlockAudio_Default;
+	if (audio) 
+	{
+		audio->name = bootstrap[i]->name;
+		if ( !audio->LockAudio && !audio->UnlockAudio ) {
+			audio->LockAudio = SDL_LockAudio_Default;
+			audio->UnlockAudio = SDL_UnlockAudio_Default;
 		}
 	}
-	return(0);
+	return audio;
 }
 
-char *SDL_AudioDriverName(char *namebuf, int maxlen)
+char *SDL_AudioDriverName(void* audio2, char *namebuf, int maxlen)
 {
-	if ( current_audio != NULL ) {
-		SDL_strlcpy(namebuf, current_audio->name, maxlen);
-		return(namebuf);
-	}
-	return(NULL);
+
+	SDL_AudioDevice *audio=audio2;
+	if (audio == NULL )
+		return  NULL;
+	
+	SDL_strlcpy(namebuf, audio->name, maxlen);
+    return   namebuf;	
 }
 
-int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
+void *SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
 	SDL_AudioDevice *audio;
 	const char *env;
 
-	/* Start up the audio driver, if necessary */
-	if ( ! current_audio ) {
-		if ( (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) ||
-		     (current_audio == NULL) ) {
-			return(-1);
-		}
-	}
-	audio = current_audio;
+	audio = SDL_AudioInit(SDL_getenv("SDL_AUDIODRIVER"));
+    if(audio==NULL)
+		return audio;
 
-	if (audio->opened) {
-		SDL_SetError("Audio device is already opened");
-		return(-1);
-	}
-
+	
 	/* Verify some parameters */
 	if ( desired->freq == 0 ) {
 		env = SDL_getenv("SDL_AUDIO_FREQUENCY");
@@ -452,7 +300,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 		break;
 	    default:
 		SDL_SetError("1 (mono) and 2 (stereo) channels supported");
-		return(-1);
+		return NULL;
 	}
 	if ( desired->samples == 0 ) {
 		env = SDL_getenv("SDL_AUDIO_SAMPLES");
@@ -471,20 +319,17 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 	}
 	if ( desired->callback == NULL ) {
 		SDL_SetError("SDL_OpenAudio() passed a NULL callback");
-		return(-1);
+		return NULL;
 	}
 
-#if SDL_THREADS_DISABLED
-	/* Uses interrupt driven audio, without thread */
-#else
-	/* Create a semaphore for locking the sound buffers */
+
 	audio->mixer_lock = SDL_CreateMutex();
 	if ( audio->mixer_lock == NULL ) {
 		SDL_SetError("Couldn't create mixer lock");
-		SDL_CloseAudio();
-		return(-1);
+		SDL_CloseAudio(audio);
+		return NULL;
 	}
-#endif /* SDL_THREADS_DISABLED */
+
 
 	/* Calculate the silence and size of the audio specification */
 	SDL_CalculateAudioSpec(desired);
@@ -498,8 +343,8 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 	audio->opened = audio->OpenAudio(audio, &audio->spec)+1;
 
 	if ( ! audio->opened ) {
-		SDL_CloseAudio();
-		return(-1);
+		SDL_CloseAudio(audio);
+		return NULL;
 	}
 
 	/* If the audio driver changes the buffer size, accept it */
@@ -511,9 +356,9 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 	/* Allocate a fake audio memory buffer */
 	audio->fake_stream = SDL_AllocAudioMem(audio->spec.size);
 	if ( audio->fake_stream == NULL ) {
-		SDL_CloseAudio();
+		SDL_CloseAudio(audio);
 		SDL_OutOfMemory();
-		return(-1);
+		return NULL;
 	}
 
 	/* See if we need to do any conversion */
@@ -528,8 +373,8 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 					desired->freq,
 			audio->spec.format, audio->spec.channels,
 					audio->spec.freq) < 0 ) {
-			SDL_CloseAudio();
-			return(-1);
+			SDL_CloseAudio(audio);
+			return  NULL;
 		}
 		if ( audio->convert.needed ) {
 			audio->convert.len = (int) ( ((double) audio->spec.size) /
@@ -537,9 +382,9 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 			audio->convert.buf =(Uint8 *)SDL_AllocAudioMem(
 			   audio->convert.len*audio->convert.len_mult);
 			if ( audio->convert.buf == NULL ) {
-				SDL_CloseAudio();
+				SDL_CloseAudio(audio);
 				SDL_OutOfMemory();
-				return(-1);
+				return  NULL;
 			}
 		}
 	}
@@ -548,16 +393,11 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 	switch (audio->opened) {
 		case  1:
 			/* Start the audio thread */
-#if (defined(__WIN32__) && !defined(_WIN32_WCE)) && !defined(HAVE_LIBC) && !defined(__SYMBIAN32__)
-#undef SDL_CreateThread
-			audio->thread = SDL_CreateThread(SDL_RunAudio, audio, NULL, NULL);
-#else
 			audio->thread = SDL_CreateThread(SDL_RunAudio, audio);
-#endif
 			if ( audio->thread == NULL ) {
-				SDL_CloseAudio();
+				SDL_CloseAudio(audio);
 				SDL_SetError("Couldn't create audio thread");
-				return(-1);
+				return  NULL;
 			}
 			break;
 
@@ -566,14 +406,13 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 			break;
 	}
 
-	return(0);
+	return audio;
 }
 
-SDL_audiostatus SDL_GetAudioStatus(void)
+SDL_audiostatus SDL_GetAudioStatus(void* audio2)
 {
-	SDL_AudioDevice *audio = current_audio;
+SDL_AudioDevice *audio=audio2;
 	SDL_audiostatus status;
-
 	status = SDL_AUDIO_STOPPED;
 	if ( audio && audio->enabled ) {
 		if ( audio->paused ) {
@@ -585,44 +424,41 @@ SDL_audiostatus SDL_GetAudioStatus(void)
 	return(status);
 }
 
-void SDL_PauseAudio (int pause_on)
+void SDL_PauseAudio (void *audio2,int pause_on)
 {
-	SDL_AudioDevice *audio = current_audio;
-
+	SDL_AudioDevice *audio=audio2;
 	if ( audio ) {
 		audio->paused = pause_on;
 	}
 }
 
-void SDL_LockAudio (void)
+void SDL_LockAudio (void *audio2 )
 {
-	SDL_AudioDevice *audio = current_audio;
 
+	SDL_AudioDevice *audio=audio2;
 	/* Obtain a lock on the mixing buffers */
 	if ( audio && audio->LockAudio ) {
 		audio->LockAudio(audio);
 	}
 }
 
-void SDL_UnlockAudio (void)
+void SDL_UnlockAudio (void* audio2)
 {
-	SDL_AudioDevice *audio = current_audio;
-
+	SDL_AudioDevice *audio=audio2;
 	/* Release lock on the mixing buffers */
 	if ( audio && audio->UnlockAudio ) {
 		audio->UnlockAudio(audio);
 	}
 }
 
-void SDL_CloseAudio (void)
+void SDL_CloseAudio (void* audio2)
 {
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+	SDL_AudioQuit(audio2);
 }
 
-void SDL_AudioQuit(void)
+void SDL_AudioQuit(void *audio2)
 {
-	SDL_AudioDevice *audio = current_audio;
-
+	SDL_AudioDevice *audio=audio2;
 	if ( audio ) {
 		audio->enabled = 0;
 		if ( audio->thread != NULL ) {
@@ -644,7 +480,6 @@ void SDL_AudioQuit(void)
 		}
 		/* Free the driver data */
 		audio->free(audio);
-		current_audio = NULL;
 	}
 }
 
@@ -694,7 +529,7 @@ void SDL_CalculateAudioSpec(SDL_AudioSpec *spec)
 	spec->size *= spec->samples;
 }
 
-void SDL_Audio_SetCaption(const char *caption)
+void SDL_Audio_SetCaption(SDL_AudioDevice *current_audio,const char *caption)
 {
 	if ((current_audio) && (current_audio->SetCaption)) {
 		current_audio->SetCaption(current_audio, caption);

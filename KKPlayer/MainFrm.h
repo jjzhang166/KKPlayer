@@ -62,7 +62,7 @@ class CMainFrame :
 	public IKKPlayUI
 {
 public:
-	CMainFrame(bool NeedDel=false);
+	CMainFrame(bool yuv420p=true,bool NeedDel=false);
 	~CMainFrame();
 
 /********播放器相关操作*********/
@@ -152,6 +152,7 @@ private:
 	   int                   LeftNavigationBarWidth;
     
 
+	   bool                               m_bYuv420p;
 	   CKKLock                            m_FileSegLock;
 	   AVFILE_SEGS_INFO                   m_FileInfos;///文件分片信息
 	   short                              m_nCurSegId;

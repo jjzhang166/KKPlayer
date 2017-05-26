@@ -177,7 +177,8 @@ typedef struct SKK_Decoder
 //视频音频信息
 typedef struct SKK_VideoState 
 {
-
+	
+    AVPixelFormat DstAVff;                            //解码后的图像格式
 	int redisplay;
 	int decoder_reorder_pts;
 	short segid;

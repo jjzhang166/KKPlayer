@@ -90,19 +90,19 @@ static const Uint8 mix8[] =
 #define ADJUST_VOLUME(s, v)	(s = (s*v)/SDL_MIX_MAXVOLUME)
 #define ADJUST_VOLUME_U8(s, v)	(s = (((s-128)*v)/SDL_MIX_MAXVOLUME)+128)
 
-void SDL_MixAudio (Uint8 *dst, const Uint8 *src, Uint32 len, int volume)
+void SDL_MixAudio (void* laudio,Uint8 *dst, const Uint8 *src, Uint32 len, int volume)
 {
 	Uint16 format;
-
-	if ( volume == 0 ) {
+SDL_AudioDevice *audio=laudio;
+	if ( volume == 0||audio==0 ) {
 		return;
 	}
 	/* Mix the user-level audio format */
-	if ( current_audio ) {
-		if ( current_audio->convert.needed ) {
-			format = current_audio->convert.src_format;
+	if (audio ) {
+		if ( audio->convert.needed ) {
+			format = audio->convert.src_format;
 		} else {
-			format = current_audio->spec.format;
+			format = audio->spec.format;
 		}
 	} else {
   		/* HACK HACK HACK */
@@ -111,9 +111,6 @@ void SDL_MixAudio (Uint8 *dst, const Uint8 *src, Uint32 len, int volume)
 	switch (format) {
 
 		case AUDIO_U8: {
-#if defined(__GNUC__) && (defined(__m68k__) && !defined(__mcoldfire__)) && defined(SDL_ASSEMBLY_ROUTINES)
-			SDL_MixAudio_m68k_U8((char*)dst,(char*)src,(unsigned long)len,(long)volume,(char *)mix8);
-#else
 			Uint8 src_sample;
 
 			while ( len-- ) {
@@ -123,7 +120,6 @@ void SDL_MixAudio (Uint8 *dst, const Uint8 *src, Uint32 len, int volume)
 				++dst;
 				++src;
 			}
-#endif
 		}
 		break;
 
