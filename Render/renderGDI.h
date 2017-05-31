@@ -27,29 +27,31 @@ public:
 	virtual void ShowErrPic(bool show);
 	virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color);
 	virtual void SetLeftPicStr(const char *str);
+	void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 protected:
     void createBitmap(unsigned int w, unsigned int h);
     void DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h);
     void skiaSal(char *buf,int w,int h);
 private:
-
-	bool m_bShowErrPic;
-	SkPaint  m_Paint; 
-	HWND m_hView;
-	HBITMAP m_hBitmap;
-	HDC m_hDC;
-
+    
+	bool                m_bShowErrPic;
+	SkPaint             m_Paint; 
+	HWND                m_hView;
+	HBITMAP             m_hBitmap;
+	HDC                 m_hDC;
+    fpRenderImgCall     m_FpRenderImgCall;
+	void*               m_UserData;
 	//显示区域宽度
-	unsigned int m_width;
+	unsigned int        m_width;
 	//显示区域高度
-	unsigned int m_height;
+	unsigned int        m_height;
 
 	//图像区域宽度
-	unsigned int m_Picwidth;
+	unsigned int        m_Picwidth;
 	//图像区域高度
-	unsigned int m_Picheight;
+	unsigned int        m_Picheight;
 
-	char* m_BkBuffer;
+	char*               m_BkBuffer;
 	int m_BkLen;
 
 	char *m_WaitBuffer;

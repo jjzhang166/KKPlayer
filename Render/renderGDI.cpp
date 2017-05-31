@@ -31,9 +31,13 @@ bool CRenderGDI::init(HWND hView)
 	m_hView = hView;
 	m_hDC = CreateCompatibleDC(0);
 
-	RECT rect;
-	GetClientRect(hView, &rect);
-	resize(rect.right, rect.bottom);
+	if(m_hView)
+	{
+		RECT rect;
+		GetClientRect(hView, &rect);
+		resize(rect.right, rect.bottom);
+	}
+
 	return true;
 }
 
@@ -56,6 +60,11 @@ void CRenderGDI::LoadCenterLogo(unsigned char* buf,int len)
 	m_CenterLogoBuf=buf;
 	m_CenterLogoBufLen=len;
 }
+void CRenderGDI::SetRenderImgCall(fpRenderImgCall fp,void* UserData)
+{
+m_FpRenderImgCall=fp;
+m_UserData=UserData;
+}
 void CRenderGDI::render(char* buf,int width,int height,int Imgwidth,bool wait)
 {
 	if (m_pixels == NULL||m_Picwidth!= width&&m_Picheight!=height)
@@ -63,10 +72,14 @@ void CRenderGDI::render(char* buf,int width,int height,int Imgwidth,bool wait)
 
 	skiaSal(buf,width,height);
 
-	HDC hDC = GetDC(m_hView);
-	BitBlt(hDC, 0, 0, m_width, m_height, m_hDC, 0, 0, SRCCOPY);
-	ReleaseDC(m_hView, hDC);
-	::DeleteDC(hDC);
+	if(m_hView){
+			HDC hDC = GetDC(m_hView);
+			BitBlt(hDC, 0, 0, m_width, m_height, m_hDC, 0, 0, SRCCOPY);
+			ReleaseDC(m_hView, hDC);
+			::DeleteDC(hDC);
+	}else if(m_FpRenderImgCall){
+	   m_FpRenderImgCall(buf,width,height,width*height*4,m_UserData);
+	}
 }
 void CRenderGDI::renderBk(unsigned char* buf,int len)
 {

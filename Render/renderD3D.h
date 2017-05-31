@@ -38,7 +38,7 @@ public:
 	
 	void SetLeftPicStr(const char *str);
 	void FillRect(kkBitmap img,kkRect rt,unsigned int color);
-	
+	void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 private:
 	SkPaint      m_skPaint;
     std::wstring m_LeftStr;

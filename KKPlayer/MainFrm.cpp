@@ -9,7 +9,7 @@
 #pragma comment (lib,"../Debug/libx86/librtmp.lib");
 #else
 #pragma comment (lib,"../Release/jsoncpp.lib")
-#pragma comment (lib,"../Release/libx86/librtmp.lib");
+#pragma comment (lib,"../Release/libx86/librtmp.lib")
 #endif
 #pragma comment (lib,"ws2_32.lib")
 #pragma comment (lib,"winmm.lib")
@@ -68,6 +68,8 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_nTipTick(0)
 ,m_nSeekTip(0)
 ,m_bYuv420p(yuv420p)
+,m_nDuiDraw(0)
+,m_pDuiDrawCall(0)
 {
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
@@ -224,6 +226,17 @@ CMainFrame::      ~CMainFrame()
 	m_pSound->CloseAudio();
 	delete m_pSound;
 	delete m_pPlayerInstance;
+
+}
+///设置成无窗口渲染
+void CMainFrame::SetDuiDraw(HWND h,fpRenderImgCall DuiDrawCall,void *UserData)
+{
+   m_hWnd=h;
+   m_nDuiDraw=1;
+   BOOL Ok=false;
+   m_pDuiDrawCall=DuiDrawCall;
+   m_pUserData=UserData;
+   this->OnCreate(0,0,0,Ok);
 }
 int               CMainFrame::GetRealtime()
 {
@@ -544,24 +557,30 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	
 
 	m_pRender=NULL;
-	
-	this->SetFocus();
-	this->EnableWindow(true);
-	::SetTimer(this->m_hWnd,10010,50,NULL);
-
 	char Out=1;
+	HWND hh=m_hWnd;
+	if(m_nDuiDraw){
+		m_bYuv420p=false;
+		hh=0;
+	}else{
+	    this->SetFocus();
+		this->EnableWindow(true);
+		::SetTimer(this->m_hWnd,10010,50,NULL); 
+	}
+	
 	if(!m_bYuv420p){
 	    m_pPlayerInstance->SetBGRA();
 		 Out=0;
 	}
-	m_pRender=(IkkRender*) pfnCreateRender(m_hWnd,&Out);
-	if(Out==0)
-	{
+	m_pRender=(IkkRender*) pfnCreateRender(hh,&Out);
+	if(Out==0){
          m_pPlayerInstance->SetBGRA();
+         
 	}
-	m_pSound->SetWindowHAND((int)m_hWnd);
-
-
+	if(m_nDuiDraw){
+	   m_pRender->SetRenderImgCall(m_pDuiDrawCall,m_pUserData);
+	}
+	
 	 //m_AVwTimerRes=0;
 	 //m_AVtimerID=0;
 	 //TIMECAPS ts;
@@ -582,7 +601,7 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 LRESULT           CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	
-	if( m_bOpen)
+	if(m_bOpen)
 	{
 		m_bOpen=false;
         
@@ -602,6 +621,8 @@ LRESULT           CMainFrame::OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 	 
 
 	 bHandled=true;
+	 if(m_nDuiDraw)
+		 return 1;
      if(m_pPlayerInstance==NULL)
 		return 0;
 	 if(!m_bOpen)
@@ -654,10 +675,16 @@ void              CMainFrame::OnDraw(HDC& memdc,RECT& rt)
 
 LRESULT           CMainFrame::OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 { 	
+
+	int h=0,w=0;
+	if(m_nDuiDraw){
+	    w=wParam;
+        h=lParam;
+	}else{
      ::DefWindowProc(this->m_hWnd,uMsg, wParam, lParam);
-	 int h=HIWORD(lParam);
-	 int w=LOWORD(lParam);
-	
+	  h=HIWORD(lParam);
+	  w=LOWORD(lParam);
+	}
 	 if(m_pRender!=NULL)
 	 {
           m_pRender->resize(w,h);
@@ -755,7 +782,7 @@ LRESULT           CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LP
 	int xPos = GET_X_LPARAM(lParam); 
 	int yPos = GET_Y_LPARAM(lParam);
 	
-	::PostMessage(m_hWnd ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
+	//::PostMessage(m_hWnd ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
 #ifndef LIBKKPLAYER
 	::PostMessage(::GetParent(m_hWnd) ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
 

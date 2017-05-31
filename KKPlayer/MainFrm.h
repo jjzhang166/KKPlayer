@@ -57,6 +57,7 @@ typedef struct AVFILE_SEGS_INFO
 
 //errcode 参考EKKPlayerErr
 typedef void (*fpKKPlayerErrNotify)(void *UserData,int errcode);
+
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	public IKKPlayUI
@@ -64,7 +65,8 @@ class CMainFrame :
 public:
 	CMainFrame(bool yuv420p=true,bool NeedDel=false);
 	~CMainFrame();
-
+	///设置成无窗口渲染
+    void        SetDuiDraw(HWND hAudio,fpRenderImgCall  DuiDrawCall,void* UserData);
 /********播放器相关操作*********/
 public:
 	int          Pause();
@@ -90,6 +92,7 @@ public:
 	void         FullScreen();
 
 public:
+	LRESULT  OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 	BEGIN_MSG_MAP(CMainFrame)
 			MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -114,7 +117,7 @@ protected:
 		LRESULT  OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 	    LRESULT  OnPaint(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnEraseBkgnd(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
-		LRESULT  OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
+		
 		LRESULT  OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		
 		LRESULT  OnKeyDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
@@ -152,6 +155,10 @@ private:
 	   int                   LeftNavigationBarWidth;
     
 
+	   ///无窗口渲染
+	   int                                m_nDuiDraw;
+	   fpRenderImgCall                    m_pDuiDrawCall;
+	   void                               *m_pUserData;
 	   bool                               m_bYuv420p;
 	   CKKLock                            m_FileSegLock;
 	   AVFILE_SEGS_INFO                   m_FileInfos;///文件分片信息

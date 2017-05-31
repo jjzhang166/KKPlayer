@@ -20,6 +20,8 @@ typedef struct kkBitmap
    int  height;
    unsigned char format;  /// 1 BGRA 32
 }kkBitmap;
+
+typedef void (*fpRenderImgCall) (void* BufRgb,int width,int height,int BufLen,void* UserData);
 class IkkRender
 {
 public:
@@ -45,6 +47,7 @@ public:
 	virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color)=0;
 
 	virtual void SetLeftPicStr(const char *str)=0;
+	virtual void SetRenderImgCall(fpRenderImgCall fp,void* UserData)=0;
 };
 
 #endif

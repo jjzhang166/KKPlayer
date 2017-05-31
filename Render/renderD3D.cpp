@@ -994,3 +994,7 @@ void  CRenderD3D::LoadCenterLogo(unsigned char* buf,int len)
 	    }
 	}
 }
+void CRenderD3D::SetRenderImgCall(fpRenderImgCall fp,void* UserData)
+{
+
+}

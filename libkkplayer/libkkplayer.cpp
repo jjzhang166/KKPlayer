@@ -35,6 +35,15 @@ extern "C"{
 			return m_pVideoWnd;
 	}
 
+	void __declspec(dllexport) *CreateDuiKKPlayer(HWND hAudio,fpRenderImgCall fp,void *UserData)
+	{
+			Init();
+			RECT rt={0,100,200,300};
+			CMainFrame *m_pVideoWnd = new CMainFrame(false,true);
+			m_pVideoWnd->SetDuiDraw(hAudio,fp,UserData);
+			return m_pVideoWnd;
+	}
+
 	void __declspec(dllexport) *CreateKKPlayerDui()
 	{
 			Init();
@@ -51,7 +60,14 @@ extern "C"{
 		 }
    }
 
-	
+   void __declspec(dllexport) KKDuiOnSize(void* player,int w,int h)
+   {
+         CMainFrame *Player = static_cast<CMainFrame *>(player);
+		 if(Player!=NULL){
+			 BOOL hhh=false;
+			 Player->OnSize(0,w,h,hhh);
+		 }
+   }	
 
    int __declspec(dllexport) KKOpenMedia(void* player,const char* url,int Vol)
    {
