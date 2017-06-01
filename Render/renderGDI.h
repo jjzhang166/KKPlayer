@@ -8,6 +8,7 @@
 #include <core\SkTypeface.h>
 #include <core\SkImageDecoder.h>
 #include <core\SkStream.h>
+#include <string>
 class CRenderGDI : public IkkRender
 {
 public:
@@ -33,7 +34,7 @@ protected:
     void DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h);
     void skiaSal(char *buf,int w,int h);
 private:
-    
+	std::wstring        m_LeftStr;
 	bool                m_bShowErrPic;
 	SkPaint             m_Paint; 
 	HWND                m_hView;
@@ -52,16 +53,17 @@ private:
 	unsigned int        m_Picheight;
 
 	char*               m_BkBuffer;
-	int m_BkLen;
+	int                 m_nTipTick;
+	int                 m_BkLen;
 
-	char *m_WaitBuffer;
-	int m_WaitLen;
+	char*               m_WaitBuffer;
+	int                 m_WaitLen;
 
-	void* m_pixels;
-	unsigned char* m_CenterLogoBuf;
-	int m_CenterLogoBufLen;
+	void*               m_pixels;
+	unsigned char*      m_CenterLogoBuf;
+	int                 m_CenterLogoBufLen;
 
-	SkBitmap *m_pErrbitmap;
+	SkBitmap*           m_pErrbitmap;
 };
 
 #endif

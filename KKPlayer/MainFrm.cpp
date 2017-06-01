@@ -70,6 +70,7 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_bYuv420p(yuv420p)
 ,m_nDuiDraw(0)
 ,m_pDuiDrawCall(0)
+,m_pRenderUserData(0)
 {
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
@@ -229,14 +230,18 @@ CMainFrame::      ~CMainFrame()
 
 }
 ///设置成无窗口渲染
-void CMainFrame::SetDuiDraw(HWND h,fpRenderImgCall DuiDrawCall,void *UserData)
+void CMainFrame::SetDuiDraw(HWND h,fpRenderImgCall DuiDrawCall,void *RenderUserData)
 {
    m_hWnd=h;
    m_nDuiDraw=1;
    BOOL Ok=false;
    m_pDuiDrawCall=DuiDrawCall;
-   m_pUserData=UserData;
+   m_pRenderUserData=RenderUserData;
    this->OnCreate(0,0,0,Ok);
+}
+int   CMainFrame::GetDuiDraw()
+{
+	return m_nDuiDraw;
 }
 int               CMainFrame::GetRealtime()
 {
@@ -578,23 +583,9 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
          
 	}
 	if(m_nDuiDraw){
-	   m_pRender->SetRenderImgCall(m_pDuiDrawCall,m_pUserData);
+	   m_pRender->SetRenderImgCall(m_pDuiDrawCall,m_pRenderUserData);
 	}
 	
-	 //m_AVwTimerRes=0;
-	 //m_AVtimerID=0;
-	 //TIMECAPS ts;
-	 //////确定多媒体定时器提供的最大和最小定时器事件周期
-	 //::timeGetDevCaps(&ts, sizeof(ts));
-
-	 //m_AVwTimerRes=1;
-	 //////建立最小定时器精度
-	 //timeBeginPeriod(m_AVwTimerRes);
-
-	 //////启动定时器事件，设置定时周期为100ms，分辨率是10毫秒
-	 //m_AVtimerID = timeSetEvent(10,1,TimeProc,(DWORD)this,TIME_PERIODIC);
-	 //
-	//OpenMedia("rtmp://live.hkstv.hk.lxdns.com/live/hks live=1");
     return 0;
 }
 
@@ -609,8 +600,6 @@ LRESULT           CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 		     return 0;
 		m_pPlayerInstance->CloseMedia();
 	}
-	//DWORD Id=GetCurrentThreadId();
-	//::PostThreadMessage(Id, WM_QUIT, 0, 0);
 	bHandled = TRUE;
 	return 1;
 }
@@ -761,8 +750,7 @@ LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 			 m_nFullLastTick=::GetTickCount();
 		}
 	}
-	if(wParam==10010)
-	{
+	if(wParam==10010){
 		if(m_pRender!=NULL&&::GetTickCount()-m_nTipTick>5000)
 		{
 			m_pRender->SetLeftPicStr("");
@@ -884,10 +872,6 @@ LRESULT           CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPAR
 LRESULT           CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
    bHandled=true;
-  /* char *err=(char*)wParam;
-   ::MessageBoxA(m_hWnd,err,"错误",MB_ICONHAND);
-   ::free(err);
-   CloseMedia();*/
    return 1;
 }
 
@@ -1124,17 +1108,6 @@ void              CMainFrame::OpenMediaStateNotify(char* strURL,EKKPlayerErr err
 }
 void              CMainFrame::GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
 {
-
-	//if(Stata==-109)//管道已结束。
-	//{
-	//	int length=0;
-	//	unsigned char* img=GetErrImage(length,0);
-	//	if(img!=NULL&&length>0&&m_pRender!=NULL)
-	//	{
-	//		m_pRender->SetErrPic(img,length);
-	//		m_pRender->ShowErrPic(true);
-	//	}
-	//}
 
     m_FileSegLock.Lock();
 	if(m_FileInfos.ItemCount>1)

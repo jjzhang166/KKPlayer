@@ -14,7 +14,7 @@ CRenderGDI::CRenderGDI():m_hView(NULL)
 ,m_CenterLogoBufLen(NULL)
 ,m_bShowErrPic(false)
 ,m_pErrbitmap(NULL)
-
+,m_nTipTick(0)
 {
 }
 CRenderGDI::~CRenderGDI()
@@ -71,14 +71,16 @@ void CRenderGDI::render(char* buf,int width,int height,int Imgwidth,bool wait)
 		createBitmap(width,height);
 
 	skiaSal(buf,width,height);
-
+ 
+	
 	if(m_hView){
 			HDC hDC = GetDC(m_hView);
 			BitBlt(hDC, 0, 0, m_width, m_height, m_hDC, 0, 0, SRCCOPY);
 			ReleaseDC(m_hView, hDC);
 			::DeleteDC(hDC);
 	}else if(m_FpRenderImgCall){
-	   m_FpRenderImgCall(buf,width,height,width*height*4,m_UserData);
+		int len=m_width*m_height*4;
+	   m_FpRenderImgCall(m_pixels,m_width,m_height,len,m_UserData);
 	}
 }
 void CRenderGDI::renderBk(unsigned char* buf,int len)
@@ -95,9 +97,13 @@ void CRenderGDI::SetBkImagePic(unsigned char* buf,int len)
 	m_BkBuffer=(char*)buf;
 	m_BkLen=len;
 }
+void charTowchar(const char *chr, wchar_t *wchar, int size);
 void  CRenderGDI::SetLeftPicStr(const char *str)
 {
-
+    wchar_t pwstr[1024]=L"";
+    charTowchar(str,pwstr,1024);
+    m_LeftStr=pwstr;
+	m_nTipTick=::GetTickCount();
 }
 void CRenderGDI::WinSize(unsigned int w, unsigned int h)
 {
@@ -191,7 +197,7 @@ void  CRenderGDI::FillRect(kkBitmap img,kkRect rt,unsigned int colour)
 	m_Paint.setARGB(255, GetRValue(colour), GetGValue(colour), GetBValue(colour));
 	canvas.drawRect(srt,m_Paint);
 }
-void CRenderGDI::SetErrPic(unsigned char* buf,int len)
+void  CRenderGDI::SetErrPic(unsigned char* buf,int len)
 {
 
 	if(buf!=NULL)
@@ -205,7 +211,7 @@ void CRenderGDI::SetErrPic(unsigned char* buf,int len)
 	}
 
 }
-void CRenderGDI::ShowErrPic(bool show)
+void  CRenderGDI::ShowErrPic(bool show)
 {
 
 	
@@ -276,6 +282,29 @@ void  CRenderGDI::skiaSal(char *buf,int w,int h)
 		destRt.fBottom=destRt.fTop+h;
 
 		canvas.drawBitmapRect(*m_pErrbitmap,destRt,&m_Paint);
+	}
+
+	if(m_LeftStr.length()>1)
+	{
+		if(m_FpRenderImgCall){
+		if(::GetTickCount()- m_nTipTick>5000){
+			m_LeftStr=L"";
+		    return;
+		}
+		}
+		
+	    m_Paint.setTextEncoding(SkPaint::TextEncoding::kUTF16_TextEncoding);
+		m_Paint.setTextAlign(SkPaint::Align::kLeft_Align);
+
+		SkRect r; 
+		m_Paint.setARGB(255, 255,255, 255); /**/
+		r.set(25, 25, 200, 145); 
+		// canvas.drawRect(r, paint); 
+
+
+		SkRect dst2 = r;
+		m_Paint.setTextSize(15);
+		canvas.drawText(m_LeftStr.c_str(), m_LeftStr.length()*sizeof(WCHAR), dst2.fLeft, dst2.fTop , m_Paint);
 	}
 }
 

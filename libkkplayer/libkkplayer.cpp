@@ -35,22 +35,15 @@ extern "C"{
 			return m_pVideoWnd;
 	}
 
-	void __declspec(dllexport) *CreateDuiKKPlayer(HWND hAudio,fpRenderImgCall fp,void *UserData)
+	void __declspec(dllexport) *CreateDuiKKPlayer(HWND hAudio,fpRenderImgCall fp,void *RenderUserData)
 	{
 			Init();
 			RECT rt={0,100,200,300};
 			CMainFrame *m_pVideoWnd = new CMainFrame(false,true);
-			m_pVideoWnd->SetDuiDraw(hAudio,fp,UserData);
+			m_pVideoWnd->SetDuiDraw(hAudio,fp,RenderUserData);
 			return m_pVideoWnd;
 	}
 
-	void __declspec(dllexport) *CreateKKPlayerDui()
-	{
-			Init();
-			
-
-			return NULL;
-	}
 
    void __declspec(dllexport) KKSetErrNotify(void* player,fpKKPlayerErrNotify noti,void* UserData)
    {
@@ -93,13 +86,17 @@ extern "C"{
 		 Player->SetVolume(volume);
 		}
    }
-   void __declspec(dllexport) KKDelPlayer(void* player)
+   void __declspec(dllexport) KKDelPlayer(void* player,bool dui)
    {
         CMainFrame *Player = static_cast<CMainFrame *>(player);
 		if(Player!=NULL){
-			if(::IsWindow(Player->m_hWnd))
-			::SendMessage(Player->m_hWnd,WM_CLOSE,0,0);
-			// delete Player;
+			if(dui){
+				delete Player;
+			}else{
+			     if(::IsWindow(Player->m_hWnd))
+			        ::SendMessage(Player->m_hWnd,WM_CLOSE,0,0);
+			}
+			// 
 		}
    }
 }

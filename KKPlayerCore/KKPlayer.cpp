@@ -160,7 +160,7 @@ void KKPlayer::CloseMedia()
 	while(m_nPreFile==1)
 	{
 		m_PlayerLock.Unlock();
-		Sleep(50);
+		Sleep(10);
 		m_PlayerLock.Lock();
 		LOGE(" xx\n");
 	}
@@ -173,7 +173,7 @@ void KKPlayer::CloseMedia()
 	while(m_nPreFile==2)
 	{
 		m_PlayerLock.Unlock();
-		Sleep(100);
+		Sleep(10);
 		m_PlayerLock.Lock();
 		LOGE(" xx2\n");
        
@@ -204,7 +204,7 @@ void KKPlayer::CloseMedia()
 		LOGE("thread Over1 m_ReadThreadInfo%d,m_VideoRefreshthreadInfo%d \n",m_ReadThreadInfo.ThOver
 			,m_VideoRefreshthreadInfo.ThOver
 			);
-		 av_usleep(10000);
+		 av_usleep(5000);
 	}
 
 
@@ -239,7 +239,7 @@ void KKPlayer::CloseMedia()
 			pVideoInfo->videoq.m_pWaitCond->SetCond();
 			pVideoInfo->pictq.m_pWaitCond->SetCond();
 		}
-		 av_usleep(10000);
+		 av_usleep(5000);
 	}
 
 	LOGE("thread Over 2 \n");
