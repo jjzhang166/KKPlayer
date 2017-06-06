@@ -916,12 +916,16 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 							bool okkk=false;
 										if(m_bOpen&&m_nPreFile!=0){ 
 												if(pVideoInfo->IsReady==0){
-													  int len=0;
-													  unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
-													  if(pWaitImage!=NULL){
-														 pRender->SetWaitPic(pWaitImage,len);
-														  okkk=true;
-													  }
+															if(pVideoInfo->abort_request==0){
+																  int len=0;
+																  unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
+																  if(pWaitImage!=NULL){
+																	 pRender->SetWaitPic(pWaitImage,len);
+																	  okkk=true;
+																  }
+															}else{
+															     pRender->SetWaitPic(0,0);
+															}
 												  }
 											
 													if(pVideoInfo->video_st!=NULL){

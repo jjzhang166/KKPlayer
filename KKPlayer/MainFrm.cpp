@@ -287,11 +287,11 @@ void              CMainFrame::AvSeek(int value)
 		 m_FileSegLock.Unlock();
 	}
 }
-void              CMainFrame::SetVolume(long value)
+void              CMainFrame::SetVolume(long value,bool tip)
 {
 	if(value>1000)
 		value=1000;
-	if(m_pRender!=NULL){
+	if(m_pRender!=NULL&&tip){
 		char Tip[1024]="";
 		sprintf(Tip,"ÒôÁ¿£º%d%%",value);
 		m_nTipTick=GetTickCount();
@@ -751,10 +751,7 @@ LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 		}
 	}
 	if(wParam==10010){
-		if(m_pRender!=NULL&&::GetTickCount()-m_nTipTick>5000)
-		{
-			m_pRender->SetLeftPicStr("");
-		}
+		
           AVRender();
 	}else{
 	     
@@ -1151,5 +1148,10 @@ void              CMainFrame::AVReadOverThNotify(void *playerIns)
 }
 void              CMainFrame::AVRender()
 {
+	if(m_pRender){
                   m_pPlayerInstance->RenderImage(m_pRender,false);
+				  if(::GetTickCount()-m_nTipTick>5000){
+			          m_pRender->SetLeftPicStr("");
+		          }
+	}
 }

@@ -35,6 +35,7 @@ extern "C"{
 			return m_pVideoWnd;
 	}
 
+	///创建一个无窗口的播放器
 	void __declspec(dllexport) *CreateDuiKKPlayer(HWND hAudio,fpRenderImgCall fp,void *RenderUserData)
 	{
 			Init();
@@ -44,6 +45,14 @@ extern "C"{
 			return m_pVideoWnd;
 	}
 
+	///建议已100ms调用
+	void __declspec(dllexport) RefreshDuiKKPlayer(void* player)
+	{
+		CMainFrame  *Player = static_cast<CMainFrame  *>(player);
+		 if(Player!=NULL){
+			 Player->AVRender();
+		 }
+	}
 
    void __declspec(dllexport) KKSetErrNotify(void* player,fpKKPlayerErrNotify noti,void* UserData)
    {
@@ -62,13 +71,13 @@ extern "C"{
 		 }
    }	
 
-   int __declspec(dllexport) KKOpenMedia(void* player,const char* url,int Vol)
+   int __declspec(dllexport) KKOpenMedia(void* player,const char* url)
    {
 	   
          CMainFrame *Player = static_cast<CMainFrame *>(player);
-		 if(Player!=NULL){
-		 Player->SetVolume(Vol);
-	     return	 Player->OpenMedia(url);
+		 if(Player!=NULL)
+		 {
+	             return	 Player->OpenMedia(url);
 		 }
 		 return -2;
    }
@@ -79,11 +88,11 @@ extern "C"{
 		      Player->CloseMedia();
 		  }
    }
-   void __declspec(dllexport) KKSetVolume(void* player,int volume)
+   void __declspec(dllexport) KKSetVolume(void* player,int volume,bool tip)
    {
         CMainFrame *Player = static_cast<CMainFrame *>(player);
 		if(Player!=NULL){
-		 Player->SetVolume(volume);
+		 Player->SetVolume(volume,tip);
 		}
    }
    void __declspec(dllexport) KKDelPlayer(void* player,bool dui)
@@ -91,6 +100,7 @@ extern "C"{
         CMainFrame *Player = static_cast<CMainFrame *>(player);
 		if(Player!=NULL){
 			if(dui){
+				Player->m_hWnd=0;
 				delete Player;
 			}else{
 			     if(::IsWindow(Player->m_hWnd))

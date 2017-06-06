@@ -16,6 +16,7 @@ CRenderGDI::CRenderGDI():m_hView(NULL)
 ,m_pErrbitmap(NULL)
 ,m_nTipTick(0)
 {
+	m_FpRenderImgCall=0;
 }
 CRenderGDI::~CRenderGDI()
 {
@@ -73,14 +74,14 @@ void CRenderGDI::render(char* buf,int width,int height,int Imgwidth,bool wait)
 	skiaSal(buf,width,height);
  
 	
-	if(m_hView){
+	 if(m_FpRenderImgCall!=NULL){
+		int len=m_width*m_height*4;
+	     m_FpRenderImgCall(m_pixels,m_width,m_height,len,m_UserData);
+	}else if(m_hView){
 			HDC hDC = GetDC(m_hView);
 			BitBlt(hDC, 0, 0, m_width, m_height, m_hDC, 0, 0, SRCCOPY);
 			ReleaseDC(m_hView, hDC);
 			::DeleteDC(hDC);
-	}else if(m_FpRenderImgCall){
-		int len=m_width*m_height*4;
-	   m_FpRenderImgCall(m_pixels,m_width,m_height,len,m_UserData);
 	}
 }
 void CRenderGDI::renderBk(unsigned char* buf,int len)
@@ -223,25 +224,19 @@ void  CRenderGDI::skiaSal(char *buf,int w,int h)
 	Skbit.setInfo(SkImageInfo::Make(m_width,m_height,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
 	Skbit.setPixels(m_pixels);
 
+
 	SkCanvas canvas(Skbit);
 
 
-
-	if(m_BkBuffer!=NULL)
-	{
-		SkBitmap Bkbitmap;
-		SkMemoryStream stream(m_BkLen);
-		stream.read(m_BkBuffer,m_BkLen);
-		//SkFILEStream ff("F:\\Pro\\ProcLectureRoom\\KKPlayer\\KKdebug\\Skin\\wait3.png");
-		SkImageDecoder::DecodeStream(&stream, &Bkbitmap);
-
+   
 		SkRect destRt;
 		destRt.fLeft=0;
 		destRt.fTop=0;
 		destRt.fRight=m_width;
 		destRt.fBottom=m_height;
-		canvas.drawBitmapRect(Bkbitmap,destRt,&m_Paint);
-	}
+
+		m_Paint.setARGB(255, 0,0, 0);
+		canvas.drawRect(destRt,m_Paint);
 
 
     if(m_bShowErrPic==false)
@@ -286,13 +281,13 @@ void  CRenderGDI::skiaSal(char *buf,int w,int h)
 
 	if(m_LeftStr.length()>1)
 	{
-		if(m_FpRenderImgCall){
+		/*if(m_FpRenderImgCall){
 		if(::GetTickCount()- m_nTipTick>5000){
 			m_LeftStr=L"";
 		    return;
 		}
 		}
-		
+		*/
 	    m_Paint.setTextEncoding(SkPaint::TextEncoding::kUTF16_TextEncoding);
 		m_Paint.setTextAlign(SkPaint::Align::kLeft_Align);
 

@@ -83,7 +83,7 @@ public:
 	int          GetTotalTime();
 	int          GetRealtime();
     bool         GetMediaInfo(MEDIA_INFO& info);
-	void         SetVolume(long value);
+	void         SetVolume(long value,bool tip=true);
 	long         GetVolume();
 	void         AvSeek(int value);
     int          OpenMedia(std::string url);
@@ -92,6 +92,7 @@ public:
 	//全屏
 	void         FullScreen();
 
+	void           AVRender(); 
 public:
 	LRESULT  OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
@@ -137,7 +138,7 @@ protected:
 		/*******视频流结束调用*******/
 		virtual void           GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 		virtual void           AVReadOverThNotify(void *playerIns);
-		virtual void           AVRender(); 
+		
 private:
 	    void                   OnDraw(HDC& memdc,RECT& rt);
 private:
