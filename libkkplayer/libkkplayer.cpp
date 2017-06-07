@@ -71,6 +71,13 @@ extern "C"{
 		 }
    }	
 
+   void  __declspec(dllexport) SetMaxRealtimeDelay(void* player,int Delay)
+   {
+        CMainFrame *Player = static_cast<CMainFrame *>(player);
+		if(Player!=NULL){
+			Player->SetMaxRealtimeDelay(Delay);
+		}
+   }
    int __declspec(dllexport) KKOpenMedia(void* player,const char* url)
    {
 	   

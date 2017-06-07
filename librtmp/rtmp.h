@@ -238,6 +238,7 @@ extern "C"
     int num;
   } RTMP_METHOD;
 
+  typedef int  (*fKKIRQ)(void *opaque);  //强制中断函数
   typedef struct RTMP
   {
     int m_inChunkSize;
@@ -284,6 +285,9 @@ extern "C"
     RTMPPacket m_write;
     RTMPSockBuf m_sb;
     RTMP_LNK Link;
+
+	fKKIRQ kkirq;
+	void* player;
   } RTMP;
 
   int RTMP_ParseURL(const char *url, int *protocol, AVal *host,

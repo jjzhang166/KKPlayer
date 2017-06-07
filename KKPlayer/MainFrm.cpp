@@ -874,7 +874,13 @@ LRESULT           CMainFrame::OnOpenMediaErr(UINT uMsg/**/, WPARAM wParam/**/, L
 
 
 
-
+int      CMainFrame::SetMaxRealtimeDelay(int Delay)
+{
+       if(m_pPlayerInstance!=NULL){
+		   m_pPlayerInstance->SetMaxRealtimeDelay(Delay);
+	   }
+	   return 0;
+}
 void              CMainFrame::SetErrNotify(void *UserData,fpKKPlayerErrNotify ErrNotify)
 {
     m_ErrNotify=ErrNotify;

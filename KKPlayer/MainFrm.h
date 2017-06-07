@@ -74,6 +74,8 @@ public:
 	int          PktSerial();
 	void         OnDecelerate();
 	void         OnAccelerate();
+	/******设置实时流媒体最小延迟,最小值2，单位秒**********/
+	int          SetMaxRealtimeDelay(int Delay);
 	void         SetErrNotify(void *UserData,fpKKPlayerErrNotify m_ErrNotify);
     ///抓取视频图片
     bool         GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale=true);
@@ -92,7 +94,9 @@ public:
 	//全屏
 	void         FullScreen();
 
-	void           AVRender(); 
+	void         AVRender(); 
+
+	
 public:
 	LRESULT  OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)

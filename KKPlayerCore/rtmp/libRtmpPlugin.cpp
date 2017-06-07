@@ -8,6 +8,8 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
   if(plu->opaque==NULL){
       RTMP *rtmp=RTMP_Alloc();  
       RTMP_Init(rtmp);
+	  rtmp->kkirq=plu->kkirq;
+	  rtmp->player=plu->PlayerOpaque;
 	  char url[2048]="rtmp://live.hkstv.hk.lxdns.com/live/hks";
 	  strcpy(url,plu->URL);
 	  if(!RTMP_SetupURL(rtmp,url))  
@@ -15,8 +17,10 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
 		   return KK_AVERROR(EAGAIN);
 	  }
 	 
-	  RTMP_SetBufferMS(rtmp, 100);        
-      
+	  RTMP_SetBufferMS(rtmp, 1);
+	  rtmp->Link.timeout = 5;
+      rtmp->Link.lFlags |= RTMP_LF_LIVE;
+	  //plu->kkirq
       if(!RTMP_Connect(rtmp,NULL)){  
       //  RTMP_Log(RTMP_LOGERROR,"Connect Err\n");  
         RTMP_Free(rtmp);  

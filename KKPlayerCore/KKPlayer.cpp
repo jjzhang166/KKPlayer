@@ -1229,7 +1229,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
 	
 
-	pVideoInfo->nMaxRealtimeDelay=3600;//单位s
+	pVideoInfo->nMaxRealtimeDelay=32000;//单位s
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
     pVideoInfo->DstAVff=m_DstAVff;

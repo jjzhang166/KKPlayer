@@ -1182,9 +1182,13 @@ RTMP_GetNextMediaPacket(RTMP *r, RTMPPacket *packet)
 {
   int bHasMediaPacket = 0;
 
-  while (!bHasMediaPacket && RTMP_IsConnected(r)
-	 && RTMP_ReadPacket(r, packet))
-    {
+  while (!bHasMediaPacket && RTMP_IsConnected(r)&& RTMP_ReadPacket(r, packet))
+  {
+	  if(r->kkirq!=NULL)
+	  {
+		  if(r->kkirq(r->player))
+			  break;
+	  }
       if (!RTMPPacket_IsReady(packet))
 	{
 	  continue;
@@ -1402,100 +1406,92 @@ ReadN(RTMP *r, char *buffer, int n)
 #endif
 
   ptr = buffer;
-  while (n > 0)
-    {
-      int nBytes = 0, nRead;
-      if (r->Link.protocol & RTMP_FEATURE_HTTP)
-        {
-	  int refill = 0;
-	  while (!r->m_resplen)
-	    {
-	      int ret;
-	      if (r->m_sb.sb_size < 13 || refill)
-	        {
-		  if (!r->m_unackd)
-		    HTTP_Post(r, RTMPT_IDLE, "", 1);
-		  if (RTMPSockBuf_Fill(&r->m_sb) < 1)
-		    {
-		      if (!r->m_sb.sb_timedout)
-		        RTMP_Close(r);
-		      return 0;
-		    }
-		}
-	      if ((ret = HTTP_read(r, 0)) == -1)
-		{
-		  RTMP_Log(RTMP_LOGDEBUG, "%s, No valid HTTP response found", __FUNCTION__);
-		  RTMP_Close(r);
-		  return 0;
-		}
-              else if (ret == -2)
-                {
-                  refill = 1;
-                }
-              else
-                {
-                  refill = 0;
-                }
-	    }
-	  if (r->m_resplen && !r->m_sb.sb_size)
-	    RTMPSockBuf_Fill(&r->m_sb);
-          avail = r->m_sb.sb_size;
-	  if (avail > r->m_resplen)
-	    avail = r->m_resplen;
-	}
-      else
-        {
-          avail = r->m_sb.sb_size;
-	  if (avail == 0)
-	    {
-	      if (RTMPSockBuf_Fill(&r->m_sb) < 1)
-	        {
-	          if (!r->m_sb.sb_timedout)
-	            RTMP_Close(r);
-	          return 0;
-		}
-	      avail = r->m_sb.sb_size;
-	    }
-	}
-      nRead = ((n < avail) ? n : avail);
-      if (nRead > 0)
-	{
-	  memcpy(ptr, r->m_sb.sb_start, nRead);
-	  r->m_sb.sb_start += nRead;
-	  r->m_sb.sb_size -= nRead;
-	  nBytes = nRead;
-	  r->m_nBytesIn += nRead;
-	  if (r->m_bSendCounter
-	      && r->m_nBytesIn > ( r->m_nBytesInSent + r->m_nClientBW / 10))
-	    if (!SendBytesReceived(r))
-	        return FALSE;
-	}
+ while (n > 0)
+ {
+		  int nBytes = 0, nRead;
+		  if (r->Link.protocol & RTMP_FEATURE_HTTP)
+		  {
+						  int refill = 0;
+						  while (!r->m_resplen)
+						  {
+								  int ret;
+								  if (r->m_sb.sb_size < 13 || refill){
+									  if (!r->m_unackd)
+											  HTTP_Post(r, RTMPT_IDLE, "", 1);
+									  if (RTMPSockBuf_Fill(&r->m_sb) < 1)
+									  {
+										   if (!r->m_sb.sb_timedout)
+											  RTMP_Close(r);
+										   return 0;
+									  }
+								  }
+
+								  if ((ret = HTTP_read(r, 0)) == -1){
+									   RTMP_Log(RTMP_LOGDEBUG, "%s, No valid HTTP response found", __FUNCTION__);
+									   RTMP_Close(r);
+									   return 0;
+								   }else if (ret == -2){
+										  refill = 1;
+								   }else{
+										  refill = 0;
+								  }
+						 }
+						 if (r->m_resplen && !r->m_sb.sb_size)
+							RTMPSockBuf_Fill(&r->m_sb);
+						 avail = r->m_sb.sb_size;
+						 
+						 if (avail > r->m_resplen)
+							avail = r->m_resplen;
+		  }else{
+			  avail = r->m_sb.sb_size;
+			  if (avail == 0)
+			  {
+					if (RTMPSockBuf_Fill(&r->m_sb) < 1)
+					{
+						 if (!r->m_sb.sb_timedout)
+						 RTMP_Close(r);
+						 return 0;
+					}
+					avail = r->m_sb.sb_size;
+			  }
+		  }
+          nRead = ((n < avail) ? n : avail);
+		  if (nRead > 0){
+			  memcpy(ptr, r->m_sb.sb_start, nRead);
+			  r->m_sb.sb_start += nRead;
+			  r->m_sb.sb_size -= nRead;
+			  nBytes = nRead;
+			  r->m_nBytesIn += nRead;
+			  if (r->m_bSendCounter
+				  && r->m_nBytesIn > ( r->m_nBytesInSent + r->m_nClientBW / 10))
+				if (!SendBytesReceived(r))
+					return FALSE;
+		  }
       /*RTMP_Log(RTMP_LOGDEBUG, "%s: %d bytes\n", __FUNCTION__, nBytes); */
 #ifdef _DEBUGX
       fwrite(ptr, 1, nBytes, netstackdump_read);
 #endif
 
       if (nBytes == 0)
-	{
-	  RTMP_Log(RTMP_LOGDEBUG, "%s, RTMP socket closed by peer", __FUNCTION__);
-	  /*goto again; */
-	  RTMP_Close(r);
-	  break;
-	}
+	  {
+		  RTMP_Log(RTMP_LOGDEBUG, "%s, RTMP socket closed by peer", __FUNCTION__);
+		  /*goto again; */
+		  RTMP_Close(r);
+		  break;
+	   }
 
       if (r->Link.protocol & RTMP_FEATURE_HTTP)
-	r->m_resplen -= nBytes;
+	     r->m_resplen -= nBytes;
 
 #ifdef CRYPTO
-      if (r->Link.rc4keyIn)
-	{
+      if (r->Link.rc4keyIn){
 	  RC4_encrypt(r->Link.rc4keyIn, nBytes, ptr);
-	}
+	  }
 #endif
 
       n -= nBytes;
       ptr += nBytes;
-    }
+  }
 
   return nOriginalSize - n;
 }
