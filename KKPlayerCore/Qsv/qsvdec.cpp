@@ -110,12 +110,12 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     int ret;
     enum AVPixelFormat pix_fmts[3] = { AV_PIX_FMT_QSV,AV_PIX_FMT_NV12,AV_PIX_FMT_NONE };
 
-    ret = av_get_format(avctx, pix_fmts);
-	
+   // ret = av_get_format(avctx, pix_fmts);
+	/*ret=;
     if (ret < 0)
-        return ret;
+        return ret;*/
 
-    avctx->pix_fmt      = (AVPixelFormat)ret;
+    avctx->pix_fmt      = (AVPixelFormat)AV_PIX_FMT_QSV;
 	
     if (!q->session) {
         assert(0);

@@ -100,9 +100,9 @@ typedef struct SKK_Frame
 	int                     PktNumber;      ///包序号，递增
 	double                  pts;            /// presentation timestamp for the frame
 	double                  duration;       /// estimated duration of the frame 这一帧持续的时间
-	int64_t                 pos;            /// byte position of the frame in the input file
+	int64_t                  pos;            /// byte position of the frame in the input file
 	
-	AVPicture               Bmp;            ///位图数据
+	AVPicture                Bmp;            ///位图数据
 	uint8_t                 *buffer;
 	int dataLen;
 	int buflen;
@@ -134,6 +134,7 @@ typedef struct SKK_FrameQueue
 	//等待事件
 	CKKCond_t* m_pWaitCond;
 	SKK_PacketQueue  *pktq;
+	
 	
 } SKK_FrameQueue;
 

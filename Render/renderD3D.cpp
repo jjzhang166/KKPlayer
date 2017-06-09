@@ -896,7 +896,8 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 				 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
 				 if(rect.pBits!=NULL)
 				 {
-						  byte *pSrc = (byte *)pBuf;  
+
+					      byte **pSrc = (byte **)pBuf;  
 						  byte * pDest = (BYTE *)rect.pBits;  
 						  int stride = rect.Pitch;  
 						  unsigned long i = 0;  
@@ -906,18 +907,41 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 						  //Y
 						  for(i = 0;i < pixel_h;i ++)
 						  {  
-							  memcpy(pDest + i * stride,pSrc + i * pixel_w, imgwidth);  
+							  memcpy(pDest + i * stride,*pSrc + i * pixel_w, imgwidth);  
 						  } 
 						  //U
 						  for(i = 0;i < pixel_h/2;i ++)
 						  {  
-							  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, imgwidth / 2);  
+							  memcpy(pDest + stride * pixel_h + i * stride / 2,*(pSrc+1) + i * pixel_w / 2, imgwidth / 2);  
 						  }  
 						  //V
 						  for(i = 0;i < pixel_h/2;i ++)
 						  {  
-							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, imgwidth / 2);  
+							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,*(pSrc+2) + i * pixel_w / 2, imgwidth / 2);  
 						  } /**/
+
+						  //byte *pSrc = (byte *)pBuf;  
+						  //byte * pDest = (BYTE *)rect.pBits;  
+						  //int stride = rect.Pitch;  
+						  //unsigned long i = 0;  
+						  //int pixel_h=h;
+						  //int pixel_w=w;
+						  ////Copy Data (YUV420P)  
+						  ////Y
+						  //for(i = 0;i < pixel_h;i ++)
+						  //{  
+							 // memcpy(pDest + i * stride,pSrc + i * pixel_w, imgwidth);  
+						  //} 
+						  ////U
+						  //for(i = 0;i < pixel_h/2;i ++)
+						  //{  
+							 // memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, imgwidth / 2);  
+						  //}  
+						  ////V
+						  //for(i = 0;i < pixel_h/2;i ++)
+						  //{  
+							 // memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, imgwidth / 2);  
+						  //} /**/
 				 }
 				 m_pYUVAVTexture->UnlockRect();
 #else
