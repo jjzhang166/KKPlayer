@@ -77,11 +77,11 @@ windowVc(Vs2010)编译ffmpeg(https://ffmpeg.org/platform.html#Microsoft-Visual-C
 例如(启用共享库，关闭所有编码器):<br/>
 ./configure --toolchain=msvc --extra-cflags='-IC:/msinttypes' --prefix='./ffmpegBin'   --incdir='./ffmpegBin/incdir' --enable-shared --disable-encoders<br/>
 更新日志：<br/>
-          2017-5-23              移除srslibrtmpplugin. 添加librtmpplugin<br/>
-		                         支持视频分片(像优酷那种视频分片)<br/>
-								 整合FFmpeg的mediacode解码<br/>
-								 intermedia h264解码<br/>
-		                         ffmpge更新到3.3.2<br/>
-		  2017-5-30              windows 添加libkkplayer库。只dui渲染，或者以窗口进行渲染 <br/>
-		                         修改sdl1支持同时创建多个音频渲染器 <br/>
-								 修正渲染器一些bug <br/>
+          2017-5-23					移除srslibrtmpplugin. 添加librtmpplugin<br/>
+									支持视频分片(像优酷那种视频分片)<br/>
+									整合FFmpeg的mediacode解码<br/>
+									intermedia h264解码<br/>
+									ffmpge更新到3.3.2<br/>
+		  2017-5-30 				windows 添加libkkplayer库。只dui渲染，或者以窗口进行渲染 <br/>
+									修改sdl1支持同时创建多个音频渲染器 <br/>
+									修正渲染器一些bug <br/>
