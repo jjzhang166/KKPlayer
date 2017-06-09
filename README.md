@@ -83,7 +83,7 @@ windowVc(Vs2010)编译ffmpeg(https://ffmpeg.org/platform.html#Microsoft-Visual-C
 &nbsp;&nbsp;&nbsp;&nbsp; 整合FFmpeg的mediacode解码<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; intermedia h264解码<br/>
 &nbsp;&nbsp;&nbsp;&nbsp; ffmpge更新到3.3.2<br/>
-2017-5-30   <br/>				
+2017-5-30   <br/>
 &nbsp;&nbsp;&nbsp;&nbsp; windows 添加libkkplayer库。只dui渲染，或者以窗口进行渲染 <br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 修改sdl1支持同时创建多个音频渲染器 <br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 修正渲染器一些bug <br/>
