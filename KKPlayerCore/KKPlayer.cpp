@@ -40,7 +40,7 @@ bool KKPlayer::GrabAvPicBGRA(void* buf,int len,int &w,int &h,bool keepscale)
 		   pVideoInfo->pictq.mutex->Lock();
 		   SKK_Frame *vp =frame_queue_peek_last(&pVideoInfo->pictq);
 		  
-            if(vp!=NULL)
+		   if(vp!=NULL&&vp->buffer!=NULL&&vp->width>0)
 			{
 				if(keepscale)
 				{

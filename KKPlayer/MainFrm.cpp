@@ -752,7 +752,7 @@ LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 	}
 	if(wParam==10010){
 		
-          AVRender();
+       //   AVRender();
 	}else{
 	     
 	}
