@@ -748,7 +748,7 @@ int seg_stream_component_open(SKK_VideoState *is, int stream_index)
 	{
        #ifdef WIN32
 		       avctx->codec_id=codec->id;
-
+               is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
@@ -891,7 +891,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	{ 
 	   avctx->codec_id=codec->id;
        #ifdef WIN32
-	          is->Hard_Code=SKK_VideoState::HARD_CODE_QSV;
+	         
 			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
@@ -1551,6 +1551,43 @@ end:
         }  
         return dst;  
 } 
+void sse_copy2(void *p1, void *p2, size_t n)  
+{  
+    __asm  
+    {  
+        mov esi,    p1  
+        mov edi,    p2  
+        mov ecx,    n  
+        shr ecx,    7  
+LOOP1:  
+  
+        movdqa  xmm0,   [esi]  
+        movdqa  xmm1,   [esi+16]  
+        movdqa  xmm2,   [esi+32]  
+        movdqa  xmm3,   [esi+48]  
+        movdqa  xmm4,   [esi+64]  
+        movdqa  xmm5,   [esi+80]  
+        movdqa  xmm6,   [esi+96]  
+        movdqa  xmm7,   [esi+112]  
+  
+        movntdq [edi], xmm0  
+        movntdq [edi+16], xmm1  
+        movntdq [edi+32], xmm2  
+        movntdq [edi+48], xmm3  
+        movntdq [edi+64], xmm4  
+        movntdq [edi+80], xmm5  
+        movntdq [edi+96], xmm6  
+        movntdq [edi+112], xmm7  
+  
+        add esi, 128  
+        add edi,128  
+        sub ecx,1  
+        jnz LOOP1  
+        END:  
+  
+    }  
+  
+} 
 //图片队列 图片,这里有很大的优化空间
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
 {  
@@ -1612,36 +1649,26 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	   PixelFormat format=(PixelFormat)pOutAV->format;
 		if( vp->buffer==NULL || vp->height!=pOutAV->height ||vp->width!=pOutAV->width)
 		{
-			/* if(vp->frame==NULL)
-				vp->frame =av_frame_alloc();*/
+			
 			 is->last_width=pFrame->width;
 			 is->last_height=pFrame->height;
 			 vp->width =   is->last_width; 
 			 vp->height=   is->last_height;//FFALIGN(pFrame->height, 2);
 			 vp->pitch =   is->last_width;
-			/* if( is->DstAVff!=format)
-			 {*/
+			
 				 vp->allocated = 1;
 				 int numBytes=avpicture_get_size(is->DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
 				 vp->buflen=numBytes*sizeof(uint8_t)+100;
 				 av_free(vp->buffer);
 				 vp->buffer=(uint8_t *)KK_Malloc_(vp->buflen);
 				 avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,is->DstAVff, vp->width,vp->height);
-				 //vp->buffer=(uint8_t*)vp->Bmp.data;
-			/* }
-			 
-			 else{
-				 memcpy(vp->Bmp.data,pOutAV->data,AV_NUM_DATA_POINTERS*4);
-                 memcpy(vp->Bmp.linesize,pOutAV->linesize,AV_NUM_DATA_POINTERS*4);
-				 vp->buffer=(uint8_t*)vp->Bmp.data;
-
-			 }*/
+			
 		}
-        pPictq->mutex->Unlock();
+		pPictq->mutex->Unlock();
 	
 		
-		if(is->DstAVff!=format){
-			/* is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
+		
+			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			 pOutAV->width,       pOutAV->height ,              format ,
 			 pOutAV->width,       pOutAV->height,               is->DstAVff,                
 			 SWS_FAST_BILINEAR,
@@ -1651,15 +1678,11 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 					fprintf(stderr, "Cannot initialize the conversion context\n");
 				 assert(0);
 				 
-			 }*//**/
-			memcpy_kaetemi_sse2(vp->Bmp.data[0],pOutAV->data[0],pOutAV->linesize[0]*pOutAV->height);
-			memcpy_kaetemi_sse2(vp->Bmp.data[1],pOutAV->data[1],pOutAV->linesize[1]*pOutAV->height/2);
-			
+			 }
 		    //如果是硬件加速，转化就慢了。
-		   //sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
-		}else{
-			
-		}
+		   sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
+		   
+	
 		 
         
 		//av_frame_move_ref(
