@@ -494,7 +494,7 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 	m_ErrPicVertex[3].v = 1.f;
 
 }
-void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth,bool wait)
+void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 {
   m_lock.Lock();
   if (!LostDeviceRestore())
@@ -511,9 +511,9 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth,bool wait)
 	    m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 		if( SUCCEEDED(m_pDevice->BeginScene()) )
 		{
-			if(pBuf!=NULL&&m_bShowErrPic==false)
+			if(Picinfo!=NULL&&m_bShowErrPic==false)
 			{
-                UpdateTexture(pBuf,width,height,Imgwidth);	
+                UpdateTexture(Picinfo);	
 #ifdef VFYUV420P
 			
 				if(m_pYUVAVTexture!=NULL)
@@ -526,12 +526,12 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth,bool wait)
 						int h=dh,w=dw;
 						//if(dw>width)
 						{
-                            dh=dw*height/Imgwidth;
+							dh=dw*Picinfo->height/Picinfo->width;
 						}
 						if(dh>h)
 						{
 							dh=h;
-							dw=Imgwidth*dh/height;
+							dw=Picinfo->width*dh/Picinfo->height;
 						}
                         if(dw<w)
 						{
@@ -549,70 +549,8 @@ void CRenderD3D::render(char *pBuf,int width,int height,int Imgwidth,bool wait)
 					m_pDevice->StretchRect(m_pYUVAVTexture,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
 					
 				}/**/
-#else
 
 
-				        int dw=m_w;
-						int dh=m_h;
-						int h=dh,w=dw;
-					    int cx=0;
-						int cy=0;
-						int cw=m_w;
-						int ch=m_h;
-						//if(dw>width)
-						{
-                            dh=dw*height/Imgwidth;
-						}
-						if(dh>h)
-						{
-							dh=h;
-							dw=Imgwidth*dh/height;
-						}
-                        if(dw<w)
-						{
-							cx+=(w-dw)/2;
-							cw=cx+dw;
-						}
-						if(dh<h)
-						{
-							cy+=(h-dh)/2;
-							ch=cy+dh;
-						}
-
-						m_VideoVertex[0].x = cx;
-						m_VideoVertex[0].y = cy;
-						m_VideoVertex[0].z = 0.f;
-						m_VideoVertex[0].w = 1.f;
-						m_VideoVertex[0].u = 0.f;
-						m_VideoVertex[0].v = 0.f;
-
-						m_VideoVertex[1].x = cw - 0.5f;
-						m_VideoVertex[1].y = cy-0.5f;
-						m_VideoVertex[1].z = 0.f;
-						m_VideoVertex[1].w = 1.f;
-						m_VideoVertex[1].u = 1.f;
-						m_VideoVertex[1].v = 0.f;
-
-						m_VideoVertex[2].x = cx;//左下角
-						m_VideoVertex[2].y = ch;
-						m_VideoVertex[2].z = 0.f;
-						m_VideoVertex[2].w = 1.f;
-						m_VideoVertex[2].u = 0.f;
-						m_VideoVertex[2].v = 1.f;
-
-						m_VideoVertex[3].x = cw;  //右下角
-						m_VideoVertex[3].y = ch;
-						m_VideoVertex[3].z = 0.f;
-						m_VideoVertex[3].w = 1.f;
-						m_VideoVertex[3].u = 1.f;
-						m_VideoVertex[3].v = 1.f;
-
-				m_pDevice->SetTexture(0, m_pDxTexture);
-				m_pDevice->SetFVF(Vertex::FVF);
-				m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-				m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-				m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-				m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, m_VideoVertex, sizeof(Vertex));
 #endif
 				if(m_pLeftPicTexture!=NULL)
 				{
@@ -1147,11 +1085,11 @@ end:
         }  
         return dst;  
 } 
-bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
+bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 {
 	
 #ifdef VFYUV420P	
-   if (m_pYUVAVTexture == NULL||m_lastpicw!=w|| m_lastpich!=h)
+	if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height)
     {
         RECT rect2;
         GetClientRect(m_hView, &rect2);
@@ -1164,7 +1102,7 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 			}
 			//DX YV12 就是YUV420
 			HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
-				imgwidth, h,
+				Picinfo->width, Picinfo->height,
 				(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),
 				D3DPOOL_DEFAULT,
 				&m_pYUVAVTexture,
@@ -1173,31 +1111,6 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 				return false;
 			 
     }
-#else
-   {
-	   if (m_pDxTexture == NULL)
-	   {
-		   RECT rect2;
-		   GetClientRect(m_hView, &rect2);
-		   UINT hei=rect2.bottom - rect2.top;
-		   UINT Wei=rect2.right - rect2.left;
-		   if(m_w!=Wei&&hei!=m_h){
-		     resize( Wei,hei);
-		   }
-
-		   HRESULT  hr = m_pDevice->CreateTexture(
-			   w,
-			   h,
-			   1,
-			   D3DUSAGE_DYNAMIC,
-			   D3DFMT_X8R8G8B8,
-			   D3DPOOL_DEFAULT,
-			   &m_pDxTexture,
-			   NULL);/**/
-		   if (FAILED(hr))
-			   return false;
-	   }
-	}
 #endif
    
       D3DLOCKED_RECT rect;
@@ -1207,27 +1120,27 @@ bool CRenderD3D::UpdateTexture(char *pBuf,int w,int h,int imgwidth)
 				 {
 
 						  
-						  byte *pSrc = (byte *)pBuf;  
+					 byte *pSrc = (byte *)Picinfo->data[0];
 						  byte * pDest = (BYTE *)rect.pBits;  
 						  int stride = rect.Pitch;  
 						  unsigned long i = 0;  
-						  int pixel_h=h;
-						  int pixel_w=w;
+						  int pixel_h=Picinfo->height;
+						  int pixel_w=Picinfo->width;
 						  //Copy Data (YUV420P)  
 						  //Y
 						  for(i = 0;i < pixel_h;i ++)
 						  {  
-							  memcpy(pDest + i * stride,pSrc + i * pixel_w, imgwidth);  
+							  memcpy(pDest + i * stride,pSrc + i * pixel_w,Picinfo->width);  
 						  } 
 						  //U
 						  for(i = 0;i < pixel_h/2;i ++)
 						  {  
-							  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, imgwidth / 2);  
+							  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, Picinfo->width / 2);  
 						  }  
 						  //V
 						  for(i = 0;i < pixel_h/2;i ++)
 						  {  
-							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, imgwidth / 2);  
+							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, Picinfo->width / 2);  
 						  } /**/
 				 }
 				 m_pYUVAVTexture->UnlockRect();

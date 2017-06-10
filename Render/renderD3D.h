@@ -23,7 +23,7 @@ public:
     void  WinSize(unsigned int w, unsigned int h);
     bool LostDeviceRestore();
     
-    void render(char *pBuf,int width,int height,int imgwidth,bool wait);
+    void render(kkAVPicInfo *Picinfo,bool wait);
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
 	
@@ -44,7 +44,7 @@ private:
     std::wstring m_LeftStr;
 	std::wstring m_LstLeftStr;
 	CRendLock m_lock;
-	bool UpdateTexture(char *pBuf,int w,int h,int imgwidth);
+	bool UpdateTexture(kkAVPicInfo *Picinfo);
 	void ResetTexture();
 	bool UpdateLeftPicTexture();
 	void AdJustErrPos(int picw,int pich);

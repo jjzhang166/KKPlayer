@@ -839,7 +839,7 @@ void KKPlayer::video_audio_display(IkkRender *pRender,SKK_VideoState *s)
 
 			      sws_scale(s->img_convert_ctx, InBmp.data, InBmp.linesize,0,height,
 					 OutBmp.data,OutBmp.linesize);
-				  pRender->render((char*) OutBmpbuffer,width,height,width,false);
+				  ///pRender->render((char*) OutBmpbuffer,width,height,width,false);
 
                   KK_Free_(OutBmpbuffer);
 
@@ -934,9 +934,14 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 													   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
 													   {
 														   m_lstPts=vp->pts;
-														   pRender->render((char*)vp->buffer,vp->width,vp->height,vp->pitch,okkk);
+														   kkAVPicInfo picinfo;
+														   memcpy(picinfo.data,vp->Bmp.data,32);
+														   memcpy(picinfo.linesize,vp->Bmp.linesize,32);
+														   picinfo.width=vp->width;
+														   picinfo.height=vp->height;
+														   pRender->render(&picinfo,okkk);
 													   }else if(pVideoInfo->IsReady==0){
-														   pRender->render(NULL,0,0,0,true);
+														   pRender->render(NULL,true);
 													   }
 													   pVideoInfo->pictq.mutex->Unlock();
 													}else if(pVideoInfo->audio_st!=NULL&&pVideoInfo->iformat!=NULL){
@@ -944,7 +949,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 													         video_audio_display(pRender,pVideoInfo);
 				                                         #endif
 													}else if(pVideoInfo->IsReady==0){
-														   pRender->render(NULL,0,0,0,true);
+														   pRender->render(NULL,true);
 													}
 										}
 									  
@@ -959,7 +964,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 						unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
 						if(pWaitImage!=NULL){
 							 pRender->SetWaitPic(pWaitImage,len);
-							 pRender->render(NULL,0,0,0,true);
+							 pRender->render(NULL,true);
 						}
 			}
 	 }

@@ -66,12 +66,12 @@ void CRenderGDI::SetRenderImgCall(fpRenderImgCall fp,void* UserData)
 m_FpRenderImgCall=fp;
 m_UserData=UserData;
 }
-void CRenderGDI::render(char* buf,int width,int height,int Imgwidth,bool wait)
+void CRenderGDI::render(kkAVPicInfo *Picinfo,bool wait)
 {
-	if (m_pixels == NULL||m_Picwidth!= width&&m_Picheight!=height)
-		createBitmap(width,height);
+	if (m_pixels == NULL||m_Picwidth!= Picinfo->width&&m_Picheight!=Picinfo->height)
+		createBitmap(Picinfo->width,Picinfo->height);
 
-	skiaSal(buf,width,height);
+	skiaSal(Picinfo);
  
 	
 	 if(m_FpRenderImgCall!=NULL){
@@ -138,9 +138,9 @@ void CRenderGDI::createBitmap(unsigned int w, unsigned int h)
 }
 
 
-void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int picw,int pich)
+void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,kkAVPicInfo *Picinfo)
 {
-	if(buf!=NULL&&picw>0&&pich>0)
+	if(Picinfo!=NULL&&Picinfo->width>0&&Picinfo->height)
 	{
 		int offx=0;
 		int offy=0;
@@ -156,12 +156,12 @@ void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int picw,int pich)
 		int  h=dh,w=dw;
 		//if(dw>width)
 		{
-            dh=dw*pich/picw;
+			dh=dw*Picinfo->height/Picinfo->width;
 		}
 		if(dh>h)
 		{
 			dh=h;
-			dw=picw*dh/pich;
+			dw=Picinfo->width*dh/Picinfo->height;
 		}
         if(dw<w)
 		{
@@ -176,8 +176,8 @@ void  CRenderGDI::DrawSkVideo(SkCanvas& canvas,char *buf,int picw,int pich)
 
 		SkBitmap AVSkbit;
 
-		AVSkbit.setInfo(SkImageInfo::Make(picw,pich,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
-		AVSkbit.setPixels(buf);
+		AVSkbit.setInfo(SkImageInfo::Make(Picinfo->width,Picinfo->height,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
+		AVSkbit.setPixels(Picinfo->data[0]);
 		AVSkbit.notifyPixelsChanged();
 
 
@@ -218,7 +218,7 @@ void  CRenderGDI::ShowErrPic(bool show)
 	
 }
 
-void  CRenderGDI::skiaSal(char *buf,int w,int h)
+void  CRenderGDI::skiaSal(kkAVPicInfo *Picinfo)
 {
 	SkBitmap Skbit;
 	Skbit.setInfo(SkImageInfo::Make(m_width,m_height,SkColorType::kBGRA_8888_SkColorType,SkAlphaType::kPremul_SkAlphaType));
@@ -240,9 +240,9 @@ void  CRenderGDI::skiaSal(char *buf,int w,int h)
 
 
     if(m_bShowErrPic==false)
-	    DrawSkVideo(canvas,buf,w,h);
+	    DrawSkVideo(canvas,Picinfo);
 
-	if(buf==NULL&&m_WaitBuffer!=NULL&&m_WaitLen>0&&m_bShowErrPic==false)
+	if(Picinfo==NULL&&m_WaitBuffer!=NULL&&m_WaitLen>0&&m_bShowErrPic==false)
 	{
 		SkBitmap Bkbitmap;
 		SkMemoryStream stream(m_WaitBuffer,m_WaitLen,true);
@@ -281,13 +281,6 @@ void  CRenderGDI::skiaSal(char *buf,int w,int h)
 
 	if(m_LeftStr.length()>1)
 	{
-		/*if(m_FpRenderImgCall){
-		if(::GetTickCount()- m_nTipTick>5000){
-			m_LeftStr=L"";
-		    return;
-		}
-		}
-		*/
 	    m_Paint.setTextEncoding(SkPaint::TextEncoding::kUTF16_TextEncoding);
 		m_Paint.setTextAlign(SkPaint::Align::kLeft_Align);
 

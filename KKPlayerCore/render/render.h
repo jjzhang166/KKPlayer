@@ -20,7 +20,15 @@ typedef struct kkBitmap
    int  height;
    unsigned char format;  /// 1 BGRA 32
 }kkBitmap;
+typedef struct kkAVPicInfo
+{
+    unsigned char *data[8];
+    int      linesize[8];
+	int      picformat;
+	int      width;
+	int      height;
 
+}kkAVPicInfo;
 typedef void (*fpRenderImgCall) (void* BufRgb,int width,int height,int BufLen,void* UserData);
 class IkkRender
 {
@@ -35,7 +43,7 @@ public:
     virtual void resize(unsigned int w, unsigned int h) = 0;
     //virtual void WinSize(unsigned int w, unsigned int h) = 0;
 
-	virtual void render(char* buf,int width,int height,int Imgwidth,bool wait)=0;
+	virtual void render(kkAVPicInfo *Picinfo,bool wait)=0;
 	//≥ œ÷±≥æ∞Õº∆¨
 	virtual void renderBk(unsigned char* buf,int len)=0;
 	virtual void SetWaitPic(unsigned char* buf,int len)=0;

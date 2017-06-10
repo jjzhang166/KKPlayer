@@ -20,7 +20,6 @@ class CKKCond_t
 		HANDLE m_hWait;
 #else
 		pthread_cond_t  m_hWait;
-		//volatile long m_hWait;
         CKKMutex m_Mutex;
 #endif
 };

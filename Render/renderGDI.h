@@ -18,7 +18,7 @@ public:
     virtual void destroy();
     virtual void resize(unsigned int w, unsigned int h);
 	virtual void LoadCenterLogo(unsigned char* buf,int len);
-	void render(char* buf,int width,int height,int Imgwidth,bool wait);
+	void         render(kkAVPicInfo *Picinfo,bool wait);
 	virtual void renderBk(unsigned char* buf,int len);
 	void SetWaitPic(unsigned char* buf,int len);
 	void SetBkImagePic(unsigned char* buf,int len);
@@ -31,8 +31,8 @@ public:
 	void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 protected:
     void createBitmap(unsigned int w, unsigned int h);
-    void DrawSkVideo(SkCanvas& canvas,char *buf,int w,int h);
-    void skiaSal(char *buf,int w,int h);
+    void DrawSkVideo(SkCanvas& canvas,kkAVPicInfo *Picinfo);
+    void skiaSal(kkAVPicInfo *Picinfo);
 private:
 	std::wstring        m_LeftStr;
 	bool                m_bShowErrPic;

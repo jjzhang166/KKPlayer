@@ -348,7 +348,16 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 	return 0;
 }
 
-
+/****刷新队列,更新对列的大小****/
+void frame_queue_push(SKK_FrameQueue *f)
+{
+	f->mutex->Lock();
+	if (++f->windex >= f->max_size)
+		f->windex = 0;
+	
+	f->size++;
+	f->mutex->Unlock();
+}
 
 //音频填充回调
 int audio_fill_frame( SKK_VideoState *pVideoInfo) 
@@ -647,16 +656,7 @@ static void decoder_start(SKK_Decoder *d,unsigned (__stdcall* _StartAddress) (vo
 	d->decoder_tid.Addr = pthread_create(&d->decoder_tid.Tid_task, NULL, (void* (*)(void*))_StartAddress, (LPVOID)is);
 #endif
 }
-/****刷新队列,更新对列的大小****/
-void frame_queue_push(SKK_FrameQueue *f)
-{
-	f->mutex->Lock();
-	if (++f->windex >= f->max_size)
-		f->windex = 0;
-	
-	f->size++;
-	f->mutex->Unlock();
-}
+
 
 
 static inline int64_t get_valid_channel_layout(int64_t channel_layout, int channels);
@@ -1160,13 +1160,14 @@ void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
 	f->size--;
 	if(f->size<0)
 		f->size=0;
+
 	if(f->size<f->max_size)
 	{
 		//将事件有效
 		f->m_pWaitCond->SetCond();
 	}
 	if(NeedLock)
-	f->mutex->Unlock();
+	    f->mutex->Unlock();
 }
 SKK_Frame *frame_queue_peek_next(SKK_FrameQueue *f)
 {
@@ -1550,43 +1551,6 @@ last:
 end:  
         }  
         return dst;  
-} 
-void sse_copy2(void *p1, void *p2, size_t n)  
-{  
-    __asm  
-    {  
-        mov esi,    p1  
-        mov edi,    p2  
-        mov ecx,    n  
-        shr ecx,    7  
-LOOP1:  
-  
-        movdqa  xmm0,   [esi]  
-        movdqa  xmm1,   [esi+16]  
-        movdqa  xmm2,   [esi+32]  
-        movdqa  xmm3,   [esi+48]  
-        movdqa  xmm4,   [esi+64]  
-        movdqa  xmm5,   [esi+80]  
-        movdqa  xmm6,   [esi+96]  
-        movdqa  xmm7,   [esi+112]  
-  
-        movntdq [edi], xmm0  
-        movntdq [edi+16], xmm1  
-        movntdq [edi+32], xmm2  
-        movntdq [edi+48], xmm3  
-        movntdq [edi+64], xmm4  
-        movntdq [edi+80], xmm5  
-        movntdq [edi+96], xmm6  
-        movntdq [edi+112], xmm7  
-  
-        add esi, 128  
-        add edi,128  
-        sub ecx,1  
-        jnz LOOP1  
-        END:  
-  
-    }  
-  
 } 
 //图片队列 图片,这里有很大的优化空间
 int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duration, int64_t pos, int serial)
