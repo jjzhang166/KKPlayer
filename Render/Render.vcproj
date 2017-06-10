@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(KKWinDx9Path)\include&quot;;..\skia\include;..\skia\include\core;..\skia\include\config"
+				AdditionalIncludeDirectories="&quot;$(KKWinDx9Path)\include&quot;;..\skia\include;..\skia\include\core;..\skia\include\config;..\ffmpeg\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RENDER_EXPORTS;ZLIB_WINAPI"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -116,7 +116,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(KKWinDx9Path)\include&quot;;..\skia\include;..\skia\include\core;..\skia\include\config"
+				AdditionalIncludeDirectories="&quot;$(KKWinDx9Path)\include&quot;;..\skia\include;..\skia\include\core;..\skia\include\config;..\ffmpeg\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RENDER_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

@@ -4,6 +4,7 @@
 #include <wchar.h>
 #include <stdio.h>
 #include <assert.h>
+#include "../ffmpeg/include/libavutil/pixfmt.h"
 #ifndef SAFE_RELEASE
 #define SAFE_RELEASE(p)      { if (p) { (p)->Release(); (p)=NULL; } }
 #endif
@@ -71,7 +72,6 @@ CRenderD3D::CRenderD3D()
     :m_hView(NULL)
     ,m_pD3D(NULL)
     ,m_pDevice(NULL)
-	,m_pDxTexture(NULL)
 	,Fontexture(NULL)
 	,m_pWaitPicTexture(NULL)
 	,m_CenterLogoTexture(NULL)
@@ -84,6 +84,7 @@ CRenderD3D::CRenderD3D()
     ,m_ErrBufImgLen(0)
 	,m_lastpicw(0)
 	,m_lastpich(0)
+	,m_nPicformat(0)
 {
 
 }
@@ -548,7 +549,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 					
 					m_pDevice->StretchRect(m_pYUVAVTexture,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
 					
-				}/**/
+				}
 
 
 #endif
@@ -607,7 +608,6 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 void CRenderD3D::ResetTexture()
 {
 
-	SAFE_RELEASE(m_pDxTexture);
 	SAFE_RELEASE(Fontexture);
 	SAFE_RELEASE(m_CenterLogoTexture);
    
@@ -1088,81 +1088,92 @@ end:
 bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 {
 	
-#ifdef VFYUV420P	
-	if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height)
+
+	if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height || m_nPicformat!=Picinfo->picformat)
     {
         RECT rect2;
         GetClientRect(m_hView, &rect2);
 		UINT hei=rect2.bottom - rect2.top;
 		UINT Wei=rect2.right - rect2.left;
 		
+		D3DFORMAT d3dformat=(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2');
+		if(Picinfo->picformat==(int)AV_PIX_FMT_NV12)
+			d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
+
 		SAFE_RELEASE(m_pYUVAVTexture);
 			if(m_w!=Wei&&hei!=m_h){
 				resize( Wei,hei);
 			}
-			//DX YV12 就是YUV420
+			//DX YV12 就是YUV420P
 			HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
 				Picinfo->width, Picinfo->height,
-				(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2'),
+				d3dformat,
 				D3DPOOL_DEFAULT,
 				&m_pYUVAVTexture,
 				NULL);
-			if (FAILED(hr))
-				return false;
-			 
-    }
-#endif
-   
-      D3DLOCKED_RECT rect;
-		#ifdef VFYUV420P
-				 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
-				 if(rect.pBits!=NULL)
-				 {
 
-						  
-					 byte *pSrc = (byte *)Picinfo->data[0];
-						  byte * pDest = (BYTE *)rect.pBits;  
-						  int stride = rect.Pitch;  
-						  unsigned long i = 0;  
-						  int pixel_h=Picinfo->height;
-						  int pixel_w=Picinfo->width;
-						  //Copy Data (YUV420P)  
-						  //Y
-						  for(i = 0;i < pixel_h;i ++)
-						  {  
-							  memcpy(pDest + i * stride,pSrc + i * pixel_w,Picinfo->width);  
-						  } 
-						  //U
-						  for(i = 0;i < pixel_h/2;i ++)
-						  {  
-							  memcpy(pDest + stride * pixel_h + i * stride / 2,pSrc + pixel_w * pixel_h + pixel_w * pixel_h / 4 + i * pixel_w / 2, Picinfo->width / 2);  
-						  }  
-						  //V
-						  for(i = 0;i < pixel_h/2;i ++)
-						  {  
-							  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pSrc + pixel_w * pixel_h + i * pixel_w / 2, Picinfo->width / 2);  
-						  } /**/
-				 }
-				 m_pYUVAVTexture->UnlockRect();
-#else
-			  m_pDxTexture->LockRect(0, &rect, NULL, D3DLOCK_DISCARD);
-			  unsigned char* dst = (unsigned char*)rect.pBits; 
-			  unsigned char* src = (unsigned char*)pBuf; 
-			  memset(dst,255,rect.Pitch*h);
-			  if(pBuf!=NULL)
-			  {
-				  int row=w*4;
-			      for(int i = 0; i < h; ++i) 
-				  {
-				    memcpy(dst, src,row);
-				    src += row;
-				    dst += rect.Pitch;
-				   }
+			if (FAILED(hr))
+				return false; 
+
+			m_nPicformat=Picinfo->picformat;
+    }
+   
+     D3DLOCKED_RECT rect;
+	 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
+	 if(rect.pBits!=NULL)
+	 {			  
+			  byte *pSrc = (byte *)Picinfo->data[0];
+			  byte * pDest = (BYTE *)rect.pBits;  
+			  int stride = rect.Pitch;   
+			  int pixel_h=Picinfo->height;
+			  int pixel_w=Picinfo->width; 
+			  int i = 0;  
+			  if(Picinfo->picformat==(int)AV_PIX_FMT_NV12){
+			  
+                  byte *pY=Picinfo->data[0];
+				  byte *pUV=Picinfo->data[1];
+                  int ylen=Picinfo->width*pixel_h;
+				  int uvlen=Picinfo->width*pixel_h/2;
+
+				 /* memcpy_kaetemi_sse2(pDest,pY,ylen);
+				  memcpy_kaetemi_sse2(pDest + stride * pixel_h,pUV,uvlen);*/
+				   //Y
+				  for(i = 0;i < pixel_h;i ++)
+				  {  
+					  memcpy(pDest + i * stride,pY + i * pixel_w,Picinfo->width);  
+				  } 
+				  //UV
+				  for(i = 0;i < pixel_h/2;i ++)
+				  {  
+					  memcpy(pDest + stride * pixel_h + i * stride,pUV + i * pixel_w, Picinfo->width);  
+				  }  
+			  }else{
+			     
+				 
+				  byte *pY=Picinfo->data[0];
+				  byte *pU=Picinfo->data[1];
+				  byte *pV=Picinfo->data[2];
+				  //Copy Data (YUV420P)  
+				  //Y
+				  for(i = 0;i < pixel_h;i ++)
+				  {  
+					  memcpy(pDest + i * stride,pY + i * pixel_w,Picinfo->width);  
+				  } 
+				  //U
+				  for(i = 0;i < pixel_h/2;i ++)
+				  {  
+					  memcpy(pDest + stride * pixel_h + i * stride / 2,pU + i * pixel_w / 2, Picinfo->width / 2);  
+				  }  
+				  //V
+				  for(i = 0;i < pixel_h/2;i ++)
+				  {  
+					  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pV + i * pixel_w / 2, Picinfo->width / 2);  
+				  } /**/
 			  }
-			m_pDxTexture->UnlockRect(0);		  
-#endif
-	UpdateLeftPicTexture();
-    return true;
+	 }
+	 m_pYUVAVTexture->UnlockRect();	  
+	 UpdateLeftPicTexture();
+     return true;
 }
 
 

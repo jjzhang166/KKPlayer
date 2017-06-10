@@ -931,7 +931,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 													if(pVideoInfo->video_st!=NULL){
 													   pVideoInfo->pictq.mutex->Lock();
 													   vp =frame_queue_peek_last(&pVideoInfo->pictq);
-													   if(vp->buffer!=NULL&&m_lstPts!=vp->pts||Force)
+													   if(vp->Bmp.data[0]!=NULL&&(m_lstPts!=vp->pts||Force))
 													   {
 														   m_lstPts=vp->pts;
 														   kkAVPicInfo picinfo;
@@ -939,6 +939,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 														   memcpy(picinfo.linesize,vp->Bmp.linesize,32);
 														   picinfo.width=vp->width;
 														   picinfo.height=vp->height;
+														   picinfo.picformat=vp->picformat;
 														   pRender->render(&picinfo,okkk);
 													   }else if(pVideoInfo->IsReady==0){
 														   pRender->render(NULL,true);

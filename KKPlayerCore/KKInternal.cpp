@@ -147,7 +147,11 @@ void frame_queue_destory(SKK_FrameQueue *f)
 		SKK_Frame *vp = &f->queue[i];
 		frame_queue_unref_item(vp);
 		av_frame_free(&vp->frame);
-		av_free(vp->buffer);
+		if(vp->allocated==1)
+		{
+		    av_free(vp->buffer);
+			vp->buffer=NULL;
+		}
 	}
 }
 /**********清空队列***********/
@@ -748,7 +752,7 @@ int seg_stream_component_open(SKK_VideoState *is, int stream_index)
 	{
        #ifdef WIN32
 		       avctx->codec_id=codec->id;
-               is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
+             
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
@@ -891,7 +895,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	{ 
 	   avctx->codec_id=codec->id;
        #ifdef WIN32
-	         
+	           is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
 			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
@@ -1611,8 +1615,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	   }
 
 	   PixelFormat format=(PixelFormat)pOutAV->format;
-		if( vp->buffer==NULL || vp->height!=pOutAV->height ||vp->width!=pOutAV->width)
-		{
+	   if( vp->buffer==NULL || vp->height!=pOutAV->height ||vp->width!=pOutAV->width){
 			
 			 is->last_width=pFrame->width;
 			 is->last_height=pFrame->height;
@@ -1620,18 +1623,26 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			 vp->height=   is->last_height;//FFALIGN(pFrame->height, 2);
 			 vp->pitch =   is->last_width;
 			
+			 if(is->DstAVff!=format)
+			 {
 				 vp->allocated = 1;
 				 int numBytes=avpicture_get_size(is->DstAVff, vp->width,vp->height); //pFrame->width,pFrame->height
 				 vp->buflen=numBytes*sizeof(uint8_t)+100;
+				    if(vp->buffer)
 				 av_free(vp->buffer);
 				 vp->buffer=(uint8_t *)KK_Malloc_(vp->buflen);
 				 avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,is->DstAVff, vp->width,vp->height);
-			
+			 }else{
+			        if(vp->frame==NULL)
+					      vp->frame= av_frame_alloc();
+			 }
 		}
+		vp->picformat=format;
 		pPictq->mutex->Unlock();
 	
 		
-		
+		if(is->DstAVff!=format&&is->Hard_Code!=is->HARDCODE::HARD_CODE_QSV)
+		{
 			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			 pOutAV->width,       pOutAV->height ,              format ,
 			 pOutAV->width,       pOutAV->height,               is->DstAVff,                
@@ -1643,14 +1654,16 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 				 assert(0);
 				 
 			 }
-		    //如果是硬件加速，转化就慢了。
-		   sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
+			 //如果是硬件加速，转化就慢了。
+		     sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
+		}else{
+		      av_frame_move_ref(vp->frame,pOutAV);
+			  memcpy(vp->Bmp.data,vp->frame->data,32);
+			  memcpy(vp->Bmp.linesize,vp->frame->linesize,32);
+		}
 		   
-	
-		 
-        
-		//av_frame_move_ref(
-        //av_frame_move_ref(vp->frame,pOutAV);
+
+        //
 		/*if(is->bTraceAV) {
 			int  OpenTime2= av_gettime ()/1000-OpenTime;
 		    LOGE("dex:%d ,%d,%d\n",OpenTime2,pOutAV->width,pOutAV->height );

@@ -54,7 +54,6 @@ private:
 
     IDirect3D9* m_pD3D;
     IDirect3DDevice9* m_pDevice;
-    IDirect3DTexture9* m_pDxTexture;
 	IDirect3DTexture9* Fontexture;
 
 	unsigned char* m_ErrBufImg;
@@ -90,7 +89,7 @@ private:
 	Vertex m_CenterLogVertex[4];
 	Vertex m_LeftPicVertex[4];
 	Vertex m_ErrPicVertex[4];
-
+    int    m_nPicformat;
 };
 
 #endif

@@ -6,6 +6,7 @@
 #define GetGValue(rgb)      (LOBYTE(((unsigned short)(rgb)) >> 8))
 #define GetBValue(rgb)      (LOBYTE((rgb)>>16))
 #define kkRGB(r,g,b)              ((unsigned long )(((unsigned char)(r)|((unsigned short)((unsigned char)(g))<<8))|(((unsigned long)(unsigned char)(b))<<16)))
+///矩形区域
 typedef struct kkRect
 {
 	int left;
@@ -13,6 +14,7 @@ typedef struct kkRect
 	int right;
 	int bottom;
 }kkRect;
+//位图数据
 typedef struct kkBitmap
 {
    void *pixels;
@@ -20,6 +22,7 @@ typedef struct kkBitmap
    int  height;
    unsigned char format;  /// 1 BGRA 32
 }kkBitmap;
+///视频图像信息
 typedef struct kkAVPicInfo
 {
     unsigned char *data[8];

@@ -100,15 +100,15 @@ typedef struct SKK_Frame
 	int                     PktNumber;      ///包序号，递增
 	double                  pts;            /// presentation timestamp for the frame
 	double                  duration;       /// estimated duration of the frame 这一帧持续的时间
-	int64_t                  pos;            /// byte position of the frame in the input file
+	int64_t                 pos;            /// byte position of the frame in the input file
 	
-	AVPicture                Bmp;            ///位图数据
-	uint8_t                 *buffer;
-	int dataLen;
-	int buflen;
-    int width;
-	int height;
-	int pitch;
+	AVPicture               Bmp;            ///位图数据
+	uint8_t                *buffer;
+	int                     picformat;      ///图像数据格式
+	int                     buflen;
+    int                     width;
+	int                     height;
+	int                     pitch;
 	
 	/*****是否分配内存对frame*****/
 	int allocated;
