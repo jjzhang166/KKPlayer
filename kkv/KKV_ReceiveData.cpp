@@ -13,7 +13,7 @@
 #include "KKVP.h"
 #ifdef _DEBUG
     #pragma comment (lib,"QyIPC.lib")
-    #pragma comment (lib,"jsoncpp.lib")
+    #pragma comment (lib,"jsoncppd.lib")
 #else
     #pragma comment (lib,"QyIPC.lib")
     #pragma comment (lib,"jsoncpp.lib")

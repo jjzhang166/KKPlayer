@@ -643,6 +643,8 @@ static int Setup(kk_va_dxva2_t *external, void **hw, AVPixelFormat *chroma,int w
 		goto ok;
 
 	
+	//DxDestroyVideoDecoder(va);
+
 	*chroma = AV_PIX_FMT_NONE;
 	if (width <= 0 || height <= 0)
 		return -1;
@@ -810,11 +812,10 @@ static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
 	const enum AVPixelFormat *pi_fmt )
 {
 	kk_va_dxva2_t *va = (kk_va_dxva2_t *)p_context->opaque;
-    bool vaIni=true;
+
 	if( va )
 	{
-		 vaIni=false;
-		//Close_Kk_Va_Dxva2( va,false );
+		Close_Kk_Va_Dxva2( va,false );
 	}
 
 	/* Try too look for a supported hw acceleration */
@@ -833,7 +834,6 @@ static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
 		if( pi_fmt[i] == AV_PIX_FMT_DXVA2_VLD )
 		{
 			av_log(p_context, AV_LOG_DEBUG, "Trying DXVA2\n" );
-			if( vaIni)
 			vlc_va_NewDxva2( p_context->codec_id,va);
 			if( !va )
 				av_log(NULL, AV_LOG_ERROR, "Failed to open DXVA2\n" );
@@ -933,10 +933,10 @@ int BindDxva2Module(	AVCodecContext  *pCodecCtx)
 		return -1;
 	}
 
-	dxva->tmp_frame           = av_frame_alloc();
-	pCodecCtx->get_format     = ffmpeg_GetFormat;
-	pCodecCtx->get_buffer2    = ffmpeg_GetFrameBuf;
-	pCodecCtx->thread_count   = 1;
+	dxva->tmp_frame= av_frame_alloc();
+	pCodecCtx->get_format = ffmpeg_GetFormat;
+	pCodecCtx->get_buffer2 = ffmpeg_GetFrameBuf;
+	pCodecCtx->thread_count = 1;
 	pCodecCtx->slice_flags    |= SLICE_FLAG_ALLOW_FIELD;
 	
 	int res = Setup(dxva, &pCodecCtx->hwaccel_context, &pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height);

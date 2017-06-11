@@ -10,7 +10,7 @@
 #include "MainPage/MainDlg.h"
 #include "MainPage/SUIVideo.h"
 #include "MainPage/KKWkeWebkit.h"
-#include "control/kkmclv.h"
+#include "control/kkmclv.h"22
 #include "Control/kkseek.h"
 //#include "DownManage/AVDownManage.h"
 #include "Dir/Dir.hpp"
@@ -24,6 +24,7 @@
 #include "../KKPlayerCore/KKPlayer.h"
 #pragma comment (lib,"Gdiplus.lib")
 #pragma comment (lib,"Kernel32.lib")
+
 
 void DeclareDumpFile();
 CAppModule _Module;

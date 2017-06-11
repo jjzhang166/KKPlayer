@@ -296,3 +296,15 @@ void  CRenderGDI::skiaSal(kkAVPicInfo *Picinfo)
 	}
 }
 
+bool CRenderGDI::GetHardInfo(void** pd3d,void** pd3ddev,int *ver)
+{
+   return false;
+}
+void CRenderGDI::renderLock()
+{
+
+}
+void CRenderGDI::renderUnLock()
+{
+
+}

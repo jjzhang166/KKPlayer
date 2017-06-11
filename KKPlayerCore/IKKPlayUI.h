@@ -45,6 +45,9 @@ class IKKPlayUI
 			 virtual void  AVReadOverThNotify(void *playerIns)=0;
 			 /***视频读取线程结束调用***/
 			 virtual void  AVRender()=0;
+
+			 virtual void RenderLock()=0;
+			 virtual void RenderUnLock()=0;
    protected:
 	         unsigned char* m_pBkImage;
 			 int m_pBkImageLen;

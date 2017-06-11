@@ -10,6 +10,7 @@
 #include "KKCond_t.h"
 #include "IKKAudio.h"
 #include "KKPlugin.h"
+#include "IKKPlayUI.h"
 #include <queue>
 #ifndef KKVideoInfo_H_
 #define KKVideoInfo_H_
@@ -364,6 +365,8 @@ typedef struct SKK_VideoState
 	unsigned int nCacheTime;
 	//用于减少延迟用
 	double  OpenTime;
+
+	IKKPlayUI* renderui;
 	//硬件解码方式
 	enum HARDCODE
 	{

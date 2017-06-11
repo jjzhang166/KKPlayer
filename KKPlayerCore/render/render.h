@@ -57,8 +57,13 @@ public:
 	virtual void ShowErrPic(bool show)=0;
 	virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color)=0;
 
+	//…Ë÷√¥ÌŒÛÃ· æ
 	virtual void SetLeftPicStr(const char *str)=0;
 	virtual void SetRenderImgCall(fpRenderImgCall fp,void* UserData)=0;
+
+	virtual bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver)=0;
+	virtual void renderLock()=0;
+	virtual void renderUnLock()=0;
 };
 
 #endif

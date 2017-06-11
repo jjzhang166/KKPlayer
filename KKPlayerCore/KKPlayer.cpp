@@ -1239,7 +1239,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
     pVideoInfo->DstAVff=m_DstAVff;
-
+	pVideoInfo->renderui=m_pPlayUI;
     m_PktSerial=0;
 	m_nSeekTime=0;
 	m_nSeekSegId=-1;

@@ -4,13 +4,24 @@
 #include <ObjIdl.h>
 #include "KKSound.h"
 #include "json/json.h"
+
+
 #ifdef _DEBUG
-#pragma comment (lib,"../Debug/jsoncpp.lib")
-#pragma comment (lib,"../Debug/libx86/librtmp.lib");
+#pragma comment (lib,"../Debug/libx86/KKPlayerCored.lib")
+#pragma comment (lib,"../Debug/libx86/libmfxd.lib")
+#pragma comment (lib,"../WinUI/lib/debug/souid.lib")
+#pragma comment (lib,"../WinUI/lib/debug/utilitiesd.lib")
+#pragma comment (lib,"../Debug/jsoncppd.lib")
+#pragma comment (lib,"../Debug/libx86/librtmpd.lib")
 #else
+#pragma comment (lib,"../Release/libx86/KKPlayerCore.lib")
+#pragma comment (lib,"../Release/libx86/libmfx.lib")
+#pragma comment (lib,"../WinUI/lib/Release/soui.lib")
+#pragma comment (lib,"../WinUI/lib/Release/utilities.lib")
 #pragma comment (lib,"../Release/jsoncpp.lib")
 #pragma comment (lib,"../Release/libx86/librtmp.lib")
 #endif
+
 #pragma comment (lib,"ws2_32.lib")
 #pragma comment (lib,"winmm.lib")
 #ifndef LIBKKPLAYER
@@ -548,19 +559,15 @@ void              CMainFrame::OnFinalMessage(HWND /*hWnd*/)
 	 if(m_bNeedDel)
      delete this;
  }
+
+int SetHardCtx(void* d3d,void* dev,int ver);
 LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-
-	
 
 	m_pSound =new CSDLSound();//
 	m_pSound->SetWindowHAND((int)m_hWnd);
 	m_nPlayerInsCount=1;
 	m_pPlayerInstance = new KKPlayer(this,m_pSound);
-	
-	//m_pPlayerInstance = new KKPlayer(NULL,m_pSound);
-	
-
 	m_pRender=NULL;
 	char Out=1;
 	HWND hh=m_hWnd;
@@ -580,8 +587,12 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	m_pRender=(IkkRender*) pfnCreateRender(hh,&Out);
 	if(Out==0){
          m_pPlayerInstance->SetBGRA();
-         
 	}
+	else{
+	    void* d3d=NULL;void* dev=NULL;int ver=0;
+	    m_pRender->GetHardInfo(&d3d,&dev,&ver);
+	    SetHardCtx(d3d,dev,ver);/**/
+	}/**/
 	if(m_nDuiDraw){
 	   m_pRender->SetRenderImgCall(m_pDuiDrawCall,m_pRenderUserData);
 	}
@@ -752,7 +763,7 @@ LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM l
 	}
 	if(wParam==10010){
 		
-       //   AVRender();
+         AVRender();
 	}else{
 	     
 	}
@@ -1160,4 +1171,16 @@ void              CMainFrame::AVRender()
 			          m_pRender->SetLeftPicStr("");
 		          }
 	}
+}
+void CMainFrame::RenderLock()
+{
+if(m_pRender){
+	m_pRender->renderLock();
+}
+}
+void CMainFrame::RenderUnLock()
+{
+if(m_pRender){
+	m_pRender->renderUnLock();
+}
 }

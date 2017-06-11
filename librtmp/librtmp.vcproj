@@ -62,6 +62,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="Ws2_32.lib "
+				OutputFile="$(OutDir)\$(ProjectName)d.lib"
 				AdditionalLibraryDirectories=""
 			/>
 			<Tool

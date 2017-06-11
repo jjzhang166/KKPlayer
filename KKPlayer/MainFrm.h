@@ -143,6 +143,8 @@ protected:
 		virtual void           GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 		virtual void           AVReadOverThNotify(void *playerIns);
 		
+		virtual void RenderLock();
+	    virtual void RenderUnLock();
 private:
 	    void                   OnDraw(HDC& memdc,RECT& rt);
 private:

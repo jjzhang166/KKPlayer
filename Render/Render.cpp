@@ -10,7 +10,7 @@ std::map<IkkRender *,int> m_Rendermap;
 void skpngZhuc();
 
 #ifdef _DEBUG
-#pragma comment (lib,"..\\debug\\libx86\\zlibstat.lib")
+#pragma comment (lib,"..\\debug\\libx86\\zlibstatd.lib")
 #pragma comment (lib,"..\\debug\\libx86\\pngd.lib") 
 #pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
 #else
