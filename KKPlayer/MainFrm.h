@@ -145,6 +145,7 @@ protected:
 		
 		virtual void RenderLock();
 	    virtual void RenderUnLock();
+		virtual IkkRender* GetRender();
 private:
 	    void                   OnDraw(HDC& memdc,RECT& rt);
 private:

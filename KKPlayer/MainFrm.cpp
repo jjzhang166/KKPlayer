@@ -1184,3 +1184,7 @@ if(m_pRender){
 	m_pRender->renderUnLock();
 }
 }
+IkkRender* CMainFrame::GetRender()
+{
+   return m_pRender;
+}

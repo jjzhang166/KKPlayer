@@ -934,6 +934,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 													   if(vp->Bmp.data[0]!=NULL&&(m_lstPts!=vp->pts||Force))
 													   {
 														   m_lstPts=vp->pts;
+														   if(vp->picformat!=(int)AV_PIX_FMT_DXVA2_VLD){
 														   kkAVPicInfo picinfo;
 														   memcpy(picinfo.data,vp->Bmp.data,32);
 														   memcpy(picinfo.linesize,vp->Bmp.linesize,32);
@@ -941,6 +942,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 														   picinfo.height=vp->height;
 														   picinfo.picformat=vp->picformat;
 														   pRender->render(&picinfo,okkk);
+														   }
 													   }else if(pVideoInfo->IsReady==0){
 														   pRender->render(NULL,true);
 													   }
@@ -1239,7 +1241,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
     pVideoInfo->DstAVff=m_DstAVff;
-	pVideoInfo->renderui=m_pPlayUI;
+	pVideoInfo->IRender=m_pPlayUI->GetRender();
     m_PktSerial=0;
 	m_nSeekTime=0;
 	m_nSeekSegId=-1;

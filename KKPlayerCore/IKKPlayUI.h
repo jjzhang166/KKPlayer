@@ -7,7 +7,7 @@
 /*************************date：2015-6-25**********************************************/
 #ifndef KKPlayUI_H_
 #define KKPlayUI_H_
-
+#include "render/render.h"
 enum EKKPlayerErr
 {
      KKOpenUrlOk=0,          /***播发器打开成功**/
@@ -48,6 +48,7 @@ class IKKPlayUI
 
 			 virtual void RenderLock()=0;
 			 virtual void RenderUnLock()=0;
+			 virtual IkkRender* GetRender()=0;
    protected:
 	         unsigned char* m_pBkImage;
 			 int m_pBkImageLen;

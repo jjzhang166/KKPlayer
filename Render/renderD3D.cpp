@@ -497,6 +497,9 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 }
 void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 {
+ /* if(Picinfo!=NULL&&Picinfo->picformat==(int)AV_PIX_FMT_DXVA2_VLD&&Picinfo->linesize[0]==0)
+		return;*/
+  
   m_lock.Lock();
   if (!LostDeviceRestore())
   {
@@ -514,10 +517,18 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 		{
 			if(Picinfo!=NULL&&m_bShowErrPic==false)
 			{
-                UpdateTexture(Picinfo);	
-#ifdef VFYUV420P
-			
-				if(m_pYUVAVTexture!=NULL)
+				IDirect3DSurface9* temp=NULL;
+				///硬解
+				if(Picinfo->picformat==(int)AV_PIX_FMT_DXVA2_VLD)
+				{
+					temp= (LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3];	
+				}else{
+				   UpdateTexture(Picinfo);	
+				   temp=m_pYUVAVTexture;
+				}
+                
+
+				if(temp!=NULL)
 				{
 					if(m_pBackBuffer == NULL)
 					{
@@ -546,15 +557,8 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 						}
 						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
 					}
-					
-				//	HRESULT hr=m_pDevice->StretchRect(m_pYUVAVTexture,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
-					int iii=0;
-					iii++;
-					
+				    HRESULT hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
 				}
-
-
-#endif
 				if(m_pLeftPicTexture!=NULL)
 				{
 					m_pDevice->SetTexture(0, m_pLeftPicTexture);
@@ -829,55 +833,16 @@ bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
                   int ylen=Picinfo->width*pixel_h;
 				  int uvlen=Picinfo->width*pixel_h/2;
 
-				  LPDIRECT3DSURFACE9 d3d = (LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3];
-
-				  /////拷贝不进去就没法玩了
-				  HRESULT hr=0;//
-				   hr=m_pDevice->StretchRect(d3d,NULL,m_pYUVAVTexture,NULL,D3DTEXF_LINEAR);  	
-				  hr= m_pDevice->GetRenderTargetData(d3d,m_pYUVAVTexture);
-				 // hr=  m_pDevice->UpdateSurface(d3d,NULL,m_pYUVAVTexture,0);  
-				  if(m_pBackBuffer == NULL)
-					{
-						GetClientRect(m_hView,&m_rtViewport);  
-						int dw=m_rtViewport.right-m_rtViewport.left;
-						int dh=m_rtViewport.bottom-m_rtViewport.top;
-						int h=dh,w=dw;
-						//if(dw>width)
-						{
-							dh=dw*Picinfo->height/Picinfo->width;
-						}
-						if(dh>h)
-						{
-							dh=h;
-							dw=Picinfo->width*dh/Picinfo->height;
-						}
-                        if(dw<w)
-						{
-							m_rtViewport.left+=(w-dw)/2;
-							m_rtViewport.right=m_rtViewport.left+dw;
-						}
-						if(dh<h)
-						{
-							m_rtViewport.top+=(h-dh)/2;
-							m_rtViewport.bottom=m_rtViewport.top+dh;
-						}
-						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
-					}
-					
-					hr=m_pDevice->StretchRect(d3d,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  		
-				   //hr=m_pDevice->StretchRect(d3d,NULL,m_pYUVAVTexture,&m_rtViewport,D3DTEXF_LINEAR);  	
-				 //   hr=m_pDevice->StretchRect(d3d,NULL,m_pYUVAVTexture,&m_rtViewport,D3DTEXF_LINEAR);  	
-
-			      i=0;
-				  //for(i = 0;i < pixel_h;i ++)
-				  //{  
-					 // memcpy(pDest + i * stride,pY + i * pixel_w,Picinfo->width);  
-				  //} 
-				  ////UV
-				  //for(i = 0;i < pixel_h/2;i ++)
-				  //{  
-					 // memcpy(pDest + stride * pixel_h + i * stride,pUV + i * pixel_w, Picinfo->width);  
-				  //}  
+	              //Y
+				  for(i = 0;i < pixel_h;i ++)
+				  {  
+					  memcpy(pDest + i * stride,pY + i * pixel_w,Picinfo->width);  
+				  } 
+				  //UV
+				  for(i = 0;i < pixel_h/2;i ++)
+				  {  
+					  memcpy(pDest + stride * pixel_h + i * stride,pUV + i * pixel_w, Picinfo->width);  
+				  }  
 			  }else{
 			     
 				 

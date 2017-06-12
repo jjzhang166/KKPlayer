@@ -9,7 +9,7 @@
 #include <math.h>
 #include <assert.h>
 #include <time.h>
-
+#include "render/render.h"
 //#include "rtmp/AV_FLv.h"
 void *KK_Malloc_(size_t size)
 {
@@ -1333,9 +1333,17 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		vp->picformat=format;
 		pPictq->mutex->Unlock();
 	
-		vp->picformat=AV_PIX_FMT_NV12;
-		//AV_PIX_FMT_DXVA2_VLD
-		if(0&&is->DstAVff!=format&&is->Hard_Code!=is->HARDCODE::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12)
+		
+		if(pOutAV->format== (int)AV_PIX_FMT_DXVA2_VLD){
+		     kkAVPicInfo picinfo;
+		     memcpy(picinfo.data,pOutAV->data,32);
+		     memcpy(picinfo.linesize,pOutAV->linesize,32);
+		     picinfo.width=vp->width;
+		     picinfo.height=vp->height;
+		     picinfo.picformat=AV_PIX_FMT_DXVA2_VLD;
+			 is->IRender->render(&picinfo,false);
+
+		}else if(is->DstAVff!=format&&is->Hard_Code!=is->HARDCODE::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12)
 		{
 			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			 pOutAV->width,       pOutAV->height ,              format ,
@@ -1434,10 +1442,10 @@ LXXXX:
 			{
 					pts = 0; 
 					
-					is->renderui->RenderLock();
+					is->IRender->renderLock();
 					// ”∆µΩ‚¬Î
 					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
-					is->renderui->RenderUnLock();
+					is->IRender->renderUnLock();
 					//’“µΩpts
 					if((pts = av_frame_get_best_effort_timestamp(pFrame)) == AV_NOPTS_VALUE) 
 					{
