@@ -943,7 +943,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 														   picinfo.picformat=vp->picformat;
 														   pRender->render(&picinfo,okkk);
 														   }else{
-														       pRender->render(NULL,okkk);
+														       //pRender->render(NULL,okkk);
 														   }
 													   }else if(pVideoInfo->IsReady==0){
 														   pRender->render(NULL,true);

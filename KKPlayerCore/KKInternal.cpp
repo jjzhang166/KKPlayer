@@ -28,6 +28,7 @@ void  KK_Free_(void *ptr)
       //AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;////AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
       //DXV2
 	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
+int GetRestDevState(void* opaque);
 	  void Dxva2ResetDevCall(void* UserData);
 	  void FroceClose_Kk_Va_Dxva2(void *kk_va);
 
@@ -1271,6 +1272,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	if(vp==NULL)
 		return -1;
 
+	
 	pPictq->mutex->Lock();
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
 	vp->frame->pts=pFrame->pts;
@@ -1346,13 +1348,23 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	
 		
 		if(pOutAV->format== (int)AV_PIX_FMT_DXVA2_VLD){
-		     kkAVPicInfo picinfo;
-		     memcpy(picinfo.data,pOutAV->data,32);
-		     memcpy(picinfo.linesize,pOutAV->linesize,32);
-		     picinfo.width=vp->width;
-		     picinfo.height=vp->height;
-		     picinfo.picformat=AV_PIX_FMT_DXVA2_VLD;
-			 is->IRender->render(&picinfo,false);
+
+			
+			 is->IRender->renderLock();
+			int resetdev=GetRestDevState( is->viddec.avctx->opaque);
+			 if(resetdev==0){
+				 kkAVPicInfo picinfo;
+				 memcpy(picinfo.data,pOutAV->data,32);
+				 memcpy(picinfo.linesize,pOutAV->linesize,32);
+				 picinfo.width=vp->width;
+				 picinfo.height=vp->height;
+				 picinfo.picformat=AV_PIX_FMT_DXVA2_VLD;
+				 is->IRender->renderUnLock();
+				 is->IRender->render(&picinfo,false);
+			 }else{
+			    is->IRender->renderUnLock();
+			 }
+			
 
 		}else if(is->DstAVff!=format&&is->Hard_Code!=is->HARDCODE::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12)
 		{
@@ -1375,7 +1387,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			  memcpy(vp->Bmp.linesize,vp->frame->linesize,32);
 		}
 		   
-
+     
         //
 		/*if(is->bTraceAV) {
 			int  OpenTime2= av_gettime ()/1000-OpenTime;
@@ -1383,6 +1395,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		}*/
    
 	frame_queue_push(&is->pictq);
+//	is->IRender->renderLock();
 	return 0;
    
 }  
@@ -1456,7 +1469,7 @@ LXXXX:
 					is->IRender->renderLock();
 					//ÊÓÆµ½âÂë
 					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
-					is->IRender->renderUnLock();
+					
 					//ÕÒµ½pts
 					if((pts = av_frame_get_best_effort_timestamp(pFrame)) == AV_NOPTS_VALUE) 
 					{
@@ -1475,6 +1488,8 @@ LXXXX:
 
 					AVRational  fun={frame_rate.den, frame_rate.num};
 					is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
+
+					is->IRender->renderUnLock();
 					if(got_frame)  
 					{  
 						if(queue_picture(is, pFrame, pts, is->duration , av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  

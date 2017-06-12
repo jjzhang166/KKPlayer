@@ -589,9 +589,9 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
          m_pPlayerInstance->SetBGRA();
 	}
 	else{
-	    void* d3d=NULL;void* dev=NULL;int ver=0;
+	   void* d3d=NULL;void* dev=NULL;int ver=0;
 	    m_pRender->GetHardInfo(&d3d,&dev,&ver);
-	    SetHardCtx(d3d,dev,ver);/**/
+	    SetHardCtx(d3d,dev,ver); /**/
 	}/**/
 	if(m_nDuiDraw){
 	   m_pRender->SetRenderImgCall(m_pDuiDrawCall,m_pRenderUserData);

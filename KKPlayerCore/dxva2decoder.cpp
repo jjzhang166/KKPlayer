@@ -177,97 +177,88 @@ static int D3dCreateDevice(kk_va_dxva2_t *va)
 
 static void DxDestroyVideoDecoder(kk_va_dxva2_t *va)
 {
-	if (va->decoder)
-	{
-		HRESULT  hr=	va->decoder->Release();
-		va->decoder = NULL;
-	}
-	for (unsigned i = 0; i < va->surface_count; i++)
-	{
-            HRESULT  hr= va->surface[i].d3d->Release();
-			if (FAILED(hr))
-			{
+    
+	for(unsigned i = 0; i < va->surface_count; i++){
+
+		//HRESULT  hr=IDirect3DSurface9_Release(va->surface[i].d3d);
+         HRESULT  hr= va->surface[i].d3d->Release();
+		 
+		 while(hr>S_FALSE)
+		 {
+			 hr= va->surface[i].d3d->Release();
+			if (FAILED(hr)){
 				printf("Error!\n"); 
 			}
+		 }
             va->surface[i].d3d=NULL;
 			va->hw_surface[i]=0;
 	}
-		
+	if (va->decoder){
+		HRESULT  hr=	va->decoder->Release();
+		 while(hr>S_FALSE)
+		 {
+			 hr=	va->decoder->Release();
+			 if (FAILED(hr)){
+				printf("Error!\n"); 
+			}
+		 }
+	
+if (FAILED(hr)){
+				printf("Error!\n"); 
+			}
+		va->decoder = NULL;
+	}
+	
 	
 
 	va->surface_count = 0;
 }
-
+int GetRestDevState(void* opaque)
+{
+ kk_va_dxva2_t* va=(kk_va_dxva2_t*)opaque;
+ return va->resetdev;
+}
 void Dxva2ResetDevCall(void* UserData)
 {
+	
 	AVCodecContext *avctx=( AVCodecContext *)UserData;
-
-	kk_va_dxva2_t* va=(kk_va_dxva2_t*)avctx->opaque;
+    kk_va_dxva2_t* va=(kk_va_dxva2_t*)avctx->opaque;
+	va->resetdev=1;
+    avcodec_flush_buffers(avctx);
 	DxResetVideoDecoder(va);
-	//Close_Kk_Va_Dxva2(va,true);
-
- //   BindDxva2Module(avctx);
 }
 static int DxResetVideoDecoder(kk_va_dxva2_t *va)
 {
 
-	//return 0;
 	
+	
+   
+	DxDestroyVideoDecoder(va);
 
 	
-	
-	/*if (va->device){
+
+    if (va->videoService){
+		HRESULT  hr=va->videoService->Release();
+		 hr=va->videoService->Release();
+		if (FAILED(hr))
+		{
+			printf("Error!\n"); 
+		}
+		va->videoService=NULL;
+	} 
+	if (va->device){
 				HRESULT  hr=va->devmng->CloseDeviceHandle(va->device);
 				if (FAILED(hr))
 				{
 					printf("Error!\n"); 
 				}
 				va->device=0;
-				va->devmng->Release();
-				
-	}*/
-
-/*	if (va->vs){
-		HRESULT  hr=va->vs->Release();
-		if (FAILED(hr))
-		{
-			printf("Error!\n"); 
-		}
-		va->vs=NULL;
 	}
-    
-	if (va->devmng)
-		{
+	if (va->devmng){
 			HRESULT  hr=va->devmng->Release();
+			//hr=va->devmng->Release();
 			va->devmng=NULL;
-		}
-	D3dCreateDeviceManager(va);*/
-	
-	HRESULT hr = va->devmng->TestDevice(va->device);
-	if (hr == DXVA2_E_NEW_VIDEO_DEVICE)
-	{
-	   int ii=0;
-	   ii++;
-	   DxDestroyVideoDecoder(va);
-	    hr =va->devmng->ResetDevice(G_pD3Ddev,va->devmngtoken);
-	IDirectXVideoDecoderService *vs;
-	 hr = va->devmng->GetVideoService(va->device,
-		IID_IDirectXVideoDecoderService,
-		(void **)&vs);
-	if (FAILED(hr)) 
-	{
-		return -1;
 	}
-	va->vs = vs;
-
-	if (DxFindVideoServiceConversion(va, &va->input, &va->render))
-	{
-		av_log(NULL, AV_LOG_ERROR, "DxFindVideoServiceConversion failed\n");
-		
-	}
-	}
-
-	
 	return 0;
 }
 void Close_Kk_Va_Dxva2(kk_va_dxva2_t *external,bool bFull)
@@ -287,13 +278,13 @@ void Close_Kk_Va_Dxva2(kk_va_dxva2_t *external,bool bFull)
 				hr=0;
 			}
 
-		if (va->vs){
-			HRESULT  hr=va->vs->Release();
+		if (va->videoService){
+			HRESULT  hr=va->videoService->Release();
 			if (FAILED(hr))
 			{
 				printf("Error!\n"); 
 			}
-			va->vs=NULL;
+			va->videoService=NULL;
 		}
 
 
@@ -327,7 +318,7 @@ static int DxFindVideoServiceConversion(kk_va_dxva2_t *va, GUID *input, D3DFORMA
 	/* Retrieve supported modes from the decoder service */
 	UINT input_count = 0;
 	GUID *input_list = NULL;
-	 HRESULT hr = va->vs->GetDecoderDeviceGuids(&input_count, &input_list);
+	 HRESULT hr = va->videoService->GetDecoderDeviceGuids(&input_count, &input_list);
 	if (FAILED(hr)) {
 		av_log(NULL, AV_LOG_ERROR, "IDirectXVideoDecoderService_GetDecoderDeviceGuids failed\n");
 		return -1;
@@ -362,7 +353,7 @@ static int DxFindVideoServiceConversion(kk_va_dxva2_t *va, GUID *input, D3DFORMA
 		av_log(NULL, AV_LOG_DEBUG, "Trying to use '%s' as input\n", mode->name);
 		UINT      output_count = 0;
 		D3DFORMAT *output_list = NULL;
-		if (FAILED(va->vs->GetDecoderRenderTargets( mode->guid,
+		if (FAILED(va->videoService->GetDecoderRenderTargets( mode->guid,
 			&output_count,
 			&output_list))) 
 		{
@@ -440,7 +431,7 @@ static int DxCreateVideoService(kk_va_dxva2_t *va)
 	{
 		return -1;
 	}
-	va->vs = vs;
+	va->videoService = vs;
 
 	return 0;
 }
@@ -511,7 +502,7 @@ kk_va_dxva2_t *vlc_va_NewDxva2(int codec_id,kk_va_dxva2_t *va)
 		goto error;
 	}
 
-	if (!va->vs&&DxCreateVideoService(va))
+	if (!va->videoService&&DxCreateVideoService(va))
 	{
 		av_log(NULL, AV_LOG_ERROR, "DxCreateVideoService failed\n");
 		goto error;
@@ -542,7 +533,7 @@ static int DxCreateVideoDecoder(kk_va_dxva2_t *va,
 	av_log(NULL, AV_LOG_DEBUG, "DxCreateVideoDecoder id %d %dx%d\n",
 		codec_id, fmt->i_width, fmt->i_height);
 
-	if(va->vs==NULL)
+	if(va->videoService==NULL)
 		return -1;
 
 	va->width  = fmt->i_width;
@@ -552,15 +543,16 @@ static int DxCreateVideoDecoder(kk_va_dxva2_t *va,
 	va->surface_width  = (fmt->i_width  + 15) & ~15;
 	va->surface_height = (fmt->i_height + 15) & ~15;
 	switch (codec_id) {
-	case AV_CODEC_ID_H264:
-		va->surface_count = 16 + 1;
-		break;
 	default:
-		va->surface_count = 2 + 1;
+//AV_CODEC_ID_H264:
+		va->surface_count = 17;
+	/*	break;
+	default:
+		va->surface_count = 2 + 1;*/
 		break;
 	}
 	LPDIRECT3DSURFACE9 surface_list[VA_DXVA2_MAX_SURFACE_COUNT];
-	if (FAILED(va->vs->CreateSurface(va->surface_width,
+	if (FAILED(va->videoService->CreateSurface(va->surface_width,
 		va->surface_height,
 		va->surface_count - 1,
 		va->render,
@@ -618,7 +610,7 @@ static int DxCreateVideoDecoder(kk_va_dxva2_t *va,
 	/* List all configurations available for the decoder */
 	UINT                      cfg_count = 0;
 	DXVA2_ConfigPictureDecode *cfg_list = NULL;
-	if (FAILED(va->vs->GetDecoderConfigurations(va->input,
+	if (FAILED(va->videoService->GetDecoderConfigurations(va->input,
 		&dsc,	
 		NULL,
 		&cfg_count,
@@ -655,6 +647,7 @@ static int DxCreateVideoDecoder(kk_va_dxva2_t *va,
 		}
 	}
 	CoTaskMemFree(cfg_list);
+
 	cfg_list = NULL;
 
 	if (cfg_score <= 0)
@@ -665,7 +658,7 @@ static int DxCreateVideoDecoder(kk_va_dxva2_t *va,
 
 	/* Create the decoder */
 	IDirectXVideoDecoder *decoder;
-	if (FAILED(va->vs->CreateVideoDecoder(va->input,
+	if (FAILED(va->videoService->CreateVideoDecoder(va->input,
 		&dsc,
 		&va->cfg,
 		surface_list,
@@ -713,6 +706,24 @@ static int Setup(kk_va_dxva2_t *external, void **hw, AVPixelFormat *chroma,int w
 	fmt.i_width = width;
 	fmt.i_height = height;
 
+	if (!va->devmng &&D3dCreateDeviceManager(va)) {
+		av_log(NULL, AV_LOG_ERROR, "D3dCreateDeviceManager failed\n");
+		return -1;
+	}
+
+	if (!va->videoService&&DxCreateVideoService(va))
+	{
+		av_log(NULL, AV_LOG_ERROR, "DxCreateVideoService failed\n");
+		return -1;
+	}
+
+	/* */
+	if (DxFindVideoServiceConversion(va, &va->input, &va->render))
+	{
+		av_log(NULL, AV_LOG_ERROR, "DxFindVideoServiceConversion failed\n");
+		return -1;
+	}
+
 	if (DxCreateVideoDecoder(va, va->codec_id, &fmt))
 		return -1;
 	/* */
@@ -731,6 +742,7 @@ ok:
 	*hw = &va->hw;
 	const d3d_format_t *output = D3dFindFormat(va->output);
 	*chroma = output->codec;
+	va->resetdev=0;
 	return 0;
 }
 

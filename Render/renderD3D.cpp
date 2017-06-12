@@ -135,7 +135,7 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
     PresentParams.EnableAutoDepthStencil = TRUE;
     PresentParams.AutoDepthStencilFormat = D3DFMT_D24X8;
     PresentParams.Flags = D3DPRESENTFLAG_VIDEO;
-    PresentParams.FullScreen_RefreshRateInHz = 0;
+    PresentParams.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
     PresentParams.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
     return PresentParams; 
 }
@@ -417,8 +417,13 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 
 	m_lock.Lock();
 	ResetTexture();
+
+	if(m_ResetCall)
+		{
+			 m_ResetCall(m_ResetUserData);
+	   }
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
-	m_pDevice->Reset(&PresentParams);
+	HRESULT  hr=	m_pDevice->Reset(&PresentParams);
 	m_lock.Unlock();
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
@@ -639,15 +644,21 @@ bool CRenderD3D::LostDeviceRestore()
     {
         ResetTexture();
 
-		if(m_ResetCall)
-		{
-			 m_ResetCall(m_ResetUserData);
-		}else{
-           D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
-           hr = m_pDevice->Reset(&PresentParams);
-		}
 		
        
+		
+       if(m_ResetCall)
+		{
+			 m_ResetCall(m_ResetUserData);
+	   }
+	   
+	    D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
+        hr = m_pDevice->Reset(&PresentParams);
+	    if(FAILED(hr))
+		{ 
+			
+            return false;
+		}
   
 
 		int i=0;

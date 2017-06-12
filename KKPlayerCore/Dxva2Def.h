@@ -32,12 +32,12 @@ typedef struct
     int          vendorId;
 	
 	/* Device manager */
-	UINT                     devmngtoken;
+	UINT                      devmngtoken;
 	IDirect3DDeviceManager9  *devmng;
-	HANDLE                   device;
+	HANDLE                    device;
 
 	/* Video service */
-	IDirectXVideoDecoderService  *vs;
+	IDirectXVideoDecoderService  *videoService;
 	GUID                         input;
 	D3DFORMAT                    render;
 
@@ -61,6 +61,7 @@ typedef struct
 	LPDIRECT3DSURFACE9 hw_surface[VA_DXVA2_MAX_SURFACE_COUNT];
 	AVFrame* tmp_frame;
 	bool Okxx;
+	int resetdev;
 } kk_va_dxva2_t;
 
 typedef struct {
