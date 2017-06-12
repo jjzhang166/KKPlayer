@@ -85,6 +85,8 @@ CRenderD3D::CRenderD3D()
 	,m_lastpicw(0)
 	,m_lastpich(0)
 	,m_nPicformat(0)
+	,m_ResetCall(0)
+	,m_ResetUserData(0)
 {
 
 }
@@ -628,7 +630,7 @@ bool CRenderD3D::LostDeviceRestore()
     HRESULT hr = m_pDevice->TestCooperativeLevel();
     if (hr == D3DERR_DEVICELOST)
     {
-       ResetTexture();
+        ResetTexture();
         return false;
     }
 
@@ -636,39 +638,51 @@ bool CRenderD3D::LostDeviceRestore()
     if (hr == D3DERR_DEVICENOTRESET)
     {
         ResetTexture();
-        D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
-        hr = m_pDevice->Reset(&PresentParams);
+
+		if(m_ResetCall)
+		{
+			 m_ResetCall(m_ResetUserData);
+		}else{
+           D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
+           hr = m_pDevice->Reset(&PresentParams);
+		}
+		
        
   
 
-	int i=0;
-	if (hr ==  D3DERR_NOTFOUND ){
-         i=0;
-	}else if (hr ==  D3DERR_MOREDATA){
-         i=0;
-	}else if (hr ==  D3DERR_DEVICELOST){
-         i=0;
-	}else if (hr ==  D3DERR_DEVICENOTRESET){
-         i=0;
-	}else if (hr ==  D3DERR_NOTAVAILABLE){
-         i=0;
-	}else if (hr ==  D3DERR_OUTOFVIDEOMEMORY){
-         i=0;
-	}else if (hr ==  D3DERR_INVALIDDEVICE){
-         i=0;
-	}else if (hr ==  D3DERR_INVALIDCALL){
-         i=0;
-	}else if (hr ==  D3DERR_DRIVERINVALIDCALL  ){
-         i=0;
-    }else if (hr ==  D3DERR_WASSTILLDRAWING     ){
-         i=0;
-    }else if (hr ==  D3DOK_NOAUTOGEN   ){
-       i=0;
+		int i=0;
+		if (hr ==  D3DERR_NOTFOUND ){
+			 i=0;
+		}else if (hr ==  D3DERR_MOREDATA){
+			 i=0;
+		}else if (hr ==  D3DERR_DEVICELOST){
+			 i=0;
+		}else if (hr ==  D3DERR_DEVICENOTRESET){
+			 i=0;
+		}else if (hr ==  D3DERR_NOTAVAILABLE){
+			 i=0;
+		}else if (hr ==  D3DERR_OUTOFVIDEOMEMORY){
+			 i=0;
+		}else if (hr ==  D3DERR_INVALIDDEVICE){
+			 i=0;
+		}else if (hr ==  D3DERR_INVALIDCALL){
+			 i=0;
+		}else if (hr ==  D3DERR_DRIVERINVALIDCALL  ){
+			 i=0;
+		}else if (hr ==  D3DERR_WASSTILLDRAWING     ){
+			 i=0;
+		}else if (hr ==  D3DOK_NOAUTOGEN   ){
+		   i=0;
+		}
+
+        if(FAILED(hr))
+		{ 
+			
+            return false;
+		
+		}
     }
 
-   if(FAILED(hr))
-            return false;/**/
-    }
 
     return true;
 }
@@ -935,6 +949,11 @@ bool CRenderD3D::GetHardInfo(void** pd3d,void** pd3ddev,int *ver)
    *pd3ddev=m_pDevice;
    *ver=9;
    return true;
+}
+void CRenderD3D::SetResetHardInfoCall(fpResetDevCall call,void* UserData)
+{
+    m_ResetCall=call;
+	m_ResetUserData=UserData;
 }
 void CRenderD3D::renderLock()
 {

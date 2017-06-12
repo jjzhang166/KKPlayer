@@ -28,6 +28,7 @@ void  KK_Free_(void *ptr)
       //AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;////AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
       //DXV2
 	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
+	  void Dxva2ResetDevCall(void* UserData);
 	  void FroceClose_Kk_Va_Dxva2(void *kk_va);
 
 	  //inter QSV½âÂë¡£
@@ -756,6 +757,8 @@ int seg_stream_component_open(SKK_VideoState *is, int stream_index)
 			   if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
 				   if(BindDxva2Module(avctx)<0){
 					   is->Hard_Code=is->HARDCODE::HARD_CODE_NONE;
+				   }else{
+				      
 				   }
 			   }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){	   
 			       if(BindQsvModule(avctx)>-1){
@@ -897,9 +900,17 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
        #ifdef WIN32
 	           //is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
 	           is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;
-			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA){
+			   is->IRender->renderLock();
+			   is->IRender->SetResetHardInfoCall(NULL,NULL);
+			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA)
+			   {
+		           
 				   if(BindDxva2Module(avctx)<0){
-					   is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
+					   is->Hard_Code=SKK_VideoState::HARD_CODE_NONE; 
+					   is->IRender->SetResetHardInfoCall(NULL,NULL);
+				   }else
+				   {
+				        is->IRender->SetResetHardInfoCall(Dxva2ResetDevCall,avctx);
 				   }
 			   }else if(is->Hard_Code==SKK_VideoState::HARD_CODE_QSV){	   
 			       if(BindQsvModule(avctx)>-1){
@@ -908,7 +919,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				       is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
 				   }
 			   }
-			  
+			   is->IRender->renderUnLock();
 			   
       #else 
 	           LOGE("kkmediacodec \n"); 

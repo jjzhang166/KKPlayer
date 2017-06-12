@@ -33,6 +33,7 @@ typedef struct kkAVPicInfo
 
 }kkAVPicInfo;
 typedef void (*fpRenderImgCall) (void* BufRgb,int width,int height,int BufLen,void* UserData);
+typedef void (*fpResetDevCall) (void* UserData);
 class IkkRender
 {
 public:
@@ -61,7 +62,10 @@ public:
 	virtual void SetLeftPicStr(const char *str)=0;
 	virtual void SetRenderImgCall(fpRenderImgCall fp,void* UserData)=0;
 
+	///用于获取d3d信息
 	virtual bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver)=0;
+	virtual void SetResetHardInfoCall(fpResetDevCall call,void* UserData)=0;
+
 	virtual void renderLock()=0;
 	virtual void renderUnLock()=0;
 };

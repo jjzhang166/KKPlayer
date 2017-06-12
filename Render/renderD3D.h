@@ -40,6 +40,7 @@ public:
 	void FillRect(kkBitmap img,kkRect rt,unsigned int color);
 	void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 	bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver);
+	void SetResetHardInfoCall(fpResetDevCall call,void* UserData);
 	virtual void renderLock();
 	virtual void renderUnLock();
 private:
@@ -93,6 +94,8 @@ private:
 	Vertex m_LeftPicVertex[4];
 	Vertex m_ErrPicVertex[4];
     int    m_nPicformat;
+	fpResetDevCall m_ResetCall;
+	void*          m_ResetUserData;
 };
 
 #endif

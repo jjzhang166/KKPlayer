@@ -19,12 +19,14 @@ int SetHardCtx(void* d3d,void* dev,int ver)
 }
 static int D3dCreateDevice(kk_va_dxva2_t *);
 static int D3dCreateDeviceManager(kk_va_dxva2_t *);
+///´´½¨½âÂëÆ÷
 static int DxCreateVideoService(kk_va_dxva2_t *);
+static void DxDestroyVideoDecoder(kk_va_dxva2_t *va);
 static int DxFindVideoServiceConversion(kk_va_dxva2_t *, GUID *input, D3DFORMAT *output);
 static int DxCreateVideoDecoder(kk_va_dxva2_t *, int codec_id, const video_format_t *fmt);
 static int DxResetVideoDecoder(kk_va_dxva2_t *);
 static void DxCreateVideoConversion(kk_va_dxva2_t *);
-
+int BindDxva2Module(	AVCodecContext  *pCodecCtx);
 void* gpu_memcpy(void* d, const void* s, size_t size);
 static void (*CopyFrameNV12)(const BYTE *pSourceData, BYTE *pY, BYTE *pUV, size_t surfaceHeight, size_t imageHeight, size_t pitch) = 0;
 
@@ -131,12 +133,9 @@ static int D3dCreateDevice(kk_va_dxva2_t *va)
 		}
 	}
 	
-	
-
 	/* */
 	D3DADAPTER_IDENTIFIER9 d3dai ={};
-	if (FAILED(IDirect3D9_GetAdapterIdentifier(G_pD3D9,
-		D3DADAPTER_DEFAULT, 0, &d3dai))) {
+	if (FAILED(IDirect3D9_GetAdapterIdentifier(G_pD3D9,D3DADAPTER_DEFAULT, 0, &d3dai))) {
 			av_log(NULL, AV_LOG_WARNING, "IDirect3D9_GetAdapterIdentifier failed");
 		
 	}
@@ -199,22 +198,85 @@ static void DxDestroyVideoDecoder(kk_va_dxva2_t *va)
 	va->surface_count = 0;
 }
 
+void Dxva2ResetDevCall(void* UserData)
+{
+	AVCodecContext *avctx=( AVCodecContext *)UserData;
+
+	kk_va_dxva2_t* va=(kk_va_dxva2_t*)avctx->opaque;
+	DxResetVideoDecoder(va);
+	//Close_Kk_Va_Dxva2(va,true);
+
+ //   BindDxva2Module(avctx);
+}
 static int DxResetVideoDecoder(kk_va_dxva2_t *va)
 {
-	av_log(NULL, AV_LOG_ERROR, "DxResetVideoDecoder unimplemented\n");
-	return -1;
+
+	//return 0;
+	
+
+	
+	
+	/*if (va->device){
+				HRESULT  hr=va->devmng->CloseDeviceHandle(va->device);
+				if (FAILED(hr))
+				{
+					printf("Error!\n"); 
+				}
+				va->device=0;
+				va->devmng->Release();
+				
+	}*/
+
+/*	if (va->vs){
+		HRESULT  hr=va->vs->Release();
+		if (FAILED(hr))
+		{
+			printf("Error!\n"); 
+		}
+		va->vs=NULL;
+	}
+    
+	if (va->devmng)
+		{
+			HRESULT  hr=va->devmng->Release();
+			va->devmng=NULL;
+		}
+	D3dCreateDeviceManager(va);*/
+	
+	HRESULT hr = va->devmng->TestDevice(va->device);
+	if (hr == DXVA2_E_NEW_VIDEO_DEVICE)
+	{
+	   int ii=0;
+	   ii++;
+	   DxDestroyVideoDecoder(va);
+	    hr =va->devmng->ResetDevice(G_pD3Ddev,va->devmngtoken);
+	IDirectXVideoDecoderService *vs;
+	 hr = va->devmng->GetVideoService(va->device,
+		IID_IDirectXVideoDecoderService,
+		(void **)&vs);
+	if (FAILED(hr)) 
+	{
+		return -1;
+	}
+	va->vs = vs;
+
+	if (DxFindVideoServiceConversion(va, &va->input, &va->render))
+	{
+		av_log(NULL, AV_LOG_ERROR, "DxFindVideoServiceConversion failed\n");
+		
+	}
+	}
+
+	
+	return 0;
 }
 void Close_Kk_Va_Dxva2(kk_va_dxva2_t *external,bool bFull)
 {
 	kk_va_dxva2_t *va = external;
 
 	DxDestroyVideoDecoder(va);
-
-
 	if(bFull)
 	{
-
-		
 		if (va->device){
 				HRESULT  hr=va->devmng->CloseDeviceHandle(va->device);
 				if (FAILED(hr))
@@ -265,7 +327,8 @@ static int DxFindVideoServiceConversion(kk_va_dxva2_t *va, GUID *input, D3DFORMA
 	/* Retrieve supported modes from the decoder service */
 	UINT input_count = 0;
 	GUID *input_list = NULL;
-	if (FAILED(va->vs->GetDecoderDeviceGuids(&input_count, &input_list))) {
+	 HRESULT hr = va->vs->GetDecoderDeviceGuids(&input_count, &input_list);
+	if (FAILED(hr)) {
 		av_log(NULL, AV_LOG_ERROR, "IDirectXVideoDecoderService_GetDecoderDeviceGuids failed\n");
 		return -1;
 	}
@@ -349,9 +412,7 @@ static int DxFindVideoServiceConversion(kk_va_dxva2_t *va, GUID *input, D3DFORMA
 */
 static int DxCreateVideoService(kk_va_dxva2_t *va)
 {
-	typedef HRESULT (WINAPI *CreateVideoService_func)(IDirect3DDevice9 *,
-		REFIID riid,
-		void **ppService);
+	typedef HRESULT (WINAPI *CreateVideoService_func)(IDirect3DDevice9 *,REFIID riid,void **ppService);
 	CreateVideoService_func CreateVideoService =
 		(CreateVideoService_func)GetProcAddress(G_hdxva2_dll,
 		LPCSTR("DXVA2CreateVideoService"));
@@ -390,8 +451,7 @@ static int DxCreateVideoService(kk_va_dxva2_t *va)
 static int D3dCreateDeviceManager(kk_va_dxva2_t *va)
 {
 	typedef HRESULT (WINAPI *CreateDeviceManager9_func)(UINT *pResetToken, IDirect3DDeviceManager9 **);
-	CreateDeviceManager9_func CreateDeviceManager9 =
-		(CreateDeviceManager9_func)GetProcAddress(G_hdxva2_dll, LPCSTR("DXVA2CreateDirect3DDeviceManager9"));
+	CreateDeviceManager9_func CreateDeviceManager9 =(CreateDeviceManager9_func)GetProcAddress(G_hdxva2_dll, LPCSTR("DXVA2CreateDirect3DDeviceManager9"));
 
 	if (!CreateDeviceManager9)
 	{
@@ -412,7 +472,7 @@ static int D3dCreateDeviceManager(kk_va_dxva2_t *va)
 	}
 
 	devmng->AddRef();
-	va->token  = token;
+	va->devmngtoken = token;
 	va->devmng = devmng;
 	return 0;
 }
@@ -422,7 +482,7 @@ kk_va_dxva2_t *vlc_va_NewDxva2(int codec_id,kk_va_dxva2_t *va)
 	va->codec_id = codec_id;
 	/* Load dll*/
 	if(G_hd3d9_dll==NULL)
-	G_hd3d9_dll = LoadLibrary(TEXT("D3D9.DLL"));
+	     G_hd3d9_dll = LoadLibrary(TEXT("D3D9.DLL"));
 	if (!G_hd3d9_dll)
 	{
 		av_log(NULL, AV_LOG_ERROR, "cannot load d3d9.dll\n");
@@ -806,8 +866,7 @@ static int ffmpeg_GetFrameBuf( struct AVCodecContext *p_context,AVFrame *p_ff_pi
 
 
 
-static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,
-	const enum AVPixelFormat *pi_fmt )
+static enum AVPixelFormat ffmpeg_GetFormat( AVCodecContext *p_context,const enum AVPixelFormat *pi_fmt )
 {
 	kk_va_dxva2_t *va = (kk_va_dxva2_t *)p_context->opaque;
     bool vaIni=true;
@@ -891,8 +950,7 @@ static int dxva_Extract(kk_va_dxva2_t *va, AVFrame *src,AVFrame **Out)
 	}
 	else
 	{
-		if(!va->Okxx)
-		{
+		if(!va->Okxx){
 			va->tmp_frame->width  =lock.Pitch;//FFALIGN(va->width, 64);
 			va->tmp_frame->height =va->height;//FFALIGN(va->height, 2);
 			va->tmp_frame->format = AV_PIX_FMT_NV12;
@@ -941,15 +999,10 @@ int BindDxva2Module(	AVCodecContext  *pCodecCtx)
 	
 	int res = Setup(dxva, &pCodecCtx->hwaccel_context, &pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height);
 
-	if (res < 0)
-	{
+	if (res < 0){
 		free(dxva);
 		dxva=NULL;
 		return res;
 	}
-
-	
-	
-	
 	return 0;
 }

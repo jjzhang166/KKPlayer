@@ -32,7 +32,7 @@ typedef struct
     int          vendorId;
 	
 	/* Device manager */
-	UINT                     token;
+	UINT                     devmngtoken;
 	IDirect3DDeviceManager9  *devmng;
 	HANDLE                   device;
 

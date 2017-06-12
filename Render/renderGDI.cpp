@@ -300,6 +300,10 @@ bool CRenderGDI::GetHardInfo(void** pd3d,void** pd3ddev,int *ver)
 {
    return false;
 }
+void CRenderGDI::SetResetHardInfoCall(fpResetDevCall call,void* UserData)
+{
+
+}
 void CRenderGDI::renderLock()
 {
 
