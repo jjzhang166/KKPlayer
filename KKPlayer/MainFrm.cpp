@@ -400,10 +400,11 @@ int               CMainFrame::DownMedia(char *KKVURL,bool Down)
 }
 int               CMainFrame::OpenMedia(std::string url)
 {
-	if(!m_pPlayerInstance)
+	 if(!m_pPlayerInstance)
 		return -2;
-	RECT rt;
-	::GetClientRect(m_hWnd,&rt);
+	 RECT rt;
+	 ::GetClientRect(m_hWnd,&rt);
+	
 	 m_pRender->resize(rt.right-rt.left,rt.bottom-rt.top);
 	 if(m_pRender!=NULL)
 	 {

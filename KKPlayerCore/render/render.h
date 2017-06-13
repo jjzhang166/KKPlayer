@@ -33,7 +33,12 @@ typedef struct kkAVPicInfo
 
 }kkAVPicInfo;
 typedef void (*fpRenderImgCall) (void* BufRgb,int width,int height,int BufLen,void* UserData);
-typedef void (*fpResetDevCall) (void* UserData);
+/*******
+State = 0  需要释放资源
+State = 1  重置失败
+State = 2  重置成功
+*****/
+typedef void (*fpResetDevCall) (void* UserData,int State);
 class IkkRender
 {
 public:

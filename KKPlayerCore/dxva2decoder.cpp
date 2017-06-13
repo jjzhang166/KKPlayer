@@ -29,7 +29,7 @@ static void DxCreateVideoConversion(kk_va_dxva2_t *);
 int BindDxva2Module(	AVCodecContext  *pCodecCtx);
 void* gpu_memcpy(void* d, const void* s, size_t size);
 static void (*CopyFrameNV12)(const BYTE *pSourceData, BYTE *pY, BYTE *pUV, size_t surfaceHeight, size_t imageHeight, size_t pitch) = 0;
-
+static int Setup(kk_va_dxva2_t *external, void **hw, AVPixelFormat *chroma,int width, int height);
 
 void* gpu_memcpy(void* d, const void* s, size_t size);
 static void CopyFrameNV12_fallback(const BYTE *pSourceData, BYTE *pY, BYTE *pUV, size_t surfaceHeight, size_t imageHeight, size_t pitch)
@@ -203,7 +203,7 @@ static void DxDestroyVideoDecoder(kk_va_dxva2_t *va)
 			}
 		 }
 	
-if (FAILED(hr)){
+         if (FAILED(hr)){
 				printf("Error!\n"); 
 			}
 		va->decoder = NULL;
@@ -213,19 +213,31 @@ if (FAILED(hr)){
 
 	va->surface_count = 0;
 }
-int GetRestDevState(void* opaque)
+int GetD3d9RestDevState(void* opaque)
 {
  kk_va_dxva2_t* va=(kk_va_dxva2_t*)opaque;
  return va->resetdev;
 }
-void Dxva2ResetDevCall(void* UserData)
+void Dxva2ResetDevCall(void* UserData,int state)
 {
 	
 	AVCodecContext *avctx=( AVCodecContext *)UserData;
     kk_va_dxva2_t* va=(kk_va_dxva2_t*)avctx->opaque;
-	va->resetdev=1;
-    avcodec_flush_buffers(avctx);
-	DxResetVideoDecoder(va);
+	if(state==0){
+		va->resetdev=1;
+		avcodec_flush_buffers(avctx);
+		DxResetVideoDecoder(va);
+	}else if(state==2)
+	{
+		va->resetdev=2;
+		
+	}else if(state==3){
+	    AVPixelFormat chroma;
+	    if( Setup( va,&avctx->hwaccel_context, &chroma,avctx->width, avctx->height ) )
+		{
+			av_log(NULL, AV_LOG_ERROR, "vlc_va_Setup failed" );
+		}/**/
+	}
 }
 static int DxResetVideoDecoder(kk_va_dxva2_t *va)
 {
@@ -239,7 +251,7 @@ static int DxResetVideoDecoder(kk_va_dxva2_t *va)
 
     if (va->videoService){
 		HRESULT  hr=va->videoService->Release();
-		 hr=va->videoService->Release();
+		// hr=va->videoService->Release();
 		if (FAILED(hr))
 		{
 			printf("Error!\n"); 
@@ -760,7 +772,6 @@ static int Get(kk_va_dxva2_t *external, AVFrame *ff)
 	/* Check the device */
 	HRESULT hr = va->devmng->TestDevice(va->device);
 	if (hr == DXVA2_E_NEW_VIDEO_DEVICE) {
-		if (DxResetVideoDecoder(va))
 			return -1;
 	} else if (FAILED(hr)) {
 		av_log(NULL, AV_LOG_ERROR, "IDirect3DDeviceManager9_TestDevice %u", (unsigned)hr);

@@ -27,9 +27,9 @@ void  KK_Free_(void *ptr)
 #ifdef WIN32
       //AV_PIX_FMT_BGRA; //AVPixelFormat::AV_PIX_FMT_RGB24;////AV_PIX_FMT_RGBA;//AV_PIX_FMT_RGBA;//AV_PIX_FMT_YUV420P;
       //DXV2
-	  int BindDxva2Module(	AVCodecContext  *pCodecCtx);
-int GetRestDevState(void* opaque);
-	  void Dxva2ResetDevCall(void* UserData);
+	  int  BindDxva2Module(	AVCodecContext  *pCodecCtx);
+      int  GetD3d9RestDevState(void* opaque);
+	  void Dxva2ResetDevCall(void* UserData,int state);
 	  void FroceClose_Kk_Va_Dxva2(void *kk_va);
 
 	  //inter QSV解码。
@@ -1346,12 +1346,12 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		vp->picformat=format;
 		pPictq->mutex->Unlock();
 	
-		
+#ifdef _WINDOWS
 		if(pOutAV->format== (int)AV_PIX_FMT_DXVA2_VLD){
 
 			
-			 is->IRender->renderLock();
-			int resetdev=GetRestDevState( is->viddec.avctx->opaque);
+			is->IRender->renderLock();
+			int resetdev=GetD3d9RestDevState( is->viddec.avctx->opaque);
 			 if(resetdev==0){
 				 kkAVPicInfo picinfo;
 				 memcpy(picinfo.data,pOutAV->data,32);
@@ -1364,9 +1364,9 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			 }else{
 			    is->IRender->renderUnLock();
 			 }
-			
-
-		}else if(is->DstAVff!=format&&is->Hard_Code!=is->HARDCODE::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12)
+		}else
+#endif
+			if(is->DstAVff!=format&&is->Hard_Code!=is->HARDCODE::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12)
 		{
 			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
 			 pOutAV->width,       pOutAV->height ,              format ,
@@ -1456,9 +1456,27 @@ LXXXX:
 				
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
          
- 
-
 			SKK_Decoder* d=&is->viddec;
+
+#ifdef _WINDOWS
+			///在分片处理时可能检测不到,设备重置后数据恢复是件难事。
+			if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
+				      int resetdev=1;
+					  while(resetdev){
+						  is->IRender->renderLock();
+						  resetdev=GetD3d9RestDevState( is->viddec.avctx->opaque);
+						  
+						  if(resetdev==1){
+							  is->IRender->renderUnLock();
+							  Sleep(20);
+							  continue;
+						  }else if(resetdev==2){
+							   Dxva2ResetDevCall(is->viddec.avctx,3);
+						  }
+						  is->IRender->renderUnLock();
+					  }
+			}
+#endif
 			d->pts=packet->pts;
 			d->dts=packet->dts;
 			
@@ -1504,9 +1522,9 @@ LXXXX:
 				LOGE(" video2 avcodec_flush_buffers \n");
 				avcodec_flush_buffers(d->avctx);
 				
+				///发生了分片切换
 				if(lastsegid!=segid&&is->pSegFormatCtx!=NULL){
 					    
-						if(is->pSegFormatCtx!=NULL){
 							for (int i = 0; i <is->pSegFormatCtx->nb_streams; i++) 
 							{
 								AVStream *st = is->pSegFormatCtx->streams[i];
@@ -1523,7 +1541,6 @@ LXXXX:
 									break;
 								}
 							}
-						}
 						
 				}
 				d->finished = 0;
@@ -1547,6 +1564,9 @@ LXXXX:
 	        FroceClose_Kk_Va_Dxva2(is->viddec.avctx->opaque);
 	        is->viddec.avctx->opaque=NULL;
 	        is->viddec.avctx->hwaccel_context=NULL;
+			is->IRender->renderLock();
+	        is->IRender->SetResetHardInfoCall(0,0);
+	        is->IRender->renderUnLock();
 	 }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){
 	        KKFreeQsv(is->viddec.avctx);
 			is->viddec.avctx->opaque=NULL;

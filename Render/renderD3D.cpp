@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <assert.h>
 #include "../ffmpeg/include/libavutil/pixfmt.h"
+#include <core\SkCanvas.h>
+#include <core\SkBitmap.h>
+#include <core\SkTypeface.h>
+
 #ifndef SAFE_RELEASE
 #define SAFE_RELEASE(p)      { if (p) { (p)->Release(); (p)=NULL; } }
 #endif
@@ -39,16 +43,38 @@ std::basic_string<TCHAR> GetModulePath()
 #define VFYUV420P
 typedef IDirect3D9* (WINAPI* LPDIRECT3DCREATE9)( UINT );
 
-
 typedef HRESULT (WINAPI *DX9CTFromFileInMemory)(LPDIRECT3DDEVICE9 pDevice,LPCVOID pSrcData,UINT  SrcDataSize,LPDIRECT3DTEXTURE9*  ppTexture);
-typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);  
-#include <core\SkCanvas.h>
-#include <core\SkBitmap.h>
-#include <core\SkTypeface.h>
+typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL); 
 
-DX9CTFromFileInMemory fpDX9CTFromFileInMemory=NULL;
-LPFN_ISWOW64PROCESS fnIsWow64Process;  
-BOOL IsWow64()  
+static  HMODULE hModD3D9  = NULL;
+static  HMODULE hD3dx9_43 = NULL;
+
+static DX9CTFromFileInMemory fpDX9CTFromFileInMemory  =NULL;
+static LPFN_ISWOW64PROCESS   fnIsWow64Process         =NULL; 
+static LPDIRECT3DCREATE9     pfnDirect3DCreate9       =NULL;
+class FreeGlobalVariable
+{
+public:
+	   FreeGlobalVariable()
+	   {
+	   
+	   }
+	   ~FreeGlobalVariable()
+	   {
+		    if(hD3dx9_43 != NULL){
+			    FreeLibrary( hD3dx9_43);
+                hD3dx9_43 = NULL;
+			}
+
+		    if(hModD3D9!=NULL){
+	            FreeLibrary(hModD3D9);
+				hModD3D9  = NULL;
+		    }
+			
+	   }
+};
+static FreeGlobalVariable freeG;
+static BOOL IsWow64()  
 {  
 	BOOL bIsWow64 = FALSE;  
 
@@ -144,8 +170,9 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
 bool CRenderD3D::init(HWND hView)
 {
 	m_hView = hView;
-	HMODULE hModD3D9 = LoadLibraryA("d3d9.dll");
-	if(!hModD3D9)
+	if(hModD3D9==0)
+	     hModD3D9 = LoadLibraryA("d3d9.dll");
+	/*if(!hModD3D9)
 	{
 		std::wstring path=GetModulePath();
 		if(IsWow64())
@@ -155,14 +182,15 @@ bool CRenderD3D::init(HWND hView)
 			path+=L"\\xp\\d3d9.dll";
 		}
 		hModD3D9 = LoadLibrary(path.c_str());
-	}
+	}*/
 	if (hModD3D9)
 	{
-
-		HMODULE hD3dx9_43 = LoadLibraryA("D3dx9_43.dll");
+        pfnDirect3DCreate9 = (LPDIRECT3DCREATE9)GetProcAddress(hModD3D9, "Direct3DCreate9");
+		if(hD3dx9_43==NULL)
+		    hD3dx9_43 = LoadLibraryA("D3dx9_43.dll");
 		if(hD3dx9_43)
 		{
-			fpDX9CTFromFileInMemory= (DX9CTFromFileInMemory)GetProcAddress(hD3dx9_43, "D3DXCreateTextureFromFileInMemory");
+			 fpDX9CTFromFileInMemory= (DX9CTFromFileInMemory)GetProcAddress(hD3dx9_43, "D3DXCreateTextureFromFileInMemory");
 		}else{
 		     std::wstring path=GetModulePath();
 			 path+=L"\\dx\\D3dx9_43.dll";
@@ -173,9 +201,9 @@ bool CRenderD3D::init(HWND hView)
 			 }
 		}
 		
-		
-
-		LPDIRECT3DCREATE9 pfnDirect3DCreate9 = (LPDIRECT3DCREATE9)GetProcAddress(hModD3D9, "Direct3DCreate9");
+	}else{
+	    return false;
+	}
 		if(pfnDirect3DCreate9==NULL)
 		{
 			//::MessageBox(hView,L"未能加载Direct3DCreate9函数",L"提示",MB_ICONHAND);
@@ -228,10 +256,10 @@ bool CRenderD3D::init(HWND hView)
 		}
 		
 		return true;
-	}
+	
 
 	//::MessageBox(hView,L"未能加载d3d9.dll，请安装d3d9",L"提示",MB_ICONHAND);
-	return false;
+	
 }
 
 void CRenderD3D::destroy()
@@ -417,13 +445,18 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 
 	m_lock.Lock();
 	ResetTexture();
-
-	if(m_ResetCall)
-		{
-			 m_ResetCall(m_ResetUserData);
-	   }
+	if(m_ResetCall){
+			 m_ResetCall(m_ResetUserData,0);
+	}
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
+	int ret=1;
 	HRESULT  hr=	m_pDevice->Reset(&PresentParams);
+	if(hr==S_OK){
+	    ret=2;
+	}
+	if(m_ResetCall){
+			 m_ResetCall(m_ResetUserData,ret);
+	}
 	m_lock.Unlock();
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
@@ -436,11 +469,6 @@ void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 	{
 	    fpDX9CTFromFileInMemory(this->m_pDevice,buf, len, &m_pWaitPicTexture);
 	}
-	//if ( FAILED( D3DXCreateTextureFromFileInMemory( this->m_pDevice,buf, len, &m_pWaitPicTexture)))
-	//{
-	//	//assert(0);
-	//	return;// S_FALSE;
-	//}
 }
 
 void CRenderD3D::SetErrPic(unsigned char* buf,int len)
@@ -504,9 +532,7 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 }
 void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 {
- /* if(Picinfo!=NULL&&Picinfo->picformat==(int)AV_PIX_FMT_DXVA2_VLD&&Picinfo->linesize[0]==0)
-		return;*/
-  
+
   m_lock.Lock();
   if (!LostDeviceRestore())
   {
@@ -525,7 +551,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 			if(Picinfo!=NULL&&m_bShowErrPic==false)
 			{
 				IDirect3DSurface9* temp=NULL;
-				///硬解
+				///DXVA2硬解
 				if(Picinfo->picformat==(int)AV_PIX_FMT_DXVA2_VLD)
 				{
 					temp= (LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3];	
@@ -533,7 +559,6 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 				   UpdateTexture(Picinfo);	
 				   temp=m_pYUVAVTexture;
 				}
-                
 
 				if(temp!=NULL)
 				{
@@ -643,23 +668,24 @@ bool CRenderD3D::LostDeviceRestore()
     if (hr == D3DERR_DEVICENOTRESET)
     {
         ResetTexture();
-
-		
-       
-		
-       if(m_ResetCall)
+        if(m_ResetCall)
 		{
-			 m_ResetCall(m_ResetUserData);
-	   }
-	   
+			 m_ResetCall(m_ResetUserData,0);
+	    }
 	    D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
         hr = m_pDevice->Reset(&PresentParams);
 	    if(FAILED(hr))
 		{ 
-			
+			if(m_ResetCall)
+		    {
+			    m_ResetCall(m_ResetUserData,1);
+	        }
             return false;
 		}
-  
+        if(m_ResetCall)
+	    {
+		    m_ResetCall(m_ResetUserData,2);
+        }
 
 		int i=0;
 		if (hr ==  D3DERR_NOTFOUND ){
@@ -809,8 +835,6 @@ bool CRenderD3D::UpdateLeftPicTexture()
 }
 bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 {
-	
-
 	if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height || m_nPicformat!=Picinfo->picformat)
     {
         RECT rect2;
@@ -819,13 +843,14 @@ bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 		UINT Wei=rect2.right - rect2.left;
 		
 		D3DFORMAT d3dformat=(D3DFORMAT)MAKEFOURCC('Y', 'V', '1', '2');
+
 		if(Picinfo->picformat==(int)AV_PIX_FMT_NV12)
 			d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
 
 		SAFE_RELEASE(m_pYUVAVTexture);
-			if(m_w!=Wei&&hei!=m_h){
-				resize( Wei,hei);
-			}
+		if(m_w!=Wei&&hei!=m_h){
+			resize( Wei,hei);
+		}
 			//DX YV12 就是YUV420P
 			HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
 				Picinfo->width, Picinfo->height,
