@@ -51,7 +51,8 @@ class CAndKKPlayerUI :public  IKKPlayUI
 			virtual void  GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo);
 			/***视频读取线程结束调用***/
 			virtual void  AVReadOverThNotify(void *playerIns);
-			virtual void AVRender(); 
+			virtual void  AVRender(); 
+			virtual IkkRender* GetRender();
    private:
         void   GlViewRender();
 		void   SurfaceViewRender(ANativeWindow* surface);

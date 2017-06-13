@@ -865,7 +865,8 @@ bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 
 			m_nPicformat=Picinfo->picformat;
     }
-   
+     m_lastpicw = Picinfo->width;
+	 m_lastpich = Picinfo->height;
      D3DLOCKED_RECT rect;
 	 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);  
 	 if(rect.pBits!=NULL)

@@ -46,8 +46,8 @@ class IKKPlayUI
 			 /***视频读取线程结束调用***/
 			 virtual void  AVRender()=0;
 
-			 virtual void RenderLock()=0;
-			 virtual void RenderUnLock()=0;
+			/* virtual void RenderLock()=0;
+			 virtual void RenderUnLock()=0;*/
 			 virtual IkkRender* GetRender()=0;
    protected:
 	         unsigned char* m_pBkImage;

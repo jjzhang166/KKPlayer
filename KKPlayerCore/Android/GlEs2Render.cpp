@@ -418,23 +418,23 @@ void GlEs2Render::resize(unsigned int w, unsigned int h)
 	glViewport(0, 0,w, h);
     m_bAdJust= false;
 }
-void GlEs2Render::render(char* buf,int width,int height,int Imgwidth,bool wait)
+void GlEs2Render::render(kkAVPicInfo *Picinfo,bool wait)
 {
 	
-    if(buf!=NULL&&width!=0&&height!=0)
+    if(Picinfo!=NULL&&Picinfo->width!=0&&Picinfo->height!=0)
     {
-        if(m_Picheight!= height||m_Picwidth!=width)
+        if(m_Picheight!= Picinfo->height||m_Picwidth!=Picinfo->width)
         {
-            m_Picwidth=width;
-            m_Picheight=height;
+            m_Picwidth=Picinfo->width;
+            m_Picheight=Picinfo->height;
             m_bAdJust=false;
         }
 
 				int     planes[3]    = { 0, 1, 2 };
-				const GLsizei widths[3]    = { width, width/2, width/2 };
-				const GLsizei heights[3]   = { height,        height / 2,     height / 2 };
+				const GLsizei widths[3]    = { Picinfo->width, Picinfo->width/2, Picinfo->width/2 };
+				const GLsizei heights[3]   = { Picinfo->height,Picinfo->height / 2,     Picinfo->height / 2 };
 				//***********************************Y***********************U**************************************V
-				const GLubyte *pixels[3]   = {(GLubyte *)buf, (GLubyte *)(buf + width * height) ,  (GLubyte *)( buf + width * height*5/4 ) };
+				const GLubyte *pixels[3]   = {(GLubyte *)Picinfo->data[0], (GLubyte *)Picinfo->data[1] ,  (GLubyte *)Picinfo->data[2] };
 				GLuint  plane_textures[]={g_texYId,g_texUId,g_texVId};
 				for (int i = 0; i < 3; ++i) {
 					int plane = planes[i];
@@ -482,3 +482,19 @@ void GlEs2Render::FillRect(kkBitmap img,kkRect rt,unsigned int color)
 	
 	
 }
+void GlEs2Render::SetRenderImgCall(fpRenderImgCall fp,void* UserData)
+{
+	
+	
+}
+	        bool GlEs2Render::GetHardInfo(void** pd3d,void** pd3ddev,int *ver)
+			{
+				
+				return 0;
+			}
+	        void GlEs2Render::SetResetHardInfoCall(fpResetDevCall call,void* UserData)
+			{}
+	        void GlEs2Render::renderLock()
+			{}
+	        void GlEs2Render::renderUnLock()
+			{}

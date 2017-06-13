@@ -934,19 +934,21 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 													   if(vp->Bmp.data[0]!=NULL&&(m_lstPts!=vp->pts||Force))
 													   {
 														   m_lstPts=vp->pts;
-														   if(vp->picformat!=(int)AV_PIX_FMT_DXVA2_VLD){
-														   kkAVPicInfo picinfo;
-														   memcpy(picinfo.data,vp->Bmp.data,32);
-														   memcpy(picinfo.linesize,vp->Bmp.linesize,32);
-														   picinfo.width=vp->width;
-														   picinfo.height=vp->height;
-														   picinfo.picformat=vp->picformat;
-														   pRender->render(&picinfo,okkk);
+														   if(vp->picformat!=(int)AV_PIX_FMT_DXVA2_VLD)
+														   {
+															   kkAVPicInfo picinfo;
+															   memcpy(picinfo.data,vp->Bmp.data,32);
+															   memcpy(picinfo.linesize,vp->Bmp.linesize,32);
+															   picinfo.width=vp->width;
+															   picinfo.height=vp->height;
+															   picinfo.picformat=vp->picformat;
+															   pRender->render(&picinfo,okkk);
 														   }else{
 														       //pRender->render(NULL,okkk);
 														   }
 													   }else if(pVideoInfo->IsReady==0){
 														   pRender->render(NULL,true);
+														      LOGE("render(NULL,true)\n");
 													   }
 													   pVideoInfo->pictq.mutex->Unlock();
 													}else if(pVideoInfo->audio_st!=NULL&&pVideoInfo->iformat!=NULL){

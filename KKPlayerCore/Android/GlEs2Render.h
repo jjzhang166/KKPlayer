@@ -27,7 +27,7 @@ class GlEs2Render: public IkkRender
 			virtual void destroy();
 			virtual void resize(unsigned int w, unsigned int h);
 			
-			virtual void render(char* buf,int width,int height,int Imgwidth,bool wait);
+			virtual void render(kkAVPicInfo *Picinfo,bool wait);
 			//≥ œ÷±≥æ∞Õº∆¨
 			virtual void renderBk(unsigned char* buf,int len);
 			virtual void SetWaitPic(unsigned char* buf,int len);
@@ -38,6 +38,13 @@ class GlEs2Render: public IkkRender
 			virtual void ShowErrPic(bool show);
 			virtual void SetLeftPicStr(const char *str);
 			virtual void FillRect(kkBitmap img,kkRect rt,unsigned int color);
+			
+			
+			void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
+	        bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver);
+	        void SetResetHardInfoCall(fpResetDevCall call,void* UserData);
+	        void renderLock();
+	        void renderUnLock();
 	private:
         KKPlayer* m_pPlayer;
         GLuint g_texYId;

@@ -270,7 +270,7 @@ void CAndKKAudio::ReadAudio()
         m_ReadLock.Unlock();
         return;
     }
-    LOGI("ReadAudio\n");
+    //LOGI("ReadAudio\n");
     m_ReadLock.Unlock();
     if(m_pFun!=NULL&&m_bqPlayerPlay!=NULL)
     {
@@ -288,7 +288,7 @@ void CAndKKAudio::ReadAudio()
            result = (*m_bqPlayerPlay)->SetPlayState(m_bqPlayerPlay, SL_PLAYSTATE_PLAYING);
            if(SL_RESULT_SUCCESS != result)
            {
-                LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
+              //  LOGE("SetPlayState m_bqPlayerPlay SL_PLAYSTATE_PLAYING error，%d",result);
            }
         }
         if(m_bqPlayerBufferQueue!=NULL)
@@ -300,7 +300,7 @@ void CAndKKAudio::ReadAudio()
             //int t=m_nBufLength*10000/1764;
             if(SL_RESULT_SUCCESS != result)
             {
-                   LOGE(" m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue error");
+                //  LOGE(" m_bqPlayerBufferQueue)->Enqueue(m_bqPlayerBufferQueue error");
             }
             //LOGE("WaitCond");
             //m_ReadLockCond.WaitCond(1);

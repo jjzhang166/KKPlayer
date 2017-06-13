@@ -16,7 +16,6 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class CKKPlayerGlRender implements GLSurfaceView.Renderer
 {
-
     public class CMediaInfo
     {
         public  int CurTime;
@@ -174,6 +173,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height)
     {
+
         if(m_nKKPlayer!=0)
             m_JniKKPlayer.OnSize(m_nKKPlayer,width,height);
     }

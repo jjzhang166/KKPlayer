@@ -125,9 +125,20 @@ void CAndKKPlayerUI::AVRender()
 {
 	m_RenderLock.Lock();
 	m_nRefreshPic=1;
+	if(m_pRender!=NULL){
+	   GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
+	   pRender->GlViewRender(m_nRefreshPic);
+	}
+	 m_nRefreshPic=0;
 	m_RenderLock.Unlock();
 }
-
+IkkRender* CAndKKPlayerUI::GetRender()
+{
+	if(m_pRender!=NULL){
+	  return m_pRender;
+	}
+	//m_RenderLock.Unlock();
+}
 void CAndKKPlayerUI::GlViewRender()
 {
 	

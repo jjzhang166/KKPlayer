@@ -38,11 +38,12 @@ public:
 	
 	void SetLeftPicStr(const char *str);
 	void FillRect(kkBitmap img,kkRect rt,unsigned int color);
+	
 	void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 	bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver);
 	void SetResetHardInfoCall(fpResetDevCall call,void* UserData);
-	virtual void renderLock();
-	virtual void renderUnLock();
+	void renderLock();
+	void renderUnLock();
 private:
 	SkPaint      m_skPaint;
     std::wstring m_LeftStr;

@@ -80,7 +80,7 @@ KKPlayer.o: KKPlayer.cpp KKPlayer.h IKKAudio.h render/render.h KKLock.h KKVideoI
 
 AndKKAudio.o: Android/AndKKAudio.cpp Android/AndKKAudio.h KKCond_t.h KKLock.h IKKAudio.h
 	$(CXX) -c $(CFLAGS) Android/AndKKAudio.cpp
-GlEs2Render.o: Android/GlEs2Render.cpp Android/GlEs2Render.h KKCond_t.h KKLock.h IKKAudio.h
+GlEs2Render.o: Android/GlEs2Render.h KKCond_t.h KKLock.h IKKAudio.h Android/GlEs2Render.cpp 
 	$(CXX) -c $(CFLAGS) Android/GlEs2Render.cpp
 AndKKPlayerUI.o: Android/AndKKPlayerUI.cpp Android/AndKKPlayerUI.h
 	$(CXX) -c $(CFLAGS) Android/AndKKPlayerUI.cpp

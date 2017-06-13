@@ -16,7 +16,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/AVeditText"
                 android:layout_column="1"
-                android:text="rtmp://www.bqlmeeting.com/live/010000" />
+                android:text="rtmp://live.hkstv.hk.lxdns.com/live/hks" />
         </TableRow>
         <!--rtmp://live.hkstv.hk.lxdns.com/live/hks-->
         <TableRow
