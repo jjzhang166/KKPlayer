@@ -26,9 +26,9 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
             TotalTime=0;
         }
     }
-    private CJniKKPlayer m_JniKKPlayer;
-    private int          m_nKKPlayer=0;
-    private int          m_nGlHandle=0;
+    private CJniKKPlayer  m_JniKKPlayer;
+    private int           m_nKKPlayer=0;
+    private int           m_nGlHandle=0;
     private boolean      m_ReOpen=false;
     private CMediaInfo info = new  CMediaInfo();
     private String m_url;

@@ -930,10 +930,15 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 											
 													if(pVideoInfo->video_st!=NULL){
 													   pVideoInfo->pictq.mutex->Lock();
-													   vp =frame_queue_peek_last(&pVideoInfo->pictq);
+													   vp =frame_queue_peek_last(&pVideoInfo->pictq);  
+													   m_lstPts=vp->pts;
+													   static int iddd=0;
+													   if(vp->serial<iddd)
+														   assert(0);
+													   iddd=vp->serial;
 													   if(vp->Bmp.data[0]!=NULL&&(m_lstPts!=vp->pts||Force))
 													   {
-														   m_lstPts=vp->pts;
+														 
 														   if(vp->picformat!=(int)AV_PIX_FMT_DXVA2_VLD)
 														   {
 															   kkAVPicInfo picinfo;

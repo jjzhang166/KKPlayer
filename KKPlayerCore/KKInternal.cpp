@@ -1086,7 +1086,8 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 
 	if (f->pktq->abort_request)
 		return NULL;
-
+	//if(f->windex==f->rindex)
+	//	assert(0);
 	return &f->queue[f->windex];
 }
 //队列是否能写
@@ -1155,6 +1156,12 @@ SKK_Frame *frame_queue_peek_last(SKK_FrameQueue *f)
 void frame_queue_unref_item(SKK_Frame *vp)
 {
 	av_frame_unref(vp->frame);
+	/*vp->Bmp.data[0]=0;
+	vp->Bmp.data[1]=0;
+	vp->Bmp.data[2]=0;
+	vp->Bmp.linesize[0]=0;
+	vp->Bmp.linesize[1]=1;
+	vp->Bmp.linesize[0]=2;*/
 	avsubtitle_free(&vp->sub);
 }
 void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
@@ -1165,15 +1172,20 @@ void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
 		f->rindex_shown = 1;
 		return;
 	}
+	
 	frame_queue_unref_item(&f->queue[f->rindex]);
 	/******一个队列已经读取玩****/
 	if(NeedLock)
 		f->mutex->Lock();
+	
 	if (++f->rindex == f->max_size)
 	{
 		f->rindex = 0;
 	}
-	
+	/*if(f->rindex==f->windex&&f->windex!=0)
+	{
+		f->rindex++;
+	}*/
 	f->size--;
 	if(f->size<0)
 		f->size=0;
@@ -1339,9 +1351,10 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 					 vp->buflen=numBytes;
 						if(vp->buffer)
 					 av_free(vp->buffer);
-					 vp->buffer=(uint8_t *)KK_Malloc_(vp->buflen);
+					 vp->buffer=(uint8_t *)KK_Malloc_(vp->buflen); 
 					 avpicture_fill((AVPicture *)&vp->Bmp, vp->buffer,is->DstAVff, vp->width,vp->height);
 				 }
+				
 			 }else{
 			        if(vp->frame==NULL)
 					      vp->frame= av_frame_alloc();
@@ -1493,7 +1506,7 @@ LXXXX:
 			{
 					pts = 0; 
 					
-					is->IRender->renderLock();
+					//is->IRender->renderLock();
 					//视频解码
 					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
 					
@@ -1516,7 +1529,7 @@ LXXXX:
 					AVRational  fun={frame_rate.den, frame_rate.num};
 					is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
 
-					is->IRender->renderUnLock();
+					//is->IRender->renderUnLock();
 					if(got_frame)  
 					{  
 						if(queue_picture(is, pFrame, pts, is->duration , av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  

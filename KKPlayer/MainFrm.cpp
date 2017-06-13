@@ -7,7 +7,7 @@
 
 
 #ifdef _DEBUG
-#pragma comment (lib,"../Debug/libx86/KKPlayerCored.lib")
+
 #pragma comment (lib,"../Debug/libx86/libmfxd.lib")
 #pragma comment (lib,"../WinUI/lib/debug/souid.lib")
 #pragma comment (lib,"../WinUI/lib/debug/utilitiesd.lib")

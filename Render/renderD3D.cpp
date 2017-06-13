@@ -909,12 +909,12 @@ bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 				  //U
 				  for(i = 0;i < pixel_h/2;i ++)
 				  {  
-					  memcpy(pDest + stride * pixel_h + i * stride / 2,pU + i * pixel_w / 2, Picinfo->width / 2);  
+					  memcpy(pDest + stride * pixel_h + i * stride / 2,pV + i * pixel_w / 2, Picinfo->width / 2);  
 				  }  
 				  //V
 				  for(i = 0;i < pixel_h/2;i ++)
 				  {  
-					  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pV + i * pixel_w / 2, Picinfo->width / 2);  
+					  memcpy(pDest + stride * pixel_h + stride * pixel_h / 4 + i * stride / 2,pU + i * pixel_w / 2, Picinfo->width / 2);  
 				  } /**/
 			  }
 	 }
