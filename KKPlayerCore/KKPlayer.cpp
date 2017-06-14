@@ -610,13 +610,13 @@ retry:
 			}
 			
 
-			if (vp->serial != is->videoq.serial) {
+			/*if (vp->serial != is->videoq.serial) {
 				frame_queue_next(&is->pictq,true);
 				update_video_pts(is, vp->pts, vp->pos, vp->serial);
 				is->redisplay=0;
 				goto retry;
 			}
-			
+			*/
 			
 				
 				/*******时间**********/
@@ -921,7 +921,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 																  unsigned char* pWaitImage=m_pPlayUI->GetWaitImage(len,0);
 																  if(pWaitImage!=NULL){
 																	 pRender->SetWaitPic(pWaitImage,len);
-																	  okkk=true;
+																	 okkk=true;
 																  }
 															}else{
 															     pRender->SetWaitPic(0,0);
@@ -933,21 +933,24 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 													   vp =frame_queue_peek_last(&pVideoInfo->pictq);  
 													   m_lstPts=vp->pts;
 													   static int iddd=0;
-													   if(vp->serial<iddd)
-														   assert(0);
+													   /*if(vp->serial<iddd)
+														   assert(0);*/
 													   iddd=vp->serial;
 													   if(vp->Bmp.data[0]!=NULL&&(m_lstPts!=vp->pts||Force))
 													   {
-														 
-														   if(vp->picformat!=(int)AV_PIX_FMT_DXVA2_VLD)
+														  
+														   if(!vp->uploaded&&vp->picformat!=(int)AV_PIX_FMT_DXVA2_VLD)
 														   {
+															  
 															   kkAVPicInfo picinfo;
 															   memcpy(picinfo.data,vp->Bmp.data,32);
 															   memcpy(picinfo.linesize,vp->Bmp.linesize,32);
 															   picinfo.width=vp->width;
 															   picinfo.height=vp->height;
 															   picinfo.picformat=vp->picformat;
+															  
 															   pRender->render(&picinfo,okkk);
+															   vp->uploaded=1;
 														   }else{
 														       //pRender->render(NULL,okkk);
 														   }
@@ -1246,7 +1249,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
 	
 
-	pVideoInfo->nMaxRealtimeDelay=32000;//单位s
+	pVideoInfo->nMaxRealtimeDelay=2;//32000;//单位s
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
     pVideoInfo->DstAVff=m_DstAVff;

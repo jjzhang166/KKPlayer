@@ -14,7 +14,7 @@
 #pragma comment (lib,"../Debug/jsoncppd.lib")
 #pragma comment (lib,"../Debug/libx86/librtmpd.lib")
 #else
-#pragma comment (lib,"../Release/libx86/KKPlayerCore.lib")
+
 #pragma comment (lib,"../Release/libx86/libmfx.lib")
 #pragma comment (lib,"../WinUI/lib/Release/soui.lib")
 #pragma comment (lib,"../WinUI/lib/Release/utilities.lib")

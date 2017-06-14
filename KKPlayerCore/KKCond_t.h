@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "KKMutex.h"
+#include "KKLock.h"
 #ifndef KKCond_t_H_
 #define KKCond_t_H_
 //条件变量实现
@@ -10,8 +11,10 @@ class CKKCond_t
 	       ~CKKCond_t(void);
 		   //重置
            int ResetCond();
+		   ///强制
 		   int SetCond();
-		   int WaitCond(int ms);
+		   void CondSignal();
+		   int WaitCond(int ms,CKKLock *pLock);
 
 		   void* operator new(size_t size );
 		   void  operator delete(void *ptr);
@@ -20,7 +23,10 @@ class CKKCond_t
 		HANDLE m_hWait;
 #else
 		pthread_cond_t  m_hWait;
-        CKKMutex m_Mutex;
+        
 #endif
+		CKKMutex    m_Mutex;
+		volatile	int m_nWaiting;
+		volatile	int m_nSignals;
 };
 #endif

@@ -110,7 +110,7 @@ typedef struct SKK_Frame
     int                     width;
 	int                     height;
 	int                     pitch;
-	
+	int                     uploaded;
 	/*****是否分配内存对frame*****/
 	int allocated;
 	//CKKLock *BmpLock;

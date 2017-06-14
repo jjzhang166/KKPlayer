@@ -348,22 +348,15 @@ int frame_queue_init(SKK_FrameQueue *f, SKK_PacketQueue *pktq, int max_size, int
 	f->pktq = pktq;
 	f->max_size = FFMIN(max_size, FRAME_QUEUE_SIZE);
 	f->keep_last = keep_last;
-	for (i = 0; i < f->max_size; i++)
+	for (i = 0; i < f->max_size; i++){
 		if (!(f->queue[i].frame = av_frame_alloc()))
 			return AVERROR(ENOMEM);
+		f->queue[i].uploaded=1;
+	}
 	return 0;
 }
 
-/****刷新队列,更新对列的大小****/
-void frame_queue_push(SKK_FrameQueue *f)
-{
-	f->mutex->Lock();
-	if (++f->windex >= f->max_size)
-		f->windex = 0;
-	
-	f->size++;
-	f->mutex->Unlock();
-}
+
 
 //音频填充回调
 int audio_fill_frame( SKK_VideoState *pVideoInfo) 
@@ -1071,17 +1064,17 @@ double synchronize_video(SKK_VideoState *is, AVFrame *src_frame, double pts)
 static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 {
 	f->mutex->Lock();
-	bool mm=true;
+	//bool mm=true;
 	if(f->size >= f->max_size &&
 		!f->pktq->abort_request) 
 	{
 		/*****无信号******/
-		f->m_pWaitCond->ResetCond();
-		mm=false;
-		f->mutex->Unlock();
-		f->m_pWaitCond->WaitCond(1);
+		//f->m_pWaitCond->ResetCond();
+	//	mm=false;
+		//f->mutex->Unlock();
+		f->m_pWaitCond->WaitCond(1,f->mutex);
 	}
-	if(mm)
+//	if(mm)
 	f->mutex->Unlock();
 
 	if (f->pktq->abort_request)
@@ -1090,43 +1083,22 @@ static SKK_Frame *frame_queue_peek_writable(SKK_FrameQueue *f)
 	//	assert(0);
 	return &f->queue[f->windex];
 }
-//队列是否能写
-static SKK_Frame *frame_queue_peek_writableNoWait(SKK_FrameQueue *f)
-{
-	f->mutex->Lock();
-	bool mm=true;
-	if(f->size >= f->max_size &&
-		!f->pktq->abort_request) 
-	{
-		/*****无信号******/
-		f->m_pWaitCond->ResetCond();
-		mm=false;
-		f->mutex->Unlock();
-		return NULL;
-	}
-	if(mm)
-		f->mutex->Unlock();
 
-	if (f->pktq->abort_request)
-		return NULL;
-
-	return &f->queue[f->windex];
-}
 
 SKK_Frame *frame_queue_peek_readable(SKK_FrameQueue *f)
 {
 
 	f->mutex->Lock();
-	bool mm=true;
+	//bool mm=true;
 	if(f->size - f->rindex_shown <= 0 &&
 		!f->pktq->abort_request) 
 	{
-		f->m_pWaitCond->ResetCond();
-		f->mutex->Unlock();
-		mm=false;
-		f->m_pWaitCond->WaitCond(1);
+		//f->m_pWaitCond->ResetCond();
+		//f->mutex->Unlock();
+		//mm=false;
+		f->m_pWaitCond->WaitCond(1,f->mutex);
 	}
-	if(mm)
+	//if(mm)
 		f->mutex->Unlock();
 
 	if (f->pktq->abort_request)
@@ -1156,6 +1128,8 @@ SKK_Frame *frame_queue_peek_last(SKK_FrameQueue *f)
 void frame_queue_unref_item(SKK_Frame *vp)
 {
 	av_frame_unref(vp->frame);
+    if(!vp->uploaded)
+	vp->uploaded=1;
 	/*vp->Bmp.data[0]=0;
 	vp->Bmp.data[1]=0;
 	vp->Bmp.data[2]=0;
@@ -1163,6 +1137,17 @@ void frame_queue_unref_item(SKK_Frame *vp)
 	vp->Bmp.linesize[1]=1;
 	vp->Bmp.linesize[0]=2;*/
 	avsubtitle_free(&vp->sub);
+}
+/****刷新队列,更新对列的大小****/
+void frame_queue_push(SKK_FrameQueue *f)
+{
+	f->mutex->Lock();
+	if (++f->windex >= f->max_size)
+		f->windex = 0;
+	
+	f->size++;
+	f->m_pWaitCond->CondSignal();
+	f->mutex->Unlock();
 }
 void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
 {
@@ -1187,14 +1172,15 @@ void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
 		f->rindex++;
 	}*/
 	f->size--;
-	if(f->size<0)
-		f->size=0;
+	/*if(f->size<0)
+		f->size=0;*/
 
-	if(f->size<f->max_size)
-	{
-		//将事件有效
-		f->m_pWaitCond->SetCond();
-	}
+	//if(f->size<f->max_size)
+	//{
+	//	//将事件有效
+	//	f->m_pWaitCond->SetCond();
+	//}
+	f->m_pWaitCond->CondSignal();
 	if(NeedLock)
 	    f->mutex->Unlock();
 }
@@ -1278,13 +1264,25 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 {  
 
 	SKK_FrameQueue *pPictq=&is->pictq;
-	SKK_Frame *vp2 =0;
 	///***找到一个可用的SKK_Frame***/
-	SKK_Frame *vp = frame_queue_peek_writable(pPictq);
-	if(vp==NULL)
-		return -1;
+	SKK_Frame *vp =NULL;
+		
+	
+		vp=frame_queue_peek_writable(pPictq);
+	    if(vp==NULL)
+		   return -1;
 
+	//	if(vp->uploaded==0)
+	//	{
+	//		break;
+	//	   Sleep(10);
+	//	}/**/
+	//}while(!vp->uploaded);
+#ifdef _WINDOWS
 	int copydata=0;
+#else
+		int copydata=1;
+#endif
 	pPictq->mutex->Lock();
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
 	vp->frame->pts=pFrame->pts;
@@ -1324,6 +1322,10 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
        pOutAV=pFrame;
 #endif
 
+	   if(!vp->uploaded){
+	       int ii=0;
+		   ii++;
+	   }
 	   if(is->last_height!=pOutAV->height ||is->last_width!=pOutAV->width){
 
 		   if( is->img_convert_ctx!=NULL){
@@ -1406,10 +1408,12 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			  memcpy(vp->Bmp.data,vp->frame->data,32);
 			  memcpy(vp->Bmp.linesize,vp->frame->linesize,32);
 			  vp->picformat=(int)format;
+			  
 			  LOGE("dex no copy\n");
 		}
-		   
-     
+		pPictq->mutex->Lock();
+		vp->uploaded=0;
+        pPictq->mutex->Unlock();
         //
 		/*if(is->bTraceAV) {
 			int  OpenTime2= av_gettime ()/1000-OpenTime;
@@ -1429,7 +1433,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	AVPacket pkt1, *packet = &pkt1;  
 	int len1, got_frame,ret;  
 	AVFrame *pFrame=NULL;  
-	double pts;  
+	//double pts;  
 	//double duration;
 	//大概的速率
     AVRational frame_rate =  av_guess_frame_rate(is->pFormatCtx, is->video_st, NULL);
@@ -1444,6 +1448,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 
 	short segid=0;
     short lastsegid=0;
+	double lastpts=0;
 	for(;!is->abort_request;)  
 	{
 		    if(is->abort_request){
@@ -1478,8 +1483,25 @@ LXXXX:
 				
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
          
-			SKK_Decoder* d=&is->viddec;
 
+
+			SKK_Frame *vp =NULL;
+		
+	
+			do{
+				vp=frame_queue_peek_writable(&is->pictq);
+				if(vp==NULL)
+				   return -1;
+
+				if(is->abort_request)
+					break;
+				if(vp->uploaded==0)
+				{
+				   Sleep(10);
+				}/**/
+	        }while(!vp->uploaded);
+
+			SKK_Decoder* d=&is->viddec;
 #ifdef _WINDOWS
 			///在分片处理时可能检测不到,设备重置后数据恢复是件难事。
 			if(is->Hard_Code==is->HARDCODE::HARD_CODE_DXVA){
@@ -1504,34 +1526,51 @@ LXXXX:
 			
 			if (packet->data != is->pflush_pkt->data) //&&is->videoq.serial==is->viddec.pkt_serial
 			{
-					pts = 0; 
+					
 					
 					//is->IRender->renderLock();
 					//视频解码
 					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
-					
-					//找到pts
-					if((pts = av_frame_get_best_effort_timestamp(pFrame)) == AV_NOPTS_VALUE) 
-					{
-						pts = 0;
-					}
-
-
-					pFrame->pts=pts*av_q2d(is->video_st->time_base);
-					if(is->AVRate!=100)
-					{
-						pts=pts/((float)is->AVRate/100);
-					}
-					//pts *= av_q2d(is->video_st->time_base);
-                    pts *= av_q2d(is->video_st->time_base);
-					
-
-					AVRational  fun={frame_rate.den, frame_rate.num};
-					is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
-
 					//is->IRender->renderUnLock();
 					if(got_frame)  
 					{  
+							//找到pts
+							double pts = av_frame_get_best_effort_timestamp(pFrame); 
+							pFrame->sample_aspect_ratio = av_guess_sample_aspect_ratio(is->pFormatCtx, is->video_st, pFrame);
+
+							pFrame->pts =pts *av_q2d(is->video_st->time_base);
+							if(is->AVRate!=100)
+							{
+								pts=pts/((float)is->AVRate/100);
+							}
+							pts *= av_q2d(is->video_st->time_base);
+							
+
+							  AVRational  fun={frame_rate.den, frame_rate.num};
+							  is->duration = (frame_rate.num && frame_rate.den ? av_q2d(fun) : 0);
+							 /* if( pts<lastpts)
+							  {
+							       is->frame_drops_early++;
+								   av_frame_unref(pFrame);
+								   got_frame = 0;
+							  }else{
+							      lastpts=pts;
+							  }*/
+						  //    double dpts =pts;
+							 // if (get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER){
+								//if (pFrame->pts != AV_NOPTS_VALUE) {
+								//	double diff = dpts - get_master_clock(is);
+								//	if (!isNAN(diff) && fabs(diff) < AV_NOSYNC_THRESHOLD &&
+								//		diff - is->frame_last_filter_delay < 0     && 
+								//		is->viddec.pkt_serial == is->vidclk.serial &&
+								//		is->videoq.nb_packets) 
+								//	{
+								//		is->frame_drops_early++;
+								//		//av_frame_unref(pFrame);
+								//		got_frame = 0;
+								//	}
+								//}
+							 // }
 						if(queue_picture(is, pFrame, pts, is->duration , av_frame_get_pkt_pos(pFrame), is->viddec.pkt_serial) < 0)  
 						{  
 							//break;  
