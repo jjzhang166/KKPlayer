@@ -11,5 +11,4 @@ margin="5,3,5,3" colorBkgnd="#ff0000">
   <menuItem id="5" icon="1" font="face:宋体" >迷你模式</menuItem>
   <menuItem id="6" icon="1" font="face:宋体" >文件信息</menuItem>
   <menuItem id="8" icon="1" font="face:宋体" >下载管理</menuItem>
-  
 </menuRoot>

@@ -286,6 +286,14 @@
 			Name="MainPage"
 			>
 			<File
+				RelativePath=".\MainPage\AvCodecSetting.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AvCodecSetting.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\AVInfo.cpp"
 				>
 			</File>

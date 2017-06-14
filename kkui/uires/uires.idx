@@ -13,9 +13,12 @@
 		<file name="XML_AVNETDOWN" path="xml\AvNetDown.xml"/>
 		<file name="XML_AVPlayer" path="xml\AVPlayer.xml"/>
 		<file name="XML_AVDownManage" path="xml\AvDownManage.xml"/>
+		<file name="XML_AvCodecSetting" path="xml\AvCodecSetting.xml"/>
+		
 	</LAYOUT>
 	<SMENUEX>
              <file name="avmenuex" path="xml\AVMenu.xml"/>
+			 <file name="avsettingmenuex" path="xml\AvSettingMenu.xml"/>
     </SMENUEX>
 	<ICON>
 		<file name="ICON_LOGO"  path="image\KKPlayer.ico"    />

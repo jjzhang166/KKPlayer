@@ -937,7 +937,8 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	   }
 	}
 
-	
+	if (avctx->codec_type == AVMEDIA_TYPE_VIDEO || avctx->codec_type == AVMEDIA_TYPE_AUDIO)
+        av_dict_set(&opts, "refcounted_frames", "1", 0);
 	//´ò¿ª½âÂëÆ÷
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
@@ -1272,11 +1273,6 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
     if(vp==NULL)
 	   return -1;
 
-		if(vp->uploaded==0)
-		{
-		      LOGE("uploaded==0\n");	
-		   Sleep(10);
-		}
 #ifdef _WINDOWS
 	int copydata=0;
 #else
@@ -1482,23 +1478,6 @@ LXXXX:
 				
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
          
-
-
-			SKK_Frame *vp =NULL;
-		
-	
-			do{
-				vp=frame_queue_peek_writable(&is->pictq);
-				if(vp==NULL)
-				   return -1;
-
-				if(is->abort_request)
-					break;
-				if(is->pictq.rindex==is->pictq.windex&& vp->uploaded==0)
-				{
-				   Sleep(10);
-				}/**/
-	        }while(is->pictq.rindex==is->pictq.windex&&!vp->uploaded);
 
 			SKK_Decoder* d=&is->viddec;
 #ifdef _WINDOWS

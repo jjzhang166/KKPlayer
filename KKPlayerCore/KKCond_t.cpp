@@ -37,60 +37,37 @@ int CKKCond_t::SetCond()
 #ifdef WIN32_KK
 	return ::SetEvent(m_hWait);
 #else
-	//pthread_cond_broadcast(&m_hWait);
-	pthread_cond_signal(&m_hWait);
+	pthread_cond_broadcast(&m_hWait);
+	//pthread_cond_signal(&m_hWait);
 	return 0;
 #endif
 }
 
 void CKKCond_t::CondSignal()
 {
-    m_Mutex.Lock();
-#ifdef WIN32_KK
-	if(m_nWaiting>m_nSignals)
-	{
-	    ++m_nSignals;
-		SetCond();
-	}
-#else
     SetCond(); 
-#endif
-	m_Mutex.UnLock();
 }
 int CKKCond_t::WaitCond(int ms,CKKLock *pLock)
 {
 	#ifdef WIN32_KK
-	        m_Mutex.Lock();
-	        ++m_nWaiting;
-		    m_Mutex.UnLock();
             ResetCond();
-
 			pLock->Unlock();
             int ret=::WaitForSingleObject(m_hWait, INFINITE);
 			pLock->Lock();
-
-	        m_Mutex.Lock();
-			if ( m_nSignals > 0 )
-			{
-			    --m_nSignals;
-			}
-	        --m_nWaiting;
-		    m_Mutex.UnLock();
 		return ret;
 	#else
 
-	m_Mutex.Lock();
-	//++m_nWaiting;
-	//m_Mutex.UnLock();
+    pLock->Unlock();
 
-	pLock->Unlock();
+	m_Mutex.Lock();
 	int ret=pthread_cond_wait(&m_hWait,&m_Mutex);
-//	SetCond();
+    m_Mutex.UnLock();
+
 	pLock->Lock();
 
 	//m_Mutex.Lock();
 	//--m_nWaiting;
-	m_Mutex.UnLock();
+	
 	return ret;
 	#endif
 }
