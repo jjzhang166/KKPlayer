@@ -1172,8 +1172,8 @@ void frame_queue_next(SKK_FrameQueue *f,bool NeedLock)
 		f->rindex++;
 	}*/
 	f->size--;
-	/*if(f->size<0)
-		f->size=0;*/
+	if(f->size<0)
+		f->size=0;/**/
 
 	//if(f->size<f->max_size)
 	//{
@@ -1268,20 +1268,19 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 	SKK_Frame *vp =NULL;
 		
 	
-		vp=frame_queue_peek_writable(pPictq);
-	    if(vp==NULL)
-		   return -1;
+	vp=frame_queue_peek_writable(pPictq);
+    if(vp==NULL)
+	   return -1;
 
-	//	if(vp->uploaded==0)
-	//	{
-	//		break;
-	//	   Sleep(10);
-	//	}/**/
-	//}while(!vp->uploaded);
+		if(vp->uploaded==0)
+		{
+		      LOGE("uploaded==0\n");	
+		   Sleep(10);
+		}
 #ifdef _WINDOWS
 	int copydata=0;
 #else
-		int copydata=1;
+		int copydata=0;
 #endif
 	pPictq->mutex->Lock();
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
@@ -1495,11 +1494,11 @@ LXXXX:
 
 				if(is->abort_request)
 					break;
-				if(vp->uploaded==0)
+				if(is->pictq.rindex==is->pictq.windex&& vp->uploaded==0)
 				{
 				   Sleep(10);
 				}/**/
-	        }while(!vp->uploaded);
+	        }while(is->pictq.rindex==is->pictq.windex&&!vp->uploaded);
 
 			SKK_Decoder* d=&is->viddec;
 #ifdef _WINDOWS
