@@ -2,7 +2,7 @@
 //#define WIN32_KK //使用windows 线程
 #include <stdlib.h>
 #ifdef WIN32
-    // #define WIN32_KK  //否则使用pthred线程
+     #define WIN32_KK  //否则使用pthred线程
 #else
      #define Android_Plat
 #endif

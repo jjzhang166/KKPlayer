@@ -1,4 +1,6 @@
 #include "HistoryInfoMgr.h"
+void SetKKplayerH264HardCodec(int value);
+void SetKKplayerH265HardCodec(int value);
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
 CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(0),m_nH265Codec(0)
 {
@@ -173,14 +175,17 @@ void CHistoryInfoMgr::UpdataH264Codec(int value)
 		sprintf(hardM,"%d",value);
 		UpdataConfig("H264Codec",hardM);
 		m_nH264Codec=value;
+		SetKKplayerH264HardCodec(value);
 }
 int CHistoryInfoMgr::GetH264Codec()
 {
 	if(m_nH264Codec==-1)
 	{
+
 		std::string selectIndex="";
-		InfoMgr->GetConfig("H264Codec",selectIndex);
+		GetConfig("H264Codec",selectIndex);
 		m_nH264Codec=atoi(selectIndex.c_str());
+		SetKKplayerH264HardCodec(m_nH264Codec);
 	}
     return m_nH264Codec;
 		 
@@ -190,8 +195,10 @@ int CHistoryInfoMgr::GetH265Codec()
 	if(m_nH264Codec==-1)
 	{
 		std::string selectIndex="";
-		InfoMgr->GetConfig("H265Codec",selectIndex);
+		GetConfig("H265Codec",selectIndex);
 		m_nH265Codec=atoi(selectIndex.c_str());
+	
+        SetKKplayerH265HardCodec(m_nH265Codec);
 	}
     return  m_nH265Codec;
 }
@@ -201,4 +208,6 @@ void CHistoryInfoMgr::UpdataH265Codec(int value)
 		sprintf(hardM,"%d",value);
 		UpdataConfig("H265Codec",hardM);
 		m_nH265Codec=value;
+		
+        SetKKplayerH265HardCodec(value);
 }

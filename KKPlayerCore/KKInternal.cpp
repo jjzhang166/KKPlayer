@@ -10,6 +10,16 @@
 #include <assert.h>
 #include <time.h>
 #include "render/render.h"
+int nKKH264Codec=0;
+int nKKH265Codec=0;
+void SetKKplayerH264HardCodec(int value)
+{
+nKKH264Codec=value;
+}
+void SetKKplayerH265HardCodec(int value)
+{
+nKKH265Codec=value;
+}
 //#include "rtmp/AV_FLv.h"
 void *KK_Malloc_(size_t size)
 {
@@ -891,6 +901,13 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	if(avctx->codec_type==AVMEDIA_TYPE_VIDEO)
 	{ 
 	   avctx->codec_id=codec->id;
+	   if(avctx->codec_id==AV_CODEC_ID_H264)
+	   {
+	      is->Hard_Code=(SKK_VideoState::HARDCODE)nKKH264Codec;
+	   }else if (avctx->codec_id==AV_CODEC_ID_H265)
+	   {
+	      is->Hard_Code=(SKK_VideoState::HARDCODE)nKKH265Codec;
+	   }
        #ifdef WIN32
 	           //is->Hard_Code=is->HARDCODE::HARD_CODE_QSV;
 	        //   is->Hard_Code=is->HARDCODE::HARD_CODE_DXVA;

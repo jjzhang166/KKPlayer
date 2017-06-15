@@ -42,3 +42,5 @@ void RaiseVolume(char* buf, int size, int uRepeat, double vol);
 void Packet_Queue_All_Flush(SKK_VideoState *pVideoInfo);
 
 AVDictionary **setup_find_stream_info_opts(AVFormatContext *s,AVDictionary *codec_opts);
+void SetKKplayerH264HardCodec(int value);
+void SetKKplayerH265HardCodec(int value);

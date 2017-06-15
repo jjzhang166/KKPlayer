@@ -67,13 +67,15 @@ namespace SOUI
 	}
 	void CAvCodecSetting::Init()
 	{
+        
+		CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
 	    SComboView* H264Box=(SComboView* )this->FindChildByName(L"cbx_H264Codec");
 		SListView*  H264View=H264Box->GetListView();
 		CVideoCodecAdapter* h264Adapter = new CVideoCodecAdapter(H264View);
         H264View->SetAdapter(h264Adapter);
 		 
 
-		H264Box->SetCurSel(atoi(selectIndex.c_str()));
+		H264Box->SetCurSel(InfoMgr->GetH264Codec());
 
 		SComboView* H265Box=(SComboView* )this->FindChildByName(L"cbx_H265Codec");
 		SListView*  H265View=H265Box->GetListView();
@@ -81,8 +83,8 @@ namespace SOUI
 		CVideoCodecAdapter* h265Adapter = new CVideoCodecAdapter(H265View);
 		H265View->SetAdapter(h265Adapter);
 
-		InfoMgr->GetConfig("H265Codec",selectIndex);
-		H265Box->SetCurSel(atoi(selectIndex.c_str()));
+		
+		H265Box->SetCurSel(InfoMgr->GetH265Codec());
 	}
 	
 	BOOL CAvCodecSetting::OnH264BoxChanged(EventArgs *pEvt)
@@ -98,11 +100,8 @@ namespace SOUI
 		else if(pos==2)
 			 med= SKK_VideoState::HARD_CODE_QSV;
 
-        char hardM[512]="";
-		sprintf(hardM,"%d",med);
-
 		CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
-		InfoMgr->UpdataConfig("H264Codec",hardM);
+		InfoMgr->UpdataH264Codec(med);
 	    return TRUE;
 	}
     BOOL CAvCodecSetting::OnH265BoxChanged(EventArgs *pEvt)
@@ -117,11 +116,9 @@ namespace SOUI
 		else if(pos==2)
 			 med= SKK_VideoState::HARD_CODE_QSV;
 
-        char hardM[512]="";
-		sprintf(hardM,"%d",med);
 
 		CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
-		InfoMgr->UpdataConfig("H265Codec",hardM);
+		InfoMgr->UpdataH265Codec(med);
 	    return TRUE;
 	}
 	void CAvCodecSetting::OnClose()

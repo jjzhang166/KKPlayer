@@ -96,6 +96,7 @@ class KKPlayer
 			int GetPlayTime();
 			int GetTotalTime();
 
+			
 			/*******************插件分析,返回1有对应的插件*********************/
 			int KKProtocolAnalyze(char *StrfileName,KKPluginInfo &KKPl);
 			/**********添加插件**********/
@@ -212,4 +213,5 @@ private:
 #endif
 			
 };
+
 #endif

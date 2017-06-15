@@ -183,7 +183,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	CHistoryInfoMgr *hismgr=CHistoryInfoMgr::GetInance();
 	hismgr->SetPath(pp.c_str());
 	hismgr->InitDb();
-
+	hismgr->GetH264Codec();
+	hismgr->GetH265Codec();
 	
 	HMODULE hRender = LoadLibraryA("Render.dll");
 	if(hRender){
