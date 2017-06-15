@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <menuRoot skin="_skin.shadow"  itemHeight="26" iconPos="4,4" 
-textOffset="5" iconBarWidth="24" maxWidth="100" minWidth="100" 
+textOffset="5" iconBarWidth="24" maxWidth="150" minWidth="150" 
 translucent="1"
 margin="5,3,5,3" colorBkgnd="#ff0000">
   <menuItem hotKey="e" id="100" font="face:宋体">设置</menuItem>

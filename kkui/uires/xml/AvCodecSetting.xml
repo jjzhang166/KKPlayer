@@ -1,6 +1,6 @@
 <SOUI name="AvCoderWindow" title="解码器设置" 
-width="300" height="350"  margin="5,5,5,5"  resizable="1"
-appWnd="0" minsize="300,350"
+width="300" height="200"  margin="5,5,5,5"  resizable="0"
+appWnd="0" minsize="300,200"
 translucent="0"
 >
 	<root skin="_skin.shadow">
@@ -10,7 +10,30 @@ translucent="0"
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
 			</caption>
 			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
-			            
+			               <window pos="0,30,-0,@23">
+									 <text pos="30,0,@80,-0" font="face:SimSun,size:12"  colorText="#000000" >H264解码器:</text>
+									 <comboview name="cbx_H264Codec" class="cls_edit" pos="[0,0,@150,-0" dropDown="1"   dropHeight="200" animateTime="0"
+											inset="5,0,0,0"  focusable="0"  colorText="#000000"
+											curSel="0" id_text="3" font="face:SimSun,size:12">
+								            <liststyle class="cls_edit" ><!--列表下拉框-->
+													<template itemHeight="23" colorHover="#cccccc" colorSelected="#0000ff">
+													      <text name="StrCodecName" font="face:SimSun,size:12" pos="10,9"></text>
+													</template>
+											</liststyle>
+								     </comboview>
+							</window>
+							<window pos="30,[10,-0,@23">
+									 <text pos="0,0,@80,-0" font="face:SimSun,size:12" colorText="#000000">H265解码器:</text>
+									 <comboview name="cbx_H265Codec" class="cls_edit" pos="[0,0,@150,-0" dropDown="1"   dropHeight="200" animateTime="0"
+											inset="5,0,0,0"  focusable="0"  colorText="#000000"
+											curSel="0" id_text="3" font="face:SimSun,size:12">
+								            <liststyle class="cls_edit"  ><!--列表下拉框-->
+													<template itemHeight="23" colorHover="#cccccc" colorSelected="#0000ff">
+													      <text name="StrCodecName" font="face:SimSun,size:12" pos="10,9"></text>
+													</template>
+											</liststyle>
+								     </comboview>
+							</window>
 			</window>
 	</root>
 </SOUI>

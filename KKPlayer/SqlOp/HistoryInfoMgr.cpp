@@ -1,6 +1,6 @@
 #include "HistoryInfoMgr.h"
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
-CHistoryInfoMgr::CHistoryInfoMgr()
+CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(0),m_nH265Codec(0)
 {
 
 }
@@ -22,6 +22,12 @@ void CHistoryInfoMgr::InitDb()
 		  char *str= "CREATE table AVHisinfo(url TEXT NOT NULL,Img BLOB,Width INTEGER,Height INTEGER,lstTime INTEGER,TotalTime INTEGER,primary key(url));";
 		  SqliteOp.CreateTable(pDb,str);
 	  }
+
+	  if(SqliteOp.IsTableExt(pDb,"ConfigInfo")!=1){
+		  char *str= "CREATE table ConfigInfo(Key TEXT NOT NULL,Value TEXT,primary key(Key));";
+		  SqliteOp.CreateTable(pDb,str);
+	  }
+
 	  m_pDb=pDb;
 	  m_Lock.Unlock();
 }
@@ -93,6 +99,65 @@ void CHistoryInfoMgr::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 	sqlite3_finalize(pStmt);
 	m_Lock.Unlock();
 }
+void CHistoryInfoMgr::UpdataConfig(const char* StrKey,const char* StrValue)
+{
+    sqlite3* pDb=( sqlite3* )m_pDb;
+	sqlite3_stmt *pStmt = 0;  
+
+	
+    char *str="replace into ConfigInfo(Key,Value) values (" \
+               "\"%s\"," \
+				"\"%s\");";
+	
+    char strsql[512]="";
+	sprintf(strsql,str,StrKey,StrValue);
+	m_Lock.Lock();
+	
+	SqliteOp.NoSelectSql(pDb,strsql);
+	m_Lock.Unlock();
+}
+bool CHistoryInfoMgr::GetConfig(const char* StrKey,std::string &OutValue)
+{
+    char sqlstr[1024]="select * from ConfigInfo where Key=\"";
+    bool Ok =false;
+	
+	strcat(sqlstr,StrKey);
+	strcat(sqlstr,"\";");
+	int nRow=-1,nColumn=-1,nIndex=-1;
+	char** pResult=NULL;
+	m_Lock.Lock();
+	sqlite3* pDb=( sqlite3* )m_pDb;
+	int result= sqlite3_get_table(
+		pDb,               /* An open database */
+		sqlstr,     /* SQL to be evaluated */
+		&pResult,    /* Results of the query */
+		&nRow,           /* Number of result rows written here */
+		&nColumn,        /* Number of result columns written here */
+		NULL       /* Error msg written here */
+		);
+
+
+	//¶Á³ösqliteÊý¾Ý
+	nIndex = nColumn;
+	for(int i=0;i<nRow;i++)
+	{
+		for(int j=0;j<nColumn;j++)
+		{
+			char *val=pResult[nIndex];
+			if(j==0){
+				
+			}else if(j==1){
+				OutValue=val;
+			}
+			nIndex++;
+		}
+		Ok=true;
+	}
+	sqlite3_free_table(pResult);
+	m_Lock.Unlock();
+
+	return Ok;
+}
 CHistoryInfoMgr *CHistoryInfoMgr::GetInance()
 {
    
@@ -101,4 +166,39 @@ CHistoryInfoMgr *CHistoryInfoMgr::GetInance()
    }
  
    return m_pInance;
+}
+void CHistoryInfoMgr::UpdataH264Codec(int value)
+{
+       char hardM[512]="";
+		sprintf(hardM,"%d",value);
+		UpdataConfig("H264Codec",hardM);
+		m_nH264Codec=value;
+}
+int CHistoryInfoMgr::GetH264Codec()
+{
+	if(m_nH264Codec==-1)
+	{
+		std::string selectIndex="";
+		InfoMgr->GetConfig("H264Codec",selectIndex);
+		m_nH264Codec=atoi(selectIndex.c_str());
+	}
+    return m_nH264Codec;
+		 
+}
+int CHistoryInfoMgr::GetH265Codec()
+{
+	if(m_nH264Codec==-1)
+	{
+		std::string selectIndex="";
+		InfoMgr->GetConfig("H265Codec",selectIndex);
+		m_nH265Codec=atoi(selectIndex.c_str());
+	}
+    return  m_nH265Codec;
+}
+void CHistoryInfoMgr::UpdataH265Codec(int value)
+{
+        char hardM[512]="";
+		sprintf(hardM,"%d",value);
+		UpdataConfig("H265Codec",hardM);
+		m_nH265Codec=value;
 }

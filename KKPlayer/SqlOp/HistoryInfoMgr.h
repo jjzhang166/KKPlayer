@@ -25,6 +25,15 @@ public:
        
 		 //获取放播的历史信息
 		 void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
+
+		 void UpdataConfig(const char* StrKey,const char* StrValue);
+
+		 bool GetConfig(const char* StrKey,std::string &OutValue);
+
+		 int GetH264Codec();
+		 void UpdataH264Codec(int value);
+		 int GetH265Codec();
+		 void UpdataH265Codec(int value);
   public:
 	     static CHistoryInfoMgr *GetInance();
   private:
@@ -33,5 +42,7 @@ public:
 		 char       m_strDbPath[1024];
 		 void*      m_pDb;
 		 CKKLock    m_Lock;
+		 int        m_nH264Codec;
+		 int        m_nH265Codec;
 };
 #endif
