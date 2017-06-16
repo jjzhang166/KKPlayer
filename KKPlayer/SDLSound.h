@@ -28,9 +28,9 @@ public:
 		void KKSDLCall( Uint8 *stream, int len);
 private:
 	    CKKLock m_lock;
-		pfun m_pFun;
-		void* m_UserData;
-		static long m_Vol;
-		void*  m_pSdlAudio;
+		pfun    m_pFun;
+		void*   m_UserData;
+		long    m_Vol;
+		void*   m_pSdlAudio;
 };
 #endif
