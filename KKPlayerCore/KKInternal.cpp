@@ -954,6 +954,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	   }
 	}
 
+	if(is->Hard_Code!=SKK_VideoState::HARD_CODE_DXVA)
 	if (avctx->codec_type == AVMEDIA_TYPE_VIDEO || avctx->codec_type == AVMEDIA_TYPE_AUDIO)
         av_dict_set(&opts, "refcounted_frames", "1", 0);
 	//打开解码器
@@ -1522,11 +1523,12 @@ LXXXX:
 			if (packet->data != is->pflush_pkt->data) //&&is->videoq.serial==is->viddec.pkt_serial
 			{
 					
-					
-					//is->IRender->renderLock();
+					if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA)
+					     is->IRender->renderLock();
 					//视频解码
 					ret = avcodec_decode_video2(d->avctx, pFrame, &got_frame, packet);
-					//is->IRender->renderUnLock();
+					if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA)
+					    is->IRender->renderUnLock();
 					if(got_frame)  
 					{  
 							//找到pts
@@ -1624,9 +1626,9 @@ LXXXX:
 	        is->IRender->SetResetHardInfoCall(0,0);
 	        is->IRender->renderUnLock();
 	 }else if(is->Hard_Code==is->HARDCODE::HARD_CODE_QSV){
-	        KKFreeQsv(is->viddec.avctx);
+	        /*KKFreeQsv(is->viddec.avctx);
 			is->viddec.avctx->opaque=NULL;
-	        is->viddec.avctx->hwaccel_context=NULL;
+	        is->viddec.avctx->hwaccel_context=NULL;*/
 	 }
 #endif
 	LOGE("Video_thread Over");

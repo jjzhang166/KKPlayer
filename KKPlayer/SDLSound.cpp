@@ -8,8 +8,8 @@
 #else
    #pragma comment (lib,"../Release/SDL.lib")
 #endif
-long CSDLSound::m_Vol=100;
-CSDLSound::CSDLSound():m_pSdlAudio(0)
+
+CSDLSound::CSDLSound():m_pSdlAudio(0),m_Vol(100)
 {
     m_UserData=NULL;
 	m_pFun=NULL;

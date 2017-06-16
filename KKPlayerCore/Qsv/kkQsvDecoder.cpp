@@ -270,6 +270,16 @@ static void free_buffer(void *opaque, uint8_t *data)
     int *i=(int *)opaque;
 	*i=0;
 }
+void RestQsvSurface(AVCodecContext *avctx,int idx)
+{
+    KKQSVDecCtx *decode = (KKQSVDecCtx*)avctx->opaque;
+    for (; idx < decode->nb_surfaces; idx++) 
+	{
+		if(decode->surfaces[idx].Data.Locked==0)
+		decode->surface_used[idx]=0;
+        
+    }
+}
 static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int flags)
 {
 	KKQSVDecCtx *decode = (KKQSVDecCtx*)avctx->opaque;
@@ -339,10 +349,11 @@ void KKFreeQsv(AVCodecContext *avct)
 	KKQSVDecCtx *decCtx=(KKQSVDecCtx*)avct->opaque;
 
 	for(int i=0;i<decCtx->nb_surfaces;++i){
+		 if( decCtx->MemIds[i])
 	     KK_Free_(decCtx->MemIds[i]);
 		 decCtx->MemIds[i]=NULL;
 	}
-   av_free(decCtx->hw_ctx);
+    av_free(decCtx->hw_ctx);
 	KK_Free_(decCtx);
 	avct->opaque=NULL;
 	//已在解码器中释放
@@ -350,9 +361,11 @@ void KKFreeQsv(AVCodecContext *avct)
 	//MFXClose(decCtx->hw_ctx->session);
 	//decCtx->hw_ctx->session=0;
 	
-	//decCtx->hw_ctx=NULL;
+	decCtx->hw_ctx=NULL;
 	avct->hwaccel_context=0;
 
+	avct->get_format =NULL;
+	avct->get_buffer2  =NULL;
 }
 //绑定环境
 int BindQsvModule(AVCodecContext  *pCodecCtx)

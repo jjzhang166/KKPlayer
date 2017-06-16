@@ -29,12 +29,17 @@ typedef struct KKQSVH2645Context {
     AVBitStreamFilterContext *bsf;
 
 } KKQSVH2645Context;
-
+void KKFreeQsv(AVCodecContext *avct);
 static av_cold int qsv_decode_close(AVCodecContext *avctx)
 {
     KKQSVH2645Context *s = ( KKQSVH2645Context*)avctx->priv_data;
     ff_qsv_decode_close(&s->qsv);
     av_bitstream_filter_close(s->bsf);
+	KKFreeQsv(avctx);
+	avctx->opaque=NULL;
+	avctx->hwaccel_context=NULL;
+	avctx->get_format         = 0;
+	avctx->get_buffer2        = 0;
     return 0;
 }
 

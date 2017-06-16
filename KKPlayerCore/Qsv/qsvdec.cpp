@@ -669,6 +669,8 @@ int ff_qsv_decode(AVCodecContext *avctx, KKQSVContext *q,
 
     return ret;
 }
+
+void RestQsvSurface(AVCodecContext *avctx,int idx);
 /*
  This function resets decoder and corresponded buffers before seek operation
 */
@@ -695,12 +697,17 @@ void ff_qsv_decode_reset(AVCodecContext *avctx, KKQSVContext *q)
 		qsv_unlock_used_frames(q);
         /* Free all frames*/
         cur = q->work_frames;
+		int xx=0;
         while (cur) {
             q->work_frames = cur->next;
+			av_frame_unref(cur->frame);
             av_frame_free(&cur->frame);
             av_freep(&cur);
             cur = q->work_frames;
+			xx++;
         }
+		xx++;
+		RestQsvSurface(avctx,xx);
     }
 
 
@@ -743,5 +750,7 @@ int ff_qsv_decode_close(KKQSVContext *q)
 
 	av_fifo_free(q->sequence_fifo);
     q->sequence_fifo = NULL;
+
+	
     return 0;
 }

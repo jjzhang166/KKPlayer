@@ -2,7 +2,7 @@
 void SetKKplayerH264HardCodec(int value);
 void SetKKplayerH265HardCodec(int value);
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
-CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(0),m_nH265Codec(0)
+CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1)
 {
 
 }
@@ -192,7 +192,7 @@ int CHistoryInfoMgr::GetH264Codec()
 }
 int CHistoryInfoMgr::GetH265Codec()
 {
-	if(m_nH264Codec==-1)
+	if(m_nH265Codec==-1)
 	{
 		std::string selectIndex="";
 		GetConfig("H265Codec",selectIndex);

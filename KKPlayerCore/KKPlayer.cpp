@@ -375,7 +375,6 @@ void KKPlayer::CloseMedia()
 	if(pVideoInfo->viddec.avctx!=NULL)
 	{
 	   LOGE("avcodec_close(pVideoInfo->viddec.avctx); \n");
-	   avcodec_flush_buffers(pVideoInfo->viddec.avctx);
 	   avcodec_close(pVideoInfo->viddec.avctx);
 	   avcodec_free_context(&pVideoInfo->viddec.avctx);
 	   LOGE("avcodec_close(avcodec_free_context(&pVideoInfo->viddec.avctx) OK \n");
