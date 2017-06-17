@@ -8,26 +8,33 @@
 namespace SOUI
 {
 
+	/// 1 h264   2 h265
 
 	class CVideoCodecAdapter :public SAdapterBase
 	{
 		public:
-			   CVideoCodecAdapter (SListView  *m_Ctr);
+			   CVideoCodecAdapter (SListView  *m_Ctr,int VideoType);
 			   ~CVideoCodecAdapter ();
 			    int getCount();   
                 void getView(int position, SWindow * pItem, pugi::xml_node xmlTemplate);
 				bool OnItemClick(EventArgs *pEvt);
                 SStringT getItemDesc(int position);
 	    private:
-		       SListView* m_Ctr;
+		       SListView*            m_Ctr;
 			   std::vector<SStringT> m_CodecList;
+			   int                   m_nVideoType;
 	};
 
-	CVideoCodecAdapter::CVideoCodecAdapter (SListView  *m_Ctr)
+	CVideoCodecAdapter::CVideoCodecAdapter (SListView  *m_Ctr,int VideoType):m_nVideoType(VideoType)
 	{
-		   m_CodecList.push_back(L"Ä¬ÈÏ½âÂëÆ÷");
-		   m_CodecList.push_back(L"DXVA2½âÂëÆ÷");
-		   m_CodecList.push_back(L"InterQSV½âÂëÆ÷");
+		  if(m_nVideoType==1){
+			   m_CodecList.push_back(L"Ä¬ÈÏ½âÂëÆ÷");
+			   m_CodecList.push_back(L"DXVA2½âÂëÆ÷");
+			   m_CodecList.push_back(L"InterQSV½âÂëÆ÷");
+		  }else if(m_nVideoType==2){
+		       m_CodecList.push_back(L"Ä¬ÈÏ½âÂëÆ÷");
+			   m_CodecList.push_back(L"InterQSV½âÂëÆ÷");
+		  }
 	}
     CVideoCodecAdapter::~CVideoCodecAdapter ()
 	{
@@ -71,7 +78,7 @@ namespace SOUI
 		CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
 	    SComboView* H264Box=(SComboView* )this->FindChildByName(L"cbx_H264Codec");
 		SListView*  H264View=H264Box->GetListView();
-		CVideoCodecAdapter* h264Adapter = new CVideoCodecAdapter(H264View);
+		CVideoCodecAdapter* h264Adapter = new CVideoCodecAdapter(H264View,1);
         H264View->SetAdapter(h264Adapter);
 		 
 
@@ -80,7 +87,7 @@ namespace SOUI
 		SComboView* H265Box=(SComboView* )this->FindChildByName(L"cbx_H265Codec");
 		SListView*  H265View=H265Box->GetListView();
 
-		CVideoCodecAdapter* h265Adapter = new CVideoCodecAdapter(H265View);
+		CVideoCodecAdapter* h265Adapter = new CVideoCodecAdapter(H265View,2);
 		H265View->SetAdapter(h265Adapter);
 
 		
@@ -112,11 +119,8 @@ namespace SOUI
 		if(pos==0)
 		     med= SKK_VideoState::HARD_CODE_NONE;
 		else if(pos==1)
-		     med= SKK_VideoState::HARD_CODE_DXVA;
-		else if(pos==2)
-			 med= SKK_VideoState::HARD_CODE_QSV;
-
-
+		     med= SKK_VideoState::HARD_CODE_QSV;
+		
 		CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
 		InfoMgr->UpdataH265Codec(med);
 	    return TRUE;

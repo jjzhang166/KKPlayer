@@ -276,7 +276,7 @@ void RestQsvSurface(AVCodecContext *avctx,int idx)
     for (; idx < decode->nb_surfaces; idx++) 
 	{
 		if(decode->surfaces[idx].Data.Locked==0)
-		decode->surface_used[idx]=0;
+		            decode->surface_used[idx]=0;
         
     }
 }
@@ -306,34 +306,29 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 		{ 
             break;
 		}
-    }/*
-	decode->nb_cursurId++;
-	if(decode->nb_cursurId>decode->nb_surfaces-1){
-	    decode->nb_cursurId=0;
-	}
-    idx =decode->nb_cursurId;*/
-	
+    }
+
     if (idx == decode->nb_surfaces) {
         fprintf(stderr, "No free surfaces\n");
         return AVERROR(ENOMEM);
     }
 
 	
-    surf =&decode->surfaces[idx]; //( mfxFrameSurface1 *)av_mallocz(sizeof(*surf));
+    surf =&decode->surfaces[idx];
 	
     if (!surf)
         return AVERROR(ENOMEM);
 	int *i=&decode->surface_used[idx];
-    surf_buf = av_buffer_create(0,NULL, free_buffer,i, AV_BUFFER_FLAG_READONLY);
+   surf_buf = av_buffer_create(0,NULL, free_buffer,i, AV_BUFFER_FLAG_READONLY);
     if (!surf_buf) {
         av_freep(&surf);
         return AVERROR(ENOMEM);
-    }
+    } /**/
 
 	
     frame->buf[0]  = surf_buf;
     frame->data[3] = (uint8_t*)surf;
-
+    frame->data[5] =(uint8_t *)i;
     decode->surface_used[idx] = 1;
 	return 0;
 }
@@ -342,7 +337,7 @@ static int Qsv_GetFrameBuf( struct AVCodecContext *avctx, AVFrame *frame,int fla
 
 
 void Registerkk_h264_qsv_decoder();
-
+void Registerkk_h265_qsv_decoder();
 
 void KKFreeQsv(AVCodecContext *avct)
 {
@@ -356,10 +351,6 @@ void KKFreeQsv(AVCodecContext *avct)
     av_free(decCtx->hw_ctx);
 	KK_Free_(decCtx);
 	avct->opaque=NULL;
-	//已在解码器中释放
-	//MFXVideoDECODE_Close(decCtx->hw_ctx->session);
-	//MFXClose(decCtx->hw_ctx->session);
-	//decCtx->hw_ctx->session=0;
 	
 	decCtx->hw_ctx=NULL;
 	avct->hwaccel_context=0;
@@ -371,52 +362,70 @@ void KKFreeQsv(AVCodecContext *avct)
 int BindQsvModule(AVCodecContext  *pCodecCtx)
 {
     static int Qsv_i=1;
-	if(Qsv_i==1)
+	if(Qsv_i==1){
        Registerkk_h264_qsv_decoder();
+	   Registerkk_h265_qsv_decoder();
+	}
 	Qsv_i=0;
-	if(pCodecCtx->codec_id==AV_CODEC_ID_H264)
+	if(pCodecCtx->codec_id==AV_CODEC_ID_H264|| pCodecCtx->codec_id==AV_CODEC_ID_H265)
 	{
 		//pCodecCtx->codec_id=
-		pCodecCtx->get_format         = Qsv_GetFormat;
-	    pCodecCtx->get_buffer2        = Qsv_GetFrameBuf;
-	    pCodecCtx->thread_count       = 1;
-	    pCodecCtx->slice_flags       |= SLICE_FLAG_ALLOW_FIELD;
-
+		mfxVersion            mfx_ver;
+		mfx_ver.Major = 1;
+	    mfx_ver.Minor = 0;
+        mfxSession            mfx_session=0;
 		//硬解
-		mfxIMPL impl =MFX_IMPL_HARDWARE;
-		
-		KKQSVDecCtx *decCtx=(KKQSVDecCtx*)::KK_Malloc_(sizeof(KKQSVDecCtx));
+		mfxIMPL   impl = MFX_IMPL_HARDWARE;
+		mfxStatus sts  = MFXInit(impl,&mfx_ver, &mfx_session); 
+		if(sts!= MFX_ERR_NONE){
+			  MFXClose(mfx_session);
+			  return sts;
+		}
+	   
+		MFXQueryVersion(mfx_session , &mfx_ver);
+		if(sts!= MFX_ERR_NONE){
+			 MFXClose(mfx_session);
+		     return sts;
+		}
+	    MFXClose(mfx_session);
+       
 
+		KKQSVDecCtx *decCtx=(KKQSVDecCtx*)::KK_Malloc_(sizeof(KKQSVDecCtx));
+        decCtx->mfx_session=0;
 		decCtx->tmp_frame=0;
 	    decCtx->Okxx=0;
 		decCtx->hw_ctx =kk_av_qsv_alloc_context();
-		pCodecCtx->hwaccel_context=decCtx->hw_ctx;
-		pCodecCtx->opaque=decCtx;
+		
 
-      
+		decCtx->mfx_ver=mfx_ver;
 		
 		decCtx->picw=pCodecCtx->width;
 		decCtx->pich=pCodecCtx->height;
 		//h264
-		decCtx->dec_param.mfx.CodecId=MFX_CODEC_AVC;
-		decCtx->mfx_ver.Major = 1;
-	    decCtx->mfx_ver.Minor = 0;
-	    mfxStatus sts=MFXInit(impl,&decCtx->mfx_ver, &decCtx->mfx_session); 
-		if(sts!= MFX_ERR_NONE){
-			  return sts;
-		}
-	    sts = MFXQueryVersion(decCtx->mfx_session , &decCtx->mfx_ver);  //get real API version of the loaded library
-		if(sts!= MFX_ERR_NONE){
-		     return sts;
-		}
-	    MFXClose(decCtx->mfx_session);
-       decCtx->mfx_session=0;
+		
+	/*	decCtx->mfx_ver.Major = 1;
+	    decCtx->mfx_ver.Minor = 0;*/
+	    
 
 	    sts=MFXInit(impl,&decCtx->mfx_ver , &decCtx->mfx_session); 
 		if(sts!= MFX_ERR_NONE){
-		       return sts;
+			 MFXClose(decCtx->mfx_session);
+			 av_freep(decCtx->hw_ctx);
+			 KK_Free_(decCtx);
+		     return sts;
 		}
 
+		if(pCodecCtx->codec_id==AV_CODEC_ID_H264)
+                decCtx->dec_param.mfx.CodecId=MFX_CODEC_AVC;
+		if(pCodecCtx->codec_id==AV_CODEC_ID_H265)
+			    decCtx->dec_param.mfx.CodecId=MFX_CODEC_HEVC;
+        
+		pCodecCtx->hwaccel_context=decCtx->hw_ctx;
+		pCodecCtx->opaque=decCtx;
+	    pCodecCtx->get_format         = Qsv_GetFormat;
+	    pCodecCtx->get_buffer2        = Qsv_GetFrameBuf;
+	    pCodecCtx->thread_count       = 1;
+	    pCodecCtx->slice_flags       |= SLICE_FLAG_ALLOW_FIELD;
 
 		decCtx->frame_allocator.pthis  = decCtx;
         decCtx->frame_allocator.Alloc  = frame_alloc;
@@ -428,9 +437,9 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 	    //MFXVideoCORE_SetHandle(decCtx->mfx_session, MFX_HANDLE_VA_DISPLAY, decode.va_dpy);
 		//只有使用 
 		//MFXVideoCORE_SetFrameAllocator(decCtx->mfx_session, &decCtx->frame_allocator);
-        if(sts!= MFX_ERR_NONE){
+       /* if(sts!= MFX_ERR_NONE){
 		       return sts;
-		}
+		}*/
 
 		/* if (MFX_CODEC_CAPTURE != decCtx->dec_param.mfx.CodecId){
             sts = InitMfxBitstream(&decCtx->hw_ctx->mfx_enc_bs, 1024 * 1024);
@@ -439,8 +448,8 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		    }
          }*/
 		decCtx->hw_ctx->param.AsyncDepth=10;
-		 decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_VIDEO_MEMORY
-		 decCtx->hw_ctx->session=decCtx->mfx_session;
+		decCtx->hw_ctx->iopattern=MFX_IOPATTERN_OUT_SYSTEM_MEMORY;//MFX_IOPATTERN_OUT_VIDEO_MEMORY
+		decCtx->hw_ctx->session=decCtx->mfx_session;
 		return 0;
 	}
 	return -1;

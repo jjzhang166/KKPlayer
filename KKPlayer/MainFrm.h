@@ -114,6 +114,7 @@ public:
 			MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove);
 			MESSAGE_HANDLER(WM_RBUTTONUP,OnRbuttonUp);
 			MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLbuttonDown);
+			MESSAGE_HANDLER(WM_SETCURSOR,OnSetCursor);
 	END_MSG_MAP()
 protected:
 	    void     OnFinalMessage(HWND /*hWnd*/);
@@ -131,6 +132,7 @@ protected:
 		LRESULT  OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 		LRESULT  OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
+		LRESULT  OnSetCursor(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 protected:
 		/********** IKKPlayUI µœ÷*************/
 		virtual unsigned char* GetErrImage(int &length,int ErrType);

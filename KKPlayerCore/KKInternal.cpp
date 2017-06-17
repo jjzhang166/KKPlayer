@@ -10,6 +10,9 @@
 #include <assert.h>
 #include <time.h>
 #include "render/render.h"
+#ifndef PRIx64 
+#define PRIx64       "I64x"
+#endif
 int nKKH264Codec=0;
 int nKKH265Codec=0;
 void SetKKplayerH264HardCodec(int value)
@@ -904,7 +907,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	   if(avctx->codec_id==AV_CODEC_ID_H264)
 	   {
 	      is->Hard_Code=(SKK_VideoState::HARDCODE)nKKH264Codec;
-	   }else if (avctx->codec_id==AV_CODEC_ID_H265)
+	   }else if (avctx->codec_id==AV_CODEC_ID_HEVC)
 	   {
 	      is->Hard_Code=(SKK_VideoState::HARDCODE)nKKH265Codec;
 	   }
@@ -925,7 +928,10 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				   }
 			   }else if(is->Hard_Code==SKK_VideoState::HARD_CODE_QSV){	   
 			       if(BindQsvModule(avctx)>-1){
-					   codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
+					   if(avctx->codec_id==AV_CODEC_ID_H264)
+					       codec = avcodec_find_decoder_by_name("kk_h264_qsv"); 
+					   if(avctx->codec_id==AV_CODEC_ID_HEVC)
+					       codec = avcodec_find_decoder_by_name("kk_hevc_qsv"); 
 				   }else{
 				       is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
 				   }
@@ -1778,6 +1784,7 @@ static void ffp_show_dict(const char *tag, AVDictionary *dict)
 		
 	}
 }
+
 static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int force_output_format)
 {
 	static  enum AVSampleFormat sample_fmts[] = { AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE };
@@ -1822,13 +1829,15 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 		1, is->audio_filter_src.freq);
 	
 	if (is->audio_filter_src.channel_layout)
-#ifdef WIN32
+//#ifdef WIN32
+		//snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
+		//":channel_layout=0x%d",  is->audio_filter_src.channel_layout);/**/
 		snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
-		":channel_layout=0x%d",  is->audio_filter_src.channel_layout);/**/
-#else
-	snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
-		":channel_layout=0x%lld",  is->audio_filter_src.channel_layout);/**/
-#endif
+		":channel_layout=0x%"PRIx64,  is->audio_filter_src.channel_layout);/**/
+//#else
+//	snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
+//		":channel_layout=0x%lld",  is->audio_filter_src.channel_layout);/**/
+//#endif
 
 	
 	ret = avfilter_graph_create_filter(&filt_asrc,

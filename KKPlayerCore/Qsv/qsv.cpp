@@ -11,15 +11,32 @@ extern "C"{
 }
 #include "qsv.h"
 #include "qsv_internal.h"
+
+int kk_qsv_map_pixfmt(enum AVPixelFormat format, uint32_t *fourcc)
+{
+    switch (format) {
+    case AV_PIX_FMT_YUV420P:
+    case AV_PIX_FMT_YUVJ420P:
+    case AV_PIX_FMT_NV12:
+        *fourcc = MFX_FOURCC_NV12;
+        return AV_PIX_FMT_NV12;
+    case AV_PIX_FMT_YUV420P10:
+    case AV_PIX_FMT_P010:
+        *fourcc = MFX_FOURCC_P010;
+        return AV_PIX_FMT_P010;
+    default:
+        return AVERROR(ENOSYS);
+    }
+}
 int ff_qsv_codec_id_to_mfx(enum AVCodecID codec_id)
 {
     switch (codec_id) {
     case AV_CODEC_ID_H264:
         return MFX_CODEC_AVC;
-#if QSV_VERSION_ATLEAST(1, 8)
+
     case AV_CODEC_ID_HEVC:
         return MFX_CODEC_HEVC;
-#endif
+
     case AV_CODEC_ID_MPEG1VIDEO:
     case AV_CODEC_ID_MPEG2VIDEO:
         return MFX_CODEC_MPEG2;
@@ -31,7 +48,21 @@ int ff_qsv_codec_id_to_mfx(enum AVCodecID codec_id)
 
     return AVERROR(ENOSYS);
 }
-
+int kk_qsv_profile_to_mfx(enum AVCodecID codec_id, int profile)
+{
+    if (profile == FF_PROFILE_UNKNOWN)
+        return MFX_PROFILE_UNKNOWN;
+    switch (codec_id) {
+    case AV_CODEC_ID_H264:
+    case AV_CODEC_ID_HEVC:
+        return profile;
+    case AV_CODEC_ID_VC1:
+        return 4 * profile + 1;
+    case AV_CODEC_ID_MPEG2VIDEO:
+        return 0x10 * profile;
+    }
+    return MFX_PROFILE_UNKNOWN;
+}
 int ff_qsv_error(int mfx_err)
 {
     switch (mfx_err) {

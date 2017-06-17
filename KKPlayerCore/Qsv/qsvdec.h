@@ -54,6 +54,11 @@ typedef struct KKQSVContext {
 
     mfxExtBuffer **ext_buffers;
     int         nb_ext_buffers;
+
+	AVCodecParserContext     *parser;
+    AVCodecContext           *avctx_internal;
+	enum AVPixelFormat       orig_pix_fmt;
+	uint32_t                 fourcc;
 } KKQSVContext;
 
 int ff_qsv_map_pixfmt(enum AVPixelFormat format);
@@ -62,8 +67,8 @@ int ff_qsv_decode(AVCodecContext *s, KKQSVContext *q,
                   AVFrame *frame, int *got_frame,
                   AVPacket *avpkt);
 
-void ff_qsv_decode_reset(AVCodecContext *avctx, KKQSVContext *q);
+void kk_qsv_decode_flush(AVCodecContext *avctx, KKQSVContext *q);
 
-int ff_qsv_decode_close(KKQSVContext *q);
+int  ff_qsv_decode_close(KKQSVContext *q);
 
 #endif /* AVCODEC_QSVDEC_H */

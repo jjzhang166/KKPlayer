@@ -121,55 +121,59 @@ static int qsv_decode_frame(AVCodecContext *avctx, void *data,
 static void qsv_decode_flush(AVCodecContext *avctx)
 {
     KKQSVH2645Context *s = ( KKQSVH2645Context*)avctx->priv_data;
-    ff_qsv_decode_reset(avctx, &s->qsv);
-}
+    kk_qsv_decode_flush(avctx, &s->qsv);
 
+	
+}
+static AVPixelFormat pix_fmts[] ={ AV_PIX_FMT_NV12,AV_PIX_FMT_QSV,AV_PIX_FMT_NONE };
 #define OFFSET(x) offsetof(KKQSVH2645Context, x)
 #define VD AV_OPT_FLAG_VIDEO_PARAM | AV_OPT_FLAG_DECODING_PARAM
+#define CONFIG_HEVC_QSV_DECODER 
+#ifdef CONFIG_HEVC_QSV_DECODER
 
-#if CONFIG_HEVC_QSV_DECODER
-AVHWAccel ff_hevc_qsv_hwaccel = {
-    .name           = "hevc_qsv",
-    .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = AV_CODEC_ID_HEVC,
-    .pix_fmt        = AV_PIX_FMT_QSV,
+AVHWAccel ff_hevc_qsv_hwaccel = {"hevc_qsv",AVMEDIA_TYPE_VIDEO,AV_CODEC_ID_HEVC,AV_PIX_FMT_QSV};
+
+//static const AVOption hevc_options[] = {
+//    { "async_depth", "Internal parallelization depth, the higher the value the higher the latency.", OFFSET(qsv.async_depth), AV_OPT_TYPE_INT, { .i64 = ASYNC_DEPTH_DEFAULT }, 0, INT_MAX, VD },
+//
+//    { "load_plugin", "A user plugin to load in an internal session", OFFSET(load_plugin), AV_OPT_TYPE_INT, { .i64 = LOAD_PLUGIN_HEVC_SW }, LOAD_PLUGIN_NONE, LOAD_PLUGIN_HEVC_SW, VD, "load_plugin" },
+//    { "none",     NULL, 0, AV_OPT_TYPE_CONST, { .i64 = LOAD_PLUGIN_NONE },    0, 0, VD, "load_plugin" },
+//    { "hevc_sw",  NULL, 0, AV_OPT_TYPE_CONST, { .i64 = LOAD_PLUGIN_HEVC_SW }, 0, 0, VD, "load_plugin" },
+//
+//    { "load_plugins", "A :-separate list of hexadecimal plugin UIDs to load in an internal session",
+//        OFFSET(qsv.load_plugins), AV_OPT_TYPE_STRING, { .str = "" }, 0, 0, VD },
+//    { NULL },
+//};
+
+static const AVClass hevc_class = {"kk_hevc_qsv",av_default_item_name,NULL,LIBAVUTIL_VERSION_INT};
+
+AVCodec kk_hevc_qsv_decoder = {
+    "kk_hevc_qsv",
+    "HEVC (Intel Quick Sync Video acceleration)",
+     AVMEDIA_TYPE_VIDEO,
+     AV_CODEC_ID_HEVC,
+	 AV_CODEC_CAP_DELAY | AV_CODEC_CAP_DR1,
+	 0,
+     pix_fmts,
+	 0,0,0,0,
+	 &hevc_class,
+	 0,
+	 sizeof(KKQSVH2645Context),
+	 0,0,0,0,0,
+     qsv_decode_init,
+	 0,
+	 0,
+	 qsv_decode_frame,
+	 qsv_decode_close,
+	 0,0,0,0,
+     qsv_decode_flush,
+	 0
 };
+void Registerkk_h265_qsv_decoder()
+{
+   avcodec_register(&kk_hevc_qsv_decoder);
+}
 
-static const AVOption hevc_options[] = {
-    { "async_depth", "Internal parallelization depth, the higher the value the higher the latency.", OFFSET(qsv.async_depth), AV_OPT_TYPE_INT, { .i64 = ASYNC_DEPTH_DEFAULT }, 0, INT_MAX, VD },
-
-    { "load_plugin", "A user plugin to load in an internal session", OFFSET(load_plugin), AV_OPT_TYPE_INT, { .i64 = LOAD_PLUGIN_HEVC_SW }, LOAD_PLUGIN_NONE, LOAD_PLUGIN_HEVC_SW, VD, "load_plugin" },
-    { "none",     NULL, 0, AV_OPT_TYPE_CONST, { .i64 = LOAD_PLUGIN_NONE },    0, 0, VD, "load_plugin" },
-    { "hevc_sw",  NULL, 0, AV_OPT_TYPE_CONST, { .i64 = LOAD_PLUGIN_HEVC_SW }, 0, 0, VD, "load_plugin" },
-
-    { "load_plugins", "A :-separate list of hexadecimal plugin UIDs to load in an internal session",
-        OFFSET(qsv.load_plugins), AV_OPT_TYPE_STRING, { .str = "" }, 0, 0, VD },
-    { NULL },
-};
-
-static const AVClass hevc_class = {
-    .class_name = "hevc_qsv",
-    .item_name  = av_default_item_name,
-    .option     = hevc_options,
-    .version    = LIBAVUTIL_VERSION_INT,
-};
-
-AVCodec ff_hevc_qsv_decoder = {
-    .name           = "hevc_qsv",
-    .long_name      = NULL_IF_CONFIG_SMALL("HEVC (Intel Quick Sync Video acceleration)"),
-    .priv_data_size = sizeof(QSVH2645Context),
-    .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = AV_CODEC_ID_HEVC,
-    .init           = qsv_decode_init,
-    .decode         = qsv_decode_frame,
-    .flush          = qsv_decode_flush,
-    .close          = qsv_decode_close,
-    .capabilities   = AV_CODEC_CAP_DELAY | AV_CODEC_CAP_DR1,
-    .priv_class     = &hevc_class,
-    .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_NV12,
-                                                    AV_PIX_FMT_QSV,
-                                                    AV_PIX_FMT_NONE },
-};
 #endif
 
 
@@ -178,7 +182,7 @@ AVCodec ff_hevc_qsv_decoder = {
 //    { NULL },
 //};
 static const AVClass _class = {"kk_h264_qsv",av_default_item_name,NULL,LIBAVUTIL_VERSION_INT};
-static AVPixelFormat pix_fmts[] ={ AV_PIX_FMT_NV12,AV_PIX_FMT_QSV,AV_PIX_FMT_NONE };
+
 AVCodec kk_h264_qsv_decoder = { "kk_h264_qsv","H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (Intel Quick Sync Video acceleration)",
      AVMEDIA_TYPE_VIDEO,AV_CODEC_ID_H264,AV_CODEC_CAP_DELAY | AV_CODEC_CAP_DR1,0,pix_fmts,
 	 0,0,0,0,&_class,0,sizeof(KKQSVH2645Context),0,0,0,0,0,

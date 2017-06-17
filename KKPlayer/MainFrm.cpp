@@ -790,6 +790,12 @@ LRESULT           CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LP
 #endif
 	return 1;
 }
+
+LRESULT   CMainFrame::OnSetCursor(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
+{
+      SetMsgHandled(FALSE);
+	  return 1;
+}
 LRESULT           CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	bHandled=true;
