@@ -68,8 +68,8 @@ m_UserData=UserData;
 }
 void CRenderGDI::render(kkAVPicInfo *Picinfo,bool wait)
 {
-	if (m_pixels == NULL||m_Picwidth!= Picinfo->width&&m_Picheight!=Picinfo->height)
-		createBitmap(Picinfo->width,Picinfo->height);
+	if (m_pixels == NULL)
+		createBitmap(m_width ,m_height);
 
 	skiaSal(Picinfo);
  

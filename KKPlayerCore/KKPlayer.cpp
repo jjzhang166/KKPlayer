@@ -1248,7 +1248,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
 	
 
-	pVideoInfo->nMaxRealtimeDelay=2;//32000;//单位s
+	pVideoInfo->nMaxRealtimeDelay=32000;//单位s
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
 	pVideoInfo->pflush_pkt =(AVPacket*)KK_Malloc_(sizeof(AVPacket));
     pVideoInfo->DstAVff=m_DstAVff;
@@ -2002,10 +2002,7 @@ void KKPlayer::ReadAV()
 	pVideoInfo->IsReady=1;	
 
 	m_TotalTime=pVideoInfo->pFormatCtx->duration/1000/1000;
-	if(m_pPlayUI!=NULL)
-	{
-		m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
-	}
+	int AVReadyOk=1;
 
 	if(pVideoInfo->realtime&&pVideoInfo->audio_st==NULL)
 	{
@@ -2249,10 +2246,13 @@ void KKPlayer::ReadAV()
 			 }
 			av_usleep(10000);
 			continue;
-		} else 
-		{
+		} else {
 			pVideoInfo->eof = 0;
-			
+			if(AVReadyOk==1&&m_pPlayUI!=NULL)
+			{
+				AVReadyOk=0;
+				m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVReady);
+			}
 		}
 
        
