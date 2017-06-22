@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "kkSqlite", "kkSqlite\kkSqli
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKIcons", "KKIcons\KKIcons.vcproj", "{06236056-DE97-49C1-8A4C-24D35AB7B491}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rtp_rtcp", "rtp_rtcp\rtp_rtcp.vcproj", "{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Cd|Win32 = Cd|Win32
@@ -229,6 +231,18 @@ Global
 		{06236056-DE97-49C1-8A4C-24D35AB7B491}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
 		{06236056-DE97-49C1-8A4C-24D35AB7B491}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
 		{06236056-DE97-49C1-8A4C-24D35AB7B491}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Cd|Win32.ActiveCfg = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Cd|Win32.Build.0 = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Cd|x64.ActiveCfg = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Debug|Win32.Build.0 = Debug|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Debug|x64.ActiveCfg = Debug|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Release|Win32.ActiveCfg = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Release|Win32.Build.0 = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.Release|x64.ActiveCfg = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.ReleaseWithoutAsm|Win32.ActiveCfg = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.ReleaseWithoutAsm|Win32.Build.0 = Release|Win32
+		{1DA69CAC-EEDA-4788-AB63-EBA4A092C6E2}.ReleaseWithoutAsm|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
