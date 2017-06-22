@@ -11,7 +11,7 @@ Android:android studio1.5 编译通过。<br/>
 windows 编译需要定义环境变量<br/>
 KKWinSdkPath和KKWinDx9Path<br/>
 dxsdk10(d3d9)下载地址：http://pan.baidu.com/s/1kV0vmVP<br/>
-soui2下载地址：https://git.oschina.net/Qyerp/soui
+soui2下载地址：https://git.oschina.net/Qyerp/soui<br/>
 例如<br/>
 KKWinDx9Path=C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)<br/>
 KKWinSdkPath=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A<br/>
