@@ -11,7 +11,7 @@
 #ifndef WEBRTC_BASE_SOCKETSERVER_H_
 #define WEBRTC_BASE_SOCKETSERVER_H_
 
-#include "webrtc/base/socketfactory.h"
+#include "socketfactory.h"
 
 namespace rtc {
 

@@ -19,7 +19,7 @@
 #include "webrtc/base/nullsocketserver.h"
 typedef rtc::NullSocketServer DefaultSocketServer;
 #else
-#include "webrtc/base/physicalsocketserver.h"
+#include "../socket/physicalsocketserver.h"
 typedef rtc::PhysicalSocketServer DefaultSocketServer;
 #endif
 

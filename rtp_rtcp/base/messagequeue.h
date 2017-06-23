@@ -25,7 +25,7 @@
 #include "scoped_ptr.h"
 #include "scoped_ref_ptr.h"
 #include "sigslot.h"
-#include "socketserver.h"
+#include "../socket/socketserver.h"
 #include "timeutils.h"
 
 namespace rtc {

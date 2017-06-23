@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 #include <iosfwd>
-#include "webrtc/base/basictypes.h"
-#include "webrtc/base/ipaddress.h"
+#include "../base/basictypes.h"
+#include "ipaddress.h"
 
 #undef SetPort
 

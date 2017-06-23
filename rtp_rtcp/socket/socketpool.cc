@@ -10,12 +10,12 @@
 
 #include <iomanip>
 
-#include "webrtc/base/asyncsocket.h"
-#include "webrtc/base/logging.h"
-#include "webrtc/base/socketfactory.h"
-#include "webrtc/base/socketpool.h"
-#include "webrtc/base/socketstream.h"
-#include "webrtc/base/thread.h"
+#include "asyncsocket.h"
+#include "../base/logging.h"
+#include "socketfactory.h"
+#include "socketpool.h"
+#include "socketstream.h"
+#include "../base/thread.h"
 
 namespace rtc {
 

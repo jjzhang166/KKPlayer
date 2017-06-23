@@ -20,10 +20,10 @@
 
 #include <list>
 
-#include "webrtc/base/asyncresolverinterface.h"
-#include "webrtc/base/signalthread.h"
-#include "webrtc/base/sigslot.h"
-#include "webrtc/base/socketaddress.h"
+#include "asyncresolverinterface.h"
+#include "../base/signalthread.h"
+#include "../base/sigslot.h"
+#include "socketaddress.h"
 
 namespace rtc {
 
