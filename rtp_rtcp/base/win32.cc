@@ -16,8 +16,8 @@
 
 #include "basictypes.h"
 #include "byteorder.h"
-#include "webrtc/base/common.h"
-#include "webrtc/base/logging.h"
+#include "common.h"
+#include "logging.h"
 
 namespace rtc {
 

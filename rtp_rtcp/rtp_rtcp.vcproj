@@ -221,6 +221,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base\checks.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\base\checks.h"
+				>
+			</File>
+			<File
 				RelativePath=".\base\common.cc"
 				>
 			</File>
@@ -233,11 +241,51 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base\criticalsection.h"
+				>
+			</File>
+			<File
 				RelativePath=".\base\logging.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\base\logging.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\move.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\stream.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\base\stream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\stringencode.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\base\stringencode.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\stringutils.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\base\stringutils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\template_util.h"
+				>
+			</File>
+			<File
+				RelativePath=".\base\thread_annotations.h"
 				>
 			</File>
 			<File

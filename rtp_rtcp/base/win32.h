@@ -10,7 +10,6 @@
 
 #ifndef WEBRTC_BASE_WIN32_H_
 #define WEBRTC_BASE_WIN32_H_
-#define WEBRTC_WIN
 #if defined(WEBRTC_WIN)
 
 #ifndef WIN32_LEAN_AND_MEAN
@@ -38,8 +37,8 @@ typedef struct _TOKEN_MANDATORY_LABEL {
 
 #include <string>
 
-#include "webrtc/base/stringutils.h"
-#include "webrtc/base/basictypes.h"
+#include "stringutils.h"
+#include "basictypes.h"
 
 namespace rtc {
 

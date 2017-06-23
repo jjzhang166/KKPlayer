@@ -33,11 +33,11 @@ static const int kMaxLogLineSize = 1024 - 60;
 #include <limits.h>
 #include <vector>
 
-#include "webrtc/base/logging.h"
-#include "webrtc/base/stream.h"
-#include "webrtc/base/stringencode.h"
-#include "webrtc/base/stringutils.h"
-#include "webrtc/base/timeutils.h"
+#include "logging.h"
+#include "stream.h"
+#include "stringencode.h"
+#include "stringutils.h"
+#include "timeutils.h"
 
 namespace rtc {
 

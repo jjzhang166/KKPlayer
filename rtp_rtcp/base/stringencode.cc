@@ -8,14 +8,14 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/base/stringencode.h"
+#include "stringencode.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "webrtc/base/basictypes.h"
-#include "webrtc/base/checks.h"
-#include "webrtc/base/stringutils.h"
+#include "basictypes.h"
+#include "checks.h"
+#include "stringutils.h"
 
 namespace rtc {
 

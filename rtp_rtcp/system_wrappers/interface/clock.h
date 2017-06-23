@@ -11,9 +11,9 @@
 #ifndef WEBRTC_SYSTEM_WRAPPERS_INTERFACE_CLOCK_H_
 #define WEBRTC_SYSTEM_WRAPPERS_INTERFACE_CLOCK_H_
 
-#include "webrtc/system_wrappers/interface/rw_lock_wrapper.h"
-#include "webrtc/system_wrappers/interface/scoped_ptr.h"
-#include "webrtc/typedefs.h"
+#include "rw_lock_wrapper.h"
+#include "scoped_ptr.h"
+#include "../../typedefs.h"
 
 namespace webrtc {
 

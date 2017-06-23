@@ -15,18 +15,18 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <string>
-#include "webrtc/base/basictypes.h"
-#include "webrtc/base/common.h"
-#include "webrtc/base/logging.h"
-#include "webrtc/base/messagequeue.h"
-#include "webrtc/base/stream.h"
-#include "webrtc/base/stringencode.h"
-#include "webrtc/base/stringutils.h"
-#include "webrtc/base/thread.h"
-#include "webrtc/base/timeutils.h"
+#include "basictypes.h"
+#include "common.h"
+#include "logging.h"
+#include "messagequeue.h"
+#include "stream.h"
+#include "stringencode.h"
+#include "stringutils.h"
+#include "thread.h"
+#include "timeutils.h"
 
 #if defined(WEBRTC_WIN)
-#include "webrtc/base/win32.h"
+#include "win32.h"
 #define fileno _fileno
 #endif
 

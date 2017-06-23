@@ -12,16 +12,16 @@
 
 #if defined(_WIN32)
 // Windows needs to be included before mmsystem.h
-#include "webrtc/base/win32.h"
+#include "../../base/win32.h"
 #include <MMSystem.h>
 #elif ((defined WEBRTC_LINUX) || (defined WEBRTC_MAC))
 #include <sys/time.h>
 #include <time.h>
 #endif
 
-#include "webrtc/base/criticalsection.h"
-#include "webrtc/system_wrappers/interface/rw_lock_wrapper.h"
-#include "webrtc/system_wrappers/interface/tick_util.h"
+#include "../../base/criticalsection.h"
+#include "../interface/rw_lock_wrapper.h"
+#include "../interface/tick_util.h"
 
 namespace webrtc {
 

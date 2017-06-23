@@ -32,7 +32,7 @@
 
 #include <string>
 
-#include "webrtc/base/basictypes.h"
+#include "basictypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Generic string/memory utilities
