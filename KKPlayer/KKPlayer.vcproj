@@ -342,6 +342,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MainPage\AvStreamSetting.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AvStreamSetting.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\KKWkeWebkit.cpp"
 				>
 			</File>

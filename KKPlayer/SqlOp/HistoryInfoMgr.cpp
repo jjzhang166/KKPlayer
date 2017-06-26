@@ -171,7 +171,7 @@ CHistoryInfoMgr *CHistoryInfoMgr::GetInance()
 }
 void CHistoryInfoMgr::UpdataH264Codec(int value)
 {
-       char hardM[512]="";
+        char hardM[512]="";
 		sprintf(hardM,"%d",value);
 		UpdataConfig("H264Codec",hardM);
 		m_nH264Codec=value;

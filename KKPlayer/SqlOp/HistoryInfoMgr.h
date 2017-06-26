@@ -30,10 +30,11 @@ public:
 
 		 bool GetConfig(const char* StrKey,std::string &OutValue);
 
-		 int GetH264Codec();
+		 int  GetH264Codec();
 		 void UpdataH264Codec(int value);
-		 int GetH265Codec();
+		 int  GetH265Codec();
 		 void UpdataH265Codec(int value);
+
   public:
 	     static CHistoryInfoMgr *GetInance();
   private:
