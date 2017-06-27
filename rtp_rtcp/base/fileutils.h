@@ -21,10 +21,10 @@
 #include <unistd.h>
 #endif
 
-#include "webrtc/base/basictypes.h"
-#include "webrtc/base/common.h"
-#include "webrtc/base/platform_file.h"
-#include "webrtc/base/scoped_ptr.h"
+#include "basictypes.h"
+#include "common.h"
+#include "platform_file.h"
+#include "scoped_ptr.h"
 
 namespace rtc {
 

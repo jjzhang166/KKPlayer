@@ -17,7 +17,7 @@
 #include "../socket/physicalsocketserver.h"
 #include "../socket/socketadapters.h"
 #include "../socket/socketpool.h"
-#include "webrtc/base/ssladapter.h"
+#include "../rtcssl/ssladapter.h"
 
 using namespace rtc;
 
