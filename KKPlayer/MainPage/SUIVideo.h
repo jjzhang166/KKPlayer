@@ -14,8 +14,8 @@ namespace SOUI
 			  CSuiVideo(void);
 			  ~CSuiVideo(void);
 			   void SetAVVisible(BOOL bVisible);
-			   int OpenMedia(const char *str,const char* avname=NULL);
-			   int DownMedia(char *KKVURL);
+			   int  OpenMedia(const char *str,const char* avname=NULL);
+			   int  DownMedia(char *KKVURL);
 			   void Close();
 			   void SetPlayStat(int state);
 			   bool GetMeadiaInfo(MEDIA_INFO &info);
@@ -24,7 +24,7 @@ namespace SOUI
 			   void SetVolume(long value);
 			   long GetVolume();
 			   void AvSeek(int value);
-			   int PktSerial();
+			   int  PktSerial();
 
 			   void OnDecelerate();
 			   void OnAccelerate();

@@ -164,7 +164,21 @@ namespace SOUI
 	}
 	int CSuiVideo::OpenMedia(const char *str,const char* avname)
 	{
-         int ret= m_VideoWnd.OpenMedia(str);
+		
+         std::string avpathstr=str;
+		 CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
+		 int UseLibRtmp=InfoMgr->GetUseLibRtmp();
+		 bool NeedDelay=false;
+		 if(UseLibRtmp){
+	            if( !strncmp(str, "rtmp:",5))
+				{
+					avpathstr="librtmp:";
+					avpathstr+=	str;
+					NeedDelay=true;
+				}
+		 }
+
+		 int ret= m_VideoWnd.OpenMedia(avpathstr.c_str());
 		 if(ret==-1)
 		 {
 			 SaveSnapshoot();
@@ -173,7 +187,10 @@ namespace SOUI
 			 if(ret<0)
 				 return -1;
 		 }
-		 
+		 if(NeedDelay){
+			 int delay=InfoMgr->GetRtmpDelay();
+		     m_VideoWnd.SetMaxRealtimeDelay(delay);
+		 }
 		 std::string title2;
 		 m_url=str;
 		 std::wstring title=L"KK”∞“Ù";

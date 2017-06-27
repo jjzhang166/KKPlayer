@@ -32,8 +32,15 @@ public:
 
 		 int  GetH264Codec();
 		 void UpdataH264Codec(int value);
+
 		 int  GetH265Codec();
 		 void UpdataH265Codec(int value);
+
+		 int  GetUseLibRtmp();
+		 void UpdataUseLibRtmp(int value);
+
+		 int  GetRtmpDelay();
+		 void UpdataRtmpDelay(int value);
 
   public:
 	     static CHistoryInfoMgr *GetInance();
@@ -45,5 +52,7 @@ public:
 		 CKKLock    m_Lock;
 		 int        m_nH264Codec;
 		 int        m_nH265Codec;
+		 int        m_nUselibRtmp;
+		 int        m_nlibRtmpDelay;
 };
 #endif

@@ -10,11 +10,16 @@ translucent="0"
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
 			</caption>
 			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
-			               <window pos="30,30,-0,@23">
+			                <window pos="30,30,-0,@23">
 									 <check  name="chk_UseLibRtmp" pos="0,0,@200,@30" skin="_skin.sys.checkbox" >使用librtmp</check>
 							</window>
-							<window name="librtmpMaxDelay" pos="30,[5,-0,@23">
-									 <text pos="0,0,@90,-0" font="face:SimSun,size:12" colorText="#000000">最小延迟:</text>
+							<window name="librtmpMaxDelay" pos="0,[5,-0,@25">
+									 <text pos="0,0,@90,-0"  align="right" font="face:SimSun,size:12" colorText="#000000">最小延迟:</text>
+									 <richedit name="edt_MaxDelay" class="cls_edit" inset="2,2,0,0" colorBkgnd="#ffffff" 
+									 maxBuf="4" font="adding:1"  number="1" pos="[5,0,@100,-0" tip="延迟单位秒" />
+							</window>
+							<window pos="5,[15,-0,@25">
+									<button  pos="]-100,0,@80,@25" name="btn_Save" focusable="0" colorText="#000000">保存</button>
 							</window>
 			</window>
 	</root>

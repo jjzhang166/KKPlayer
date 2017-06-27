@@ -2,7 +2,7 @@
 void SetKKplayerH264HardCodec(int value);
 void SetKKplayerH265HardCodec(int value);
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
-CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1)
+CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRtmp(-1), m_nlibRtmpDelay(-1)
 {
 
 }
@@ -210,4 +210,42 @@ void CHistoryInfoMgr::UpdataH265Codec(int value)
 		m_nH265Codec=value;
 		
         SetKKplayerH265HardCodec(value);
+}
+
+int  CHistoryInfoMgr::GetUseLibRtmp()
+{
+	if(m_nUselibRtmp==-1){
+	      std::string tempStr="";
+		 GetConfig("UseLibRtmp",tempStr);
+	     m_nUselibRtmp=atoi( tempStr.c_str());
+	}
+	return m_nUselibRtmp;
+}
+
+ void CHistoryInfoMgr::UpdataUseLibRtmp(int value)
+ {
+        char hardM[512]="";
+		sprintf(hardM,"%d",value);
+		UpdataConfig("UseLibRtmp",hardM);
+		m_nUselibRtmp=value;
+		
+ }
+
+int CHistoryInfoMgr::GetRtmpDelay()
+{
+    if(m_nlibRtmpDelay==-1){
+	    std::string tempStr="";
+		GetConfig("Rtmpdelay",tempStr);
+	    m_nlibRtmpDelay=atoi( tempStr.c_str());
+		if(m_nlibRtmpDelay<1)
+			m_nlibRtmpDelay=1;
+	}
+return  m_nlibRtmpDelay;
+}
+void CHistoryInfoMgr::UpdataRtmpDelay(int value)
+{
+       char hardM[512]="";
+		sprintf(hardM,"%d",value);
+		UpdataConfig("Rtmpdelay",hardM);
+		 m_nlibRtmpDelay=value;
 }

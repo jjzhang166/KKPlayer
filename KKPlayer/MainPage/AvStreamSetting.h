@@ -20,11 +20,13 @@ namespace SOUI
 				void OnClose();
 				void OnMinimize();
 		        void OnUseLibRtmp();
-
+                void OnSave();
 				EVENT_MAP_BEGIN()
 					EVENT_NAME_COMMAND(L"btn_close",OnClose)
 					EVENT_NAME_COMMAND(L"btn_min",OnMinimize)
+					EVENT_NAME_COMMAND(L"btn_Save",OnSave)
 					EVENT_NAME_COMMAND(L"chk_UseLibRtmp",OnUseLibRtmp)
+					
 				EVENT_MAP_END()	
 				BEGIN_MSG_MAP_EX(CAvStreamSetting)
 				
