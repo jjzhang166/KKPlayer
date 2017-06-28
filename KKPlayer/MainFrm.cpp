@@ -516,7 +516,7 @@ void              CMainFrame::FullScreen()
 	}/**/
 }
 
-int               CMainFrame::PktSerial()
+int    CMainFrame::PktSerial()
 {
 	if(m_pPlayerInstance==NULL)
 		return 0;

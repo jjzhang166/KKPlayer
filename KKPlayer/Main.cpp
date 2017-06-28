@@ -5,14 +5,11 @@
 
 #include "resource.h"
 #include "MainFrm.h"
-#include <GdiPlus.h>
-#include <Gdiplusinit.h>
 #include "MainPage/MainDlg.h"
 #include "MainPage/SUIVideo.h"
 #include "MainPage/KKWkeWebkit.h"
-#include "control/kkmclv.h"22
+#include "control/kkmclv.h"
 #include "Control/kkseek.h"
-//#include "DownManage/AVDownManage.h"
 #include "Dir/Dir.hpp"
 #include "Tool/CFileMgr.h"
 #include "Tool/cchinesecode.h"
@@ -22,26 +19,15 @@
 #include "SqlOp/HistoryInfoMgr.h"
 #include "../KKPlayerCore/KKPlugin.h"
 #include "../KKPlayerCore/KKPlayer.h"
-#pragma comment (lib,"Gdiplus.lib")
-#pragma comment (lib,"Kernel32.lib")
 
 
 void DeclareDumpFile();
-CAppModule _Module;
+
 
 
 SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
-HWND G_Parent=NULL;
 CMainFrame *pWnd;
-int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
-{
-	CMessageLoop theLoop;
-	_Module.AddMessageLoop(&theLoop);
-	int nRet = theLoop.Run();
-    _Module.RemoveMessageLoop();
-	
-	return nRet;
-}
+
 
 #ifdef _DEBUG
 #define SYS_NAMED_RESOURCE _T("soui-sys-resourced.dll")
@@ -52,8 +38,6 @@ SOUI::CMainDlg *m_pDlgMain=NULL;
 
 //F:\ProgramTool\OpenPro\KKPlayer\KKPlayer>uiresbuilder.exe -iuires/uires.idx -puires -rres/KK_res.rc2
 std::basic_string<char> GetModulePathA();
-void skpngZhuc();
-
 
 
 CreateRender pfnCreateRender = NULL;
@@ -143,55 +127,9 @@ void RelationIco()
 	}
 	
 }
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
+void LoadPlugin()
 {
-
-	LPWSTR *szArglist = NULL;   
-	int nArgs = 0;   
-	std::wstring  urlpath;
-	szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);   
-	if( NULL != szArglist)   
-	{   
-         for(int i=1;i<nArgs;i++)
-		 {
-		     urlpath+=*(szArglist+i);
-			 if(i!=nArgs-1)
-			   urlpath+=L" ";
-		 }
-	} 
-	LocalFree(szArglist);
-
-    DeclareDumpFile();
-    
-    GhInstance=hInstance;
-	FARPROC spdpia = GetProcAddress(GetModuleHandle(TEXT("user32")), "SetProcessDPIAware");  
-	if(spdpia!=NULL)
-	{
-	   spdpia();
-	}
-
-	CWinDir windir;
-	std::wstring Propath=windir.GetUserAppDir();
-	Propath+=L"\\kkplayer\\";
-	windir.CreateDir(Propath.c_str());
-	Propath+=L"DB";
-	std::string pp;
-	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);/**/
-
-	RelationIco();
-	
-	CHistoryInfoMgr *hismgr=CHistoryInfoMgr::GetInance();
-	hismgr->SetPath(pp.c_str());
-	hismgr->InitDb();
-	hismgr->GetH264Codec();
-	hismgr->GetH265Codec();
-	
-	HMODULE hRender = LoadLibraryA("Render.dll");
-	if(hRender){
-          pfnCreateRender = (CreateRender)GetProcAddress(hRender, "CreateRender");
-		  pfnDelRender = (DelRender)GetProcAddress(hRender, "DelRender");
-	}
-	//装载
+//装载
 	std::string strPath= GetModulePathA();
 	strPath+="\\Plugin";
 
@@ -199,7 +137,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	dir::listFiles(DllPathInfoList,strPath,"dll");
 	std::list<std::string>::iterator It=DllPathInfoList.begin();
 	int Lenxx=sizeof( __KKPluginInfo);
-	//
+	
 	for (;It!=DllPathInfoList.end();++It)
 	{
 
@@ -248,38 +186,86 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	}
 
 	DllPathInfoList.clear();
-	int ll=sizeof(ULONG_PTR);
-	HRESULT hRes = ::CoInitialize(NULL);
-    G_Parent =(HWND)_wtoi(lpstrCmdLine);
-	wchar_t abcd[100]=L"";
-	wsprintf(abcd,L"%d",G_Parent);
-	ATLASSERT(SUCCEEDED(hRes));
-	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
-	::DefWindowProc(NULL, 0, 0, 0L);
+}
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
+{
 
-	AtlInitCommonControls(ICC_BAR_CLASSES);	// add flags to support other controls
+	 TCHAR szCurrentDir[MAX_PATH] = { 0 };
+    GetModuleFileName(NULL, szCurrentDir, sizeof(szCurrentDir));
+    LPTSTR lpInsertPos = _tcsrchr(szCurrentDir, _T('\\'));
+    _tcscpy(lpInsertPos + 1, _T(".."));
+    SetCurrentDirectory(szCurrentDir);
 
-	hRes = _Module.Init(NULL, hInstance);
-	//HWND h=CreateMessageWindow(hInstance);
+   GhInstance=hInstance;
+    ///电源管理
+	::SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED |ES_CONTINUOUS);
+	DeclareDumpFile();
+	LPWSTR *szArglist = NULL;   
+	int nArgs = 0;   
+	std::wstring  urlpath;
+	szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);   
+	if( NULL != szArglist)   
+	{   
+         for(int i=1;i<nArgs;i++)
+		 {
+		     urlpath+=*(szArglist+i);
+			 if(i!=nArgs-1)
+			   urlpath+=L" ";
+		 }
+	} 
+	LocalFree(szArglist);
+
+    
+    
+   
+	FARPROC spdpia = GetProcAddress(GetModuleHandle(TEXT("user32")), "SetProcessDPIAware");  
+	if(spdpia!=NULL)
+	{
+	   spdpia();
+	}
+
+	CWinDir windir;
+	std::wstring Propath=windir.GetUserAppDir();
+	Propath+=L"\\kkplayer\\";
+	windir.CreateDir(Propath.c_str());
+	Propath+=L"DB";
+	std::string pp;
+	CChineseCode::UnicodeToUTF8((wchar_t*)Propath.c_str(),pp);/**/
+
+	///关联图标
+	RelationIco();
 	
-	ATLASSERT(SUCCEEDED(hRes));
-
-	AtlAxWinInit();
+	CHistoryInfoMgr *hismgr=CHistoryInfoMgr::GetInance();
+	hismgr->SetPath(pp.c_str());
+	hismgr->InitDb();
+	hismgr->GetH264Codec();
+	hismgr->GetH265Codec();
+	//
 	
+	//
+ //   //插件
+	LoadPlugin();
+	
+	HMODULE hRender = LoadLibraryA("Render.dll");
+	if(hRender){
+          pfnCreateRender = (CreateRender)GetProcAddress(hRender, "CreateRender");
+		  pfnDelRender = (DelRender)GetProcAddress(hRender, "DelRender");
+	}
 
 	using namespace SOUI;
 	SComMgr * pComMgr = new SComMgr;
 
-	SOUI::CAutoRefPtr<SOUI::IImgDecoderFactory> pImgDecoderFactory;
-	
+	///GDI渲染器
 	pComMgr->CreateRender_GDI((IObjRef**)&pRenderFactory);
-    
 	
+	///图片解码器
+	SOUI::CAutoRefPtr<SOUI::IImgDecoderFactory> pImgDecoderFactory;
 	pComMgr->CreateImgDecoder((IObjRef**)&pImgDecoderFactory);
 	pRenderFactory->SetImgDecoderFactory(pImgDecoderFactory);
 	
-	::SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED |ES_CONTINUOUS);
+	
 	theApp=new SApplication(pRenderFactory,hInstance);
+
     theApp->RegisterWindowClass<CSuiVideo>();
     theApp->RegisterWindowClass<CKKmclv>();
     theApp->RegisterWindowClass<SAVSeekBar>();
@@ -288,11 +274,11 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	 if(wkeLoader.Init(_T("wke.dll")))
 	 {
 	   theApp->RegisterWindowClass<KKWkeWebkit>();
-	 }
-
+	 }/**/
+    
 	
-
-	HMODULE hui=LoadLibrary(_T("kkui.dll"));
+	 ///不知道什么原因，在win10下，会导致百度网盘等闪烁
+	 HMODULE hui=LoadLibrary(_T("kkui.dll"));
 	if(hui){
 		CAutoRefPtr<IResProvider>   pResProvider;
 		CreateResProvider(RES_PE,(IObjRef**)&pResProvider);
@@ -301,6 +287,16 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	}else{
        assert(0);
 	}
+	//加载系统资源
+	HMODULE hSysResource=LoadLibrary(SYS_NAMED_RESOURCE);
+	if(hSysResource){
+		CAutoRefPtr<IResProvider> sysSesProvider;
+		CreateResProvider(RES_PE,(IObjRef**)&sysSesProvider);
+		sysSesProvider->Init((WPARAM)hSysResource,0);
+		theApp->LoadSystemNamedResource(sysSesProvider);
+	}
+
+	
 	
 	CAutoRefPtr<ITranslatorMgr> trans;
 	pComMgr->CreateTranslator((IObjRef**)&trans);
@@ -317,27 +313,16 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	}
 
 
-	//加载系统资源
-	HMODULE hSysResource=LoadLibrary(SYS_NAMED_RESOURCE);
-	if(hSysResource){
-		CAutoRefPtr<IResProvider> sysSesProvider;
-		CreateResProvider(RES_PE,(IObjRef**)&sysSesProvider);
-		sysSesProvider->Init((WPARAM)hSysResource,0);
-		theApp->LoadSystemNamedResource(sysSesProvider);
-	}
-
-	//CAVDownManage Dow;
-	//Dow.Start();
-	std::wstring path=windir.GetModulePath();
 	
+
+	int 	nRet=0;
 	SOUI::SStringT str;
 	SOUI::CMainDlg dlgMain;
-	m_pDlgMain=&dlgMain;
-	dlgMain.Create(NULL,WS_POPUP|WS_MINIMIZEBOX | WS_MAXIMIZEBOX&~WS_CAPTION,0,0,0,0,0);
+	dlgMain.Create(NULL,WS_POPUP,0,0,0,0,0);
 	dlgMain.GetNative()->SendMessage(WM_INITDIALOG);
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);
-
+    m_pDlgMain=&dlgMain;
 	if(urlpath.length()>3)
 	{
 	    char localurl[1024]="";
@@ -345,13 +330,11 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 		dlgMain.WinTabShow(1);
 	    dlgMain.OpenMedia(localurl);
 	}
-	//int nRet =  Run(lpstrCmdLine, nCmdShow);
-	int 	nRet = theApp->Run(dlgMain.m_hWnd);
+	nRet = theApp->Run(dlgMain.m_hWnd);/**/
 
  
-	_Module.Term();
-	::CoUninitialize();
-
+	
+	
 	::SetThreadExecutionState(ES_CONTINUOUS);
 	return nRet;
 }

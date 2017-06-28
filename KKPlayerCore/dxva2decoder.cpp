@@ -6,11 +6,13 @@
 //#include "dxva2decoder.h"
 #include "libavutil/buffer.h"
 #include <strmif.h>
+#include <map>
 /* DLL */
 HINSTANCE             G_hd3d9_dll=NULL;
 HINSTANCE             G_hdxva2_dll=NULL;
 IDirect3D9 *          G_pD3D9=NULL;
 LPDIRECT3DDEVICE9     G_pD3Ddev=NULL;
+static std::map<void*,bool>  G_DxAddrVoidMap;
 int SetHardCtx(void* d3d,void* dev,int ver)
 {
    G_pD3D9=(IDirect3D9 * )d3d;

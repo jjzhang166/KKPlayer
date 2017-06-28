@@ -1,5 +1,6 @@
 #ifndef CMainFrame_H_
 #define CMainFrame_H_
+
 #include "atlmisc.h"
 #include "KKPlayer.h"
 #include "render/render.h"

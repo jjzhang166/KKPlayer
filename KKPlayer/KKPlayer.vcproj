@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;&quot;$(KKWinDx9Path)\include&quot;;..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\WinUI\SOUI\include;..\WinUI\utilities\include;..\WinUI\components;..\WinUI\config;..\wke\include;..\jsoncpp"
+				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;&quot;$(KKWinDx9Path)\include&quot;;&quot;$(KKSoui2Path)\SOUI\include&quot;;&quot;$(KKSoui2Path)\utilities\include&quot;;&quot;$(KKSoui2Path)\components&quot;;&quot;$(KKSoui2Path)\config&quot;;..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\wke\include;..\jsoncpp"
 				PreprocessorDefinitions="KKPLAYERUI;WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI;_CRT_SECURE_NO_WARNINGS;JSON_DLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,7 +63,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="KKPlayerCored.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(KKWinSdkPath)\Lib&quot;;&quot;$(KKWinDx9Path)\Lib\x86&quot;;..\Debug\libx86;..\Debug"
+				AdditionalLibraryDirectories="&quot;$(KKWinSdkPath)\Lib&quot;;&quot;$(KKWinDx9Path)\Lib\x86&quot;;..\Debug\libx86;..\Debug;&quot;$(KKSoui2Path)\bin&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -95,6 +95,7 @@
 			OutputDirectory="..\Release\"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			UseOfATL="0"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -115,10 +116,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;&quot;$(KKWinDx9Path)\include&quot;;&quot;$(KKSoui2Path)\SOUI\include&quot;;&quot;$(KKSoui2Path)\utilities\include&quot;;&quot;$(KKSoui2Path)\components&quot;;&quot;$(KKSoui2Path)\config&quot;;..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\wke\include;..\jsoncpp"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;JSON_DLL"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;JSON_DLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -139,7 +140,8 @@
 				AdditionalDependencies="../Release/libx86/KKPlayerCore.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(KKWinDx9Path)\Lib\x86&quot;;&quot;$(KKSoui2Path)\bin&quot;"
-				UACExecutionLevel="2"
+				EnableUAC="false"
+				UACExecutionLevel="0"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"

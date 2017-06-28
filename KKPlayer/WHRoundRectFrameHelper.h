@@ -19,7 +19,7 @@ protected:
 		pT->CSimpleWnd::ClientToScreen(rcClient);
 
 		rcClient.OffsetRect(- rcWindow.TopLeft());
-		if(!m_bMini)
+		if(0)
 		{
 			rgnWindow.CreateRectRgn(rcClient.left, rcClient.top + 2, rcClient.right, rcClient.bottom - 2);
 			rgnAdd.CreateRectRgn(rcClient.left + 2, rcClient.top, rcClient.right - 2, rcClient.top + 1);

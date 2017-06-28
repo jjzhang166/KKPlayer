@@ -3,14 +3,14 @@
 // 特定于项目的包含文件
 //
 
-#pragma once
-
 #ifndef stdafx_H_
 #define stdafx_H_
+#include "targetver.h"
+
+
 #include <atlbase.h>
 #include <atlapp.h>
 
-extern CAppModule _Module;
 #include <atlcom.h>
 #include <atlhost.h>
 #include <atlwin.h>
@@ -19,12 +19,10 @@ extern CAppModule _Module;
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
+
 #include <string>
 #include <vector>
 #include <list>
-
-#include "targetver.h"
-
 #include <stdio.h>
 #include <tchar.h>
 #include <process.h>

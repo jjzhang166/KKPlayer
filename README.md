@@ -16,6 +16,7 @@ soui2下载地址：https://git.oschina.net/Qyerp/soui<br/>
 KKWinDx9Path=C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)<br/>
 KKWinSdkPath=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A<br/>
 KKSoui2Path=D:\work\Projects\soui<br/>
+
 项目生成顺序:<br/>
  libmfx(inter QSV编码)->zlibstat->png->skia->sdl->render->kkplayercore->kkui->jsoncpp->kkplayer<br/>
 rtmpt延迟格式控制请使用以下格式librtmp:rtmp:xxxxxxxxxxxxxxxxxxxxxx<br/>

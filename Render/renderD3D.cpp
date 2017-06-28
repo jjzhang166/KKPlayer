@@ -437,7 +437,7 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 		m_CenterLogVertex[3].v = 1.f;
 	}
 	m_bNeedReset=true;
-	//WinSize(w,h);
+	WinSize(w,h);
 }
 void CRenderD3D::ShowErrPic(bool show)
 {
@@ -446,7 +446,7 @@ void CRenderD3D::ShowErrPic(bool show)
 void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
 
-	/*int ret=1;
+	int ret=1;
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_lock.Lock();
 	ResetTexture();
@@ -462,7 +462,7 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 	if(m_ResetCall){
 			 m_ResetCall(m_ResetUserData,ret);
 	}
-	m_lock.Unlock();*/
+	m_lock.Unlock();/**/
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 {
@@ -666,7 +666,7 @@ void CRenderD3D::ResetTexture()
 }
 bool CRenderD3D::LostDeviceRestore()
 {
-	if(m_bNeedReset||m_lastw!=m_w||m_lasth!=m_h)
+	/*if(m_bNeedReset||m_lastw!=m_w||m_lasth!=m_h)
 	{
 		int ret=0;
 		ResetTexture();
@@ -686,7 +686,7 @@ bool CRenderD3D::LostDeviceRestore()
 		m_lastw=m_w;
 		m_lasth=m_h;
 	    return true;
-	}
+	}*/
     HRESULT hr = m_pDevice->TestCooperativeLevel();
     if (hr == D3DERR_DEVICELOST)
     {
