@@ -119,7 +119,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;&quot;$(KKWinDx9Path)\include&quot;;&quot;$(KKSoui2Path)\SOUI\include&quot;;&quot;$(KKSoui2Path)\utilities\include&quot;;&quot;$(KKSoui2Path)\components&quot;;&quot;$(KKSoui2Path)\config&quot;;..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\wke\include;..\jsoncpp"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;JSON_DLL"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTF;_CRT_NON_CONFORMING_SWPRINTFS;JSON_DLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -184,10 +184,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\KKSound.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>
@@ -225,10 +221,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\KKSound.h"
-				>
-			</File>
 			<File
 				RelativePath=".\MainFrm.h"
 				>

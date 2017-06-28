@@ -143,7 +143,32 @@ std::basic_string<TCHAR> CWinDir::GetModulePath()
 	}
 	return _T("");
 }
+std::basic_string<char> g_strModuleFileNameA;
+const std::basic_string<char>& XGetModuleFilenameA()
+{
 
+	if (g_strModuleFileNameA.empty())
+	{
+		if(g_strModuleFileNameA.empty())
+		{
+			char filename[MAX_PATH] = { 0 };
+			::GetModuleFileNameA(NULL, filename, _countof(filename));
+			g_strModuleFileNameA = filename;
+		}
+	}
+	return g_strModuleFileNameA;
+}
+
+std::basic_string<char> CWinDir::GetModulePathA()
+{
+	std::basic_string<char> strModuleFileName = XGetModuleFilenameA();
+	unsigned int index = strModuleFileName.find_last_of("\\");
+	if (index != std::string::npos)
+	{
+		return strModuleFileName.substr(0, index);
+	}
+	return "";
+}
 
 bool  CWinDir::Copyfile(LPCTSTR pTo,LPCTSTR pFrom)
 {

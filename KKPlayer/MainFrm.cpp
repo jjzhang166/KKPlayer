@@ -4,7 +4,7 @@
 #include <ObjIdl.h>
 #include "KKSound.h"
 #include "json/json.h"
-
+#include "tool/WinDir.h"
 
 #ifdef _DEBUG
 #pragma comment (lib,"../Debug/libx86/libmfxd.lib")
@@ -28,34 +28,7 @@ extern SOUI::CMainDlg* m_pDlgMain;
 extern CreateRender pfnCreateRender;
 extern DelRender pfnDelRender;
 
-std::basic_string<char> g_strModuleFileNameA;
-const std::basic_string<char>& XGetModuleFilenameA()
-{
 
-	if (g_strModuleFileNameA.empty())
-	{
-		if(g_strModuleFileNameA.empty())
-		{
-			char filename[MAX_PATH] = { 0 };
-			::GetModuleFileNameA(NULL, filename, _countof(filename));
-			g_strModuleFileNameA = filename;
-		}
-	}
-	return g_strModuleFileNameA;
-}
-
-std::basic_string<char> GetModulePathA()
-{
-	std::basic_string<char> strModuleFileName = XGetModuleFilenameA();
-	unsigned int index = strModuleFileName.find_last_of("\\");
-	if (index != std::string::npos)
-	{
-		return strModuleFileName.substr(0, index);
-	}
-	return "";
-}
-
-std::basic_string<TCHAR> GetModulePath();
 
 CMainFrame::CMainFrame(bool yuv420p,bool NeedDel):
 m_pBkImage(NULL),m_pCenterLogoImage(NULL),
@@ -78,11 +51,13 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 #ifndef LIBKKPLAYER
 	m_pAVMenu=NULL;
 #endif
+
 	//m_bFullScreen=true;
 	m_pSound=NULL;
 	m_pPlayerInstance=NULL;
 	m_CenterLogoLen=0;
-	std::string basePath=GetModulePathA();
+	CWinDir Dir;
+	std::string basePath=Dir.GetModulePathA();
 	m_bOpen=false;
 	int Giftime=120;
 	{
@@ -226,10 +201,13 @@ CMainFrame::      ~CMainFrame()
 	if(pfnDelRender)
 	   pfnDelRender(m_pRender,0);
 	m_pRender=NULL;
-	if(m_pSound)
-	m_pSound->CloseAudio();
-	delete m_pSound;
-	delete m_pPlayerInstance;
+	if(m_pSound){
+	   m_pSound->CloseAudio();
+	   delete m_pSound;
+	}
+
+	if(m_pPlayerInstance!=NULL)
+	   delete m_pPlayerInstance;
 
 }
 ///设置成无窗口渲染
@@ -979,7 +957,8 @@ unsigned char*    CMainFrame::GetCenterLogoImage(int &len)
  {
          if(m_pCenterLogoImage==NULL)
 		 {
-			 std::string basePath=GetModulePathA();
+			 CWinDir Dir;
+			 std::string basePath=Dir.GetModulePathA();
 			 FILE*fp=NULL;
 			 std::string PicPath=basePath;
 			 PicPath+="\\Skin\\mediaCtrl_Img.png";
@@ -1008,7 +987,8 @@ unsigned char*    CMainFrame::GetBkImage(int &len)
 	
 	if(m_pBkImage==NULL)
 	{
-		std::string basePath=GetModulePathA();
+		CWinDir Dir;
+		std::string basePath=Dir.GetModulePathA();
 		FILE*fp=NULL;
 		std::string PicPath=basePath;
 		PicPath+="\\Skin\\Bk.jpg";

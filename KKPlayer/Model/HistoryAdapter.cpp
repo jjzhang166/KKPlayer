@@ -30,6 +30,7 @@ namespace SOUI
 			pItem->InitFromXml(xmlTemplate);
 		}
 
+		SOUI::CAutoRefPtr<struct SOUI::IRenderFactory> pRenderFactory= GETRENDERFACTORY;  //  SOUI::SApplication::getSingleton().GetRenderFactory()
 		SItemPanel * pSItme=(SItemPanel *)pItem;
 		pSItme->SetUserData((ULONG_PTR)pAVPic);
 		pSItme->GetEventSet()->subscribeEvent(EVT_ITEMPANEL_DBCLICK,Subscriber(&CHistoryAdapterFix::OnCbxSelChange,this));
@@ -75,6 +76,7 @@ namespace SOUI
 			bufx2+=sizeof(BITMAPINFOHEADER);
 			memcpy(bufx2,pAVPic->pBuffer, pAVPic->bufLen);
 			IBitmap *pImg=NULL;
+
 			pRenderFactory->CreateBitmap(&pImg);
 			if(pImg!=NULL){
 			    HRESULT  ll=0;

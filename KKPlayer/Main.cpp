@@ -31,27 +31,17 @@
 
 void DeclareDumpFile();
 
-
-
-SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory=NULL;
-CMainFrame *pWnd;
-
-
 #ifdef _DEBUG
 #define SYS_NAMED_RESOURCE _T("soui-sys-resourced.dll")
 #else
 #define SYS_NAMED_RESOURCE _T("soui-sys-resource.dll")
 #endif
 SOUI::CMainDlg *m_pDlgMain=NULL;
-
-//F:\ProgramTool\OpenPro\KKPlayer\KKPlayer>uiresbuilder.exe -iuires/uires.idx -puires -rres/KK_res.rc2
-std::basic_string<char> GetModulePathA();
-
-
 CreateRender pfnCreateRender = NULL;
-DelRender pfnDelRender=NULL;
-SOUI::SApplication *theApp=NULL;
-HINSTANCE GhInstance;
+DelRender    pfnDelRender=NULL;
+//F:\ProgramTool\OpenPro\KKPlayer\KKPlayer>uiresbuilder.exe -iuires/uires.idx -puires -rres/KK_res.rc2
+
+
 void RelationIco()
 {
     CFileRelation FileRelation;
@@ -137,8 +127,9 @@ void RelationIco()
 }
 void LoadPlugin()
 {
+	CWinDir Dir;
 //装载
-	std::string strPath= GetModulePathA();
+	std::string strPath= Dir.GetModulePathA();
 	strPath+="\\Plugin";
 
 	std::list<std::string> DllPathInfoList;
@@ -200,7 +191,6 @@ void LoadPlugin()
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int /*nCmdShow*/)
 {
 	int nArgs = 0;   
-	GhInstance=hInstance;
     DeclareDumpFile();
 	
     ///电源管理
@@ -260,6 +250,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR 
 	using namespace SOUI;
 	SComMgr * pComMgr = new SComMgr;
 
+	
+    SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory=NULL;
 	///GDI渲染器
 	pComMgr->CreateRender_GDI((IObjRef**)&pRenderFactory);
 	
@@ -269,7 +261,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR 
 	pRenderFactory->SetImgDecoderFactory(pImgDecoderFactory);
 	
 	
-	theApp=new SApplication(pRenderFactory,hInstance);
+	SOUI::SApplication *theApp=new SApplication(pRenderFactory,hInstance);
 
     theApp->RegisterWindowClass<CSuiVideo>();
     theApp->RegisterWindowClass<CKKmclv>();

@@ -13,11 +13,11 @@ translucent="0"
 			               <window pos="0,30,-0,@23">
 									 <text pos="30,0,@80,-0" font="face:SimSun,size:12"  colorText="#000000" >H264解码器:</text>
 									 <comboview name="cbx_H264Codec" class="cls_edit" pos="[0,0,@150,-0" dropDown="1"   dropHeight="200" animateTime="0"
-											inset="5,0,0,0"  focusable="0"  colorText="#000000"
+											inset="5,0,0,0"  focusable="0"  colorText="#000000"  colorBkgnd="#C1DCF9"
 											curSel="0" id_text="3" font="face:SimSun,size:12">
-								            <liststyle class="cls_edit" ><!--列表下拉框-->
-													<template itemHeight="23" colorHover="#cccccc" colorSelected="#0000ff">
-													      <text name="StrCodecName" font="face:SimSun,size:12" pos="10,9"></text>
+								            <liststyle class="cls_edit" colorBkgnd="#C1DCF9" ><!--列表下拉框-->
+													<template  itemHeight="23" colorHover="#cccccc" colorSelected="#0000ff">
+													      <text   name="StrCodecName" font="face:SimSun,size:12" pos="10,9"></text>
 													</template>
 											</liststyle>
 								     </comboview>
@@ -28,8 +28,8 @@ translucent="0"
 											inset="5,0,0,0"  focusable="0"  colorText="#000000"
 											curSel="0" id_text="3" font="face:SimSun,size:12">
 								            <liststyle class="cls_edit"  ><!--列表下拉框-->
-													<template itemHeight="23" colorHover="#cccccc" colorSelected="#0000ff">
-													      <text name="StrCodecName" font="face:SimSun,size:12" pos="10,9"></text>
+													<template   itemHeight="23" colorHover="#cccccc" colorSelected="#0000ff">
+													      <text  name="StrCodecName" font="face:SimSun,size:12" pos="10,9"></text>
 													</template>
 											</liststyle>
 								     </comboview>

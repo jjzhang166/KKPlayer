@@ -1,10 +1,14 @@
 #include "../stdafx.h"
 #ifndef RENDER_H
 #define RENDER_H
+#ifndef  LOBYTE
 #define LOBYTE(w)           ((unsigned char)(((unsigned long)(w)) & 0xff))
+#endif
+#ifndef GetRValue
 #define GetRValue(rgb)      (LOBYTE(rgb))
 #define GetGValue(rgb)      (LOBYTE(((unsigned short)(rgb)) >> 8))
 #define GetBValue(rgb)      (LOBYTE((rgb)>>16))
+#endif
 #define kkRGB(r,g,b)              ((unsigned long )(((unsigned char)(r)|((unsigned short)((unsigned char)(g))<<8))|(((unsigned long)(unsigned char)(b))<<16)))
 ///¾ØÐÎÇøÓò
 typedef struct kkRect

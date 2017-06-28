@@ -75,6 +75,7 @@ namespace SOUI{
 		HWND TipH=((STipCtrl*)m_pTipCtrl)->m_hWnd;;
 	    Init();
 
+		SOUI::SApplication * theApp=GETRESPROVIDER;
 		 SMessageLoop *loop=theApp->GetMsgLoop();
         for(;;)
         {

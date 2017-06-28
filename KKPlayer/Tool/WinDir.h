@@ -19,6 +19,7 @@ class  CWinDir{
 		bool CreateDir(LPCTSTR Path);
 		//获取当前模块目录
 		std::basic_string<TCHAR> GetModulePath();
+		std::basic_string<char>  GetModulePathA();
 		/**
 		*复制文件,使用UIcode才复制中文成功
 		*/
