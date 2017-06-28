@@ -949,7 +949,7 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 															   picinfo.picformat=vp->picformat;
 															  
 															   pRender->render(&picinfo,okkk);
-															   vp->uploaded=1;
+															   
 														   }else{
 														       //pRender->render(NULL,okkk);
 														   }

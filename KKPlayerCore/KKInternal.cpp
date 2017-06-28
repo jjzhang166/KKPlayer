@@ -161,6 +161,7 @@ void frame_queue_destory(SKK_FrameQueue *f)
 	{
 		SKK_Frame *vp = &f->queue[i];
 		frame_queue_unref_item(vp);
+		vp->uploaded=1;
 		av_frame_free(&vp->frame);
 		if(vp->allocated==1)
 		{
@@ -1154,7 +1155,7 @@ void frame_queue_unref_item(SKK_Frame *vp)
 {
 	av_frame_unref(vp->frame);
     if(!vp->uploaded)
-	vp->uploaded=1;
+	   vp->uploaded=1;
 	/*vp->Bmp.data[0]=0;
 	vp->Bmp.data[1]=0;
 	vp->Bmp.data[2]=0;
