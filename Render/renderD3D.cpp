@@ -113,6 +113,9 @@ CRenderD3D::CRenderD3D()
 	,m_nPicformat(0)
 	,m_ResetCall(0)
 	,m_ResetUserData(0)
+	,m_bNeedReset(0)
+	,m_lastw(0)
+	,m_lasth(0)
 {
 
 }
@@ -433,8 +436,8 @@ void CRenderD3D::resize(unsigned int w, unsigned int h)
 		m_CenterLogVertex[3].u = 1.f;
 		m_CenterLogVertex[3].v = 1.f;
 	}
-	
-	WinSize(w,h);
+	m_bNeedReset=true;
+	//WinSize(w,h);
 }
 void CRenderD3D::ShowErrPic(bool show)
 {
@@ -443,13 +446,15 @@ void CRenderD3D::ShowErrPic(bool show)
 void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
 
+	/*int ret=1;
+	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_lock.Lock();
 	ResetTexture();
 	if(m_ResetCall){
 			 m_ResetCall(m_ResetUserData,0);
 	}
-	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
-	int ret=1;
+	
+	
 	HRESULT  hr=	m_pDevice->Reset(&PresentParams);
 	if(hr==S_OK){
 	    ret=2;
@@ -457,7 +462,7 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 	if(m_ResetCall){
 			 m_ResetCall(m_ResetUserData,ret);
 	}
-	m_lock.Unlock();
+	m_lock.Unlock();*/
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 {
@@ -532,11 +537,11 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 }
 void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 {
-
+  HRESULT hr=0;
   m_lock.Lock();
   if (!LostDeviceRestore())
   {
-	  m_lock.Unlock();
+	   m_lock.Unlock();
         return; /* */
   }
  
@@ -589,7 +594,11 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 						}
 						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
 					}
-				    HRESULT hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
+				    hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
+
+					if(hr==D3DERR_INVALIDCALL)
+						m_bNeedReset=true;
+
 				}
 				if(m_pLeftPicTexture!=NULL)
 				{
@@ -657,6 +666,27 @@ void CRenderD3D::ResetTexture()
 }
 bool CRenderD3D::LostDeviceRestore()
 {
+	if(m_bNeedReset||m_lastw!=m_w||m_lasth!=m_h)
+	{
+		int ret=0;
+		ResetTexture();
+		if(m_ResetCall){
+				 m_ResetCall(m_ResetUserData,0);
+		}
+		
+		D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
+		HRESULT  hr=	m_pDevice->Reset(&PresentParams);
+		if(hr==S_OK){
+			ret=2;
+		}
+		if(m_ResetCall){
+				 m_ResetCall(m_ResetUserData,ret);
+		}
+		m_bNeedReset=false;
+		m_lastw=m_w;
+		m_lasth=m_h;
+	    return true;
+	}
     HRESULT hr = m_pDevice->TestCooperativeLevel();
     if (hr == D3DERR_DEVICELOST)
     {

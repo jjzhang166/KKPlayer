@@ -45,6 +45,7 @@ public:
 	void renderLock();
 	void renderUnLock();
 private:
+	bool         m_bNeedReset;
 	SkPaint      m_skPaint;
     std::wstring m_LeftStr;
 	std::wstring m_LstLeftStr;
@@ -77,6 +78,8 @@ private:
 	//äÖÈ¾ÇøÓò¸ß¶È
     unsigned int m_w;
 	unsigned int m_h;
+	unsigned int m_lastw;
+	unsigned int m_lasth;
     struct Vertex
     {
         float x, y, z, w;

@@ -280,14 +280,14 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	
 	::SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED |ES_CONTINUOUS);
 	theApp=new SApplication(pRenderFactory,hInstance);
-    theApp->RegisterWndFactory(TplSWindowFactory<CSuiVideo>());
-    theApp->RegisterWndFactory(TplSWindowFactory<CKKmclv>());
-    theApp->RegisterWndFactory(TplSWindowFactory<SAVSeekBar>());
+    theApp->RegisterWindowClass<CSuiVideo>();
+    theApp->RegisterWindowClass<CKKmclv>();
+    theApp->RegisterWindowClass<SAVSeekBar>();
 	
 	 KKWkeLoader wkeLoader;
 	 if(wkeLoader.Init(_T("wke.dll")))
 	 {
-	   theApp->RegisterWndFactory(TplSWindowFactory<KKWkeWebkit>());
+	   theApp->RegisterWindowClass<KKWkeWebkit>();
 	 }
 
 	

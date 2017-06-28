@@ -7,17 +7,17 @@
 
 
 #ifdef _DEBUG
+#pragma comment (lib,"souid.lib")
+#pragma comment (lib,"utilitiesd.lib")
 
 #pragma comment (lib,"../Debug/libx86/libmfxd.lib")
-#pragma comment (lib,"../WinUI/lib/debug/souid.lib")
-#pragma comment (lib,"../WinUI/lib/debug/utilitiesd.lib")
 #pragma comment (lib,"../Debug/jsoncppd.lib")
 #pragma comment (lib,"../Debug/libx86/librtmpd.lib")
 #else
+#pragma comment (lib,"soui.lib")
+#pragma comment (lib,"utilities.lib")
 
 #pragma comment (lib,"../Release/libx86/libmfx.lib")
-#pragma comment (lib,"../WinUI/lib/Release/soui.lib")
-#pragma comment (lib,"../WinUI/lib/Release/utilities.lib")
 #pragma comment (lib,"../Release/jsoncpp.lib")
 #pragma comment (lib,"../Release/libx86/librtmp.lib")
 #endif
