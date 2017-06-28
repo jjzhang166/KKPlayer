@@ -1,7 +1,18 @@
 #ifndef CMainFrame_H_
 #define CMainFrame_H_
 
-#include "atlmisc.h"
+#include <atlbase.h>
+#include <atlapp.h>
+
+#include <atlcom.h>
+#include <atlhost.h>
+#include <atlwin.h>
+#include <atlctl.h>
+
+#include <atlframe.h>
+#include <atlctrls.h>
+#include <atldlgs.h>
+#include <atlmisc.h>
 #include "KKPlayer.h"
 #include "render/render.h"
 #include "../KKPlayerCore/IKKPlayUI.h"

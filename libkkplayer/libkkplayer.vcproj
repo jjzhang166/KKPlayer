@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\Debug\libx86\KKPlayerCored.lib"
+				AdditionalDependencies="..\Debug\libx86\KKPlayerCored.lib ws2_32.lib winmm.lib imm32.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Release/libx86/KKPlayerCore.lib"
+				AdditionalDependencies="../Release/libx86/KKPlayerCore.lib ws2_32.lib winmm.lib imm32.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"

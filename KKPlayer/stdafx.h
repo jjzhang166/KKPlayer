@@ -3,23 +3,9 @@
 // 特定于项目的包含文件
 //
 
-#ifndef stdafx_H_
-#define stdafx_H_
+#ifndef stdafx_kk_H_
+#define stdafx_kk_H_
 #include "targetver.h"
-
-
-#include <atlbase.h>
-#include <atlapp.h>
-
-#include <atlcom.h>
-#include <atlhost.h>
-#include <atlwin.h>
-#include <atlctl.h>
-
-#include <atlframe.h>
-#include <atlctrls.h>
-#include <atldlgs.h>
-
 #include <string>
 #include <vector>
 #include <list>

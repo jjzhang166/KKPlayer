@@ -21,7 +21,9 @@
             typedef CRITICAL_SECTION KKCRITICAL_SECTION;
 			//void __cdecl LOGE(const char* _Format,...);
 
+#ifndef  LOGE
             #define  LOGE WindowsLOGE
+#endif
 			//__android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 	#else
             #include "platforms.h"

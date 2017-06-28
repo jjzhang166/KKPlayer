@@ -7,23 +7,15 @@
 
 
 #ifdef _DEBUG
-#pragma comment (lib,"souid.lib")
-#pragma comment (lib,"utilitiesd.lib")
-
 #pragma comment (lib,"../Debug/libx86/libmfxd.lib")
 #pragma comment (lib,"../Debug/jsoncppd.lib")
 #pragma comment (lib,"../Debug/libx86/librtmpd.lib")
 #else
-#pragma comment (lib,"soui.lib")
-#pragma comment (lib,"utilities.lib")
-
 #pragma comment (lib,"../Release/libx86/libmfx.lib")
 #pragma comment (lib,"../Release/jsoncpp.lib")
 #pragma comment (lib,"../Release/libx86/librtmp.lib")
 #endif
 
-#pragma comment (lib,"ws2_32.lib")
-#pragma comment (lib,"winmm.lib")
 #ifndef LIBKKPLAYER
 #include "MainPage/MainDlg.h"
 #include "Tool/cchinesecode.h"
@@ -930,7 +922,7 @@ unsigned char*    CMainFrame::GetErrImage(int &length,int ErrType)
 {
 	if(m_pErrOpenImage==NULL)
 	{
-		std::string basePath=GetModulePathA();
+		std::string basePath="";//GetModulePathA();
 		FILE*fp=NULL;
 		std::string PicPath=basePath;
 		PicPath+="\\Skin\\ErrOpen.png";

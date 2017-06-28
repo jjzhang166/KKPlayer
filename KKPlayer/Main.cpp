@@ -4,7 +4,6 @@
 #include "stdafx.h"
 
 #include "resource.h"
-#include "MainFrm.h"
 #include "MainPage/MainDlg.h"
 #include "MainPage/SUIVideo.h"
 #include "MainPage/KKWkeWebkit.h"
@@ -21,11 +20,20 @@
 #include "../KKPlayerCore/KKPlayer.h"
 
 
+#ifdef _DEBUG
+#pragma comment (lib,"souid.lib")
+#pragma comment (lib,"utilitiesd.lib")
+#else
+#pragma comment (lib,"soui.lib")
+#pragma comment (lib,"utilities.lib")
+#pragma comment (lib,"../Release/jsoncpp.lib")
+#endif
+
 void DeclareDumpFile();
 
 
 
-SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory;
+SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory=NULL;
 CMainFrame *pWnd;
 
 
@@ -187,21 +195,18 @@ void LoadPlugin()
 
 	DllPathInfoList.clear();
 }
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
+
+
+int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int /*nCmdShow*/)
 {
-
-	 TCHAR szCurrentDir[MAX_PATH] = { 0 };
-    GetModuleFileName(NULL, szCurrentDir, sizeof(szCurrentDir));
-    LPTSTR lpInsertPos = _tcsrchr(szCurrentDir, _T('\\'));
-    _tcscpy(lpInsertPos + 1, _T(".."));
-    SetCurrentDirectory(szCurrentDir);
-
-   GhInstance=hInstance;
+	int nArgs = 0;   
+	GhInstance=hInstance;
+    DeclareDumpFile();
+	
     ///电源管理
 	::SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED |ES_CONTINUOUS);
-	DeclareDumpFile();
+	
 	LPWSTR *szArglist = NULL;   
-	int nArgs = 0;   
 	std::wstring  urlpath;
 	szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);   
 	if( NULL != szArglist)   

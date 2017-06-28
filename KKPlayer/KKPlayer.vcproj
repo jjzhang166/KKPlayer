@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="KKPlayerCored.lib"
+				AdditionalDependencies="KKPlayerCored.lib ws2_32.lib winmm.lib imm32.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(KKWinSdkPath)\Lib&quot;;&quot;$(KKWinDx9Path)\Lib\x86&quot;;..\Debug\libx86;..\Debug;&quot;$(KKSoui2Path)\bin&quot;"
 				GenerateDebugInformation="true"
@@ -137,7 +137,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Release/libx86/KKPlayerCore.lib"
+				AdditionalDependencies="../Release/libx86/KKPlayerCore.lib ws2_32.lib winmm.lib imm32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(KKWinDx9Path)\Lib\x86&quot;;&quot;$(KKSoui2Path)\bin&quot;"
 				EnableUAC="false"

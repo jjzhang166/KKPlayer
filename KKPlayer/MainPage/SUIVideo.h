@@ -1,10 +1,11 @@
 #include "../stdafx.h"
 #include <core/swnd.h>
-#include "../MainFrm.h"
 #include "../../KKPlayerCore/IKKPlayUI.h"
 #include <string>
 #ifndef SUIVIDEO_H_
 #define SUIVIDEO_H_
+class CMainFrame;
+struct MEDIA_INFO ;
 namespace SOUI
 {
       class CSuiVideo: public SWindow
@@ -31,7 +32,7 @@ namespace SOUI
 			   HWND GetPlayerHwnd();
 			   void FullScreen();
 	  protected:
-			  CMainFrame m_VideoWnd;
+			  CMainFrame* m_pVideoWnd;
 			  void OnDestroy();
 			  int  OnCreate(void*);
 			  void OnPaint(IRenderTarget *pRT);
