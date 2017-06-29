@@ -116,12 +116,38 @@ void RelationIco()
 	
 }
 
+///读写权限。
+BOOL EnableDebugPriv()  
+{  
+    HANDLE hToken;  
+    LUID sedebugnameValue;  
+    TOKEN_PRIVILEGES tkp;  
+  
+    if ( ! OpenProcessToken( GetCurrentProcess(),  
+        TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken ) )  
+        return false;  
+  
+    if ( ! LookupPrivilegeValue( NULL, SE_DEBUG_NAME, &sedebugnameValue ) )  
+    {  
+        CloseHandle( hToken );  
+        return false;  
+    }  
+  
+    tkp.PrivilegeCount = 1;  
+    tkp.Privileges[0].Luid = sedebugnameValue;  
+    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;  
+  
+    if ( ! AdjustTokenPrivileges( hToken, FALSE, &tkp, sizeof tkp, NULL, NULL ) )  
+        CloseHandle(hToken);
+    return true;  
+}
+void LoadPlugin();
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*lpstrCmdLine*/, int /*nCmdShow*/)
 {
     HRESULT hRes = CoInitialize(NULL);
 	int nArgs = 0;   
     DeclareDumpFile();
-	
+	EnableDebugPriv();
     ///电源管理
 	::SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED |ES_CONTINUOUS);
 	
@@ -164,8 +190,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*
 	hismgr->InitDb();
 	hismgr->GetH264Codec();
 	hismgr->GetH265Codec();
-	//
-	
+	//加载插件
+	LoadPlugin();
 
 	
 	HMODULE hRender = LoadLibraryA("Render.dll");
