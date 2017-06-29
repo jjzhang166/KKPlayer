@@ -222,6 +222,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\KKPlayerInfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\KKPlugin.h"
 				>
 			</File>

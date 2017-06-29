@@ -9,6 +9,7 @@
 #include <list>
 #include "stdafx.h"
 
+#include "KKPlayerInfo.h"
 #include "IKKAudio.h"
 #include "render/render.h"
 #include "IKKPlayUI.h"
@@ -17,6 +18,7 @@
 #include "KKLock.h"
 #include "KKVideoInfo.h"
 #include "KKPlugin.h"
+
 #ifndef KKPlayer_H_
 #define KKPlayer_H_
 

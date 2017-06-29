@@ -29,6 +29,14 @@ int OpenLocalFile(HWND hWnd,std::wstring &path)
 		}
 		return ret;
 }
+//WS_CHILDWINDOW| WS_CLIPCHILDRE
+ICallKKplayer* CreateICallKKplayer(HWND ph,DWORD stlye)
+{
+	RECT rt={0,100,200,300};
+	CMainFrame *p = new CMainFrame();
+    p ->CreateEx(ph,rt, stlye);
+	return p;
+}
 
 CMainFrame::CMainFrame(bool yuv420p,bool NeedDel):
 m_pBkImage(NULL),m_pCenterLogoImage(NULL),

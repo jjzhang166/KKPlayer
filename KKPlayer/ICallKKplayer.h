@@ -1,5 +1,6 @@
 #ifndef  ICallKKplayer_H_
 #define  ICallKKplayer_H_
+#include "../KKPlayerCore/KKPlayerInfo.h"
 #include <string>
 //errcode ²Î¿¼EKKPlayerErr
 typedef void (*fpKKPlayerErrNotify)(void *UserData,int errcode);
@@ -30,5 +31,6 @@ public:
 		virtual void         CloseMedia()=0;
 		//È«ÆÁ
 		virtual void         FullScreen()=0;
+		virtual HWND         GetPlayerWnd()=0;
 };
 #endif

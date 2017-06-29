@@ -100,7 +100,7 @@ public:
 	//х╚фа
 	void         FullScreen();
 
-	
+	HWND         GetPlayerWnd(){return m_hWnd;}
 public:
 	LRESULT  OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)

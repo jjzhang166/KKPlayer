@@ -52,7 +52,7 @@ namespace SOUI
 			 SOUI_MSG_MAP_END()
 	  private:
 		  std::string       m_url; 
-		  ICallKKplayer* m_pVideoWnd;
+		  ICallKKplayer*    m_pIKKplayer;
 	  };
 }
 #endif
