@@ -176,6 +176,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\KKPlayer\Dir\Dir.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dllmain.cpp"
 				>
 				<FileConfiguration
@@ -217,16 +221,16 @@
 				RelativePath="..\KKPlayer\Tool\WinDir.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\KKPlayer\Tool\WinDir.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\KKPlayer\Dir\Dir.hpp"
+				>
+			</File>
 			<File
 				RelativePath=".\KkPlayerDui.h"
 				>
@@ -241,6 +245,14 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath="..\KKPlayer\Dir\uce-dirent.h"
+				>
+			</File>
+			<File
+				RelativePath="..\KKPlayer\Tool\WinDir.h"
 				>
 			</File>
 		</Filter>
