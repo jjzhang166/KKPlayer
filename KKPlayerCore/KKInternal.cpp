@@ -940,7 +940,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 			   is->IRender->renderUnLock();
 			   
       #else 
-	           LOGE("kkmediacodec \n"); 
+	           LOGE_KK("kkmediacodec \n"); 
 			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC){
 			       if(avctx->codec_id==AV_CODEC_ID_H264){
 			            codec = avcodec_find_decoder_by_name("h264_mediacodec"); 
