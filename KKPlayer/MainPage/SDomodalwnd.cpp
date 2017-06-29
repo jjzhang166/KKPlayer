@@ -20,7 +20,7 @@ namespace SOUI{
 	int SDomodalwnd::DoModel(int x,int y,HWND hOwner)
 	{
 		m_hOwner=hOwner;
-	    HWND hWnd = Create(hOwner,WS_POPUP,m_style,0,0,0,0);
+	    HWND hWnd = Create(0,WS_POPUP,m_style,0,0,0,0);
 	    if(!IsWindow()) 
 			return -1;
 

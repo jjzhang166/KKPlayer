@@ -40,7 +40,7 @@ namespace SOUI
 			  void OnSize(UINT nType, CSize size);
 			  void OnMouseHover(WPARAM wParam, CPoint ptPos);
 			  void OnMouseLeave();
-	         
+	          void OnRButtonUp(UINT nFlags, CPoint point);
 			  SOUI_MSG_MAP_BEGIN()
 				 
 				  MSG_WM_CREATE(OnCreate)
@@ -49,10 +49,12 @@ namespace SOUI
 				  MSG_WM_SIZE(OnSize)
 				  MSG_WM_MOUSEHOVER(OnMouseHover)
 				  MSG_WM_MOUSELEAVE(OnMouseLeave)
+				  MSG_WM_RBUTTONUP(OnRButtonUp);
 			 SOUI_MSG_MAP_END()
 	  private:
 		  std::string       m_url; 
 		  ICallKKplayer*    m_pIKKplayer;
+		  int               m_nPlayerState;
 	  };
 }
 #endif

@@ -71,6 +71,10 @@
 	   <file name="ID_PNG_SCROLLBAR" path="image\cmn.scrollbar.png"/>
 	   <file name="ID_PNG_SP" path="image\sp.png"/>
 	   
+	   <file name="ID_PNG_BTN_BK" path="image\btn_bk.png" />
+	   <file name="ID_PNG_BTN_OPEN" path="image\btn_open.png" />
+	   <file name="ID_PNG_COMBO_OPEN" path="image\combo_open.png" />
+	   
 	</png>
 	<translator>
           <file name="lang_cn" path="translation\lang_cn.xml"/>

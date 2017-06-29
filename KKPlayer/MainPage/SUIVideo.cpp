@@ -10,7 +10,7 @@
 ICallKKplayer* CreateICallKKplayer(HWND ph,DWORD stlye);
 namespace SOUI
 {
-	CSuiVideo::CSuiVideo(void):m_pIKKplayer(0)
+	CSuiVideo::CSuiVideo(void):m_pIKKplayer(0),m_nPlayerState(-1)
 	{
               
 	}
@@ -22,14 +22,16 @@ namespace SOUI
 	void CSuiVideo::SetAVVisible(BOOL bVisible)
 	{
 		if(m_pIKKplayer!=0)
-		if(bVisible==TRUE)
 		{
-			if(!::IsWindowVisible(m_pIKKplayer->GetPlayerWnd()))
-			   ::ShowWindow(m_pIKKplayer->GetPlayerWnd(),SW_SHOW);
-		}else
-		{
-			if(::IsWindowVisible(m_pIKKplayer->GetPlayerWnd()))
-			   ::ShowWindow(m_pIKKplayer->GetPlayerWnd(),SW_HIDE);
+			if(bVisible==TRUE&&m_nPlayerState>=0)
+			{
+				if(!::IsWindowVisible(m_pIKKplayer->GetPlayerWnd()))
+				   ::ShowWindow(m_pIKKplayer->GetPlayerWnd(),SW_SHOW);
+			}else
+			{
+				if(::IsWindowVisible(m_pIKKplayer->GetPlayerWnd()))
+				   ::ShowWindow(m_pIKKplayer->GetPlayerWnd(),SW_HIDE);
+			}/**/
 		}
 	}
 	
@@ -144,6 +146,13 @@ namespace SOUI
 	{
 
 	}
+	void CSuiVideo::OnRButtonUp(UINT nFlags, CPoint point)
+	{
+		
+		HWND h=GetContainer()->GetHostHwnd();
+		int lParam=MAKELONG(point.x,point.y);
+	    ::SendMessage(h,WM_UI_RBUTTONUP,0,lParam);
+	}
 	void CSuiVideo::Close()
 	{
 		if(m_pIKKplayer!=0)
@@ -194,8 +203,9 @@ namespace SOUI
 	}
 	int CSuiVideo::OpenMedia(const char *str,const char* avname)
 	{
+		m_nPlayerState=-1;
 		if(m_pIKKplayer==0)
-			return -1;
+			return m_nPlayerState;
          std::string avpathstr=str;
 		 CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
 		 int UseLibRtmp=InfoMgr->GetUseLibRtmp();
@@ -209,19 +219,20 @@ namespace SOUI
 				}
 		 }
 
-		 int ret= m_pIKKplayer->OpenMedia(avpathstr.c_str());
-		 if(ret==-1)
+		 m_nPlayerState= m_pIKKplayer->OpenMedia(avpathstr.c_str());
+		 if(m_nPlayerState==-1)
 		 {
 			 SaveSnapshoot();
 			 m_pIKKplayer->CloseMedia();
-			 ret= m_pIKKplayer->OpenMedia(str);
-			 if(ret<0)
-				 return -1;
+			 m_nPlayerState= m_pIKKplayer->OpenMedia(str);
+			 if(m_nPlayerState<0)
+				 return m_nPlayerState;
 		 }
 		 if(NeedDelay){
 			 int delay=InfoMgr->GetRtmpDelay();
 		     m_pIKKplayer->SetMaxRealtimeDelay(delay);
 		 }
+		 SetAVVisible(TRUE);
 		 std::string title2;
 		 m_url=str;
 		 std::wstring title=L"KKÓ°Òô";
@@ -249,7 +260,7 @@ namespace SOUI
 	
 		 HWND P=GetContainer()->GetHostHwnd();
 		 ::SendMessage(P,WM_UI_SetAvTilte,(WPARAM)title.c_str(),0);
-		 return ret;
+		 return m_nPlayerState;
 	 }
 	 void CSuiVideo::OnDecelerate()
 	 {

@@ -75,6 +75,10 @@
 		
 		 <imgframe name="_skin.AV.split.vert" src="PNG:ID_PNG_SP" top="20" bottom="10"/>
 		
+		
+		<imgframe name="_skin.BTN_BK"    src="PNG:ID_PNG_BTN_BK"/>
+	    <imglist name="_skin.BTN_OPEN"    src="PNG:ID_PNG_BTN_OPEN" states="4" />
+		<imglist name="_skin.BTN_COMBO_OPEN"    src="PNG:ID_PNG_COMBO_OPEN" states="4" />
 		<!--<imgframe name="_skin.SBKgnd" src="PNG:SYS_PROG_BKGND" margin-x="5"/>
         <imgframe name="_skin.SBKbar" src="PNG:SYS_PROG_BAR" margin-x="3"/>-->
 		

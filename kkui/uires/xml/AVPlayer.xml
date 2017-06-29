@@ -4,7 +4,14 @@
 			     <pane minSize="400" priority="1">
                          <splitcol name="split_col"  sepSkin="_skin.AV.split.vert" pos="0,0,-0,-0" sepSize="3">
                                  <pane idealSize="300" name="AV_Video_pane" margin="0,0,0,0" minSize="360" priority="0" clipClient="1">
-			                         <SuiVideo pos="0,0,]-0,-0" name="AVMainWnd" colorBkgnd="#000000"></SuiVideo>
+			                         <SuiVideo pos="0,0,]-0,-0" name="AVMainWnd" colorBkgnd="#000000">
+									        <window pos="|-96,|0" size="192,58">
+												<window pos="0,18" size="158,40" tip="" animate="1" skin="_skin.BTN_BK" colorText="#ffffffff">
+													<imgbtn name="Btn_OpenLocal" cursor="hand" pos="|-44,|-8" size="88,16" tip="" animate="1" skin="_skin.BTN_OPEN" />
+												</window>
+												<imgbtn name="Bt_Open_Down" pos="[-1,{0" size="34,58" tip="" animate="1" skin="_skin.BTN_COMBO_OPEN" />
+											</window>
+									 </SuiVideo>
                                  </pane>
                                  <pane idealSize="200" name="AV_list_pane" margin="0,0,0,0" minSize="200" priority="1" clipClient="1">
                                      <listview hotTrack="1" pos="0,0,-2,-0" sbSkin="_skin.Scrollbar" name="AV_list" dividerSize="3" wantTab="1">
