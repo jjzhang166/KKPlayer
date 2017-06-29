@@ -1,26 +1,14 @@
-#include "stdafx.h"
-#include<Mmsystem.h>
 #include "MainFrm.h"
 #include <ObjIdl.h>
-#include "KKSound.h"
 #include "json/json.h"
 #include "tool/WinDir.h"
 
-#ifdef _DEBUG
-#pragma comment (lib,"../Debug/libx86/libmfxd.lib")
-#pragma comment (lib,"../Debug/jsoncppd.lib")
-#pragma comment (lib,"../Debug/libx86/librtmpd.lib")
-#else
-#pragma comment (lib,"../Release/libx86/libmfx.lib")
-#pragma comment (lib,"../Release/jsoncpp.lib")
-#pragma comment (lib,"../Release/libx86/librtmp.lib")
-#endif
+
 
 #ifndef LIBKKPLAYER
 #include "MainPage/MainDlg.h"
 #include "Tool/cchinesecode.h"
 #include "Tool/CFileMgr.h"
-extern SOUI::CMainDlg* m_pDlgMain;
 #endif
 
 #define mad_f_mul(x, y)	((((x) + (1L << 11)) >> 12) *  \
@@ -29,6 +17,18 @@ extern CreateRender pfnCreateRender;
 extern DelRender pfnDelRender;
 
 
+int OpenLocalFile(HWND hWnd,std::wstring &path)
+{
+	    int ret=0;
+        wchar_t* filter = L"文件(*.mp4; *.avi; *.rmvb;*.flv;*.mkv)\0*.mp4;*.avi; *.rmvb;*.flv;*.mkv\0全部 (*.*)\0*.*\0\0";  
+		CFileDialog dlg(true, 0, 0, OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_PATHMUSTEXIST, filter, hWnd);  
+		if(dlg.DoModal() == IDOK)
+		{  
+			ret=1;
+			path=dlg.m_szFileName;
+		}
+		return ret;
+}
 
 CMainFrame::CMainFrame(bool yuv420p,bool NeedDel):
 m_pBkImage(NULL),m_pCenterLogoImage(NULL),
@@ -48,9 +48,6 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_pDuiDrawCall(0)
 ,m_pRenderUserData(0)
 {
-#ifndef LIBKKPLAYER
-	m_pAVMenu=NULL;
-#endif
 
 	//m_bFullScreen=true;
 	m_pSound=NULL;
@@ -751,12 +748,10 @@ LRESULT           CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LP
 	
 	//::PostMessage(m_hWnd ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
 #ifndef LIBKKPLAYER
-	::PostMessage(::GetParent(m_hWnd) ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
-
-	if(!m_pDlgMain->GetScreenModel())
-	{
-	   m_pDlgMain->ShowMiniUI(false);
-	}
+	HWND P=::GetParent(m_hWnd);
+	::PostMessage(P ,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(xPos, yPos)); 
+    ::SendMessage(P,WM_UI_LBUTTONDOWN,wParam,lParam);
+	
 #endif
 	return 1;
 }
@@ -769,54 +764,11 @@ LRESULT   CMainFrame::OnSetCursor(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lPara
 LRESULT           CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	bHandled=true;
-	int xPos = GET_X_LPARAM(lParam); 
-	int yPos = GET_Y_LPARAM(lParam);
-
-	#ifndef LIBKKPLAYER
-	RECT rt;
-	::GetWindowRect(m_hWnd,&rt);
-	xPos+=rt.left;
-	yPos+=rt.top;
-
-	SOUI::SMenuEx me;
-	BOOL xx=me.LoadMenu(_T("SMENUEX:avmenuex"));
-
-
-	if(m_pDlgMain->GetFullScreen()||m_bOpen)
-	{
-		 SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(3);
-		 if(m_pDlgMain->GetFullScreen())
-		 pItem->SetAttribute(_T("check"),_T("1"));
-		 pItem->SetAttribute(_T("enable"),_T("1"));
-		 pItem->SetAttribute(_T("colorText"),_T("#000000"));
-	}else {
-		SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(3);
-		pItem->SetAttribute(_T("check"),_T("0"));
-		pItem->SetAttribute(_T("enable"),_T("0"));
-		pItem->SetAttribute(_T("colorText"),_T("#C5C5C7"));
-	}
-
-	if(m_pDlgMain->GetScreenModel())
-	{
-		{
-			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(4);
-			pItem->SetAttribute(_T("check"),_T("1"));
-		}
-		{
-			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(5);
-			pItem->SetAttribute(_T("check"),_T("0"));
-		}  
-	}else{
-		{
-			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(4);
-			pItem->SetAttribute(_T("check"),_T("0"));
-		}
-		{
-			SOUI:: SWindow *pItem=(SOUI:: SWindow *) me.GetMenuItem(5);
-			pItem->SetAttribute(_T("check"),_T("1"));
-		}  
-	}
-	me.TrackPopupMenu(0,xPos,yPos,::GetParent(m_hWnd));
+	
+    
+#ifndef LIBKKPLAYER
+	HWND P=::GetParent(m_hWnd);
+    ::SendMessage(P,WM_UI_RBUTTONUP,wParam,lParam);
 #endif
 	return 1;
 }
@@ -835,16 +787,11 @@ LRESULT           CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPAR
 	   ::OutputDebugStringA("鼠标移动全部 \n");
    }
 	//迷你模式
-	if(!m_pDlgMain->GetScreenModel()&&xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y&&xPos>1&&yPos>1)
+	if(xPos!=m_lastPoint.x&&yPos!=m_lastPoint.y&&xPos>1&&yPos>1)
 	{
 		int ll=0x8000 &GetAsyncKeyState(VK_LBUTTON);
-		if(!ll)
-		{
-			m_pDlgMain->ShowMiniUI(true);
-		}else
-		{
-			m_pDlgMain->ShowMiniUI(false);
-		}
+		HWND P=::GetParent(m_hWnd);
+        ::SendMessage(P,WM_UI_MOUSEMOVE,wParam,lParam);
 	}
 #endif
 	m_lastPoint.x=xPos;

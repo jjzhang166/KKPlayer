@@ -737,7 +737,7 @@ int seg_stream_component_open(SKK_VideoState *is, int stream_index)
     
     if (!codec) 
 	{
-			LOGE("Code:-1");  
+			LOGE_KK("Code:-1");  
 			return -1;
     }
 
@@ -782,7 +782,7 @@ int seg_stream_component_open(SKK_VideoState *is, int stream_index)
 	//打开解码器
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
-		LOGE("avcodec_open2 %d",avctx->codec_type);
+		LOGE_KK("avcodec_open2 %d",avctx->codec_type);
 	}
   
     is->eof = 0;
@@ -969,7 +969,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 	{
 	
 		if(is->bTraceAV)
-		LOGE("avcodec_open2 %d",avctx->codec_type);  
+		LOGE_KK("avcodec_open2 %d",avctx->codec_type);  
 		//失败
 		assert(0);
 	}
@@ -1422,14 +1422,14 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			 //如果是硬件加速，转化就慢了。
 		     sws_scale(is->img_convert_ctx, pOutAV->data, pOutAV->linesize,0,pOutAV->height,vp->Bmp.data, vp->Bmp.linesize);
 			 vp->picformat= is->DstAVff;
-             LOGE("dex sws_scale\n");
+             LOGE_KK("dex sws_scale\n");
 		}else{
 		      av_frame_move_ref(vp->frame,pOutAV);
 			  memcpy(vp->Bmp.data,vp->frame->data,32);
 			  memcpy(vp->Bmp.linesize,vp->frame->linesize,32);
 			  vp->picformat=(int)format;
 			  
-			  LOGE("dex no copy\n");
+			  LOGE_KK("dex no copy\n");
 		}
 		pPictq->mutex->Lock();
 		vp->uploaded=0;
@@ -1473,7 +1473,7 @@ unsigned __stdcall  Video_thread(LPVOID lpParameter)
 	{
 		    if(is->abort_request){
 				if(is->bTraceAV)
-				LOGE("Video_thread break");
+				LOGE_KK("Video_thread break");
                 break;
 			}	
 			
@@ -1584,7 +1584,7 @@ LXXXX:
 					
 			}else {
 				//av_frame_unref(pFrame);
-				LOGE(" video2 avcodec_flush_buffers \n");
+				LOGE_KK(" video2 avcodec_flush_buffers \n");
 				avcodec_flush_buffers(d->avctx);
 				
 				///发生了分片切换
@@ -1619,7 +1619,7 @@ LXXXX:
 	}
 
 
-	LOGE("XXXX video Over \n");
+	LOGE_KK("XXXX video Over \n");
 	avcodec_flush_buffers(is->viddec.avctx);
 	av_frame_unref(pFrame);
 	av_frame_free(&pFrame);
@@ -1638,7 +1638,7 @@ LXXXX:
 	        is->viddec.avctx->hwaccel_context=NULL;*/
 	 }
 #endif
-	LOGE("Video_thread Over");
+	LOGE_KK("Video_thread Over");
 	
 	is->viddec.decoder_tid.Addr=0;
 	is->viddec.decoder_tid.ThOver=true;
@@ -1918,7 +1918,7 @@ static inline int cmp_audio_fmts(enum AVSampleFormat fmt1, int64_t channel_count
 //音频解码线程
 unsigned __stdcall  Audio_Thread(LPVOID lpParameter)
 {
-	LOGE("Audio_Thread Ok");
+	LOGE_KK("Audio_Thread Ok");
 
 	//return 1;
 	SKK_VideoState *is=(SKK_VideoState*)lpParameter;

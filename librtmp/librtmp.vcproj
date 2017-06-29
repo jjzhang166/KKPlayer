@@ -109,7 +109,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\INTInclude;..\zlib;..\libx86\openssl\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;ZLIB_WINAPI;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;ZLIB_WINAPI;_CRT_SECURE_NO_WARNINGS;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"

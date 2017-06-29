@@ -1,7 +1,6 @@
 #include "AVInfo.h"
 #include "MainDlg.h"
 #include "../Tool/cchinesecode.h"
-extern SOUI::CMainDlg *m_pDlgMain;
 namespace SOUI
 {
 	CAVInfo::CAVInfo(MEDIA_INFO Info): SDomodalwnd(_T("LAYOUT:XML_AVINFO"))
@@ -102,7 +101,7 @@ namespace SOUI
 		
 		 this->OnMouseEvent(WM_LBUTTONDOWN,nFlags,MAKELPARAM(point.x,point.y));
 		
-         m_pDlgMain->ShowMiniUI(false);
+         //m_pDlgMain->ShowMiniUI(false);
 	}
 
 	void CAVInfo::OnClose()

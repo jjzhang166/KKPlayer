@@ -1,10 +1,11 @@
+
+#ifndef SUIVIDEO_H_
+#define SUIVIDEO_H_
 #include "../stdafx.h"
 #include <core/swnd.h>
 #include "../../KKPlayerCore/IKKPlayUI.h"
 #include <string>
-#ifndef SUIVIDEO_H_
-#define SUIVIDEO_H_
-class CMainFrame;
+#include "../ICallKKplayer.h"
 struct MEDIA_INFO ;
 namespace SOUI
 {
@@ -32,7 +33,7 @@ namespace SOUI
 			   HWND GetPlayerHwnd();
 			   void FullScreen();
 	  protected:
-			  CMainFrame* m_pVideoWnd;
+			
 			  void OnDestroy();
 			  int  OnCreate(void*);
 			  void OnPaint(IRenderTarget *pRT);
@@ -50,7 +51,8 @@ namespace SOUI
 				  MSG_WM_MOUSELEAVE(OnMouseLeave)
 			 SOUI_MSG_MAP_END()
 	  private:
-		  std::string       m_url;
+		  std::string       m_url; 
+		  ICallKKplayer* m_pVideoWnd;
 	  };
 }
 #endif

@@ -5,10 +5,11 @@
 #define CAVNetDown_H
 namespace SOUI
 {
+	class CMainDlg;
 	class CAVNetDown: public SHostWnd,public CWHRoundRectFrameHelper<CAVNetDown>
 	{
 	   public:
-		      CAVNetDown();
+		      CAVNetDown(CMainDlg *m_DlgMain);
 		       ~CAVNetDown();
 			    void OnLButtonDown(UINT nFlags, CPoint point);
 
@@ -27,6 +28,9 @@ namespace SOUI
 					CHAIN_MSG_MAP(SHostWnd)
 					REFLECT_NOTIFICATIONS_EX()
 				END_MSG_MAP()/**/
+
+	private:			
+              CMainDlg *m_pDlgMain;
 
 	};
 }

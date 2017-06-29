@@ -6,10 +6,11 @@
 #include "SDomodalwnd.h"
 namespace SOUI
 {
+	class CMainDlg;
 	class CAVOpenUrl: public SDomodalwnd
 	{
 	   public:
-		      CAVOpenUrl();
+		      CAVOpenUrl(CMainDlg *m_pDlgMain);
 		       ~CAVOpenUrl();
 	   protected:
 			    void OnLButtonDown(UINT nFlags, CPoint point);
@@ -25,6 +26,7 @@ namespace SOUI
 					CHAIN_MSG_MAP(SDomodalwnd)
 					REFLECT_NOTIFICATIONS_EX()
 				END_MSG_MAP()/**/
+				CMainDlg *m_pDlgMain;
 
 	};
 }

@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(KKWinSdkPath)\Include&quot;;&quot;$(KKWinDx9Path)\include&quot;;&quot;$(KKSoui2Path)\SOUI\include&quot;;&quot;$(KKSoui2Path)\utilities\include&quot;;&quot;$(KKSoui2Path)\components&quot;;&quot;$(KKSoui2Path)\config&quot;;..\ffmpeg\include;..\INTInclude;..\KKPlayerCore;..\librtmp;..\WTL90\Include;..\wke\include;..\jsoncpp"
-				PreprocessorDefinitions="KKPLAYERUI;WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI;_CRT_SECURE_NO_WARNINGS;JSON_DLL"
+				PreprocessorDefinitions="KKPLAYERUI;WIN32;_DEBUG;_WINDOWS;ZLIB_WINAPI;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_WARNINGS;JSON_DLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,9 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="KKPlayerCored.lib ws2_32.lib winmm.lib imm32.lib"
+				AdditionalDependencies="souid.lib utilitiesd.lib KKPlayerCored.lib libmfxd.lib wke.lib kksqlite.lib jsoncppd.lib librtmpd.lib ws2_32.lib winmm.lib imm32.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(KKWinSdkPath)\Lib&quot;;&quot;$(KKWinDx9Path)\Lib\x86&quot;;..\Debug\libx86;..\Debug;&quot;$(KKSoui2Path)\bin&quot;"
+				AdditionalLibraryDirectories="&quot;$(KKWinSdkPath)\Lib&quot;;&quot;$(KKWinDx9Path)\Lib\x86&quot;;..\Debug\libx86;..\Debug;&quot;$(KKSoui2Path)\bin&quot;;..\wke\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -137,9 +137,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Release/libx86/KKPlayerCore.lib ws2_32.lib winmm.lib imm32.lib"
+				AdditionalDependencies="soui.lib utilities.lib jsoncpp.lib libmfx.lib librtmp.lib kksqlite.lib KKPlayerCore.lib wke.lib ws2_32.lib winmm.lib imm32.lib msimg32.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(KKWinDx9Path)\Lib\x86&quot;;&quot;$(KKSoui2Path)\bin&quot;"
+				AdditionalLibraryDirectories="&quot;$(KKWinDx9Path)\Lib\x86&quot;;&quot;$(KKSoui2Path)\bin&quot;;..\Release;..\Release\libx86;..\wke\lib"
 				EnableUAC="false"
 				UACExecutionLevel="0"
 				GenerateDebugInformation="true"
@@ -215,12 +215,20 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\test.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Í·ÎÄ¼þ"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\ICallKKplayer.h"
+				>
+			</File>
 			<File
 				RelativePath=".\MainFrm.h"
 				>

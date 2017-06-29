@@ -13,20 +13,17 @@
 #include <atlctrls.h>
 #include <atldlgs.h>
 #include <atlmisc.h>
+#include <vector>
 #include "KKPlayer.h"
 #include "render/render.h"
 #include "../KKPlayerCore/IKKPlayUI.h"
-#include <vector>
-#include "KKSound.h"
+#include "ICallKKplayer.h"
 #include "SDLSound.h"
-#ifndef LIBKKPLAYER
-#include "MainPage/AVMenu.h"
-#else
 #include "Resource.h"
-#endif
+
+
 #define  WM_MediaClose  WM_USER+100
 #define  WM_OpenErr     WM_USER+101
-
 typedef struct SWaitPicInfo
 {
     unsigned char* Buf;
@@ -67,12 +64,9 @@ typedef struct AVFILE_SEGS_INFO
 }AVFILE_SEGS_INFO;
 /*************分片结束****************/
 
-//errcode 参考EKKPlayerErr
-typedef void (*fpKKPlayerErrNotify)(void *UserData,int errcode);
 
-class CMainFrame : 
-	public CFrameWindowImpl<CMainFrame>, 
-	public IKKPlayUI
+
+class CMainFrame:public CFrameWindowImpl<CMainFrame>,public ICallKKplayer, public IKKPlayUI
 {
 public:
 	CMainFrame(bool yuv420p=true,bool NeedDel=false);
@@ -105,8 +99,6 @@ public:
     void         CloseMedia();
 	//全屏
 	void         FullScreen();
-
-	void         AVRender(); 
 
 	
 public:
@@ -160,6 +152,7 @@ protected:
 		virtual void RenderLock();
 	    virtual void RenderUnLock();
 		virtual IkkRender* GetRender();
+		virtual void         AVRender(); 	
 private:
 	    void                   OnDraw(HDC& memdc,RECT& rt);
 private:
@@ -169,9 +162,7 @@ private:
 	   int                   m_nTipTick;
        int                   m_nSeekTip;
        IKKAudio*             m_pSound;
-#ifndef LIBKKPLAYER
-	   SOUI::CAVMenu*        m_pAVMenu;
-#endif
+
 	   IkkRender*            m_pRender;
 	   
 	   int                   LeftWidth;

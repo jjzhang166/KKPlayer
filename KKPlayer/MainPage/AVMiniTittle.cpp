@@ -1,9 +1,9 @@
 #include "AVMiniTittle.h"
 #include "MainDlg.h"
-extern SOUI::CMainDlg *m_pDlgMain;
+
 namespace SOUI
 {
-	CAVMiniTittle::CAVMiniTittle(): SHostWnd(_T("LAYOUT:XML_MINI_TITTLE"))
+	CAVMiniTittle::CAVMiniTittle( CMainDlg* pDlgMain): SHostWnd(_T("LAYOUT:XML_MINI_TITTLE")), m_pDlgMain(pDlgMain)
 	{
 
 	}

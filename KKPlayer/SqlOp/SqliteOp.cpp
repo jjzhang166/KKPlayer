@@ -2,11 +2,7 @@
 #include <stdlib.h>
 #include "SqliteOp.h"
 
-#ifdef _DEBUG
-#pragma comment (lib,"../Debug/kksqlite.lib")
-#else
-#pragma comment (lib,"../Release/kkSqlite.lib")
-#endif
+
 CSqliteOp ::CSqliteOp()
 {
 

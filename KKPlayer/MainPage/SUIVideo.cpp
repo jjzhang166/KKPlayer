@@ -2,18 +2,16 @@
 
 
 #include "SUIVideo.h"
-#include "MainDlg.h"
 #include "../MainFrm.h"
 #include "../Tool/cchinesecode.h"
 #include "../SqlOp/HistoryInfoMgr.h"
 
 #include <string>
-extern SOUI::CMainDlg *m_pDlgMain;
 namespace SOUI
 {
 	CSuiVideo::CSuiVideo(void)
 	{
-               m_pVideoWnd= new CMainFrame();
+               m_pVideoWnd= //new CMainFrame();
 	}
 	CSuiVideo::~CSuiVideo(void)
 	{
@@ -125,7 +123,7 @@ namespace SOUI
 	{
 		m_pVideoWnd->CloseMedia();
 		//GetContainer()->GetHostHwnd();
-		m_pDlgMain->FindChildByName("TxtAVTitle")->SetWindowText(L"KKÓ°Òô");
+		
 	}
 
 	int is_realtime2(char *str)
@@ -218,7 +216,9 @@ namespace SOUI
 		       CChineseCode::charTowchar(title2.c_str(),abcd,1024);
 		 }
 		 title=abcd;
-		 m_pDlgMain->FindChildByName("AVNameTitle")->SetWindowText(title.c_str());/**/
+	
+		 HWND P=GetContainer()->GetHostHwnd();
+		 ::SendMessage(P,WM_UI_SetAvTilte,(WPARAM)title.c_str(),0);
 		 return ret;
 	 }
 	 void CSuiVideo::OnDecelerate()

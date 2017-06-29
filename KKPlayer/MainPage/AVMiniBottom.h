@@ -3,10 +3,11 @@
 #define AVMiniBottom_H
 namespace SOUI
 {
+	class CMainDlg;
 	class CAVMiniBottom: public SHostWnd
 	{
 	   public:
-		       CAVMiniBottom();
+		       CAVMiniBottom(CMainDlg *m_pDlgMain);
 		       ~CAVMiniBottom();
 			   
 			   void SetPlayState(bool s);
@@ -15,6 +16,7 @@ namespace SOUI
 			   bool OnSliderVideo(EventArgs *pEvtBase);
 			   bool OnSliderAudio(EventArgs *pEvtBase);
 			   void OnMuteAudio();
+     
 				EVENT_MAP_BEGIN()
 					EVENT_NAME_COMMAND(L"btn_audio",OnMuteAudio)
 					EVENT_NAME_COMMAND(L"AVPlayBtn",OnAVPlay)
@@ -25,6 +27,7 @@ namespace SOUI
 					CHAIN_MSG_MAP(SHostWnd)
 					REFLECT_NOTIFICATIONS_EX()
 				END_MSG_MAP()/**/
+			    SOUI::CMainDlg *m_pDlgMain;
 
 	};
 }

@@ -2,10 +2,10 @@
 #include "MainDlg.h"
 #include "../Tool/cchinesecode.h"
 
-extern SOUI::CMainDlg *m_pDlgMain;
+
 namespace SOUI
 {
-	CAVNetDown::CAVNetDown(): SHostWnd(_T("LAYOUT:XML_AVNETDOWN"))
+	CAVNetDown::CAVNetDown(CMainDlg *pDlgMain): SHostWnd(_T("LAYOUT:XML_AVNETDOWN")),m_pDlgMain(pDlgMain)
 	{
            m_bMini=0;
 	}

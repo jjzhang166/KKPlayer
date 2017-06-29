@@ -2,10 +2,10 @@
 #include "MainDlg.h"
 #include "../Tool/cchinesecode.h"
 
-extern SOUI::CMainDlg *m_pDlgMain;
+
 namespace SOUI
 {
-	CAVOpenUrl::CAVOpenUrl(): SDomodalwnd(_T("LAYOUT:XML_AVOPENURL"),false)
+	CAVOpenUrl::CAVOpenUrl(CMainDlg *pDlgMain): SDomodalwnd(_T("LAYOUT:XML_AVOPENURL"),false),m_pDlgMain(pDlgMain)
 	{
 	}
 	CAVOpenUrl::~CAVOpenUrl()

@@ -3,10 +3,11 @@
 #define AVMiniTittle_H
 namespace SOUI
 {
+	class  CMainDlg ;
 	class CAVMiniTittle: public SHostWnd
 	{
 	   public:
-		       CAVMiniTittle();
+		       CAVMiniTittle( CMainDlg* pDlgMain);
 		       ~CAVMiniTittle();
 			    void OnLButtonDown(UINT nFlags, CPoint point);
 
@@ -21,6 +22,8 @@ namespace SOUI
 					CHAIN_MSG_MAP(SHostWnd)
 					REFLECT_NOTIFICATIONS_EX()
 				END_MSG_MAP()/**/
+	private:
+				 CMainDlg*  m_pDlgMain;
 
 	};
 }

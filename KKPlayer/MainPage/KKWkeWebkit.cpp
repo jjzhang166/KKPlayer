@@ -2,13 +2,10 @@
 #include "KKWkeWebkit.h"
 #include <Imm.h>
 #include <map>
-#pragma comment(lib,"imm32.lib")
-#pragma comment(lib,"msimg32.lib")
-#pragma comment(lib,"..\\wke\\lib\\wke.lib")
 #include "../Tool/cchinesecode.h"
 #include "MainDlg.h"
 #include <string>
-extern SOUI::CMainDlg *m_pDlgMain;
+
 jsValue JS_CALL  FunCallAVPlayer(jsExecState es)
 {
      char *pp=(char*)jsToString(es,jsArg(es,0));
@@ -16,10 +13,10 @@ jsValue JS_CALL  FunCallAVPlayer(jsExecState es)
 	 if(pp!=NULL){
 		 std::string Out="";
 		 CChineseCode::UTF_8ToGBK(Out,pp);
-		 if(m_pDlgMain!=NULL){
+		 /*if(m_pDlgMain!=NULL){
 			 m_pDlgMain->WinTabShow(1);
 			 m_pDlgMain->OpenMedia((char*)Out.c_str(),name);
-		 }
+		 }*/
 		 
 	 }
 	 	return 0;

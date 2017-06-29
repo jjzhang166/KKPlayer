@@ -1,9 +1,9 @@
 #include "AVMiniBottom.h"
 #include "MainDlg.h"
-extern SOUI::CMainDlg *m_pDlgMain;
+
 namespace SOUI
 {
-	CAVMiniBottom::CAVMiniBottom(): SHostWnd(_T("LAYOUT:XML_MINI_BOTTOM"))
+	CAVMiniBottom::CAVMiniBottom(CMainDlg *pDlgMain): SHostWnd(_T("LAYOUT:XML_MINI_BOTTOM")),m_pDlgMain(pDlgMain)
 	{
 
 	}

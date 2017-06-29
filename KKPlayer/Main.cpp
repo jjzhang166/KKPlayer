@@ -20,14 +20,7 @@
 #include "../KKPlayerCore/KKPlayer.h"
 
 
-#ifdef _DEBUG
-#pragma comment (lib,"souid.lib")
-#pragma comment (lib,"utilitiesd.lib")
-#else
-#pragma comment (lib,"soui.lib")
-#pragma comment (lib,"utilities.lib")
-#pragma comment (lib,"../Release/jsoncpp.lib")
-#endif
+
 
 void DeclareDumpFile();
 
@@ -36,7 +29,7 @@ void DeclareDumpFile();
 #else
 #define SYS_NAMED_RESOURCE _T("soui-sys-resource.dll")
 #endif
-SOUI::CMainDlg *m_pDlgMain=NULL;
+
 CreateRender pfnCreateRender = NULL;
 DelRender    pfnDelRender=NULL;
 //F:\ProgramTool\OpenPro\KKPlayer\KKPlayer>uiresbuilder.exe -iuires/uires.idx -puires -rres/KK_res.rc2
@@ -188,7 +181,7 @@ void LoadPlugin()
 }
 
 
-int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int /*nCmdShow*/)
+int APIENTRY _tWinMain2(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int /*nCmdShow*/)
 {
 	int nArgs = 0;   
     DeclareDumpFile();
@@ -319,7 +312,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR 
 	dlgMain.GetNative()->SendMessage(WM_INITDIALOG);
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);
-    m_pDlgMain=&dlgMain;
 	if(urlpath.length()>3)
 	{
 	    char localurl[1024]="";

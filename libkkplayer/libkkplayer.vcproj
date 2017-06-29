@@ -135,8 +135,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../Release/libx86/KKPlayerCore.lib ws2_32.lib winmm.lib imm32.lib"
+				AdditionalDependencies="KKPlayerCore.lib jsoncpp.lib libmfx.lib librtmp.lib ws2_32.lib winmm.lib imm32.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../Release/libx86/;../Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -210,6 +211,14 @@
 			</File>
 			<File
 				RelativePath="..\KKPlayer\SDLSound.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\KKPlayer\Tool\WinDir.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\KKPlayer\Tool\WinDir.h"
 				>
 			</File>
 		</Filter>
