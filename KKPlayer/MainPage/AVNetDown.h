@@ -1,12 +1,11 @@
 #include "../stdafx.h"
-#include "../WHRoundRectFrameHelper.h"
 #include "../../KKPlayerCore/KKPlayer.h"
 #ifndef CAVNetDown_H
 #define CAVNetDown_H
 namespace SOUI
 {
 	class CMainDlg;
-	class CAVNetDown: public SHostWnd,public CWHRoundRectFrameHelper<CAVNetDown>
+	class CAVNetDown: public SHostWnd
 	{
 	   public:
 		      CAVNetDown(CMainDlg *m_DlgMain);
@@ -23,7 +22,6 @@ namespace SOUI
 					EVENT_NAME_COMMAND(L"btn_min",OnMinimize)
 				EVENT_MAP_END()	
 				BEGIN_MSG_MAP_EX(CAVNetDown)
-				    CHAIN_MSG_MAP(CWHRoundRectFrameHelper<CAVNetDown>)
 					MSG_WM_LBUTTONDOWN(OnLButtonDown)
 					CHAIN_MSG_MAP(SHostWnd)
 					REFLECT_NOTIFICATIONS_EX()

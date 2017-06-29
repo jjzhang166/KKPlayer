@@ -2,7 +2,7 @@
 #include <ObjIdl.h>
 #include "json/json.h"
 #include "tool/WinDir.h"
-
+#include "Dir/Dir.hpp"
 
 
 #ifndef LIBKKPLAYER
@@ -11,8 +11,6 @@
 #include "Tool/CFileMgr.h"
 #endif
 
-#define mad_f_mul(x, y)	((((x) + (1L << 11)) >> 12) *  \
-	(((y) + (1L << 15)) >> 16))
 extern CreateRender pfnCreateRender;
 extern DelRender pfnDelRender;
 
@@ -1122,3 +1120,67 @@ IkkRender* CMainFrame::GetRender()
 {
    return m_pRender;
 }
+
+
+void LoadPlugin()
+{
+	CWinDir Dir;
+//装载
+	std::string strPath= Dir.GetModulePathA();
+	strPath+="\\Plugin";
+
+	std::list<std::string> DllPathInfoList;
+	dir::listFiles(DllPathInfoList,strPath,"dll");
+	std::list<std::string>::iterator It=DllPathInfoList.begin();
+	int Lenxx=sizeof( __KKPluginInfo);
+	
+	for (;It!=DllPathInfoList.end();++It)
+	{
+
+		//char ptl[32];
+		///******创建一个插件******/
+		//fCreateKKPlugin CreKKP;
+		///**********删除一个插件**************/
+		//fDeleteKKPlugin DelKKp;
+		///***********下载文件*****************/
+		//fKKDownAVFile   KKDownAVFile;
+		///************停止下载*****************/
+		//fKKStopDownAVFile KKStopDownAVFile;
+		//fKKDownAVFileSpeedInfo KKDownAVFileSpeed;
+		//fFree KKFree;
+
+		HMODULE	hdll= LoadLibraryA((*It).c_str());
+		fCreateKKPlugin        pfn = (fCreateKKPlugin)GetProcAddress(hdll, "CreateKKPlugin");
+		fGetPtlHeader          pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
+		fDeleteKKPlugin        pDel=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
+        fKKDownAVFile          pKKDownAVFile=(fKKDownAVFile)GetProcAddress(hdll, "KKDownAVFile");
+		fKKPauseDownAVFile     pKKPauseDownAVFile=(fKKPauseDownAVFile)GetProcAddress(hdll, "KKPauseDownAVFile");
+		fFree                  pKKFree=(fFree)GetProcAddress(hdll, "KKFree");
+        fKKDownAVFileSpeedInfo pKKDownAVFileSpeedInfo=(fKKDownAVFileSpeedInfo)GetProcAddress(hdll, "KKDownAVFileSpeedInfo");
+        fKKUrlParser           pKKUrlParser=(fKKUrlParser)GetProcAddress(hdll, "KKUrlParser");
+		if(pfn!=NULL&&pfGetPtl!=NULL&& pDel!=NULL)
+		{
+			
+				KKPluginInfo Info;
+				pfGetPtl(Info.ptl,32);
+				Info.CreKKP= pfn;
+				Info.DelKKp=pDel;
+                Info.Handle=hdll;
+				Info.KKDownAVFile=pKKDownAVFile;
+				Info.KKPauseDownAVFile=pKKPauseDownAVFile;
+				Info.KKFree=pKKFree;
+				Info.KKDownAVFileSpeedInfo=pKKDownAVFileSpeedInfo;
+				Info.KKUrlParser=pKKUrlParser;
+				KKPlayer::AddKKPluginInfo(Info);
+			
+		}else{
+			FreeLibrary(hdll);
+		}
+
+		int i=0;
+		i++;
+	}
+
+	DllPathInfoList.clear();
+}
+

@@ -12,13 +12,6 @@ namespace SOUI
 		public:
 			CAVMenu(CAVMenu** Own);
 			~CAVMenu();
-
-          /*  void OnKillFocus(CWindow wndFocus);
-			BEGIN_MSG_MAP_EX(CMainDlg)
-				MSG_WM_KILLFOCUS(OnKillFocus)
-				CHAIN_MSG_MAP(SHostWnd)
-				REFLECT_NOTIFICATIONS_EX()
-			END_MSG_MAP()*/
 	   private:
 			CAVMenu** m_Own;
 	};

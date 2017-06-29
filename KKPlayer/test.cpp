@@ -4,13 +4,15 @@
 #include "stdafx.h"
 
 
-int APIENTRY _tWinMain(HINSTANCE hInstance,
+int APIENTRY _tWinMain2(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
+
+	HRESULT hRes = CoInitialize(NULL);
+	int nArgs = 0;   
 	
-	using namespace SOUI;
 	SComMgr * pComMgr = new SComMgr;
 
 	SOUI::CAutoRefPtr<SOUI::IRenderFactory> pRenderFactory=NULL;
@@ -27,10 +29,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
   
 	 ///不知道什么原因，在win10下，会导致百度网盘等闪烁
-	 HMODULE hui=LoadLibrary(_T("kkui.dll"));
+	HMODULE hui=LoadLibraryW(_T("kkui.dll"));
 	if(hui){
 		CAutoRefPtr<IResProvider>   pResProvider;
 		CreateResProvider(RES_PE,(IObjRef**)&pResProvider);
+
+		//CreateResProvider(RES_FILE,(IObjRef**)&pResProvider);
+     
+
 		BOOL ret=pResProvider->Init((WPARAM)hui,0);
 		theApp->AddResProvider(pResProvider);
 	}

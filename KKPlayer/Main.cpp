@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 
-#include "resource.h"
 #include "MainPage/MainDlg.h"
 #include "MainPage/SUIVideo.h"
 #include "MainPage/KKWkeWebkit.h"
@@ -16,9 +15,7 @@
 #include "Tool/WinDir.h"
 
 #include "SqlOp/HistoryInfoMgr.h"
-#include "../KKPlayerCore/KKPlugin.h"
-#include "../KKPlayerCore/KKPlayer.h"
-
+#include <ShellAPI.h>
 
 
 
@@ -118,71 +115,10 @@ void RelationIco()
 	}
 	
 }
-void LoadPlugin()
+
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*lpstrCmdLine*/, int /*nCmdShow*/)
 {
-	CWinDir Dir;
-//装载
-	std::string strPath= Dir.GetModulePathA();
-	strPath+="\\Plugin";
-
-	std::list<std::string> DllPathInfoList;
-	dir::listFiles(DllPathInfoList,strPath,"dll");
-	std::list<std::string>::iterator It=DllPathInfoList.begin();
-	int Lenxx=sizeof( __KKPluginInfo);
-	
-	for (;It!=DllPathInfoList.end();++It)
-	{
-
-		//char ptl[32];
-		///******创建一个插件******/
-		//fCreateKKPlugin CreKKP;
-		///**********删除一个插件**************/
-		//fDeleteKKPlugin DelKKp;
-		///***********下载文件*****************/
-		//fKKDownAVFile   KKDownAVFile;
-		///************停止下载*****************/
-		//fKKStopDownAVFile KKStopDownAVFile;
-		//fKKDownAVFileSpeedInfo KKDownAVFileSpeed;
-		//fFree KKFree;
-
-		HMODULE	hdll= LoadLibraryA((*It).c_str());
-		fCreateKKPlugin        pfn = (fCreateKKPlugin)GetProcAddress(hdll, "CreateKKPlugin");
-		fGetPtlHeader          pfGetPtl=(fGetPtlHeader)GetProcAddress(hdll, "GetPtlHeader");
-		fDeleteKKPlugin        pDel=(fDeleteKKPlugin)GetProcAddress(hdll, "DeleteKKPlugin");
-        fKKDownAVFile          pKKDownAVFile=(fKKDownAVFile)GetProcAddress(hdll, "KKDownAVFile");
-		fKKPauseDownAVFile     pKKPauseDownAVFile=(fKKPauseDownAVFile)GetProcAddress(hdll, "KKPauseDownAVFile");
-		fFree                  pKKFree=(fFree)GetProcAddress(hdll, "KKFree");
-        fKKDownAVFileSpeedInfo pKKDownAVFileSpeedInfo=(fKKDownAVFileSpeedInfo)GetProcAddress(hdll, "KKDownAVFileSpeedInfo");
-        fKKUrlParser           pKKUrlParser=(fKKUrlParser)GetProcAddress(hdll, "KKUrlParser");
-		if(pfn!=NULL&&pfGetPtl!=NULL&& pDel!=NULL)
-		{
-			
-				KKPluginInfo Info;
-				pfGetPtl(Info.ptl,32);
-				Info.CreKKP= pfn;
-				Info.DelKKp=pDel;
-                Info.Handle=hdll;
-				Info.KKDownAVFile=pKKDownAVFile;
-				Info.KKPauseDownAVFile=pKKPauseDownAVFile;
-				Info.KKFree=pKKFree;
-				Info.KKDownAVFileSpeedInfo=pKKDownAVFileSpeedInfo;
-				Info.KKUrlParser=pKKUrlParser;
-				KKPlayer::AddKKPluginInfo(Info);
-			
-		}else{
-			FreeLibrary(hdll);
-		}
-
-		int i=0;
-		i++;
-	}
-
-	DllPathInfoList.clear();
-}
-
-
-int APIENTRY _tWinMain2(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int /*nCmdShow*/)
-{
+    HRESULT hRes = CoInitialize(NULL);
 	int nArgs = 0;   
     DeclareDumpFile();
 	
@@ -230,17 +166,13 @@ int APIENTRY _tWinMain2(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR
 	hismgr->GetH265Codec();
 	//
 	
-	//
- //   //插件
-	LoadPlugin();
+
 	
 	HMODULE hRender = LoadLibraryA("Render.dll");
 	if(hRender){
           pfnCreateRender = (CreateRender)GetProcAddress(hRender, "CreateRender");
 		  pfnDelRender = (DelRender)GetProcAddress(hRender, "DelRender");
 	}
-
-	using namespace SOUI;
 	SComMgr * pComMgr = new SComMgr;
 
 	
@@ -267,7 +199,7 @@ int APIENTRY _tWinMain2(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR
 	 }/**/
     
 	
-	 ///不知道什么原因，在win10下，会导致百度网盘等闪烁
+	 ///不知道什么原因，在win10下，会导致百度网盘等闪烁,原来需要管理员权限就会闪烁啊
 	 HMODULE hui=LoadLibrary(_T("kkui.dll"));
 	if(hui){
 		CAutoRefPtr<IResProvider>   pResProvider;
@@ -282,6 +214,7 @@ int APIENTRY _tWinMain2(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR
 	if(hSysResource){
 		CAutoRefPtr<IResProvider> sysSesProvider;
 		CreateResProvider(RES_PE,(IObjRef**)&sysSesProvider);
+
 		sysSesProvider->Init((WPARAM)hSysResource,0);
 		theApp->LoadSystemNamedResource(sysSesProvider);
 	}
@@ -325,5 +258,10 @@ int APIENTRY _tWinMain2(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR
 	
 	
 	::SetThreadExecutionState(ES_CONTINUOUS);
+
+	delete theApp;
+    delete pComMgr;
+    OleUninitialize();
+
 	return nRet;
 }

@@ -4,7 +4,6 @@
 #ifndef AVInfo_H
 #define AVInfo_H
 #include "../stdafx.h"
-#include "../WHRoundRectFrameHelper.h"
 #include "../../KKPlayerCore/KKPlayer.h"
 #include "SDomodalwnd.h"
 namespace SOUI

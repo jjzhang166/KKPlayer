@@ -1,9 +1,10 @@
-#include "../stdafx.h"
-#include <vector>
+
 #ifndef AVInfomanage_H_
 #define AVInfomanage_H_
+#include "../stdafx.h"
 #include "SqliteOp.h"
-#include "../../KKPlayerCore/KKLock.h"
+#include <vector>
+#include <helper/SCriticalSection.h>
 typedef struct _AV_Hos_Info{
      char *url;
 	 unsigned char* pBuffer;
@@ -45,11 +46,11 @@ public:
   public:
 	     static CHistoryInfoMgr *GetInance();
   private:
-	     static CHistoryInfoMgr *m_pInance;
-	     CSqliteOp  SqliteOp;
-		 char       m_strDbPath[1024];
-		 void*      m_pDb;
-		 CKKLock    m_Lock;
+	     static CHistoryInfoMgr        *m_pInance;
+	     CSqliteOp                     SqliteOp;
+		 char                          m_strDbPath[1024];
+		 void*                         m_pDb;
+		 SOUI::SCriticalSection        m_Lock;
 		 int        m_nH264Codec;
 		 int        m_nH265Codec;
 		 int        m_nUselibRtmp;

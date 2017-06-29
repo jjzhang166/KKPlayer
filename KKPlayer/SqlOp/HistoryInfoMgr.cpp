@@ -1,6 +1,6 @@
 #include "HistoryInfoMgr.h"
-void SetKKplayerH264HardCodec(int value);
-void SetKKplayerH265HardCodec(int value);
+//void SetKKplayerH264HardCodec(int value);
+//void SetKKplayerH265HardCodec(int value);
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
 CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRtmp(-1), m_nlibRtmpDelay(-1)
 {
@@ -18,7 +18,7 @@ void CHistoryInfoMgr::SetPath(const char *Path)
 void CHistoryInfoMgr::InitDb()
 {
       sqlite3* pDb;
-	  m_Lock.Lock();
+	  SOUI::SAutoLock lock(m_Lock);
 	  SqliteOp.OpenDB(m_strDbPath,&pDb);
 	  if(SqliteOp.IsTableExt(pDb,"AVHisinfo")!=1){
 		  char *str= "CREATE table AVHisinfo(url TEXT NOT NULL,Img BLOB,Width INTEGER,Height INTEGER,lstTime INTEGER,TotalTime INTEGER,primary key(url));";
@@ -31,7 +31,7 @@ void CHistoryInfoMgr::InitDb()
 	  }
 
 	  m_pDb=pDb;
-	  m_Lock.Unlock();
+	  
 }
 /*******播放进度更新信息***********/
 void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height)
@@ -39,7 +39,7 @@ void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime
     sqlite3* pDb=( sqlite3* )m_pDb;
 	sqlite3_stmt *pStmt = 0;  
 
-	m_Lock.Lock();
+	SOUI::SAutoLock lock(m_Lock);
     char *str="replace into AVHisinfo(url,Img,Width,Height,lstTime,TotalTime) values (" \
                "\"%s\"," \
 				"?," \
@@ -55,17 +55,15 @@ void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime
 	
 	int ret=sqlite3_prepare(pDb, strsql, -1, &pStmt, 0);
 	ret= sqlite3_bind_blob(pStmt, 1,Imgbuf,buflen, NULL);
-	ret=sqlite3_step(pStmt);;
+	ret=sqlite3_step(pStmt);
     sqlite3_finalize(pStmt);
-	m_Lock.Unlock();
-
 }    
 //获取放播的历史信息
 void CHistoryInfoMgr::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
     sqlite3* pDb=( sqlite3* )m_pDb;
 	sqlite3_stmt *pStmt = 0;
-	m_Lock.Lock();
+	SOUI::SAutoLock lock(m_Lock);
 	int ret=sqlite3_prepare(pDb, "select * from AVHisinfo", -1, &pStmt, 0);
 
 	int size=0;
@@ -99,7 +97,7 @@ void CHistoryInfoMgr::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 
 	}
 	sqlite3_finalize(pStmt);
-	m_Lock.Unlock();
+	
 }
 void CHistoryInfoMgr::UpdataConfig(const char* StrKey,const char* StrValue)
 {
@@ -113,10 +111,10 @@ void CHistoryInfoMgr::UpdataConfig(const char* StrKey,const char* StrValue)
 	
     char strsql[512]="";
 	sprintf(strsql,str,StrKey,StrValue);
-	m_Lock.Lock();
+	SOUI::SAutoLock lock(m_Lock);
 	
 	SqliteOp.NoSelectSql(pDb,strsql);
-	m_Lock.Unlock();
+	
 }
 bool CHistoryInfoMgr::GetConfig(const char* StrKey,std::string &OutValue)
 {
@@ -127,7 +125,7 @@ bool CHistoryInfoMgr::GetConfig(const char* StrKey,std::string &OutValue)
 	strcat(sqlstr,"\";");
 	int nRow=-1,nColumn=-1,nIndex=-1;
 	char** pResult=NULL;
-	m_Lock.Lock();
+	SOUI::SAutoLock lock(m_Lock);
 	sqlite3* pDb=( sqlite3* )m_pDb;
 	int result= sqlite3_get_table(
 		pDb,               /* An open database */
@@ -156,7 +154,6 @@ bool CHistoryInfoMgr::GetConfig(const char* StrKey,std::string &OutValue)
 		Ok=true;
 	}
 	sqlite3_free_table(pResult);
-	m_Lock.Unlock();
 
 	return Ok;
 }
@@ -175,7 +172,7 @@ void CHistoryInfoMgr::UpdataH264Codec(int value)
 		sprintf(hardM,"%d",value);
 		UpdataConfig("H264Codec",hardM);
 		m_nH264Codec=value;
-		SetKKplayerH264HardCodec(value);
+		//SetKKplayerH264HardCodec(value);
 }
 int CHistoryInfoMgr::GetH264Codec()
 {
@@ -185,7 +182,7 @@ int CHistoryInfoMgr::GetH264Codec()
 		std::string selectIndex="";
 		GetConfig("H264Codec",selectIndex);
 		m_nH264Codec=atoi(selectIndex.c_str());
-		SetKKplayerH264HardCodec(m_nH264Codec);
+		//SetKKplayerH264HardCodec(m_nH264Codec);
 	}
     return m_nH264Codec;
 		 
@@ -198,7 +195,7 @@ int CHistoryInfoMgr::GetH265Codec()
 		GetConfig("H265Codec",selectIndex);
 		m_nH265Codec=atoi(selectIndex.c_str());
 	
-        SetKKplayerH265HardCodec(m_nH265Codec);
+       // SetKKplayerH265HardCodec(m_nH265Codec);
 	}
     return  m_nH265Codec;
 }
@@ -209,7 +206,7 @@ void CHistoryInfoMgr::UpdataH265Codec(int value)
 		UpdataConfig("H265Codec",hardM);
 		m_nH265Codec=value;
 		
-        SetKKplayerH265HardCodec(value);
+       // SetKKplayerH265HardCodec(value);
 }
 
 int  CHistoryInfoMgr::GetUseLibRtmp()

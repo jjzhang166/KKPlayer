@@ -7,7 +7,7 @@ namespace SOUI
 {
 	CAVNetDown::CAVNetDown(CMainDlg *pDlgMain): SHostWnd(_T("LAYOUT:XML_AVNETDOWN")),m_pDlgMain(pDlgMain)
 	{
-           m_bMini=0;
+        
 	}
 	CAVNetDown::~CAVNetDown()
 	{

@@ -6,17 +6,21 @@
 #ifndef stdafx_kk_H_
 #define stdafx_kk_H_
 #include "targetver.h"
-#include <string>
-#include <vector>
-#include <list>
-#include <stdio.h>
-#include <tchar.h>
-#include <process.h>
-#include <Windows.h>
-#include <assert.h>
+
+
 #ifndef LIBKKPLAYER
 #include "UI.h"
+#else
+	#include <string>
+	#include <vector>
+	#include <list>
+	#include <stdlib.h>
+	#include <stdio.h>
+	#include <tchar.h>
+	#include <process.h>
+	#include <Windows.h>
 #endif
+#include <assert.h>
 typedef void *(*CreateRender)(HWND h,char *Oput);
 typedef char (*DelRender)(void *p,char RenderType);
 #endif

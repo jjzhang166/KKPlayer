@@ -103,7 +103,7 @@ public:
 	HWND         GetPlayerWnd(){return m_hWnd;}
 public:
 	LRESULT  OnSize(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/);
-	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
+//	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 	BEGIN_MSG_MAP(CMainFrame)
 			MESSAGE_HANDLER(WM_CREATE, OnCreate)
 			MESSAGE_HANDLER(WM_DESTROY, OnDestroy)

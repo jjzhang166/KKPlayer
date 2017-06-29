@@ -1,8 +1,5 @@
 #include "../stdafx.h"
-#include <stdlib.h>
 #include "SqliteOp.h"
-
-
 CSqliteOp ::CSqliteOp()
 {
 

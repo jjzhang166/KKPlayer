@@ -4,8 +4,6 @@
 #ifndef AvCodecSetting_H
 #define AvCodecSetting_H
 #include "../stdafx.h"
-#include "../WHRoundRectFrameHelper.h"
-#include "../../KKPlayerCore/KKPlayer.h"
 #include "SDomodalwnd.h"
 namespace SOUI
 {
@@ -28,7 +26,6 @@ namespace SOUI
 		            EVENT_NAME_HANDLER(L"cbx_H265Codec",EventCBSelChange::EventID,OnH265BoxChanged)
 				EVENT_MAP_END()	
 				BEGIN_MSG_MAP_EX(CAvCodecSetting)
-				
 					CHAIN_MSG_MAP(SDomodalwnd)
 					REFLECT_NOTIFICATIONS_EX()
 				END_MSG_MAP()/**/

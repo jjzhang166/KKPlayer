@@ -4,6 +4,7 @@
 #include <tlhelp32.h>
 #include <algorithm>
 #include "cchinesecode.h"
+#include <ShellAPI.h>
 CWinDir::CWinDir()
 {
 

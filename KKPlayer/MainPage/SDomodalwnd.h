@@ -14,7 +14,6 @@ namespace SOUI{
       protected:
 
 		   BEGIN_MSG_MAP_EX(SDomodalwnd)
-		       CHAIN_MSG_MAP(SHostWnd)
 		       REFLECT_NOTIFICATIONS_EX()
 	       END_MSG_MAP()
 		   int m_ModelState;

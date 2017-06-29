@@ -36,51 +36,13 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 IDI_KKPLAYER            ICON                    "KKPlayer.ico"
 IDI_SMALL               ICON                    "small.ico"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
 
-IDC_KKPLAYER MENU 
-BEGIN
-    POPUP "文件(&F)"
-    BEGIN
-        MENUITEM "退出(&X)",                      IDM_EXIT
-    END
-    POPUP "帮助(&H)"
-    BEGIN
-        MENUITEM "关于(&A) ...",                  IDM_ABOUT
-    END
-END
 
 
 /////////////////////////////////////////////////////////////////////////////
-//
-// Accelerator
-//
-
-IDC_KKPLAYER ACCELERATORS 
-BEGIN
-    "?",            IDM_ABOUT,              ASCII,  ALT
-    "/",            IDM_ABOUT,              ASCII,  ALT
-END
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "关于 KKPlayer"
-FONT 9, "MS Shell Dlg", 0, 0, 0x1
-BEGIN
-    ICON            128,IDC_STATIC,14,14,21,20
-    LTEXT           "KKPlayer，1.0 版",IDC_STATIC,42,14,114,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2015",IDC_STATIC,42,26,114,8
-    DEFPUSHBUTTON   "确定",IDOK,113,41,50,14,WS_GROUP
-END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -133,23 +95,7 @@ END
 #endif    // APSTUDIO_INVOKED
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Cursor
-//
 
-//IDC_CURSOR1             CURSOR                  "cursor1.cur"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// String Table
-//
-
-STRINGTABLE 
-BEGIN
-    IDS_APP_TITLE           "KKPlayer"
-    IDC_KKPLAYER            "KKPLAYER"
-END
 
 #endif    // 中文(中华人民共和国) resources
 /////////////////////////////////////////////////////////////////////////////

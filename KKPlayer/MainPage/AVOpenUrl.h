@@ -1,7 +1,6 @@
 #ifndef AVOpenUrl_H
 #define AVOpenUrl_H
 #include "../stdafx.h"
-#include "../WHRoundRectFrameHelper.h"
 #include "../../KKPlayerCore/KKPlayer.h"
 #include "SDomodalwnd.h"
 namespace SOUI

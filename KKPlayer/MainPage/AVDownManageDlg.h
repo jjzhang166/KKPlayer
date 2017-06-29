@@ -1,5 +1,4 @@
 #include "../stdafx.h"
-#include "../WHRoundRectFrameHelper.h"
 #include "../../KKPlayerCore/KKPlayer.h"
 #ifndef AVDownManageDlg_H
 #define AVDownManageDlg_H
