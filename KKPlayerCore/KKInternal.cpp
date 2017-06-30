@@ -1393,8 +1393,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			int resetdev=GetD3d9RestDevState( is->viddec.avctx->opaque);
 			 if(resetdev==0){
 				 kkAVPicInfo picinfo;
-				 memcpy(picinfo.data,pOutAV->data,32);
-				 memcpy(picinfo.linesize,pOutAV->linesize,32);
+				 memcpy(picinfo.data,pOutAV->data,sizeof(picinfo.data));
+				 memcpy(picinfo.linesize,pOutAV->linesize,sizeof(picinfo.linesize));
 				 picinfo.width=vp->width;
 				 picinfo.height=vp->height;
 				 picinfo.picformat=AV_PIX_FMT_DXVA2_VLD;
@@ -1425,8 +1425,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
              LOGE_KK("dex sws_scale\n");
 		}else{
 		      av_frame_move_ref(vp->frame,pOutAV);
-			  memcpy(vp->Bmp.data,vp->frame->data,32);
-			  memcpy(vp->Bmp.linesize,vp->frame->linesize,32);
+			  memcpy(vp->Bmp.data,vp->frame->data,sizeof(vp->Bmp.data));
+			  memcpy(vp->Bmp.linesize,vp->frame->linesize,sizeof(vp->Bmp.linesize));
 			  vp->picformat=(int)format;
 			  
 			  LOGE_KK("dex no copy\n");
