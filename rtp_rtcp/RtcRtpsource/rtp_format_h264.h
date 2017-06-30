@@ -14,7 +14,7 @@
 #include <queue>
 #include <string>
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_format.h"
+#include "rtp_format.h"
 
 namespace webrtc {
 

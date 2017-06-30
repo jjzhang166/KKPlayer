@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtcp_sender.h"
+#include "rtcp_sender.h"
 
 #include <assert.h>  // assert
 #include <stdlib.h>  // rand
@@ -17,7 +17,7 @@
 #include <algorithm>  // min
 
 #include "webrtc/common_types.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_rtcp_impl.h"
+#include "rtp_rtcp_impl.h"
 #include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
 #include "webrtc/system_wrappers/interface/logging.h"
 #include "webrtc/system_wrappers/interface/trace_event.h"

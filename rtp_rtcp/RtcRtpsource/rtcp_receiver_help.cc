@@ -8,12 +8,12 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtcp_receiver_help.h"
+#include "rtcp_receiver_help.h"
 
 #include <assert.h>  // assert
 #include <string.h>  // memset
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_utility.h"
+#include "rtp_utility.h"
 
 namespace webrtc {
 using namespace RTCPHelp;

@@ -8,15 +8,15 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtcp_receiver.h"
+#include "rtcp_receiver.h"
 
 #include <assert.h> //assert
 #include <string.h> //memset
 
 #include <algorithm>
 
-#include "webrtc/modules/rtp_rtcp/source/rtcp_utility.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_rtcp_impl.h"
+#include "rtcp_utility.h"
+#include "rtp_rtcp_impl.h"
 #include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
 #include "webrtc/system_wrappers/interface/logging.h"
 #include "webrtc/system_wrappers/interface/trace_event.h"

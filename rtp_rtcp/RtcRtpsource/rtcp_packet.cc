@@ -8,9 +8,9 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtcp_packet.h"
+#include "rtcp_packet.h"
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_utility.h"
+#include "rtp_utility.h"
 #include "webrtc/system_wrappers/interface/logging.h"
 
 using webrtc::RTCPUtility::kBtDlrr;

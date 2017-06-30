@@ -8,11 +8,11 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_format.h"
+#include "rtp_format.h"
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_format_h264.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_format_video_generic.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_format_vp8.h"
+#include "rtp_format_h264.h"
+#include "rtp_format_video_generic.h"
+#include "rtp_format_vp8.h"
 
 namespace webrtc {
 RtpPacketizer* RtpPacketizer::Create(RtpVideoCodecTypes type,

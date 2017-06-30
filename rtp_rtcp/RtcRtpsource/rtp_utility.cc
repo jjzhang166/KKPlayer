@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_utility.h"
+#include "rtp_utility.h"
 
 #include <assert.h>
 #include <math.h>  // ceil

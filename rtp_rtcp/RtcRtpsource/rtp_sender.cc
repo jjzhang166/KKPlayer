@@ -8,12 +8,12 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_sender.h"
+#include "rtp_sender.h"
 
 #include <stdlib.h>  // srand
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_sender_audio.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_sender_video.h"
+#include "rtp_sender_audio.h"
+#include "rtp_sender_video.h"
 #include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
 #include "webrtc/system_wrappers/interface/logging.h"
 #include "webrtc/system_wrappers/interface/tick_util.h"

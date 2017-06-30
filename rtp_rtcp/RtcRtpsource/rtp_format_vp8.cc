@@ -8,14 +8,14 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_format_vp8.h"
+#include "rtp_format_vp8.h"
 
 #include <assert.h>  // assert
 #include <string.h>  // memcpy
 
 #include <vector>
 
-#include "webrtc/modules/rtp_rtcp/source/vp8_partition_aggregator.h"
+#include "vp8_partition_aggregator.h"
 #include "webrtc/system_wrappers/interface/logging.h"
 
 namespace webrtc {

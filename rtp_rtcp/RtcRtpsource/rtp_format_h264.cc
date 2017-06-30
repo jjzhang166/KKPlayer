@@ -11,8 +11,8 @@
 #include <string.h>
 
 #include "webrtc/modules/interface/module_common_types.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_format_h264.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_utility.h"
+#include "rtp_format_h264.h"
+#include "rtp_utility.h"
 
 namespace webrtc {
 namespace {

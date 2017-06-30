@@ -9,7 +9,7 @@
  */
 
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_format_vp8_test_helper.h"
+#include "rtp_format_vp8_test_helper.h"
 
 #include "testing/gtest/include/gtest/gtest.h"
 

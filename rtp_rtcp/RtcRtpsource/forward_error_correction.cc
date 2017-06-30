@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/forward_error_correction.h"
+#include "forward_error_correction.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -18,8 +18,8 @@
 #include <iterator>
 
 #include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
-#include "webrtc/modules/rtp_rtcp/source/forward_error_correction_internal.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_utility.h"
+#include "forward_error_correction_internal.h"
+#include "rtp_utility.h"
 #include "webrtc/system_wrappers/interface/logging.h"
 
 namespace webrtc {

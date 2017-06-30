@@ -20,9 +20,9 @@
 #include "webrtc/modules/remote_bitrate_estimator/include/remote_bitrate_estimator.h"
 #include "webrtc/modules/rtp_rtcp/interface/receive_statistics.h"
 #include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
-#include "webrtc/modules/rtp_rtcp/source/rtcp_utility.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_utility.h"
-#include "webrtc/modules/rtp_rtcp/source/tmmbr_help.h"
+#include "rtcp_utility.h"
+#include "rtp_utility.h"
+#include "tmmbr_help.h"
 #include "webrtc/system_wrappers/interface/scoped_ptr.h"
 #include "webrtc/typedefs.h"
 

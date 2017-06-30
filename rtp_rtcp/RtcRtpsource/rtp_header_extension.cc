@@ -11,7 +11,7 @@
 #include <assert.h>
 
 #include "webrtc/common_types.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_header_extension.h"
+#include "rtp_header_extension.h"
 
 namespace webrtc {
 

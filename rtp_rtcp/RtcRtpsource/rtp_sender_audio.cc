@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_sender_audio.h"
+#include "rtp_sender_audio.h"
 
 #include <assert.h> //assert
 #include <string.h> //memcpy

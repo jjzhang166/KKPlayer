@@ -13,7 +13,7 @@
 #include <string>
 
 #include "webrtc/common_types.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_format.h"
+#include "rtp_format.h"
 #include "webrtc/typedefs.h"
 
 namespace webrtc {

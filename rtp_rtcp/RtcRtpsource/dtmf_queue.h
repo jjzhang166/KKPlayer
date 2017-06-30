@@ -11,7 +11,7 @@
 #ifndef WEBRTC_MODULES_RTP_RTCP_SOURCE_DTMF_QUEUE_H_
 #define WEBRTC_MODULES_RTP_RTCP_SOURCE_DTMF_QUEUE_H_
 
-#include "webrtc/modules/rtp_rtcp/source/rtp_rtcp_config.h"
+#include "rtp_rtcp_config.h"
 #include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
 #include "webrtc/typedefs.h"
 

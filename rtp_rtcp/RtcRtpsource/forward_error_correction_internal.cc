@@ -8,13 +8,13 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/source/forward_error_correction_internal.h"
+#include "forward_error_correction_internal.h"
 
 #include <assert.h>
 #include <string.h>
 
-#include "webrtc/modules/rtp_rtcp/source/fec_private_tables_bursty.h"
-#include "webrtc/modules/rtp_rtcp/source/fec_private_tables_random.h"
+#include "fec_private_tables_bursty.h"
+#include "fec_private_tables_random.h"
 
 namespace {
 

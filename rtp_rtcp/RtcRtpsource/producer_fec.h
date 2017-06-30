@@ -13,7 +13,7 @@
 
 #include <list>
 
-#include "webrtc/modules/rtp_rtcp/source/forward_error_correction.h"
+#include "forward_error_correction.h"
 
 namespace webrtc {
 

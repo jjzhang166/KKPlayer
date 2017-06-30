@@ -15,9 +15,9 @@
 #include <vector>
 
 #include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp.h"
-#include "webrtc/modules/rtp_rtcp/source/rtcp_receiver.h"
-#include "webrtc/modules/rtp_rtcp/source/rtcp_sender.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_sender.h"
+#include "rtcp_receiver.h"
+#include "rtcp_sender.h"
+#include "rtp_sender.h"
 #include "webrtc/system_wrappers/interface/scoped_ptr.h"
 #include "webrtc/test/testsupport/gtest_prod_util.h"
 

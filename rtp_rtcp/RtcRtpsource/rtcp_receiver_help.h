@@ -14,8 +14,8 @@
 
 #include "webrtc/base/constructormagic.h"
 #include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"  // RTCPReportBlock
-#include "webrtc/modules/rtp_rtcp/source/rtcp_utility.h"
-#include "webrtc/modules/rtp_rtcp/source/tmmbr_help.h"
+#include "rtcp_utility.h"
+#include "tmmbr_help.h"
 #include "webrtc/system_wrappers/interface/scoped_ptr.h"
 #include "webrtc/typedefs.h"
 

@@ -15,7 +15,7 @@
 
 #include <algorithm>
 
-#include "webrtc/modules/rtp_rtcp/source/bitrate.h"
+#include "bitrate.h"
 #include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
 #include "webrtc/system_wrappers/interface/scoped_ptr.h"
 

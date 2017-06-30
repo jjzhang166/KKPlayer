@@ -20,7 +20,7 @@
 
 #include "webrtc/base/constructormagic.h"
 #include "webrtc/modules/interface/module_common_types.h"
-#include "webrtc/modules/rtp_rtcp/source/rtp_format_vp8.h"
+#include "rtp_format_vp8.h"
 #include "webrtc/typedefs.h"
 
 namespace webrtc {

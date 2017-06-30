@@ -15,7 +15,7 @@
 
 #include "webrtc/modules/rtp_rtcp/interface/fec_receiver.h"
 #include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
-#include "webrtc/modules/rtp_rtcp/source/forward_error_correction.h"
+#include "forward_error_correction.h"
 #include "webrtc/system_wrappers/interface/scoped_ptr.h"
 #include "webrtc/typedefs.h"
 
