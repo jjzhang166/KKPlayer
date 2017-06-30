@@ -11,12 +11,12 @@
 #ifndef WEBRTC_MODULES_RTP_RTCP_SOURCE_RTP_SENDER_AUDIO_H_
 #define WEBRTC_MODULES_RTP_RTCP_SOURCE_RTP_SENDER_AUDIO_H_
 
-#include "webrtc/common_types.h"
+#include "../common_types.h"
 #include "dtmf_queue.h"
 #include "rtp_rtcp_config.h"
 #include "rtp_sender.h"
 #include "rtp_utility.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 class RTPSenderAudio: public DTMFqueue

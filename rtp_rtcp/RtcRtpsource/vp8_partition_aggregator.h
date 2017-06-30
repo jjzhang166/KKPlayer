@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "../base/constructormagic.h"
-#include "webrtc/modules/interface/module_common_types.h"
+#include "../module_common_types.h"
 #include "../typedefs.h"
 
 namespace webrtc {

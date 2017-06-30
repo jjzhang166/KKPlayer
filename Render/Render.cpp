@@ -9,15 +9,15 @@
 std::map<IkkRender *,int> m_Rendermap;
 void skpngZhuc();
 
-#ifdef _DEBUG
-#pragma comment (lib,"..\\debug\\libx86\\zlibstatd.lib")
-#pragma comment (lib,"..\\debug\\libx86\\pngd.lib") 
-#pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
-#else
-#pragma comment (lib,"..\\Release\\libx86\\zlibstat.lib")
-#pragma comment (lib,"..\\Release\\libx86\\png.lib")
-#pragma comment (lib,"..\\Release\\libx86\\skia.lib")
-#endif
+//#ifdef _DEBUG
+//#pragma comment (lib,"..\\debug\\libx86\\zlibstatd.lib")
+//#pragma comment (lib,"..\\debug\\libx86\\pngd.lib") 
+//#pragma comment (lib,"..\\Debug\\libx86\\skiad.lib")
+//#else
+//#pragma comment (lib,"..\\Release\\libx86\\zlibstat.lib")
+//#pragma comment (lib,"..\\Release\\libx86\\png.lib")
+//#pragma comment (lib,"..\\Release\\libx86\\skia.lib")
+//#endif
 #pragma comment (lib,"Windowscodecs.lib")
 //#pragma comment (lib,"D3dx9.lib")
 #pragma comment (lib,"Usp10.lib")

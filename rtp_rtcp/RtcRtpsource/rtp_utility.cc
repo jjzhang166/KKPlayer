@@ -29,8 +29,8 @@
 #include <stdio.h>
 #endif
 
-#include "webrtc/system_wrappers/interface/tick_util.h"
-#include "webrtc/system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/tick_util.h"
+#include "../system_wrappers/interface/logging.h"
 
 #if (defined(_DEBUG) && defined(_WIN32) && (_MSC_VER >= 1400))
 #define DEBUG_PRINT(...)           \

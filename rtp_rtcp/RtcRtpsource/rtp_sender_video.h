@@ -13,8 +13,8 @@
 
 #include <list>
 
-#include "webrtc/common_types.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../common_types.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "bitrate.h"
 #include "forward_error_correction.h"
 #include "producer_fec.h"
@@ -22,7 +22,7 @@
 #include "rtp_sender.h"
 #include "rtp_utility.h"
 #include "video_codec_information.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 class CriticalSectionWrapper;

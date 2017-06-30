@@ -14,9 +14,9 @@
 #include <stddef.h>
 #include <list>
 
-#include "webrtc/modules/interface/module_common_types.h"
-#include "webrtc/system_wrappers/interface/clock.h"
-#include "webrtc/typedefs.h"
+#include "../module_common_types.h"
+#include "../system_wrappers/interface/clock.h"
+#include "../typedefs.h"
 
 #define RTCP_CNAME_SIZE 256    // RFC 3550 page 44, including null termination
 #define IP_PACKET_SIZE 1500    // we assume ethernet
