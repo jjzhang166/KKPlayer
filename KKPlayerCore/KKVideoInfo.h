@@ -214,6 +214,7 @@ typedef struct SKK_VideoState
 	//CKKLock*         SegLock;
 	//发送seg切换后使用
 	AVFormatContext *pSegFormatCtx;
+	///音频 0x001,视频0x010,字幕0x100
     int              SegStreamState;
 	///              指示是否为实时流媒体
 	int              realtime;
@@ -234,6 +235,7 @@ typedef struct SKK_VideoState
 	SKK_Decoder auddec;
 	/******视频解码器*******/
 	SKK_Decoder viddec;
+	
 	/******字幕解码器*******/
 	SKK_Decoder subdec;
 

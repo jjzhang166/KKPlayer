@@ -677,11 +677,40 @@ retry:
 						{
 						  start_time=vp->pts;
 						}
-						/*if(vp->PktNumber%20==0)
-						{
-						  m_pAVInfomanage->UpDataAVinfo(is->filename,m_CurTime,total,(unsigned char *)vp->buffer,vp->buflen,is->viddec_width,is->viddec_height);
-						}	*/	
 				}
+
+				if (is->subtitle_st) {
+					SKK_Frame *sp=0, *sp2=0;
+                    while (frame_queue_nb_remaining(&is->subpq) > 0) {
+                        sp = frame_queue_peek(&is->subpq);
+
+                        if (frame_queue_nb_remaining(&is->subpq) > 1)
+                            sp2 = frame_queue_peek_next(&is->subpq);
+                        else
+                            sp2 = NULL;
+
+                        if (sp->serial != is->subtitleq.serial
+                                || (is->vidclk.pts > (sp->pts + ((float) sp->sub.end_display_time / 1000)))
+                                || (sp2 && is->vidclk.pts > (sp2->pts + ((float) sp2->sub.start_display_time / 1000))))
+                        {
+                            if (sp->uploaded)
+							{
+                               /* int i;
+                                for (i = 0; i < sp->sub.num_rects; i++)
+								{
+                                    AVSubtitleRect *sub_rect = sp->sub.rects[i];
+                                    uint8_t *pixels;
+                                    int pitch, j;
+                                    }
+                                }*/
+                            }
+                            frame_queue_next(&is->subpq,true);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
 				frame_queue_next(&is->pictq,true);
 				is->force_refresh=1;
 	}
@@ -1752,11 +1781,11 @@ void KKPlayer::AvDelayParser()
 				
 				
 				///有音频，有视频
-				if((m_nhasVideoAudio^0x0010)==0x0010&&(m_nhasVideoAudio^0x0001)==0x0001){
+				if((m_nhasVideoAudio^0x0001)==0x0001&&(m_nhasVideoAudio^0x0010)==0x0010){
 				    if(pVideoInfo->audioq.size<=1000&&pVideoInfo->videoq.size<=1000)
 						 Ok= true;
 				}else {
-					   if(m_nhasVideoAudio^0x0001==0x0001)///视频
+					   if(m_nhasVideoAudio^0x0010==0x0010)///视频
                             Ok=  pkgsize<=500 ? true:false;
 					   else
 					        Ok=  pkgsize<=1000 ? true:false;
@@ -2216,7 +2245,8 @@ void KKPlayer::ReadAV()
 										retxx^= 0x10;
 									}else if(AVMEDIA_TYPE_AUDIO==type){
 										retxx^= 0x01;
-										continue;
+									}else if(AVMEDIA_TYPE_SUBTITLE==type){
+										retxx^= 0x100;
 									}
 								}
 								if(retxx==0){
@@ -2285,9 +2315,8 @@ void KKPlayer::ReadAV()
 			{
 				m_AVCacheInfo.MaxTime=pkt_ts;
 			}
-			m_nhasVideoAudio|=0x0010;
-		} //视频
-		else if (
+			m_nhasVideoAudio|=0x0001;
+		} else if (//视频
 			pkt->stream_index == pVideoInfo->video_stream && pkt_in_play_range
 			&& !(pVideoInfo->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC&&pkt->data!=NULL)
 			) {
@@ -2301,7 +2330,7 @@ void KKPlayer::ReadAV()
 			{
                  m_AVCacheInfo.MaxTime=pkt_ts;
 			}
-			m_nhasVideoAudio|=0x0001;
+			m_nhasVideoAudio|=0x0010;
 		}//字幕
 		else if (pkt->stream_index == pVideoInfo->subtitle_stream && pkt_in_play_range&&pkt->data!=NULL) 
 		{

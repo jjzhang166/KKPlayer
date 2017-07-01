@@ -59,6 +59,7 @@ int cxlp=0;
 static int64_t sws_flags = SWS_BICUBIC;
 unsigned __stdcall  Audio_Thread(LPVOID lpParameter);
 unsigned __stdcall  Video_thread(LPVOID lpParameter);
+unsigned __stdcall  Subtitle_thread(LPVOID lpParameter);
 #ifdef WIN32_KK
 inline long rint(double x) 
 { 
@@ -1030,8 +1031,8 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 							is->subtitle_st = ic->streams[stream_index];
 
 							decoder_init(&is->subdec, avctx, &is->subtitleq);
-							is->subdec.decoder_tid.ThOver=true;
-							//decoder_start(&is->subdec);
+							is->subdec.decoder_tid.ThOver=false;
+							decoder_start(&is->subdec,&Subtitle_thread,is);
 							break;
     default:
         break;
@@ -1049,17 +1050,9 @@ fail:
 
 
 
+//avcodec_decode_subtitle2
 
 
-//字幕线程
-unsigned __stdcall  Subtitle_thread(LPVOID lpParameter)
-{
-	SKK_VideoState *pIs=(SKK_VideoState *)lpParameter;
-
-	pIs->subdec.decoder_tid.Addr=0;
-	pIs->subdec.decoder_tid.ThOver=true;
-	return 1;
-}
 
 /*******同步视频********/
 double synchronize_video(SKK_VideoState *is, AVFrame *src_frame, double pts)  
@@ -1643,6 +1636,114 @@ LXXXX:
 	is->viddec.decoder_tid.Addr=0;
 	is->viddec.decoder_tid.ThOver=true;
 	return 0;
+}
+
+
+
+//字幕解码
+unsigned __stdcall  Subtitle_thread(LPVOID lpParameter)
+{
+	SKK_VideoState *is=(SKK_VideoState *)lpParameter;
+
+    SKK_Frame *sp=NULL;
+	AVPacket pkt1, *packet = &pkt1;  
+    int got_subtitle=0,ret=0;
+	short segid=0;
+    short lastsegid=0;
+    double pts=0.0;
+	for (;;) {
+
+		sp=frame_queue_peek_writable(&is->subpq);
+		if(sp==NULL)
+						     break;
+		do{
+LXXXX:
+//				LOGE(" 2 \n");
+				if(is->abort_request){
+					break;
+				
+				}else if(packet_queue_get(&is->subtitleq, packet, 1,&is->subdec.pkt_serial,&segid) <= 0) 
+				{
+					av_usleep(5000);
+					goto LXXXX;
+				}
+				
+
+				
+				if(is->subtitleq.serial!=is->subdec.pkt_serial)
+				{
+                    av_free_packet(packet); 
+					
+				}
+				
+			}while(is->subtitleq.serial!=is->subdec.pkt_serial);
+
+		SKK_Decoder* d=&is->subdec;
+        pts = 0;
+
+		if (packet->data != is->pflush_pkt->data)
+		{	
+			
+			        
+					ret=avcodec_decode_subtitle2(d->avctx, &sp->sub, &got_subtitle,packet);
+					if (got_subtitle && sp->sub.format == 0) 
+					{
+
+						SKK_FrameQueue *pSubpq=&is->subpq;
+					
+
+						if (sp->sub.pts != AV_NOPTS_VALUE)
+							pts = sp->sub.pts / (double)AV_TIME_BASE;
+						sp->pts = pts;
+						sp->serial = is->subdec.pkt_serial;
+						sp->width =  is->subdec.avctx->width;
+						sp->height = is->subdec.avctx->height;
+
+						sp->uploaded = 0;
+
+						/* now we can update the picture count */
+						frame_queue_push(&is->subpq);
+					} else if (got_subtitle) {
+						avsubtitle_free(&sp->sub);
+					}
+		}else {
+				//av_frame_unref(pFrame);
+				LOGE_KK(" subtittle avcodec_flush_buffers \n");
+				avcodec_flush_buffers(d->avctx);
+				
+				///发生了分片切换
+				if(lastsegid!=segid&&is->pSegFormatCtx!=NULL){
+					    
+							for (int i = 0; i <is->pSegFormatCtx->nb_streams; i++) 
+							{
+								AVStream *st = is->pSegFormatCtx->streams[i];
+								enum AVMediaType type = st->codec->codec_type;
+								if(AVMEDIA_TYPE_SUBTITLE==type){
+									AVCodecContext *tempavctx=is->viddec.avctx;
+									seg_stream_component_open(is,i);
+									if(tempavctx!=0){
+										  avcodec_flush_buffers(tempavctx);
+										  avcodec_close(tempavctx); 
+										  avcodec_free_context(&tempavctx);
+									}
+									is->SegStreamState|= 0x100;
+									break;
+								}
+							}
+						
+				}
+				d->finished = 0;
+				d->next_pts = d->start_pts;
+				d->next_pts_tb = d->start_pts_tb;
+			}
+			
+			lastsegid=segid;
+			av_free_packet(packet); 
+    }
+
+	is->subdec.decoder_tid.Addr=0;
+	is->subdec.decoder_tid.ThOver=true;
+	return 1;
 }
 
 
