@@ -27,7 +27,7 @@ extern std::map<std::string,std::string>                          G_SpeedInfoMap
 extern Qy_IPC::Qy_IPc_InterCriSec            G_KKMapLock;
 extern std::map<std::string,unsigned int>    G_CacheTimeMap;
 extern int G_IPC_Read_Write;
-
+extern HANDLE                                                       G_IPC_PreHandel;
 namespace Qy_IPC
 {
 	CKKV_DisConnect::CKKV_DisConnect()
@@ -141,7 +141,7 @@ namespace Qy_IPC
 			HANDLE HRW=(HANDLE)JsValue["HRW"].asInt();
 			std::string guidstr=JsValue["Guid"].asString();
 
-			if(IPCMSG==IPCRead){
+			 if(IPCMSG==IPCRead){
 				DataLen=JsValue["DataLen"].asInt64();
 					std::string DataHexStr=JsValue["DataHex"].asString();
 					int DataBufLen=DataLen*2;
@@ -164,10 +164,14 @@ namespace Qy_IPC
 			
 			       std::string UrlJson=JsValue["UrlJson"].asString();
 				   HandleIPCMsg(guidstr,IPCURLParser,(unsigned char*)UrlJson.c_str(),UrlJson.length(),0);
-			}if(IPCMSG==IPCSpeed){	
+			}else if(IPCMSG==IPCSpeed){	
 				   guidstr=JsValue["Url"].asString();
 			       std::string JsonSpeedInfo=JsValue["SpeedInfo"].asString();
 				   HandleIPCMsg(guidstr,IPCSpeed,(unsigned char*)JsonSpeedInfo.c_str(),JsonSpeedInfo.length(),0);
+			}else if(IPCMSG==IPCUnknown)
+			{
+				::SetEvent(G_IPC_PreHandel);
+				return;
 			}
 			if(HRW!=0)
 			::SetEvent(HRW);

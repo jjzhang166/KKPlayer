@@ -32,6 +32,7 @@ std::map<std::string,std::string>                   G_SpeedInfoMap;
 Qy_IPC::CKKV_ReceiveData                            *G_pKKV_Rec=NULL;
 Qy_IPC::CKKV_DisConnect                             *G_pKKV_Dis=NULL;
 Qy_IPC::Qy_IPc_InterCriSec                           G_KKMapLock;
+HANDLE                                               G_IPC_PreHandel=0;
 //IPC ×´Ì¬º¯Êý
 int G_IPC_Read_Write=-1;
 int OpenIPc();
@@ -171,6 +172,8 @@ ReOpen:
 		return 0;
 
 	//KillProcessFromName(L"kkres.exe");
+	if(G_IPC_PreHandel==0)
+		G_IPC_PreHandel=::CreateEvent(NULL,TRUE,FALSE,NULL);
 	bool Ok=G_pInstance->OpenServerPipe("\\\\.\\Pipe\\KKPlayer_Res_70ic");
 	if(!Ok){
 		if(recount<20){
@@ -187,7 +190,7 @@ ReOpen:
 					memset(&si,0,sizeof(si));
 					KillProcessFromName(L"kkres.exe");
 					BOOL ret = CreateProcess(kkres.c_str(),NULL, NULL, NULL, FALSE, 0, NULL, NULL,&si, &pi);
-				    Sleep(1000);
+				    Sleep(5000);
 				}
 #endif
 			goto ReOpen;
@@ -198,6 +201,23 @@ ReOpen:
 		G_IPC_Read_Write=1;
 	}
 	G_pInstance->Start();
+
+	
+	//::MessageBox(0,L"xxx2",L"",0);
+	while(1)
+	{
+	    DWORD Ret=	::WaitForSingleObject(G_IPC_PreHandel,20);
+		if(Ret==WAIT_TIMEOUT)
+		{
+		
+		}else if(Ret==0)
+		{
+			//::MessageBox(0,L"xxx",L"",0);
+			::ResetEvent(G_IPC_PreHandel);
+		    break;
+		}
+	}
+	//::MessageBox(0,L"xxx2",L"",0);
 	return 1;
 }
 
@@ -223,7 +243,9 @@ int   InitIPC(){
 	G_pInstance =new Qy_IPC::Qy_Ipc_Manage();
 	G_pInstance->Init(G_pKKV_Rec,Qy_IPC::QyIpcClient,G_pKKV_Dis);
 	int lx=OpenIPc();
+	
 	if(lx==0){
+		//::MessageBox(0,L"",L"",0);
 		delete G_pInstance;
 		G_pInstance=NULL;
 	}
@@ -258,6 +280,7 @@ int   KKVWritePipe(unsigned char *pBuf,int Len,HANDLE hPipeInst)
 		{
             G_pInstance->WritePipe(pBuf,Len,hPipeInst);
 			lx=1;
+		
 		}
 	}
 	G_KKMapLock.Unlock();

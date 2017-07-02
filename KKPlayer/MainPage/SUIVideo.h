@@ -41,6 +41,8 @@ namespace SOUI
 			  void OnMouseHover(WPARAM wParam, CPoint ptPos);
 			  void OnMouseLeave();
 	          void OnRButtonUp(UINT nFlags, CPoint point);
+			  void OnLButtonDown(UINT nFlags, CPoint point);
+			  void OnMouseMove(UINT nFlags, CPoint point);
 			  SOUI_MSG_MAP_BEGIN()
 				 
 				  MSG_WM_CREATE(OnCreate)
@@ -50,6 +52,8 @@ namespace SOUI
 				  MSG_WM_MOUSEHOVER(OnMouseHover)
 				  MSG_WM_MOUSELEAVE(OnMouseLeave)
 				  MSG_WM_RBUTTONUP(OnRButtonUp);
+			      MSG_WM_LBUTTONDOWN(OnLButtonDown);
+				  MSG_WM_MOUSEMOVE(OnMouseMove);
 			 SOUI_MSG_MAP_END()
 	  private:
 		  std::string       m_url; 

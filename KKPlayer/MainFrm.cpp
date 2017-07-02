@@ -728,10 +728,19 @@ extern HINSTANCE GhInstance;
 LRESULT           CMainFrame::OnTimer(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
 	if(m_bFullScreen){
-		if(::GetTickCount()-m_nFullLastTick>2000)
+		int  cx   =   GetSystemMetrics(   SM_CXSCREEN   );   
+	    int  cy   =   GetSystemMetrics(   SM_CYSCREEN   );
+
+		RECT rt;
+		::GetClientRect(m_hWnd,&rt);
+		int wx=rt.right-rt.left;
+		int wh=rt.bottom-rt.top;
+		if(wh<cy&&wx<cx)
 		{
-			::SetCursor(NULL);//
-			//::SetCursor(LoadCursor (GhInstance,MAKEINTRESOURCE(IDC_CURSOR1)));//
+		   m_bFullScreen=false;
+		}else if(::GetTickCount()-m_nFullLastTick>2000)
+		{
+			::SetCursor(NULL);
 			 m_nFullLastTick=::GetTickCount();
 		}
 	}
@@ -786,7 +795,7 @@ LRESULT           CMainFrame::OnMouseMove(UINT uMsg/**/, WPARAM wParam/**/, LPAR
    int xPos = GET_X_LPARAM(lParam); 
    int yPos = GET_Y_LPARAM(lParam);
    
-   #ifndef LIBKKPLAYER
+#ifndef LIBKKPLAYER
    if(m_bFullScreen&&m_lastPoint.x!=xPos&&m_lastPoint.y!=yPos){
 	   m_nFullLastTick=::GetTickCount();
 	   ::SetCursor(LoadCursor(NULL,IDC_ARROW));

@@ -1,13 +1,11 @@
 <SOUI name="mainWindow" title="KKplayer" 
 width="600" height="23"  margin="0,0,0,0"  resizable="0"
-appWnd="0" minsize="600,29"
-translucent="0"
+appWnd="0" minsize="100,29"
+translucent="1"
 >
-	<root skin="_skin.shadow">
-			<window pos="0,0,-0,-0" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
-                   <icon pos="10,8" src="ICON_LOGO:16"/>
-                   <text pos="[5,8" colorText="#ffFFFF">KK影音</text>
-				  
+	<root >
+			<window pos="0,0,-0,-0" name="AV_Tittle" margin="0,0,0,0"  show="1" font="adding:0" >
+                   <text pos="0,10,]10,@20"  align="center" name="AVNameTitle" font="宋体" colorText="#999999"/>
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="1"/>                   
                    <imgbtn name="btn_min" skin="_skin.Win_Min" pos="-60,0" tip="最小化" animate="1" />
 			</window>

@@ -140,7 +140,7 @@ namespace SOUI
 	}
 	void CSuiVideo::OnMouseHover(WPARAM wParam, CPoint ptPos)
 	{
-
+         //::SendMessage(P,WM_UI_MOUSEMOVE,wParam,lParam);
 	}
 	void CSuiVideo::OnMouseLeave()
 	{
@@ -153,10 +153,33 @@ namespace SOUI
 		int lParam=MAKELONG(point.x,point.y);
 	    ::SendMessage(h,WM_UI_RBUTTONUP,0,lParam);
 	}
+
+	 void CSuiVideo::OnLButtonDown(UINT nFlags, CPoint point)
+	 {
+	    HWND h=GetContainer()->GetHostHwnd();
+		int  cx   =   GetSystemMetrics(   SM_CXSCREEN   );   
+	    int  cy   =   GetSystemMetrics(   SM_CYSCREEN   );
+
+		RECT rt;
+		::GetClientRect(h,&rt);
+		int wx=rt.right-rt.left;
+		int wh=rt.bottom-rt.top;
+		if(wh<cy&&wx<cx)
+		{
+			::SendMessage(h,WM_UI_LBUTTONDOWN, 0, MAKELPARAM(point.x, point.y)); 
+		    ::PostMessage(h,WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(point.x, point.y)); 
+		}
+	 }
+	void  CSuiVideo::OnMouseMove(UINT nFlags, CPoint point)
+	{
+		   HWND h=GetContainer()->GetHostHwnd();
+		   
+	      ::SendMessage(h,WM_UI_MOUSEMOVE, 0, MAKELPARAM(point.x, point.y)); 
+	}
 	void CSuiVideo::Close()
 	{
 		if(m_pIKKplayer!=0)
-		m_pIKKplayer->CloseMedia();
+		     m_pIKKplayer->CloseMedia();
 	}
 
 	int is_realtime2(char *str)
