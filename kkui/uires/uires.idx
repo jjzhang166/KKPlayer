@@ -15,6 +15,8 @@
 		<file name="XML_AVDownManage" path="xml\AvDownManage.xml"/>
 		<file name="XML_AvCodecSetting" path="xml\AvCodecSetting.xml"/>
 		<file name="XML_AvStreamSetting" path="xml\AvStreamSetting.xml" />
+		<file name="XML_AvButton" path="xml\AvButton.xml" />
+		<file name="XML_MaxButton" path="xml\MaxButton.xml" />
 	</LAYOUT>
 	<SMENUEX>
              <file name="avmenuex" path="xml\AVMenu.xml"/>

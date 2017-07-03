@@ -304,6 +304,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MainPage\AVMaxBottom.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVMaxBottom.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\AVMenu.cpp"
 				>
 			</File>
