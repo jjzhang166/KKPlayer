@@ -1931,15 +1931,15 @@ static int configure_audio_filters(SKK_VideoState *is, const char *afilters, int
 		1, is->audio_filter_src.freq);
 	
 	if (is->audio_filter_src.channel_layout)
-//#ifdef WIN32
+#ifdef WIN32
 		//snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
 		//":channel_layout=0x%d",  is->audio_filter_src.channel_layout);/**/
 		snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
 		":channel_layout=0x%"PRIx64,  is->audio_filter_src.channel_layout);/**/
-//#else
-//	snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
-//		":channel_layout=0x%lld",  is->audio_filter_src.channel_layout);/**/
-//#endif
+#else
+	snprintf(asrc_args + ret, sizeof(asrc_args) - ret,
+		":channel_layout=0x%lld",  is->audio_filter_src.channel_layout);/**/
+#endif
 
 	
 	ret = avfilter_graph_create_filter(&filt_asrc,
