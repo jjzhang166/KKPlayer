@@ -1,1 +1,3 @@
-// AV64Test.h
+#pragma once
+
+#include "resource.h"

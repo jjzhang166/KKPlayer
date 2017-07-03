@@ -72,7 +72,7 @@ public:
 	CMainFrame(bool yuv420p=true,bool NeedDel=false);
 	~CMainFrame();
 	///设置成无窗口渲染
-    void        SetDuiDraw(HWND hAudio,fpRenderImgCall  DuiDrawCall,void* UserData);
+    void        SetDuiDraw(HWND hAudio,fpRenderImgCall  DuiDrawCall,void* UserData,bool DuiAvRaw=false);
 	int         GetDuiDraw();
 /********播放器相关操作*********/
 public:
@@ -169,11 +169,12 @@ private:
 	   int                   LeftNavigationBarWidth;
     
 
+
+	   bool                               m_bDuiAvRaw;
 	   ///无窗口渲染
 	   int                                m_nDuiDraw;
 	   fpRenderImgCall                    m_pDuiDrawCall;
 	   void*                              m_pRenderUserData;
-	   bool                               m_bYuv420p;
 	   CKKLock                            m_FileSegLock;
 	   AVFILE_SEGS_INFO                   m_FileInfos;///文件分片信息
 	   short                              m_nCurSegId;

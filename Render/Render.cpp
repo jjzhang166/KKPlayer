@@ -5,6 +5,7 @@
 #include "Render.h"
 #include "renderD3D.h"
 #include "renderGDI.h"
+#include "renderRaw.h"
 #include <map>
 std::map<IkkRender *,int> m_Rendermap;
 void skpngZhuc();
@@ -37,7 +38,7 @@ extern "C"{
 					m_pRender->init(h);
 					*Oput=0;
 					m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,0));
-		 }else{
+		 }else if(*Oput==1){
 		         m_pRender =new CRenderD3D();
 				 if(!m_pRender->init(h))
 				 {
@@ -50,6 +51,10 @@ extern "C"{
 					m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,1));
 					*Oput=1;
 				 }
+		 }else if(*Oput==2){
+		        m_pRender =new  CRenderRaw();
+				m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,1));
+				*Oput=2;
 		 }
 
 
@@ -68,8 +73,11 @@ extern "C"{
 			  {
 				  CRenderD3D *px=(CRenderD3D*)pIn;
 				  delete px;
-			  }else{
+			  }else if(It->second==0){
 				  CRenderGDI *px=(CRenderGDI*)pIn;
+				  delete px;
+			  }else if(It->second==2){
+				  CRenderRaw *px=(CRenderRaw*)pIn;
 				  delete px;
 			  }
 			  m_Rendermap.erase(It);

@@ -49,10 +49,10 @@ m_pErrOpenImage(NULL),m_ErrOpenImgLen(NULL)
 ,m_nMilTimePos(0)
 ,m_nTipTick(0)
 ,m_nSeekTip(0)
-,m_bYuv420p(yuv420p)
 ,m_nDuiDraw(0)
 ,m_pDuiDrawCall(0)
 ,m_pRenderUserData(0)
+,m_bDuiAvRaw(false)
 {
 
 	//m_bFullScreen=true;
@@ -214,10 +214,11 @@ CMainFrame::      ~CMainFrame()
 
 }
 ///设置成无窗口渲染
-void CMainFrame::SetDuiDraw(HWND h,fpRenderImgCall DuiDrawCall,void *RenderUserData)
+void CMainFrame::SetDuiDraw(HWND h,fpRenderImgCall DuiDrawCall,void *RenderUserData,bool DuiAvRaw)
 {
    m_hWnd=h;
    m_nDuiDraw=1;
+   m_bDuiAvRaw=DuiAvRaw;
    BOOL Ok=false;
    m_pDuiDrawCall=DuiDrawCall;
    m_pRenderUserData=RenderUserData;
@@ -545,28 +546,30 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	m_pRender=NULL;
 	char Out=1;
 	HWND hh=m_hWnd;
-	if(m_nDuiDraw){
-		m_bYuv420p=false;
-		hh=0;
-	}else{
-	    this->SetFocus();
+	if(!m_nDuiDraw){
+        this->SetFocus();
 		this->EnableWindow(true);
 		::SetTimer(this->m_hWnd,10010,50,NULL); 
-	}
-	
-	if(!m_bYuv420p){
-	    m_pPlayerInstance->SetBGRA();
-		 Out=0;
+	}else{
+		if(m_bDuiAvRaw)
+		{
+		     Out=2;
+			 m_pPlayerInstance->SetBGRA();
+		}else{ 
+			 Out=0;
+			 m_pPlayerInstance->SetBGRA();
+		}
 	}
 	m_pRender=(IkkRender*) pfnCreateRender(hh,&Out);
 	if(Out==0){
          m_pPlayerInstance->SetBGRA();
 	}
-	else{
-	   void* d3d=NULL;void* dev=NULL;int ver=0;
+	else if(Out==1){
+	    void* d3d=NULL;void* dev=NULL;int ver=0;
 	    m_pRender->GetHardInfo(&d3d,&dev,&ver);
 	    SetHardCtx(d3d,dev,ver); /**/
-	}/**/
+	}
+
 	if(m_nDuiDraw){
 	   m_pRender->SetRenderImgCall(m_pDuiDrawCall,m_pRenderUserData);
 	}

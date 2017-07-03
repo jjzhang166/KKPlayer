@@ -24,4 +24,15 @@ typedef struct MEDIA_INFO
 	char              SpeedInfo[1024];     ///下载速度
 	AVCACHE_INFO      CacheInfo;
 }MEDIA_INFO ;
+
+///视频图像信息
+typedef struct kkAVPicInfo
+{
+    unsigned char *data[8];
+    int      linesize[8];
+	int      picformat;
+	int      width;
+	int      height;
+
+}kkAVPicInfo;
 #endif

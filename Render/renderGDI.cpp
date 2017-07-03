@@ -75,8 +75,16 @@ void CRenderGDI::render(kkAVPicInfo *Picinfo,bool wait)
  
 	
 	 if(m_FpRenderImgCall!=NULL){
-		int len=m_width*m_height*4;
-	     m_FpRenderImgCall(m_pixels,m_width,m_height,len,m_UserData);
+		int len=m_width*4;
+
+		kkAVPicInfo picinfo;
+		memset(&picinfo,0,sizeof( picinfo));
+		picinfo.data[0]=(unsigned char *)m_pixels;
+		picinfo.width=m_width;
+		picinfo.height= m_height;
+		picinfo.linesize[0]=len;
+
+	     m_FpRenderImgCall(&picinfo,m_UserData);
 	}else if(m_hView){
 			HDC hDC = GetDC(m_hView);
 			BitBlt(hDC, 0, 0, m_width, m_height, m_hDC, 0, 0, SRCCOPY);

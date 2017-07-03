@@ -1,6 +1,8 @@
-#include "../stdafx.h"
+
 #ifndef RENDER_H
 #define RENDER_H
+#include "../stdafx.h"
+#include "../KKPlayerInfo.h"
 #ifndef  LOBYTE
 #define LOBYTE(w)           ((unsigned char)(((unsigned long)(w)) & 0xff))
 #endif
@@ -26,17 +28,8 @@ typedef struct kkBitmap
    int  height;
    unsigned char format;  /// 1 BGRA 32
 }kkBitmap;
-///视频图像信息
-typedef struct kkAVPicInfo
-{
-    unsigned char *data[8];
-    int      linesize[8];
-	int      picformat;
-	int      width;
-	int      height;
+typedef void (*fpRenderImgCall) (kkAVPicInfo* picinfo,void* UserData);
 
-}kkAVPicInfo;
-typedef void (*fpRenderImgCall) (void* BufRgb,int width,int height,int BufLen,void* UserData);
 /*******
 State = 0  需要释放资源
 State = 1  重置失败

@@ -44,6 +44,17 @@ extern "C"{
 			m_pVideoWnd->SetDuiDraw(hAudio,fp,RenderUserData);
 			return m_pVideoWnd;
 	}
+	//typedef  void (*) (kkAVPicRAWInfo* data,void* UserData);
+
+	///创建一个无窗口的播放器
+	void __declspec(dllexport) *CreateDuiRawKKPlayer(HWND hAudio,fpRenderImgCall fp,void *RenderUserData,int imgType)
+	{
+			Init();
+			RECT rt={0,100,200,300};
+			CMainFrame *m_pVideoWnd = new CMainFrame(false,true);
+			m_pVideoWnd->SetDuiDraw(hAudio,fp,RenderUserData,true);
+			return m_pVideoWnd;
+	}
 
 	///建议已100ms调用
 	void __declspec(dllexport) RefreshDuiKKPlayer(void* player)
