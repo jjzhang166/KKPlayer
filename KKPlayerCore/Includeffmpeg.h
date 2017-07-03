@@ -9,9 +9,7 @@
 #include "stdafx.h"
 #ifndef Includeffmpeg_H_
 #define Includeffmpeg_H_
-#ifdef  WIN32
 #include <float.h>
-#endif
 //typedef unsigned char	Uint8;
 extern "C"
 {
@@ -83,13 +81,20 @@ extern "C"
 		//	void (*crypt)(struct AVAES *a, uint8_t *dst, const uint8_t *src, int count, uint8_t *iv, int rounds);
 		//} AVAES;
 
-#ifdef WIN32
-		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avcodec.lib")
-		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avfilter.lib")
-		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avformat.lib")
-		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\avutil.lib")
-		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swresample.lib")
-		#pragma comment (lib,"..\\libx86\\ffmpeg\\lib\\swscale.lib")
+#ifdef  KK_WIN32
+		#pragma comment (lib,"..\\ffmpeg\\x86\\lib\\avcodec.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x86\\lib\\avfilter.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x86\\lib\\avformat.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x86\\lib\\avutil.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x86\\lib\\swresample.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x86\\lib\\swscale.lib")
+#else
+        #pragma comment (lib,"..\\ffmpeg\\x64\\lib\\avcodec.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x64\\lib\\avfilter.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x64\\lib\\avformat.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x64\\lib\\avutil.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x64\\lib\\swresample.lib")
+		#pragma comment (lib,"..\\ffmpeg\\x64\\lib\\swscale.lib")
 #endif
 }
 

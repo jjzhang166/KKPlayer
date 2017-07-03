@@ -3,11 +3,6 @@
 #include "../KKPlayerCore/Includeffmpeg.h"
 
 #include "../KKPlayerCore/KKInternal.h"
-#ifdef _DEBUG
-   #pragma comment (lib,"../Debug/SDL.lib")
-#else
-   #pragma comment (lib,"../Release/SDL.lib")
-#endif
 
 CSDLSound::CSDLSound():m_pSdlAudio(0),m_Vol(100)
 {

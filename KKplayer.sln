@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKIcons", "KKIcons\KKIcons.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KKPlayer", "KKPlayer\KKPlayer.vcproj", "{B82462F3-0004-4E0E-BB50-F0DBBB168F61}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AV64Test", "AV64Test\AV64Test.vcproj", "{91ADD903-7BED-4439-8B22-B6D2EC73372C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -108,13 +110,13 @@ Global
 		{47C97EEA-BE14-44D5-83C8-515E311689E8}.Debug|x64.ActiveCfg = Debug|Win32
 		{47C97EEA-BE14-44D5-83C8-515E311689E8}.Release|Win32.ActiveCfg = Release|Win32
 		{47C97EEA-BE14-44D5-83C8-515E311689E8}.Release|Win32.Build.0 = Release|Win32
-		{47C97EEA-BE14-44D5-83C8-515E311689E8}.Release|x64.ActiveCfg = Release|Win32
+		{47C97EEA-BE14-44D5-83C8-515E311689E8}.Release|x64.ActiveCfg = Release|x64
 		{9B4B34FB-9920-4710-BDDA-0A2EF7663301}.Debug|Win32.ActiveCfg = Debug|Win32
 		{9B4B34FB-9920-4710-BDDA-0A2EF7663301}.Debug|Win32.Build.0 = Debug|Win32
 		{9B4B34FB-9920-4710-BDDA-0A2EF7663301}.Debug|x64.ActiveCfg = Debug|Win32
 		{9B4B34FB-9920-4710-BDDA-0A2EF7663301}.Release|Win32.ActiveCfg = Release|Win32
 		{9B4B34FB-9920-4710-BDDA-0A2EF7663301}.Release|Win32.Build.0 = Release|Win32
-		{9B4B34FB-9920-4710-BDDA-0A2EF7663301}.Release|x64.ActiveCfg = Release|Win32
+		{9B4B34FB-9920-4710-BDDA-0A2EF7663301}.Release|x64.ActiveCfg = Release|x64
 		{43F2B45F-D963-4D9A-B842-606526C3A81D}.Debug|Win32.ActiveCfg = Debug|Win32
 		{43F2B45F-D963-4D9A-B842-606526C3A81D}.Debug|Win32.Build.0 = Debug|Win32
 		{43F2B45F-D963-4D9A-B842-606526C3A81D}.Debug|x64.ActiveCfg = Debug|Win32
@@ -133,6 +135,12 @@ Global
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.Release|Win32.ActiveCfg = Release|Win32
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.Release|Win32.Build.0 = Release|Win32
 		{B82462F3-0004-4E0E-BB50-F0DBBB168F61}.Release|x64.ActiveCfg = Release|Win32
+		{91ADD903-7BED-4439-8B22-B6D2EC73372C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{91ADD903-7BED-4439-8B22-B6D2EC73372C}.Debug|Win32.Build.0 = Debug|Win32
+		{91ADD903-7BED-4439-8B22-B6D2EC73372C}.Debug|x64.ActiveCfg = Debug|Win32
+		{91ADD903-7BED-4439-8B22-B6D2EC73372C}.Release|Win32.ActiveCfg = Release|Win32
+		{91ADD903-7BED-4439-8B22-B6D2EC73372C}.Release|Win32.Build.0 = Release|Win32
+		{91ADD903-7BED-4439-8B22-B6D2EC73372C}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

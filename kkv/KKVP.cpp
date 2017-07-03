@@ -27,12 +27,13 @@ std::map<std::string,IPC_DATA_INFO>                 G_guidBufMap;
 std::map<std::string,unsigned int>                  G_CacheTimeMap;
 std::map<std::string,HANDLE>                        G_guidHMap;
 
-std::map<std::string,std::string>                   G_URLInfoMap;
-std::map<std::string,std::string>                   G_SpeedInfoMap;
+std::map<std::string,std::string>                    G_URLInfoMap;
+std::map<std::string,std::string>                    G_SpeedInfoMap;
 Qy_IPC::CKKV_ReceiveData                            *G_pKKV_Rec=NULL;
 Qy_IPC::CKKV_DisConnect                             *G_pKKV_Dis=NULL;
 Qy_IPC::Qy_IPc_InterCriSec                           G_KKMapLock;
 HANDLE                                               G_IPC_PreHandel=0;
+HANDLE                                               G_KKResHandle  = 0;//::OpenEvent(EVENT_ALL_ACCESS,  TRUE,  L"Global\\xxxxx_name");
 //IPC ×´Ì¬º¯Êý
 int G_IPC_Read_Write=-1;
 int OpenIPc();

@@ -1,7 +1,7 @@
 //NoNeedWindows_H不需要windows头文件
 //#define WIN32_KK //使用windows 线程
 #include <stdlib.h>
-#ifdef WIN32
+#ifdef _WINDOWS
      #define WIN32_KK  //否则使用pthred线程
 #else
      #define Android_Plat
