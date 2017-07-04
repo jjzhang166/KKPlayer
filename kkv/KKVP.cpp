@@ -168,19 +168,19 @@ bool KillProcessFromName(std::wstring strProcessName)
 int OpenIPc()
 {
 	int recount=0;
+
+	
 ReOpen:
 	if(G_pInstance==NULL)
 		return 0;
 
-	//KillProcessFromName(L"kkres.exe");
 	if(G_IPC_PreHandel==0)
 		G_IPC_PreHandel=::CreateEvent(NULL,TRUE,FALSE,NULL);
 	bool Ok=G_pInstance->OpenServerPipe("\\\\.\\Pipe\\KKPlayer_Res_70ic");
 	if(!Ok){
-		if(recount<20){
-			recount++;
-#ifndef _DEBUG
-				{
+		if(recount<20)
+		{
+			        recount++;
 					std::wstring kkres=GetModulePath();
 					kkres+=L"//kkres//kkRes.exe";
 
@@ -191,9 +191,21 @@ ReOpen:
 					memset(&si,0,sizeof(si));
 					KillProcessFromName(L"kkres.exe");
 					BOOL ret = CreateProcess(kkres.c_str(),NULL, NULL, NULL, FALSE, 0, NULL, NULL,&si, &pi);
-				    Sleep(5000);
-				}
-#endif
+				    int opencount=0;
+					while(1){
+						   G_KKResHandle  = ::OpenEvent(EVENT_ALL_ACCESS,  TRUE,  L"{86701f43-375b-4680-9192-d171604caf43}");
+						   if(G_KKResHandle==0)
+						   {
+							   Sleep(1000);
+						   }else{
+							   ::CloseHandle(G_KKResHandle);
+							   G_KKResHandle=0;
+							   break;
+						   }
+						   opencount++;
+						   if(opencount>5)
+							   break;
+					}
 			goto ReOpen;
 		}
 		G_IPC_Read_Write=0;
@@ -205,7 +217,7 @@ ReOpen:
 
 	
 	//::MessageBox(0,L"xxx2",L"",0);
-	while(1)
+	while(1&&G_IPC_PreHandel!=0)
 	{
 	    DWORD Ret=	::WaitForSingleObject(G_IPC_PreHandel,20);
 		if(Ret==WAIT_TIMEOUT)
@@ -213,8 +225,9 @@ ReOpen:
 		
 		}else if(Ret==0)
 		{
-			//::MessageBox(0,L"xxx",L"",0);
-			::ResetEvent(G_IPC_PreHandel);
+			
+			::CloseHandle(G_IPC_PreHandel);
+			G_IPC_PreHandel=0;
 		    break;
 		}
 	}

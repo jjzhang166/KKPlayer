@@ -170,6 +170,7 @@ namespace Qy_IPC
 				   HandleIPCMsg(guidstr,IPCSpeed,(unsigned char*)JsonSpeedInfo.c_str(),JsonSpeedInfo.length(),0);
 			}else if(IPCMSG==IPCUnknown)
 			{
+				if(G_IPC_PreHandel!=0)
 				::SetEvent(G_IPC_PreHandel);
 				return;
 			}
