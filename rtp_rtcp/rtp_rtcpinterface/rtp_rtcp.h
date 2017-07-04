@@ -13,8 +13,8 @@
 
 #include <vector>
 
-#include "webrtc/modules/interface/module.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../module.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 
 namespace webrtc {
 // Forward declarations.

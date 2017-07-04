@@ -25,7 +25,7 @@
 // (i.e., more packets/symbols in the code, so larger (k,m), i.e.,  k > 4,
 // m > 3).
 
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace {
 

@@ -17,7 +17,7 @@
 #include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "../system_wrappers/interface/ref_count.h"
 #include "../system_wrappers/interface/scoped_refptr.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 

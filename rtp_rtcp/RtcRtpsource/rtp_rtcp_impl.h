@@ -14,12 +14,12 @@
 #include <list>
 #include <vector>
 
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp.h"
+#include "../rtp_rtcpinterface/rtp_rtcp.h"
 #include "rtcp_receiver.h"
 #include "rtcp_sender.h"
 #include "rtp_sender.h"
-#include "webrtc/system_wrappers/interface/scoped_ptr.h"
-#include "webrtc/test/testsupport/gtest_prod_util.h"
+#include "../system_wrappers/interface/scoped_ptr.h"
+//#include "webrtc/test/testsupport/gtest_prod_util.h"
 
 namespace webrtc {
 

@@ -8,11 +8,11 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/rtp_rtcp/interface/remote_ntp_time_estimator.h"
+#include "../rtp_rtcpinterface/remote_ntp_time_estimator.h"
 
-#include "webrtc/system_wrappers/interface/clock.h"
-#include "webrtc/system_wrappers/interface/logging.h"
-#include "webrtc/system_wrappers/interface/timestamp_extrapolator.h"
+#include "../system_wrappers/interface/clock.h"
+#include "../system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/timestamp_extrapolator.h"
 
 namespace webrtc {
 

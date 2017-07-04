@@ -14,9 +14,9 @@
 
 #include "rtp_receiver_video.h"
 #include "rtp_utility.h"
-#include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
-#include "webrtc/system_wrappers/interface/logging.h"
-#include "webrtc/system_wrappers/interface/scoped_ptr.h"
+#include "../system_wrappers/interface/critical_section_wrapper.h"
+#include "../system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/scoped_ptr.h"
 
 // RFC 5109
 namespace webrtc {

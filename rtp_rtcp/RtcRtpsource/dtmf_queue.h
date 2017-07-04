@@ -12,8 +12,8 @@
 #define WEBRTC_MODULES_RTP_RTCP_SOURCE_DTMF_QUEUE_H_
 
 #include "rtp_rtcp_config.h"
-#include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
-#include "webrtc/typedefs.h"
+#include "../system_wrappers/interface/critical_section_wrapper.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 class DTMFqueue {

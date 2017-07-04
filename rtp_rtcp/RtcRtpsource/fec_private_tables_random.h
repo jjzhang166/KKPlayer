@@ -15,7 +15,7 @@
 // this table are specifically designed to favor recovery to random loss.
 // These packet masks are defined to protect up to maximum of 48 media packets.
 
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace {
 

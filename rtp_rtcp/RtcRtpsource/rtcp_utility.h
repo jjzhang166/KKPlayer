@@ -13,9 +13,9 @@
 
 #include <stddef.h> // size_t, ptrdiff_t
 
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "rtp_rtcp_config.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 namespace RTCPUtility {

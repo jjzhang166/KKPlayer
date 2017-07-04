@@ -15,13 +15,13 @@
 #include <vector>
 #include <set>
 
-#include "webrtc/base/thread_annotations.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../base/thread_annotations.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "rtcp_receiver_help.h"
 #include "rtcp_utility.h"
 #include "rtp_utility.h"
 #include "tmmbr_help.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 class ModuleRtpRtcpImpl;

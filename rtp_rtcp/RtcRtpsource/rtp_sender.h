@@ -16,10 +16,10 @@
 
 #include <map>
 
-#include "webrtc/base/thread_annotations.h"
-#include "webrtc/common_types.h"
-#include "webrtc/modules/pacing/include/paced_sender.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../base/thread_annotations.h"
+#include "../common_types.h"
+#include "../rtc_module/pacing/include/paced_sender.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "bitrate.h"
 #include "rtp_header_extension.h"
 #include "rtp_packet_history.h"

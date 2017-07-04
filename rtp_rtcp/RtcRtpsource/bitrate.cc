@@ -11,7 +11,7 @@
 #include "bitrate.h"
 
 #include "rtp_utility.h"
-#include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
+#include "../system_wrappers/interface/critical_section_wrapper.h"
 
 namespace webrtc {
 

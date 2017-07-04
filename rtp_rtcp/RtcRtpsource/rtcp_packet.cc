@@ -11,7 +11,7 @@
 #include "rtcp_packet.h"
 
 #include "rtp_utility.h"
-#include "webrtc/system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/logging.h"
 
 using webrtc::RTCPUtility::kBtDlrr;
 using webrtc::RTCPUtility::kBtReceiverReferenceTime;
