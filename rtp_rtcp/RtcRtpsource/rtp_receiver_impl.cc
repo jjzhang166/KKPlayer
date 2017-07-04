@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "webrtc/modules/rtp_rtcp/interface/rtp_payload_registry.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../rtp_rtcpinterface/rtp_payload_registry.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "rtp_receiver_strategy.h"
-#include "webrtc/system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/logging.h"
 
 namespace webrtc {
 

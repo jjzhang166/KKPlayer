@@ -15,16 +15,16 @@
 #include <sstream>
 #include <string>
 
-#include "webrtc/base/thread_annotations.h"
-#include "webrtc/modules/remote_bitrate_estimator/include/bwe_defines.h"
-#include "webrtc/modules/remote_bitrate_estimator/include/remote_bitrate_estimator.h"
-#include "webrtc/modules/rtp_rtcp/interface/receive_statistics.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../base/thread_annotations.h"
+#include "../rtc_module/remote_bitrate_estimator/include/bwe_defines.h"
+#include "../rtc_module/remote_bitrate_estimator/include/remote_bitrate_estimator.h"
+#include "../rtp_rtcpinterface/receive_statistics.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "rtcp_utility.h"
 #include "rtp_utility.h"
 #include "tmmbr_help.h"
-#include "webrtc/system_wrappers/interface/scoped_ptr.h"
-#include "webrtc/typedefs.h"
+#include "../system_wrappers/interface/scoped_ptr.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 

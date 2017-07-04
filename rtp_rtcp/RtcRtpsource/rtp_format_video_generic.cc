@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "webrtc/modules/interface/module_common_types.h"
+#include "../module_common_types.h"
 #include "rtp_format_video_generic.h"
 
 namespace webrtc {

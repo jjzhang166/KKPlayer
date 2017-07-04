@@ -13,7 +13,7 @@
 #include <assert.h> //assert
 #include <string.h> //memcpy
 
-#include "webrtc/system_wrappers/interface/trace_event.h"
+#include "../system_wrappers/interface/trace_event.h"
 
 namespace webrtc {
 RTPSenderAudio::RTPSenderAudio(const int32_t id, Clock* clock,

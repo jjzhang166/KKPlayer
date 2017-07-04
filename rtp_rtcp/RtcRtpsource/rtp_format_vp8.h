@@ -29,10 +29,10 @@
 #include <string>
 #include <vector>
 
-#include "webrtc/base/constructormagic.h"
-#include "webrtc/modules/interface/module_common_types.h"
+#include "../base/constructormagic.h"
+#include "../module_common_types.h"
 #include "rtp_format.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 

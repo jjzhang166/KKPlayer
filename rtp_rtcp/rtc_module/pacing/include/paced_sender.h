@@ -14,10 +14,10 @@
 #include <list>
 #include <set>
 
-#include "webrtc/base/thread_annotations.h"
-#include "webrtc/modules/interface/module.h"
-#include "webrtc/system_wrappers/interface/scoped_ptr.h"
-#include "webrtc/typedefs.h"
+#include "../base/thread_annotations.h"
+#include "../module.h"
+#include "../system_wrappers/interface/scoped_ptr.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 class BitrateProber;

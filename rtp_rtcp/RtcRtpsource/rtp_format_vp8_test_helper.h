@@ -18,10 +18,10 @@
 #ifndef WEBRTC_MODULES_RTP_RTCP_SOURCE_RTP_FORMAT_VP8_TEST_HELPER_H_
 #define WEBRTC_MODULES_RTP_RTCP_SOURCE_RTP_FORMAT_VP8_TEST_HELPER_H_
 
-#include "webrtc/base/constructormagic.h"
-#include "webrtc/modules/interface/module_common_types.h"
+#include "../base/constructormagic.h"
+#include "../module_common_types.h"
 #include "rtp_format_vp8.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 

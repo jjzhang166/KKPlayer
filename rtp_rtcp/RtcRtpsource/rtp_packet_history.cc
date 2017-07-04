@@ -17,8 +17,8 @@
 #include <set>
 
 #include "rtp_utility.h"
-#include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
-#include "webrtc/system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/critical_section_wrapper.h"
+#include "../system_wrappers/interface/logging.h"
 
 namespace webrtc {
 

@@ -11,12 +11,12 @@
 #ifndef WEBRTC_MODULES_RTP_RTCP_SOURCE_RTP_RECEIVER_IMPL_H_
 #define WEBRTC_MODULES_RTP_RTCP_SOURCE_RTP_RECEIVER_IMPL_H_
 
-#include "webrtc/modules/rtp_rtcp/interface/rtp_receiver.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../rtp_rtcpinterface/rtp_receiver.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "rtp_receiver_strategy.h"
-#include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
-#include "webrtc/system_wrappers/interface/scoped_ptr.h"
-#include "webrtc/typedefs.h"
+#include "../system_wrappers/interface/critical_section_wrapper.h"
+#include "../system_wrappers/interface/scoped_ptr.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 

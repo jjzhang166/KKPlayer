@@ -11,8 +11,8 @@
 #ifndef WEBRTC_MODULES_RTP_RTCP_INTERFACE_RTP_RECEIVER_H_
 #define WEBRTC_MODULES_RTP_RTCP_INTERFACE_RTP_RECEIVER_H_
 
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
-#include "webrtc/typedefs.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 

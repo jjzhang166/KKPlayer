@@ -14,14 +14,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
 #include "producer_fec.h"
 #include "rtp_format_video_generic.h"
 #include "rtp_format_vp8.h"
 #include "rtp_utility.h"
-#include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
-#include "webrtc/system_wrappers/interface/logging.h"
-#include "webrtc/system_wrappers/interface/trace_event.h"
+#include "../system_wrappers/interface/critical_section_wrapper.h"
+#include "../system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/trace_event.h"
 
 namespace webrtc {
 enum { REDForFECHeaderLength = 1 };

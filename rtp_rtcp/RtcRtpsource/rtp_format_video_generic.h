@@ -12,9 +12,9 @@
 
 #include <string>
 
-#include "webrtc/common_types.h"
+#include "../common_types.h"
 #include "rtp_format.h"
-#include "webrtc/typedefs.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 namespace RtpFormatVideoGeneric {

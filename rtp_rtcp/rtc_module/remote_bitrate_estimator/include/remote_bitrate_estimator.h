@@ -16,10 +16,10 @@
 #include <map>
 #include <vector>
 
-#include "webrtc/common_types.h"
-#include "webrtc/modules/interface/module.h"
-#include "webrtc/modules/interface/module_common_types.h"
-#include "webrtc/typedefs.h"
+#include "../../../common_types.h"
+#include "../../../module.h"
+#include "../../../module_common_types.h"
+#include "../../../typedefs.h"
 
 namespace webrtc {
 

@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "vp8_partition_aggregator.h"
-#include "webrtc/system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/logging.h"
 
 namespace webrtc {
 namespace {

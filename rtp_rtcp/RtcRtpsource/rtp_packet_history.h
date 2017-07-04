@@ -15,10 +15,10 @@
 
 #include <vector>
 
-#include "webrtc/base/thread_annotations.h"
-#include "webrtc/modules/interface/module_common_types.h"
-#include "webrtc/modules/rtp_rtcp/interface/rtp_rtcp_defines.h"
-#include "webrtc/typedefs.h"
+#include "../base/thread_annotations.h"
+#include "../module_common_types.h"
+#include "../rtp_rtcpinterface/rtp_rtcp_defines.h"
+#include "../typedefs.h"
 
 namespace webrtc {
 

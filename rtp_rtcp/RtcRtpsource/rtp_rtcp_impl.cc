@@ -13,9 +13,9 @@
 #include <assert.h>
 #include <string.h>
 
-#include "webrtc/common_types.h"
-#include "webrtc/system_wrappers/interface/logging.h"
-#include "webrtc/system_wrappers/interface/trace.h"
+#include "../common_types.h"
+#include "../system_wrappers/interface/logging.h"
+#include "../system_wrappers/interface/trace.h"
 
 #ifdef _WIN32
 // Disable warning C4355: 'this' : used in base member initializer list.

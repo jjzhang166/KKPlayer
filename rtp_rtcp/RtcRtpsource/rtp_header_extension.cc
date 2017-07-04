@@ -10,7 +10,7 @@
 
 #include <assert.h>
 
-#include "webrtc/common_types.h"
+#include "../common_types.h"
 #include "rtp_header_extension.h"
 
 namespace webrtc {
