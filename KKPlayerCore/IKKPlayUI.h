@@ -16,8 +16,10 @@ enum EKKPlayerErr
 	 KKAVReady=3,            ///缓冲已经准备就绪
 	 KKAVWait=4,             ///需要缓冲
 	 KKRealTimeOver=5,
-	 KKEOF=6,                ///文件结束了。
-
+	 KKEOF=6,                 ///文件结束了。
+     KKAVOver=7,              ///视频播放结束。
+	 KKSeekOk=8,              ///Seek成功
+	 KKSeekErr=9,             ///seek失败
 };
 typedef struct KKPlayerNextAVInfo
 {

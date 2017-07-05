@@ -1069,7 +1069,7 @@ void              CMainFrame::GetNextAVSeg(void *playerIns,int Stata,int quesize
 
     m_FileSegLock.Lock();
 	if(m_FileInfos.ItemCount>1)
-	 { 
+	{ 
 		 if(m_pPlayerInstance==(KKPlayer*)playerIns){
 			 
 			 if(m_FileInfos.pCurItem!=NULL&&m_FileInfos.pCurItem->next!=NULL&&NextInfo.SegId==-1){
@@ -1099,9 +1099,18 @@ void              CMainFrame::GetNextAVSeg(void *playerIns,int Stata,int quesize
 				 
 			 }
 		 }
-	 }
-	 m_FileSegLock.Unlock();
-	 return;
+	     m_FileSegLock.Unlock();
+		 return;
+	}
+    m_FileSegLock.Unlock();
+
+
+	///文件已经读取完毕
+	if(Stata==AVERROR_EOF&&quesize==-1 ){
+	
+
+	}
+	
 }
 void              CMainFrame::AVReadOverThNotify(void *playerIns)
 {

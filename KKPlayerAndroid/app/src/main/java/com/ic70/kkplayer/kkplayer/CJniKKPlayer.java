@@ -32,7 +32,7 @@ public class CJniKKPlayer {
         System.loadLibrary("KKPlayerCore");
     }
     /**
-     * 初始化一个KKplayer实例
+     * 初始化一个KKplayer实例 目前只支持glview。surfaceview后续支持
      * @param RenderType 0 glview 1 surfaceview
      * @return 返回一个播放器对象
      */
@@ -52,7 +52,7 @@ public class CJniKKPlayer {
 
     /***
      * 是否保持视频比例
-     * @param KeepRatio 1保持比例
+     * @param KeepRatio 0拉伸， 1保持比例，2 4:3 ，3 16:9
      */
     public native void SetKeepRatio(int obj,int KeepRatio);
     /**
@@ -83,7 +83,9 @@ public class CJniKKPlayer {
     //KKAVWait=4,             ///需要缓冲
     //KKRealTimeOver=5,
     //KKEOF=6,                ///文件结束了。
-
+    //KKAVOver=7              ///视频播放结束
+    //KKSeekOk=8,              ///Seek成功
+    //KKSeekErr=9,             ///seek失败
     public native  int  KKGetPlayerState (int obj);
     public native  int  KKIsReady(int obj);
     public native  int  KKGetRealtime(int obj);

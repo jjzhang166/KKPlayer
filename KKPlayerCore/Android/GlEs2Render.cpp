@@ -106,7 +106,7 @@ static void AVVertices_reloadVertex(GLuint av4_position,const void *vertices)
 GlEs2Render::GlEs2Render(KKPlayer* pPlayer):m_pGLHandle(0),gvPositionHandle(0),m_Screen_Width(0)
 ,m_Screen_Height(0),m_nTextureID(0),m_bAdJust(false)
 ,m_RenderWidth(0),m_RenderHeight(0),m_Picwidth(0)
-,m_Picheight(0),m_pPlayer(pPlayer),m_bKeepRatio(true)
+,m_Picheight(0),m_pPlayer(pPlayer),m_nKeepRatio(1)
 ,g_texYId(0),g_texUId(0),g_texVId(0)
 ,g_glProgram(0),g_av2_texcoord(0),g_av4_position(0)
 ,m_vertexShader(0),m_fragmentShader(0)
@@ -148,9 +148,9 @@ GlEs2Render::~GlEs2Render()
 {
 	GLES2_Renderer_reset();
 }
-void  GlEs2Render::SetKeepRatio(bool keep)
+void  GlEs2Render::SetKeepRatio(int KeepRatio)
 {
-	m_bKeepRatio=keep;
+	m_nKeepRatio=KeepRatio;
 }
 void GlEs2Render::GLES2_Renderer_reset()
 {
@@ -359,18 +359,57 @@ void GlEs2Render::GlViewRender(bool ReLoad)
     {
         float width     =m_Picwidth;
         float height    = m_Picheight;
-        const float dW  = m_RenderWidth	/ width;
-        const float dH  = m_RenderHeight / height;
+		
+		if(m_nKeepRatio==2){
+			///4:3
+			float height1    =(float) (m_RenderWidth*3.0)/4.0;
+			if(height1>m_RenderHeight)
+			{
+				width    =(float) (m_RenderHeight*4.0)/3.0;
+				height    = m_RenderHeight;
+			}else{
+				width     = m_RenderWidth;
+                height    = height1;
+			}
+		}else if(m_nKeepRatio==3){
+			
+			///16:9
+			float height1    =(float) (m_RenderWidth*9.0)/16.0;
+			if(height1>m_RenderHeight)
+			{
+				width    =(float) (m_RenderHeight*16.0)/9.0;
+				height    = m_RenderHeight;
+			}else{
+				width     = m_RenderWidth;
+                height    = height1;
+			}
+		}/**/
+		
+        float dW  = m_RenderWidth	/ width;
+        float dH  = m_RenderHeight / height;
         float dd        = 1.0f;
         float nW        = 1.0f;
         float nH        = 1.0f;
 
 
+		
+		
         dd = FFMIN(dW, dH);
-		if(m_bKeepRatio){
-        nW = (width  * dd / (float)m_RenderWidth);
-        nH = (height * dd / (float)m_RenderHeight);
+		
+		
+		if(m_nKeepRatio!=0){
+           nW = (width  * dd / (float)m_RenderWidth);
+           nH = (height * dd / (float)m_RenderHeight);
 		}
+		
+		// LOGE("m_nKeepRatio=%d \n", m_nKeepRatio);
+		else if(m_nKeepRatio==2){
+           nW = (width  * dW / (float)m_RenderWidth);
+           nH = (height * dH / (float)m_RenderHeight);
+		}else if(m_nKeepRatio==3){
+           nW = (width  * dW / (float)m_RenderWidth);
+           nH = (height * dH / (float)m_RenderHeight);
+		}/**/
 
 
         m_AVVertices[0] = - nW;

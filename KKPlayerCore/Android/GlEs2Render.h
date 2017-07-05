@@ -14,7 +14,7 @@ class GlEs2Render: public IkkRender
 			/***
 			*是否保持长宽比例
 			*/
-			void  SetKeepRatio(bool keep);
+			void  SetKeepRatio(int KeepRatio);
 	private:		
 			GLuint buildProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 			
@@ -72,7 +72,8 @@ class GlEs2Render: public IkkRender
         int m_Screen_Width;
         int m_Screen_Height;
         unsigned int  m_nTextureID;
-        bool          m_bKeepRatio;
+		///比例计算变量
+        int           m_nKeepRatio;
         
 
 };

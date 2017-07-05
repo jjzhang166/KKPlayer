@@ -41,6 +41,7 @@ public class CPlayerActivity extends Activity {
     Activity m_PlayerActivity=null;
     boolean m_bNecState=true;
     int m_MinRealtimeDelay=3;
+    int m_RaType=0;
     String CurTimeStr = new String();
     Timer Activitytimer = new Timer();
 
@@ -247,6 +248,9 @@ public class CPlayerActivity extends Activity {
         Bundle bundle = getIntent().getExtras();
         CharSequence MoviePath = bundle.getCharSequence("MoviePath");
         MoviePathStr= MoviePath.toString(); /**/
+
+        CharSequence  CRaType= bundle.getCharSequence("RaType");
+        m_RaType= Integer.parseInt(CRaType.toString());
        // String path="";
         ImageButton Btn=(ImageButton)findViewById(R.id.StartButton);
         Btn.setOnClickListener(new MediaClassBtnClick(this));
@@ -254,7 +258,9 @@ public class CPlayerActivity extends Activity {
 
         SeekBar SeekBtn=(SeekBar)findViewById(R.id.MovieSeekbar);
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
+        m_KKPlayer.SetKeepRatio(m_RaType);
         m_KKPlayer.OpenMedia(MoviePathStr);
+
         m_KKPlayer.SetMinRealtimeDelay(m_MinRealtimeDelay);
         m_CurTime=0;
         PlayerStata = EnumPlayerStata.Play;

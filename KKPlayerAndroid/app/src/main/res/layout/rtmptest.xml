@@ -18,7 +18,7 @@
                 android:layout_column="1"
                 android:text="rtmp://live.hkstv.hk.lxdns.com/live/hks" />
         </TableRow>
-        <!--rtmp://live.hkstv.hk.lxdns.com/live/hks-->
+
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="match_parent">
@@ -42,6 +42,39 @@
         </TableRow>
 
     </TableLayout>
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/RadioGroup0">
+
+        <RadioButton
+            android:text="拉伸"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioButton0" />
+
+        <RadioButton
+            android:text="原始比例"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioButton1" />
+
+        <RadioButton
+            android:text="4:3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioButton2" />
+
+        <RadioButton
+            android:text="16:9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioButton3" />
+    </RadioGroup>
+
+
 
 
 

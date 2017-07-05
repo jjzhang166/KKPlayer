@@ -63,10 +63,7 @@ void CAndKKPlayerUI::SetKeepRatio(int KeepRatio)
 	m_RenderLock.Lock();
 	if(m_pRender!=NULL){
 	   GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
-	    if(KeepRatio==1)
-	        pRender->SetKeepRatio(true);
-	    else
-			pRender->SetKeepRatio(false);
+	   pRender->SetKeepRatio(KeepRatio);
 	}
 	m_RenderLock.Unlock();
 }
@@ -207,6 +204,11 @@ void  CAndKKPlayerUI::ForceFlushQue()
 void  CAndKKPlayerUI::GetNextAVSeg(void *playerIns,int Stata,int quesize,KKPlayerNextAVInfo &NextInfo)
 {
      memset(&NextInfo,0,sizeof(KKPlayerNextAVInfo));	 
+	 ///文件已经读取完毕
+	if(Stata==AVERROR_EOF&&quesize==-1 ){
+	
+
+	}
 }
 void  CAndKKPlayerUI::AVReadOverThNotify(void *playerIns)
 {

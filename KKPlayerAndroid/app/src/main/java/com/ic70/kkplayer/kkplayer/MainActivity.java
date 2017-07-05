@@ -25,6 +25,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.ic70.kkplayer.kkplayer.CBtnClick;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
     private List<CKKMoviePath> m_lstFile;
     private EditText txtAvUrl;
     CKKPlayerSurfaceRender SurfaceRender;
+    private int RaType=0;
     public MainActivity()
     {
 
@@ -58,8 +61,7 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         //ListView Localmovie_list = (ListView) findViewById(R.id.listView);/**/
         IniControl2();
     }
-    void IniControl2()
-    {
+    void IniControl2() {
         setContentView(R.layout.rtmptest);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
        /* Button btx=(Button)findViewById(R.id.AVButton1);
@@ -77,35 +79,67 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
 
         });*/
 
-        txtAvUrl=( EditText)findViewById(R.id.AVeditText);
-        Button btx2=(Button)findViewById(R.id.AVbutton2);
+        txtAvUrl = (EditText) findViewById(R.id.AVeditText);
+        Button btx2 = (Button) findViewById(R.id.AVbutton2);
         //SurfaceRender=(CKKPlayerSurfaceRender)findViewById(R.id.surfaceView);
-        btx2.setOnClickListener(new Button.OnClickListener(){//创建监听
+        btx2.setOnClickListener(new Button.OnClickListener() {//创建监听
             public void onClick(View v) {
                /* SurfaceRender.CreatePlayer();
                 SurfaceRender.OpenMedia(txtAvUrl.getText().toString());*/
-                 Intent intent = new Intent();
+                Intent intent = new Intent();
 
-             EditText txtAv=  txtAvUrl;
-             String xx=   txtAv.getText().toString();
-                intent.putExtra("MoviePath",  xx);
-               //指定intent要启动的类
+                EditText txtAv = txtAvUrl;
+                String xx = txtAv.getText().toString();
+                intent.putExtra("MoviePath", xx);
+                intent.putExtra("RaType",Integer.toString(RaType));
+                //指定intent要启动的类
 
-                intent.setClass(v.getContext(),CPlayerActivity.class);//(context.this, Activity02.class);
-               //启动一个新的Activity
+                intent.setClass(v.getContext(), CPlayerActivity.class);//(context.this, Activity02.class);
+                //启动一个新的Activity
                 v.getContext().startActivity(intent);
             }
 
         });
 
-        Button locfilebtx2=(Button)findViewById(R.id.locfilebutton);
-        locfilebtx2.setOnClickListener(new Button.OnClickListener(){//创建监听
+        Button locfilebtx2 = (Button) findViewById(R.id.locfilebutton);
+        locfilebtx2.setOnClickListener(new Button.OnClickListener() {//创建监听
             public void onClick(View v) {
-                    showDialog(0);
+                showDialog(0);
             }
 
         });
+
+        RadioGroup group = (RadioGroup) this.findViewById(R.id.RadioGroup0);
+        //绑定一个匿名监听器
+        group.setOnCheckedChangeListener(RadioLi);
     }
+    RadioGroup.OnCheckedChangeListener RadioLi=new RadioGroup.OnCheckedChangeListener()
+    {
+
+        @Override
+        public void onCheckedChanged(RadioGroup arg0, int arg1) {
+            // TODO Auto-generated method stub
+            //获取变更后的选中项的ID
+            RadioButton radioButton = (RadioButton)findViewById(arg0.getCheckedRadioButtonId());
+            String xxx=radioButton.getText().toString();
+            if(xxx.equals("拉伸"))
+            {
+                RaType=0;
+
+            }else if(xxx.equals("原始比例"))
+            {
+                RaType=1;
+            }else if(xxx.equals("4:3")){
+                RaType=2;
+            }else if(xxx.equals("16:9"))
+            {
+                RaType=3;
+            }
+            /*String xxxx= new String();
+            xxxx=":"+RaType;
+            txtAvUrl.setText(xxxx);*/
+        }
+    };
     @Override
     protected Dialog onCreateDialog(int id) {
         if(id==0){

@@ -1741,7 +1741,11 @@ ReOpenAV:
 			  m_AVNextInfo.lstOpSt=false;
 		      goto ReOpenAV;
 		 }
-	} 
+	}else{
+         if(m_pPlayUI!=NULL){
+		    m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVOver);
+		 }
+	}
 	return m_AVNextInfo.NeedRead;
 }
 void  KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
@@ -2091,13 +2095,19 @@ void KKPlayer::ReadAV()
 			}
 			//int64_t seek_min    =pVideoInfo->seek_pos-10 * AV_TIME_BASE; //
 			//int64_t seek_max    =pVideoInfo->seek_pos+10 * AV_TIME_BASE; //
+			EKKPlayerErr kkerr=KKSeekOk;
 			ret = avformat_seek_file(pFormatCtx, -1, seek_min, seek_target, seek_max, pVideoInfo->seek_flags);
 			if (ret < 0) {
+                 kkerr=KKSeekErr;
 			     assert(0);
 				//失败
 			}else{
 				Avflush(seek_target);
 			}
+			 if(m_pPlayUI!=NULL){
+		       m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,kkerr);
+		     }
+
 			pVideoInfo->seek_req=0;
 		}
 
@@ -2226,8 +2236,8 @@ void KKPlayer::ReadAV()
 				       
 			            if(m_pPlayUI!=NULL&&pVideoInfo->pSegFormatCtx==NULL)
 						{
-							if(AVQueSize==0&&(pVideoInfo->pictq.size>1|| pVideoInfo->sampq.size>1)){
-								AVQueSize=1;
+							if(AVQueSize==0&&(pVideoInfo->pictq.size>=0|| pVideoInfo->sampq.size>=0)){
+								AVQueSize=-1;///文件已经读取完了
 							}
 							if(m_nSeekSegId>-1){
 							   loadSeg(&pFormatCtx,0,m_nSeekSegId,true);
@@ -2235,6 +2245,7 @@ void KKPlayer::ReadAV()
 							}else{
 							   loadSeg(&pFormatCtx,AVQueSize);
 							}
+							
 						}else if(pVideoInfo->SegStreamState!=0&&pVideoInfo->pSegFormatCtx!=NULL){
 							    int retxx=pVideoInfo->SegStreamState;
 						        for (int i = 0; i <pVideoInfo->pSegFormatCtx->nb_streams; i++) 
