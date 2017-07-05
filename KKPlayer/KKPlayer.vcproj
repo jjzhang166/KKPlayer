@@ -276,6 +276,14 @@
 			Name="Model"
 			>
 			<File
+				RelativePath=".\Model\AvTransferAdapter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Model\AvTransferAdapter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Model\HistoryAdapter.cpp"
 				>
 			</File>
@@ -336,14 +344,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MainPage\AVNetDown.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MainPage\AVNetDown.h"
-				>
-			</File>
-			<File
 				RelativePath=".\MainPage\AVOpenUrl.cpp"
 				>
 			</File>
@@ -357,6 +357,14 @@
 			</File>
 			<File
 				RelativePath=".\MainPage\AvStreamSetting.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVTransferDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AVTransferDlg.h"
 				>
 			</File>
 			<File

@@ -1,16 +1,17 @@
-<SOUI name="AVDownInfoWindow" title="下载管理" 
+<SOUI name="AVDownInfoWindow" title="传输列表" 
 width="600" height="350"  margin="5,5,5,5"  resizable="1"
 appWnd="0" minsize="600,350"
 translucent="0">
 	<root skin="_skin.shadow">
 			<caption pos="0,0,-0,29" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
                    <icon pos="10,8" src="ICON_LOGO:16"/>
-                   <text pos="[5,8" colorText="#DBEEFD">下载管理</text>
+                   <text pos="[5,8" colorText="#DBEEFD">传输列表</text>
 				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
 			</caption>
 			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#000000">
 			       <kkmclv name="mclv_AVDownList" sbSkin="_skin.Scrollbar" colorBkgnd="@color/white"  pos="1,0,-1,-1" headerHeight="30">
-				             <header align="center"  itemSwapEnable="1" fixWidth="0" itemSkin="sms.header"  sortHeader="1" 
+				             <header align="center"  itemSwapEnable="0" fixWidth="0" itemSkin="sms.header"  sortHeader="0" 
+							 sortSkin="_skin.lcex_header_arrow" itemSkin="_skin.lcex_header"
 							 colorBkgnd="#ffffff" >
                                  <items>
                                      <item width="300">文件名</item>

@@ -5,4 +5,5 @@ translucent="1"
 margin="5,0,5,3" colorBkgnd="#ff0000">
   <menuItem id="100" font="face:宋体">解码器设置</menuItem>
   <menuItem id="101" font="face:宋体">串流设置</menuItem>
+  <menuItem id="8" icon="1" font="face:宋体" >传输列表</menuItem>
 </menuRoot>

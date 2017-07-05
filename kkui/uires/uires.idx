@@ -77,6 +77,9 @@
 	   <file name="ID_PNG_BTN_OPEN" path="image\btn_open.png" />
 	   <file name="ID_PNG_COMBO_OPEN" path="image\combo_open.png" />
 	   
+	   <file name="ID_LCEX_header" path="image\lcex_header.png"/>
+	   <file name="ID_LCEX_header_arrow" path="image\lcex_header_arrow.png"/>
+	   <file name="ID_LCEX_selectrange" path="image\lcex_selectrange.png"/>
 	</png>
 	<translator>
           <file name="lang_cn" path="translation\lang_cn.xml"/>

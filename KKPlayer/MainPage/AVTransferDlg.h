@@ -1,15 +1,17 @@
+
+#ifndef AVTransferDlg_H_
+#define AVTransferDlg_H_
 #include "../stdafx.h"
 #include "../../KKPlayerCore/KKPlayer.h"
-#ifndef CAVNetDown_H
-#define CAVNetDown_H
+#include "SDomodalwnd.h"
 namespace SOUI
 {
 	class CMainDlg;
-	class CAVNetDown: public SHostWnd
+	class CAVTransferDlg: public SDomodalwnd
 	{
 	   public:
-		      CAVNetDown(CMainDlg *m_DlgMain);
-		       ~CAVNetDown();
+		       CAVTransferDlg(CMainDlg *m_DlgMain);
+		       ~CAVTransferDlg();
 			    void OnLButtonDown(UINT nFlags, CPoint point);
 
 				void OnClose();
@@ -21,9 +23,8 @@ namespace SOUI
 					EVENT_NAME_COMMAND(L"btnCancell",OnClose)
 					EVENT_NAME_COMMAND(L"btn_min",OnMinimize)
 				EVENT_MAP_END()	
-				BEGIN_MSG_MAP_EX(CAVNetDown)
-					MSG_WM_LBUTTONDOWN(OnLButtonDown)
-					CHAIN_MSG_MAP(SHostWnd)
+				BEGIN_MSG_MAP_EX(CAVTransferDlg)
+					CHAIN_MSG_MAP(SDomodalwnd)
 					REFLECT_NOTIFICATIONS_EX()
 				END_MSG_MAP()/**/
 
