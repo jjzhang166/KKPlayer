@@ -5,3 +5,13 @@ Width     INTEGER：图像宽
 Height    INTEGER：图像高
 lstTime   int：上传观看时间
 TotalTime int：时长
+
+
+AVTransferInfo
+
+UrlInfo:url    信息
+Alias:         别名,
+Category       分类,
+FileSize       文件大小,
+AcSize         累计下载大小
+Speed          平均速度

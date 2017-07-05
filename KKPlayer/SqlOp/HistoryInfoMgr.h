@@ -15,6 +15,15 @@ typedef struct _AV_Hos_Info{
 	 int TotalTime;
 }AV_Hos_Info;
 
+typedef struct AV_Transfer_Info{
+	 char UrlInfo[256];
+	 char Alias[32];
+	 char Category[32];
+	 unsigned int FileSize;
+	 unsigned int AcSize;
+	 int          Speed;
+}AV_Transfer_Info;
+
 class CHistoryInfoMgr{
 public:
 	     CHistoryInfoMgr(); 
@@ -24,6 +33,10 @@ public:
 		 /*******播放进度更新信息***********/
 		 void UpDataAVinfo(const char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height);
        
+		 //更新传送信息
+		 void UpdateTransferInfo(char *urlInfo,char* alias,char *category,unsigned int FileSize,unsigned int AcSize,int Speed);
+
+		 void GetAVTransferInfo(std::vector<AV_Transfer_Info *> &slQue,int Finish);
 		 //获取放播的历史信息
 		 void GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue);
 

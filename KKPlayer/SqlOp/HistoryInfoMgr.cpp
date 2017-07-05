@@ -1,6 +1,11 @@
 #include "HistoryInfoMgr.h"
-//void SetKKplayerH264HardCodec(int value);
-//void SetKKplayerH265HardCodec(int value);
+
+typedef struct SQL_LITE__
+{
+	char strSql[512];
+}SQL_LITE__;
+
+static std::queue<_SQL_LITE *> m_sqlQue;
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
 CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRtmp(-1), m_nlibRtmpDelay(-1)
 {
@@ -30,8 +35,111 @@ void CHistoryInfoMgr::InitDb()
 		  SqliteOp.CreateTable(pDb,str);
 	  }
 
+	  if(SqliteOp.IsTableExt(pDb,"AVTransferInfo")!=1)
+	  {
+		  char *str= "CREATE table AVTransferInfo(UrlInfo TEXT NOT NULL,Alias TEXT,Category TEXT, FileSize INTEGER,AcSize INTEGER,Speed INTEGER,primary key(UrlInfo));";
+		  SqliteOp.CreateTable(pDb,str);
+	  }
+
 	  m_pDb=pDb;
 	  
+}
+
+void CHistoryInfoMgr::UpdateTransferInfo(char *strInfo,char* alias,char *category,unsigned int FileSize,unsigned int AcSize,int Speed)
+{
+	SQL_LITE__ *sl =(SQL_LITE__ *)::malloc(sizeof(SQL_LITE__));
+	memset(sl,0,sizeof(SQL_LITE__));
+	
+	char *str="replace into AVTransferInfo(UrlInfo,Alias,Category,FileSize,AcSize,Speed) values (";
+	memcpy(sl->strSql,str,strlen(str));
+
+	char temp[512]="";
+	snprintf(temp,512,"\"%s\",",strInfo);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"\"%s\",",alias);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"\"%s\",",category);
+    strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"%u,",FileSize);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"%u,",AcSize);
+	strcat(sl->strSql,temp);
+
+	snprintf(temp,512,"%d)", Speed);
+	strcat(sl->strSql,temp);
+
+	m_LockQue.Lock();
+	m_sqlQue.push(sl);
+	m_LockQue.Unlock();
+}
+
+void CHistoryInfoMgr::GetAVTransferInfo(std::vector<AV_Transfer_Info *> &slQue,int Finish)
+{
+//分析sql语句
+	sqlite3* pDb=( sqlite3* )m_pDb;
+	sqlite3_stmt* stmt2 = NULL;
+
+	char** pResult;
+	int nRow=-1;
+	int nColumn=-1;
+	std::string strOut="";
+	int nIndex = nColumn;
+	char sqlstr[256]="";
+	snprintf(sqlstr,256,"select * from AVDownInfoMap where DownOK=%d",DownOk);
+
+	m_LockDb.Lock();
+	if (sqlite3_prepare_v2(pDb,sqlstr,strlen(sqlstr),&stmt2,NULL) != SQLITE_OK) {
+		if (stmt2)
+			sqlite3_finalize(stmt2);
+		m_LockDb.Unlock();
+		return;
+	}
+
+	int result= sqlite3_get_table(
+		pDb,               /* An open database */
+		sqlstr,     /* SQL to be evaluated */
+		&pResult,    /* Results of the query */
+		&nRow,           /* Number of result rows written here */
+		&nColumn,        /* Number of result columns written here */
+		NULL       /* Error msg written here */
+		);
+
+	//读出sqlite数据
+	nIndex = nColumn;
+	//FileInfo TEXT NOT NULL,Alias TEXT,Category TEXT, FileSize INTEGER,AcSize INTEGER,DownOK
+	for(int i=0;i<nRow;i++)
+	{
+		AV_Transfer_Info *Item =(AV_Transfer_Info *)::malloc(sizeof(AV_Down_Info));
+		for(int j=0;j<nColumn;j++)
+		{
+		    
+
+			char *val=pResult[nIndex];
+			if(j==0){
+				memset(Item->UrlInfo,0,sizeof(Item->FileInfo));
+				strcpy(Item->UrlInfo,val);
+			}else if(j==1){
+                       memset(Item->Alias,0,32);
+					   strcpy(Item->Alias,val);
+			}else if(j==2){
+                  memset(Item->Category,0,32);
+				  strcpy(Item->Category,val);
+			}else if(j==3){
+				Item->FileSize=atoi(val);
+			}else if(j==4){
+				Item->AcSize=atoi(val);
+			}
+			nIndex++;
+		}
+		slQue.push_back(Item);
+	}
+	sqlite3_free_table(pResult);
+	m_LockDb.Unlock();
+	return;
 }
 /*******播放进度更新信息***********/
 void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height)
