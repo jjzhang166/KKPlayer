@@ -5,6 +5,7 @@
 #include "SqliteOp.h"
 #include <vector>
 #include <helper/SCriticalSection.h>
+#include "../KKPlayerCore/KKLock.h"
 typedef struct _AV_Hos_Info{
      char *url;
 	 unsigned char* pBuffer;
@@ -16,7 +17,7 @@ typedef struct _AV_Hos_Info{
 }AV_Hos_Info;
 
 typedef struct AV_Transfer_Info{
-	 char UrlInfo[256];
+	 char UrlInfo[2046];
 	 char Alias[32];
 	 char Category[32];
 	 unsigned int FileSize;
@@ -63,7 +64,7 @@ public:
 	     CSqliteOp                     SqliteOp;
 		 char                          m_strDbPath[1024];
 		 void*                         m_pDb;
-		 SOUI::SCriticalSection        m_Lock;
+		 CKKLock                       m_Lock;
 		 int        m_nH264Codec;
 		 int        m_nH265Codec;
 		 int        m_nUselibRtmp;

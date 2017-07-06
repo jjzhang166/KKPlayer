@@ -1,15 +1,18 @@
 #include "HistoryInfoMgr.h"
+#include <queue>
 
 typedef struct SQL_LITE__
 {
 	char strSql[512];
 }SQL_LITE__;
 
-static std::queue<_SQL_LITE *> m_sqlQue;
+static std::queue<SQL_LITE__ *> m_sqlQue;
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
 CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRtmp(-1), m_nlibRtmpDelay(-1)
 {
+ModifyStyleEx
 
+	ShowWindow(0,SW_HIDE
 }
 CHistoryInfoMgr::~CHistoryInfoMgr()
 {
@@ -40,65 +43,39 @@ void CHistoryInfoMgr::InitDb()
 		  char *str= "CREATE table AVTransferInfo(UrlInfo TEXT NOT NULL,Alias TEXT,Category TEXT, FileSize INTEGER,AcSize INTEGER,Speed INTEGER,primary key(UrlInfo));";
 		  SqliteOp.CreateTable(pDb,str);
 	  }
-
 	  m_pDb=pDb;
 	  
 }
 
-void CHistoryInfoMgr::UpdateTransferInfo(char *strInfo,char* alias,char *category,unsigned int FileSize,unsigned int AcSize,int Speed)
+void CHistoryInfoMgr::UpdateTransferInfo(char *urlInfo,char* alias,char *category,unsigned int FileSize,unsigned int AcSize,int Speed)
 {
-	SQL_LITE__ *sl =(SQL_LITE__ *)::malloc(sizeof(SQL_LITE__));
-	memset(sl,0,sizeof(SQL_LITE__));
 	
-	char *str="replace into AVTransferInfo(UrlInfo,Alias,Category,FileSize,AcSize,Speed) values (";
-	memcpy(sl->strSql,str,strlen(str));
+	char *strformt="replace into AVTransferInfo(UrlInfo,Alias,Category,FileSize,AcSize,Speed) values (" \
+	                                       "\"%s\",\"%s\",\"%s\", %d,      %d,    %d)";
 
-	char temp[512]="";
-	snprintf(temp,512,"\"%s\",",strInfo);
-	strcat(sl->strSql,temp);
-
-	snprintf(temp,512,"\"%s\",",alias);
-	strcat(sl->strSql,temp);
-
-	snprintf(temp,512,"\"%s\",",category);
-    strcat(sl->strSql,temp);
-
-	snprintf(temp,512,"%u,",FileSize);
-	strcat(sl->strSql,temp);
-
-	snprintf(temp,512,"%u,",AcSize);
-	strcat(sl->strSql,temp);
-
-	snprintf(temp,512,"%d)", Speed);
-	strcat(sl->strSql,temp);
-
-	m_LockQue.Lock();
-	m_sqlQue.push(sl);
-	m_LockQue.Unlock();
+	int len=1024*10;
+	char* sqltxt =(char*)::malloc(len);
+	memset(sqltxt,0,len);
+	sprintf(sqltxt,strformt,urlInfo,alias,category,FileSize,AcSize,Speed);
+	
+	sqlite3* pDb=( sqlite3* )m_pDb;
+	{
+	  m_Lock.Lock();
+	  SqliteOp.NoSelectSql(pDb,sqltxt);
+	  m_Lock.Unlock();
+	}
+	free(sqltxt);
 }
 
 void CHistoryInfoMgr::GetAVTransferInfo(std::vector<AV_Transfer_Info *> &slQue,int Finish)
 {
-//分析sql语句
+
+	char sqlstr[1024]="select * from AVTransferInfo";
+
+	int nRow=-1,nColumn=-1,nIndex=-1;
+	char** pResult=NULL;
+	m_Lock.Lock();
 	sqlite3* pDb=( sqlite3* )m_pDb;
-	sqlite3_stmt* stmt2 = NULL;
-
-	char** pResult;
-	int nRow=-1;
-	int nColumn=-1;
-	std::string strOut="";
-	int nIndex = nColumn;
-	char sqlstr[256]="";
-	snprintf(sqlstr,256,"select * from AVDownInfoMap where DownOK=%d",DownOk);
-
-	m_LockDb.Lock();
-	if (sqlite3_prepare_v2(pDb,sqlstr,strlen(sqlstr),&stmt2,NULL) != SQLITE_OK) {
-		if (stmt2)
-			sqlite3_finalize(stmt2);
-		m_LockDb.Unlock();
-		return;
-	}
-
 	int result= sqlite3_get_table(
 		pDb,               /* An open database */
 		sqlstr,     /* SQL to be evaluated */
@@ -107,38 +84,36 @@ void CHistoryInfoMgr::GetAVTransferInfo(std::vector<AV_Transfer_Info *> &slQue,i
 		&nColumn,        /* Number of result columns written here */
 		NULL       /* Error msg written here */
 		);
+    m_Lock.Unlock();
 
 	//读出sqlite数据
 	nIndex = nColumn;
-	//FileInfo TEXT NOT NULL,Alias TEXT,Category TEXT, FileSize INTEGER,AcSize INTEGER,DownOK
 	for(int i=0;i<nRow;i++)
 	{
-		AV_Transfer_Info *Item =(AV_Transfer_Info *)::malloc(sizeof(AV_Down_Info));
+		AV_Transfer_Info * Item = (AV_Transfer_Info*)malloc(sizeof(AV_Transfer_Info));
 		for(int j=0;j<nColumn;j++)
 		{
-		    
-
 			char *val=pResult[nIndex];
-			if(j==0){
-				memset(Item->UrlInfo,0,sizeof(Item->FileInfo));
+			if(j==0)
+			{
 				strcpy(Item->UrlInfo,val);
 			}else if(j==1){
-                       memset(Item->Alias,0,32);
-					   strcpy(Item->Alias,val);
+				strcpy(Item->Alias,val);
 			}else if(j==2){
-                  memset(Item->Category,0,32);
-				  strcpy(Item->Category,val);
+				strcpy(Item->Category,val);
 			}else if(j==3){
 				Item->FileSize=atoi(val);
 			}else if(j==4){
 				Item->AcSize=atoi(val);
+			}else if(j==5){
+				Item->Speed=atoi(val);
 			}
 			nIndex++;
 		}
 		slQue.push_back(Item);
 	}
 	sqlite3_free_table(pResult);
-	m_LockDb.Unlock();
+	
 	return;
 }
 /*******播放进度更新信息***********/
@@ -147,7 +122,7 @@ void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime
     sqlite3* pDb=( sqlite3* )m_pDb;
 	sqlite3_stmt *pStmt = 0;  
 
-	SOUI::SAutoLock lock(m_Lock);
+	
     char *str="replace into AVHisinfo(url,Img,Width,Height,lstTime,TotalTime) values (" \
                "\"%s\"," \
 				"?," \
@@ -161,9 +136,11 @@ void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime
 	sprintf(strsql,str,strpath,width,height,curtime,totaltime);
 
 	
+	m_Lock.Lock();
 	int ret=sqlite3_prepare(pDb, strsql, -1, &pStmt, 0);
 	ret= sqlite3_bind_blob(pStmt, 1,Imgbuf,buflen, NULL);
 	ret=sqlite3_step(pStmt);
+	m_Lock.Unlock();
     sqlite3_finalize(pStmt);
 }    
 //获取放播的历史信息
@@ -171,7 +148,7 @@ void CHistoryInfoMgr::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 {
     sqlite3* pDb=( sqlite3* )m_pDb;
 	sqlite3_stmt *pStmt = 0;
-	SOUI::SAutoLock lock(m_Lock);
+	m_Lock.Lock();
 	int ret=sqlite3_prepare(pDb, "select * from AVHisinfo", -1, &pStmt, 0);
 
 	int size=0;
@@ -204,6 +181,7 @@ void CHistoryInfoMgr::GetAVHistoryInfo(std::vector<AV_Hos_Info *> &slQue)
 		slQue.push_back(sl);
 
 	}
+	m_Lock.Unlock();
 	sqlite3_finalize(pStmt);
 	
 }
@@ -219,10 +197,10 @@ void CHistoryInfoMgr::UpdataConfig(const char* StrKey,const char* StrValue)
 	
     char strsql[512]="";
 	sprintf(strsql,str,StrKey,StrValue);
-	SOUI::SAutoLock lock(m_Lock);
 	
+	m_Lock.Lock();
 	SqliteOp.NoSelectSql(pDb,strsql);
-	
+	m_Lock.Unlock();
 }
 bool CHistoryInfoMgr::GetConfig(const char* StrKey,std::string &OutValue)
 {
@@ -233,7 +211,7 @@ bool CHistoryInfoMgr::GetConfig(const char* StrKey,std::string &OutValue)
 	strcat(sqlstr,"\";");
 	int nRow=-1,nColumn=-1,nIndex=-1;
 	char** pResult=NULL;
-	SOUI::SAutoLock lock(m_Lock);
+	m_Lock.Lock();
 	sqlite3* pDb=( sqlite3* )m_pDb;
 	int result= sqlite3_get_table(
 		pDb,               /* An open database */
@@ -262,7 +240,7 @@ bool CHistoryInfoMgr::GetConfig(const char* StrKey,std::string &OutValue)
 		Ok=true;
 	}
 	sqlite3_free_table(pResult);
-
+    m_Lock.Unlock();
 	return Ok;
 }
 CHistoryInfoMgr *CHistoryInfoMgr::GetInance()

@@ -1,4 +1,5 @@
 #include "AvTransferAdapter.h"
+#include "../Control/kkmclv.h"
 namespace SOUI
 {
 	char strabce[64]="";
