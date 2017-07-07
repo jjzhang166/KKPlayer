@@ -68,6 +68,7 @@ public class CPlayerActivity extends Activity {
     String MoviePathStr;
     int m_OpenCouner=0;
     int m_LastDisConnect=0;
+    int m_nLastSerial=0;
     Handler Activityhandler = new Handler()
     {
         public void handleMessage(Message msg)
@@ -165,51 +166,53 @@ public class CPlayerActivity extends Activity {
                 }
 
 
-                 if( m_KKPlayer!=null&&!m_bSeekPlayer)
-                 {
-                     CKKPlayerGlRender.CMediaInfo info = m_KKPlayer.GetCMediaInfo();
-                     SeekBar MovieSeekBar = ( SeekBar) findViewById(R.id.MovieSeekbar);
-                     if(info.CurTime>m_CurTime&&info.CurTime-m_CurTime<20) {
-                         MovieSeekBar.setProgress(info.CurTime);
+                 if( m_KKPlayer!=null&&!m_bSeekPlayer) {
+                     CJniKKPlayer.CkkMediaInfo info = m_KKPlayer.GetCMediaInfo();
+
+                     SeekBar MovieSeekBar = (SeekBar) findViewById(R.id.MovieSeekbar);
+                     if (m_nLastSerial < info.Serial) {
+                         m_nLastSerial = info.Serial;
+                     } else{
+                             MovieSeekBar.setProgress(info.CurTime);
+                             MovieSeekBar.setMax(info.TotalTime);
+                             TextView CurTimetextView = (TextView) findViewById(R.id.CurTimetextView);
+                             m_CurTime = info.CurTime;
+
+                             int h = (info.CurTime / (60 * 60));
+                             int m = (info.CurTime % (60 * 60)) / (60);
+                             int s = ((info.CurTime % (60 * 60)) % (60));
+                             if (h < 10)
+                                 CurTimeStr = "0" + h + ":";
+                             else
+                                 CurTimeStr = h + ":";
+                             if (m < 10)
+                                 CurTimeStr += "0" + m + ":";
+                             else
+                                 CurTimeStr += m + ":";
+                             if (s < 10)
+                                 CurTimeStr += "0" + s + "";
+                             else
+                                 CurTimeStr += s + "";
+                             CurTimeStr += "/";
+
+                             h = info.TotalTime / (60 * 60);
+                             m = (info.TotalTime % (60 * 60)) / 60;
+                             s = ((info.TotalTime % (60 * 60)) % 60);
+                             if (h < 10)
+                                 CurTimeStr += "0" + h + ":";
+                             else
+                                 CurTimeStr += h + ":";
+                             if (m < 10)
+                                 CurTimeStr += "0" + m + ":";
+                             else
+                                 CurTimeStr += m + ":";
+                             if (s < 10)
+                                 CurTimeStr += "0" + s + "";
+                             else
+                                 CurTimeStr += s + "";
+
+                             CurTimetextView.setText(CurTimeStr);
                      }
-                     MovieSeekBar.setMax(info.TotalTime);
-                     TextView CurTimetextView=(TextView) findViewById(R.id.CurTimetextView);
-                     m_CurTime=info.CurTime;
-
-                     int h=(info.CurTime/(60*60));
-                     int m=(info.CurTime%(60*60))/(60);
-                     int s=((info.CurTime%(60*60))%(60));
-                     if(h<10)
-                        CurTimeStr="0"+h+":";
-                     else
-                         CurTimeStr=h+":";
-                     if(m<10)
-                         CurTimeStr+="0"+m+":";
-                     else
-                         CurTimeStr+=m+":";
-                     if(s<10)
-                         CurTimeStr+="0"+s+"";
-                     else
-                         CurTimeStr+=s+"";
-                     CurTimeStr+="/";
-
-                     h=info.TotalTime/(60*60);
-                     m=(info.TotalTime%(60*60))/60;
-                     s=((info.TotalTime%(60*60))%60);
-                     if(h<10)
-                         CurTimeStr+="0"+h+":";
-                     else
-                         CurTimeStr+=h+":";
-                     if(m<10)
-                         CurTimeStr+="0"+m+":";
-                     else
-                         CurTimeStr+=m+":";
-                     if(s<10)
-                         CurTimeStr+="0"+s+"";
-                     else
-                         CurTimeStr+=s+"";
-
-                     CurTimetextView.setText(CurTimeStr);
                  }
                 m_Avtivitylock.lock();
                 WhereInTime=0;

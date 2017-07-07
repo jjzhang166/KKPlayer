@@ -10,9 +10,7 @@ static std::queue<SQL_LITE__ *> m_sqlQue;
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
 CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRtmp(-1), m_nlibRtmpDelay(-1)
 {
-ModifyStyleEx
 
-	ShowWindow(0,SW_HIDE
 }
 CHistoryInfoMgr::~CHistoryInfoMgr()
 {
@@ -26,7 +24,7 @@ void CHistoryInfoMgr::SetPath(const char *Path)
 void CHistoryInfoMgr::InitDb()
 {
       sqlite3* pDb;
-	  SOUI::SAutoLock lock(m_Lock);
+	  m_Lock.Lock();
 	  SqliteOp.OpenDB(m_strDbPath,&pDb);
 	  if(SqliteOp.IsTableExt(pDb,"AVHisinfo")!=1){
 		  char *str= "CREATE table AVHisinfo(url TEXT NOT NULL,Img BLOB,Width INTEGER,Height INTEGER,lstTime INTEGER,TotalTime INTEGER,primary key(url));";
@@ -44,7 +42,7 @@ void CHistoryInfoMgr::InitDb()
 		  SqliteOp.CreateTable(pDb,str);
 	  }
 	  m_pDb=pDb;
-	  
+	  m_Lock.Unlock(); 
 }
 
 void CHistoryInfoMgr::UpdateTransferInfo(char *urlInfo,char* alias,char *category,unsigned int FileSize,unsigned int AcSize,int Speed)

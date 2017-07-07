@@ -5,8 +5,6 @@ import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -16,26 +14,18 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class CKKPlayerGlRender implements GLSurfaceView.Renderer
 {
-    public class CMediaInfo
-    {
-        public  int CurTime;
-        public  int TotalTime;
-        public CMediaInfo()
-        {
-            CurTime=0;
-            TotalTime=0;
-        }
-    }
+
     private CJniKKPlayer  m_JniKKPlayer;
     private int           m_nKKPlayer=0;
     private int           m_nGlHandle=0;
     private boolean      m_ReOpen=false;
-    private CMediaInfo info = new  CMediaInfo();
+    private CJniKKPlayer.CkkMediaInfo info=null;
     private String m_url;
     public CKKPlayerGlRender()
     {
         m_JniKKPlayer = new CJniKKPlayer();
         m_nKKPlayer   = m_JniKKPlayer.IniKK(0);
+        info =  m_JniKKPlayer.new CkkMediaInfo();
     }
     //暂停
     public void Pause()
@@ -51,13 +41,10 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
             m_JniKKPlayer.Seek(m_nKKPlayer, time);
         }
     }
-    public CMediaInfo GetCMediaInfo()
+    public CJniKKPlayer.CkkMediaInfo GetCMediaInfo()
     {
         if(m_nKKPlayer!=0) {
-            String infostr= m_JniKKPlayer.GetMediaInfo(m_nKKPlayer);
-            String[]  ll= infostr.split(";");
-            info.CurTime=Integer.parseInt(ll[0]);
-            info.TotalTime=Integer.parseInt(ll[1]);
+            m_JniKKPlayer.GetkkMediaInfo(m_nKKPlayer, info);
         }
         return  info;
     }

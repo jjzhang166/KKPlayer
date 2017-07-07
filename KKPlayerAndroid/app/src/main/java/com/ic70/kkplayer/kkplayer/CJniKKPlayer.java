@@ -18,6 +18,29 @@ public class CJniKKPlayer {
         public  int imgWidth=0;
         public int dataSize=0;
     }
+    public class CkkMediaInfo
+    {
+        public CkkMediaInfo()
+        {
+
+        }
+
+        //分辨率
+        public String              AVRes =new String();
+        public String               AVinfo=new String();
+        public String       AvFile=new String();
+        public int               FileSize=0;
+        public int               CurTime=0;
+        public int               TotalTime=0;//总时长
+        public int              Serial=0;
+        public int               Open=0;
+        public int               KKState=0;
+        public int            SegId=0;
+        public String               SpeedInfo=new String();    ///下载速度
+        public int CacheVideoSize=0;
+        public int CacheAudioSize=0;
+        public int CacheMaxTime=0;
+    }
     static{
         System.loadLibrary("z");
        // System.loadLibrary("android");
@@ -73,6 +96,7 @@ public class CJniKKPlayer {
 
     public native int  KKIsNeedReConnect(int obj);
     //get about of movie info
+    ///即将弃用
     public native  String GetMediaInfo(int obj);
     public native  int  KKCloseMedia(int obj);
 
@@ -101,7 +125,10 @@ public class CJniKKPlayer {
     public native void Pause(int obj);
 
     public native void Seek(int obj,int value);
+    public native int GetkkMediaInfo(int obj,CkkMediaInfo jInfo);
 
-    public native int GetCapImg(CapImgInfo obj);
+    ///未实现
+    public native int   GetCapImg(int obj,CapImgInfo jInfo);
+
 }
 //javah -classpath ..\..\..\build\intermediates\classes\debug com.ic70.kkplayer.kkplayer.CJniKKPlayer

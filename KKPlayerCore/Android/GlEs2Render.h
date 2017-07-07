@@ -74,7 +74,7 @@ class GlEs2Render: public IkkRender
         unsigned int  m_nTextureID;
 		///比例计算变量
         int           m_nKeepRatio;
-        
+        int           m_nLastKeepRatio;
 
 };
 #endif

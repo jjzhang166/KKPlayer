@@ -77,7 +77,8 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKOpenMedia(
 /**
 *获取音视信息
 */
-JNIEXPORT jstring JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetMediaInfo(JNIEnv *env, jobject instance, jint obj);
+JNIEXPORT jstring JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetMediaInfo  (JNIEnv *env, jobject instance, jint obj);
+JNIEXPORT jint JNICALL    Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaInfo(JNIEnv *env, jobject instance, jint obj, jobject jInfo);
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Pause(JNIEnv *env, jobject instance,jint obj);
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_Seek(JNIEnv *env, jobject instance, jint obj, jint value);
 /**

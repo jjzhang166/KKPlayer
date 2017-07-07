@@ -355,11 +355,11 @@ void GlEs2Render::GlViewRender(bool ReLoad)
 	}
 
 	glClear(GL_COLOR_BUFFER_BIT);
-    if(!m_bAdJust&&m_Picwidth!=0&& m_Picheight!=0)
+    if(!m_bAdJust&&m_Picwidth!=0&& m_Picheight!=0||m_nKeepRatio!=m_nLastKeepRatio)
     {
         float width     =m_Picwidth;
         float height    = m_Picheight;
-		
+		m_nLastKeepRatio=m_nKeepRatio;
 		if(m_nKeepRatio==2){
 			///4:3
 			float height1    =(float) (m_RenderWidth*3.0)/4.0;
