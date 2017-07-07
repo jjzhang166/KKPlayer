@@ -412,7 +412,7 @@ DELXXX:
 
 	   frame_queue_next(&is->sampq,true);
 	   pVideoInfo->audio_clock_serial=af->serial;
-	   
+	   //pVideoInfo->audio_clock_serial=is->auddec.pkt_serial;
 	   pVideoInfo->cursegid=af->segid;
    } while (af->serial!=is->auddec.pkt_serial&&!is->abort_request);
 	
@@ -1493,7 +1493,7 @@ LXXXX:
                     av_free_packet(packet); 
 					
 				}
-				
+				is->video_clock_serial=is->viddec.pkt_serial;
 			}while(is->videoq.serial!=is->viddec.pkt_serial);
          
 
@@ -1607,7 +1607,8 @@ LXXXX:
 			}
 			
 			lastsegid=segid;
-			av_free_packet(packet);  
+			av_free_packet(packet); 
+			
 			
 	}
 

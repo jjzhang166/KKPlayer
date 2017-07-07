@@ -443,6 +443,7 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 											info.AvFile=(const char*)pVideoInfo->filename;
 											info.TotalTime=(pVideoInfo->pFormatCtx->duration/1000/1000);
 											info.serial=pVideoInfo->viddec.pkt_serial;
+											
 											info.CacheInfo.AudioSize=m_AVCacheInfo.AudioSize;
 											info.CacheInfo.VideoSize=m_AVCacheInfo.VideoSize;
 											info.CacheInfo.MaxTime=m_AVCacheInfo.MaxTime;
@@ -464,10 +465,13 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 												strcat(infostr, "\n+ÊÓÆµÖ¡ÂÊ:");   
 												snprintf(abcd,32,"%d",pVideoInfo->viddec.avctx->framerate);
 												strcat(infostr, abcd);
-											}
-											if(pVideoInfo->audio_st!=NULL&&pVideoInfo->auddec.avctx!=NULL)
-											{
 
+												if(pVideoInfo->auddec.avctx==NULL)
+													info.serial1=pVideoInfo->video_clock_serial;
+											}
+											if(pVideoInfo->auddec.avctx!=NULL)
+											{
+                                                info.serial1=pVideoInfo->audio_clock_serial;
 												strcat(infostr,"\n\nÒôÆµÁ÷ÐÅÏ¢:");
 												strcat(infostr,"\n+ÒôÆµ±àÂë:");
 												strcat(infostr, pVideoInfo->auddec.avctx->codec->name);

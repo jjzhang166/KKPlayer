@@ -168,7 +168,8 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
 	if(pKKUI&&obj){
         MEDIA_INFO info=pKKUI->GetMediaInfo();
         jclass Infocls = env->GetObjectClass(jInfo); 
-        jfieldID jfsAVRes = env->GetFieldID(Infocls, "AVRes", "Ljava/lang/String;");	
+        jfieldID jfsAVRes = env->GetFieldID(Infocls, "AVRes", "Ljava/lang/String;");
+        info.AVRes[31]=0;		
 		if(strlen(info.AVRes)>0)
 		env->SetObjectField(jInfo, jfsAVRes, env->NewStringUTF(info.AVRes));
       
@@ -188,6 +189,9 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
 		jfieldID jfiSerial = env->GetFieldID(Infocls, "Serial", "I");	
 		env->SetIntField(jInfo, jfiSerial, info.serial);
 		
+		jfieldID jfiSerial1 = env->GetFieldID(Infocls, "Serial1", "I");	
+		env->SetIntField(jInfo, jfiSerial1, info.serial1);
+		
 		jfieldID jfiOpen = env->GetFieldID(Infocls, "Open", "I");	
 		env->SetIntField(jInfo, jfiOpen, info.Open);
 		  
@@ -198,7 +202,9 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
 		env->SetIntField(jInfo, jfiSegId, info.SegId);
 		//return 1;
 		jfieldID jfsSpeedInfo= env->GetFieldID(Infocls, "SpeedInfo", "Ljava/lang/String;");	
-		 if(strlen(info.SpeedInfo)>0)	
+		
+		info.SpeedInfo[1023]=0;
+	    if(strlen(info.SpeedInfo)>0)	
 		    env->SetObjectField(jInfo, jfsSpeedInfo, env->NewStringUTF(info.SpeedInfo));
 		return 1;
     }

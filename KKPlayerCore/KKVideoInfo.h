@@ -248,7 +248,7 @@ typedef struct SKK_VideoState
 	double audio_clock;
 	double video_clock;
 	double Baseaudio_clock;
-	int audio_clock_serial;
+	int    audio_clock_serial;
 	/*********音频时间**************/
 	int64_t audio_callback_time;
 	double audio_diff_cum; /* used for AV difference average computation */
@@ -321,6 +321,7 @@ typedef struct SKK_VideoState
 	/******视频包队列******/
 	SKK_PacketQueue videoq;
 	double max_frame_duration;      // maximum duration of a frame - above this, we consider the jump a timestamp discontinuity
+    int    video_clock_serial;
 
 	struct SwsContext *img_convert_ctx;
     struct SwsContext *sub_convert_ctx;

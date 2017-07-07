@@ -18,6 +18,7 @@ typedef struct MEDIA_INFO
 	int               CurTime;
 	int               TotalTime;//×ÜÊ±³¤
 	int               serial;
+    int               serial1;
 	bool              Open;
 	int               KKState;
     short             SegId;

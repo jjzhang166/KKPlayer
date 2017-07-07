@@ -14,12 +14,13 @@ public class CkkMediaInfo {
 
         //分辨率
         public String              AVRes =new String();
-        public String               AVinfo=new String();
-        public String       AvFile=new String();
-        public int               FileSize=0;
-        public int               CurTime=0;
+        public String              AVinfo=new String();
+        public String              AvFile=new String();
+        public int                FileSize=0;
+        public int                 CurTime=0;
         public int               TotalTime=0;//总时长
         public int              Serial=0;
+        public int              Serial1=0;
         public int               Open=0;
         public int               KKState=0;
         public int            SegId=0;
