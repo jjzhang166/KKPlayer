@@ -442,7 +442,7 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 								            info.SegId=pVideoInfo->cursegid;
 											info.AvFile=(const char*)pVideoInfo->filename;
 											info.TotalTime=(pVideoInfo->pFormatCtx->duration/1000/1000);
-											info.serial=pVideoInfo->viddec.pkt_serial;
+											
 											
 											info.CacheInfo.AudioSize=m_AVCacheInfo.AudioSize;
 											info.CacheInfo.VideoSize=m_AVCacheInfo.VideoSize;
@@ -450,42 +450,46 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 										
 											info.FileSize=pVideoInfo->fileSize;
 										
-											snprintf(info.AVRes,32,"%dx%d",pVideoInfo->viddec_width,pVideoInfo->viddec_height);
+											snprintf(info.AVRes,1024,"%dx%d",pVideoInfo->viddec_width,pVideoInfo->viddec_height);
 											char infostr[1024]="";
 											if(pVideoInfo->viddec.avctx!=NULL){
 												strcat(infostr,"视频流信息:");
 												strcat(infostr,"\n+视频编码:");
 												strcat(infostr, pVideoInfo->viddec.avctx->codec->name);
 												strcat(infostr, "\n+平均码率:");   
-												char abcd[32]="";
+												char abcd[1024]="";
 												
-												snprintf(abcd,32,"%dkbps",pVideoInfo->viddec.avctx->bit_rate/1000);
+												snprintf(abcd,1024,"%dkbps",pVideoInfo->viddec.avctx->bit_rate/1000);
 												strcat(infostr, abcd);
 
 												strcat(infostr, "\n+视频帧率:");   
-												snprintf(abcd,32,"%d",pVideoInfo->viddec.avctx->framerate);
+												snprintf(abcd,1024,"%d",pVideoInfo->viddec.avctx->framerate);
 												strcat(infostr, abcd);
 
 												if(pVideoInfo->auddec.avctx==NULL)
+												{
+													info.serial=pVideoInfo->viddec.pkt_serial;
 													info.serial1=pVideoInfo->video_clock_serial;
+												}
 											}
 											if(pVideoInfo->auddec.avctx!=NULL)
 											{
                                                 info.serial1=pVideoInfo->audio_clock_serial;
+												info.serial=pVideoInfo->auddec.pkt_serial;
 												strcat(infostr,"\n\n音频流信息:");
 												strcat(infostr,"\n+音频编码:");
 												strcat(infostr, pVideoInfo->auddec.avctx->codec->name);
 												strcat(infostr, "\n+平均码率:");   
-												char abcd[32]="";
-												snprintf(abcd,32,"%dkbps",pVideoInfo->auddec.avctx->bit_rate/1000);
+												char abcd[1024]="";
+												snprintf(abcd,1024,"%dkbps",pVideoInfo->auddec.avctx->bit_rate/1000);
 												strcat(infostr, abcd);
 
 												strcat(infostr, "\n+采样帧率:");   
-												snprintf(abcd,32,"%d Hz",pVideoInfo->auddec.avctx->sample_rate);
+												snprintf(abcd,1024,"%d Hz",pVideoInfo->auddec.avctx->sample_rate);
 												strcat(infostr, abcd);
 
 												strcat(infostr, "\n+声 道 数:");   
-												snprintf(abcd,32,"%d channels",pVideoInfo->auddec.avctx->channels);
+												snprintf(abcd,1024,"%d channels",pVideoInfo->auddec.avctx->channels);
 												strcat(infostr, abcd);
 											}
 											strcpy(info.AVinfo,infostr);

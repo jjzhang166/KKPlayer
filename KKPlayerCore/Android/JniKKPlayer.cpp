@@ -174,8 +174,8 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
 		env->SetObjectField(jInfo, jfsAVRes, env->NewStringUTF(info.AVRes));
       
         jfieldID jfsAvFile = env->GetFieldID(Infocls, "AvFile", "Ljava/lang/String;");
-        //if(strlen(info.AvFile)>0)		
-		//env->SetObjectField(jInfo, jfsAvFile, env->NewStringUTF(info.AvFile));
+        if(info.AvFile!=NULL&&strlen(info.AvFile)>0)		
+		env->SetObjectField(jInfo, jfsAvFile, env->NewStringUTF(info.AvFile));
 		
         jfieldID jfiFileSize = env->GetFieldID(Infocls, "FileSize", "I");		
         env->SetIntField(jInfo, jfiFileSize, info.FileSize);		

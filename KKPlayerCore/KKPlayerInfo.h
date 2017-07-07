@@ -12,6 +12,7 @@ typedef struct MEDIA_INFO
 {
 	//分辨率
 	char              AVRes[1024];
+	//编码信息
 	char              AVinfo[1024];
 	const char*       AvFile;
 	int               FileSize;
