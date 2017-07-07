@@ -19,13 +19,13 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
     private int           m_nKKPlayer=0;
     private int           m_nGlHandle=0;
     private boolean      m_ReOpen=false;
-    private CJniKKPlayer.CkkMediaInfo info=null;
+    private CkkMediaInfo info= new CkkMediaInfo();
     private String m_url;
     public CKKPlayerGlRender()
     {
         m_JniKKPlayer = new CJniKKPlayer();
         m_nKKPlayer   = m_JniKKPlayer.IniKK(0);
-        info =  m_JniKKPlayer.new CkkMediaInfo();
+
     }
     //暂停
     public void Pause()
@@ -41,7 +41,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
             m_JniKKPlayer.Seek(m_nKKPlayer, time);
         }
     }
-    public CJniKKPlayer.CkkMediaInfo GetCMediaInfo()
+    public CkkMediaInfo GetCMediaInfo()
     {
         if(m_nKKPlayer!=0) {
             m_JniKKPlayer.GetkkMediaInfo(m_nKKPlayer, info);

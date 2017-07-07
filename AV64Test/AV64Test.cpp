@@ -4,6 +4,9 @@
 #include "stdafx.h"
 #include "AV64Test.h"
 #include "KKPlayer.h"
+#include <shellapi.h>
+
+#pragma comment(lib, "shell32.lib")
 #define MAX_LOADSTRING 100
 
 // 全局变量:
@@ -175,13 +178,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case  WM_CREATE:
 		{
-		       CKKPlayer*  pAv=  new  CKKPlayer();
+		     //  CKKPlayer*  pAv=  new  CKKPlayer();
 
-			   RECT rt={0,100,200,300};
-			   int kstyle=WS_CHILDWINDOW | WS_CLIPCHILDREN| WS_CLIPSIBLINGS|WS_VISIBLE;
-		      // HWND hw = pAv->CreateKKPlayer(hWnd,rt,kstyle, 1);
-			   pAv->CreateDuiRawKKPlayer(hWnd,30,RenderImgCall,0);
-			  int ii= pAv->OpenMedia("D:/testvideo/ff.mp4");
+			
+			  // RECT rt={0,100,200,300};
+			  // int kstyle=WS_CHILDWINDOW | WS_CLIPCHILDREN| WS_CLIPSIBLINGS|WS_VISIBLE;
+		   //   // HWND hw = pAv->CreateKKPlayer(hWnd,rt,kstyle, 1);
+			  // pAv->CreateDuiRawKKPlayer(hWnd,30,RenderImgCall,0);
+			  //int ii= pAv->OpenMedia("D:/testvideo/ff.mp4");
 			  // ::ShowWindow(hw,SW_SHOW);
 		}
 		break;

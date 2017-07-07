@@ -82,8 +82,8 @@ void  CAndKKPlayerUI::Seek(int value)
 
 MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
 {
-	 MEDIA_INFO  info;
-
+   MEDIA_INFO  info;
+   memset(&info,0,sizeof(MEDIA_INFO));
    if(m_player.GetMediaInfo(info))
    {
    }

@@ -165,13 +165,15 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
 {
 	
 	CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
-	if(obj){
+	if(pKKUI&&obj){
         MEDIA_INFO info=pKKUI->GetMediaInfo();
-        jclass Infocls = env->GetObjectClass( jInfo); 
+        jclass Infocls = env->GetObjectClass(jInfo); 
         jfieldID jfsAVRes = env->GetFieldID(Infocls, "AVRes", "Ljava/lang/String;");	
+		if(strlen(info.AVRes)>0)
 		env->SetObjectField(jInfo, jfsAVRes, env->NewStringUTF(info.AVRes));
-
-        jfieldID jfsAvFile = env->GetFieldID(Infocls, "AvFile", "Ljava/lang/String;");	
+      
+        jfieldID jfsAvFile = env->GetFieldID(Infocls, "AvFile", "Ljava/lang/String;");
+        if(strlen(info.AvFile)>0)		
 		env->SetObjectField(jInfo, jfsAvFile, env->NewStringUTF(info.AvFile));
 		
         jfieldID jfiFileSize = env->GetFieldID(Infocls, "FileSize", "I");		
@@ -188,15 +190,16 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
 		
 		jfieldID jfiOpen = env->GetFieldID(Infocls, "Open", "I");	
 		env->SetIntField(jInfo, jfiOpen, info.Open);
-		
+		  
 		jfieldID jfiKKState = env->GetFieldID(Infocls, "KKState", "I");	
 		env->SetIntField(jInfo, jfiKKState, info.KKState);
 		
 		jfieldID jfiSegId = env->GetFieldID(Infocls, "SegId", "I");	
 		env->SetIntField(jInfo, jfiSegId, info.SegId);
-		
+		//return 1;
 		jfieldID jfsSpeedInfo= env->GetFieldID(Infocls, "SpeedInfo", "Ljava/lang/String;");	
-		env->SetObjectField(jInfo, jfsSpeedInfo, env->NewStringUTF(info.SpeedInfo));
+		 if(strlen(info.SpeedInfo)>0)	
+		    env->SetObjectField(jInfo, jfsSpeedInfo, env->NewStringUTF(info.SpeedInfo));
 		return 1;
     }
 	return 0;

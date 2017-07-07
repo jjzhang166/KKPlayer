@@ -167,7 +167,7 @@ public class CPlayerActivity extends Activity {
 
 
                  if( m_KKPlayer!=null&&!m_bSeekPlayer) {
-                     CJniKKPlayer.CkkMediaInfo info = m_KKPlayer.GetCMediaInfo();
+                     CkkMediaInfo info = m_KKPlayer.GetCMediaInfo();
 
                      SeekBar MovieSeekBar = (SeekBar) findViewById(R.id.MovieSeekbar);
                      if (m_nLastSerial < info.Serial) {
