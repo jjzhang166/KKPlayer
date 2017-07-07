@@ -169,13 +169,13 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
         MEDIA_INFO info=pKKUI->GetMediaInfo();
         jclass Infocls = env->GetObjectClass(jInfo); 
         jfieldID jfsAVRes = env->GetFieldID(Infocls, "AVRes", "Ljava/lang/String;");
-        info.AVRes[31]=0;		
+        info.AVRes[1023]=0;		
 		if(strlen(info.AVRes)>0)
 		env->SetObjectField(jInfo, jfsAVRes, env->NewStringUTF(info.AVRes));
       
         jfieldID jfsAvFile = env->GetFieldID(Infocls, "AvFile", "Ljava/lang/String;");
-        if(strlen(info.AvFile)>0)		
-		env->SetObjectField(jInfo, jfsAvFile, env->NewStringUTF(info.AvFile));
+        //if(strlen(info.AvFile)>0)		
+		//env->SetObjectField(jInfo, jfsAvFile, env->NewStringUTF(info.AvFile));
 		
         jfieldID jfiFileSize = env->GetFieldID(Infocls, "FileSize", "I");		
         env->SetIntField(jInfo, jfiFileSize, info.FileSize);		

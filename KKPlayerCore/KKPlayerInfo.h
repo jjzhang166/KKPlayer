@@ -11,7 +11,7 @@ typedef struct AVCACHE_INFO
 typedef struct MEDIA_INFO 
 {
 	//·Ö±æÂÊ
-	char              AVRes[32];
+	char              AVRes[1024];
 	char              AVinfo[1024];
 	const char*       AvFile;
 	int               FileSize;
