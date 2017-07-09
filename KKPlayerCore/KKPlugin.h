@@ -23,6 +23,7 @@ extern "C"
 	
 	/************得到下载速度信息*********/
     typedef bool (*fKKDownAVFileSpeedInfo)(const char *strurl,char *jsonBuf,int len);
+	typedef bool (*fKKAllAVFilesSpeedInfo)(char **OutJsonBuf);
     //刷新队列
 	typedef void (*fFlushPlayerQue)(void *opaque);
 	//计算延迟回调函数AVType 0,音频，1视频
@@ -73,6 +74,7 @@ extern "C"
 		fKKPauseDownAVFile     KKPauseDownAVFile;
 		/*************得到下载速度信息************/
 		fKKDownAVFileSpeedInfo KKDownAVFileSpeedInfo;
+		fKKAllAVFilesSpeedInfo KKAllAVFilesSpeedInfo;
 		/*****************释放内存*************/
 		fFree KKFree;
 		/***********分析url***************/

@@ -1,6 +1,9 @@
 #include "HistoryInfoMgr.h"
+#include "../KKPlayerCore/KKPlayer.h"
+#include "json/json.h"
+#include <process.h>
 #include <queue>
-
+#include <list>
 typedef struct SQL_LITE__
 {
 	char strSql[512];
@@ -9,6 +12,9 @@ typedef struct SQL_LITE__
 static std::queue<SQL_LITE__ *> m_sqlQue;
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
 CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRtmp(-1), m_nlibRtmpDelay(-1)
+,m_hThread(0)
+,m_bThOver(1)
+,m_iThaddr(0)
 {
 
 }
@@ -42,7 +48,13 @@ void CHistoryInfoMgr::InitDb()
 		  SqliteOp.CreateTable(pDb,str);
 	  }
 	  m_pDb=pDb;
+	  if(!m_hThread)
+	  {
+		  m_bThOver=0;
+	     m_hThread=(HANDLE)_beginthreadex(NULL, NULL, SqlOp_Thread, (LPVOID)this, 0,&m_iThaddr);
+	  }
 	  m_Lock.Unlock(); 
+
 }
 
 void CHistoryInfoMgr::UpdateTransferInfo(char *urlInfo,char* alias,char *category,unsigned int FileSize,unsigned int AcSize,int Speed)
@@ -113,6 +125,21 @@ void CHistoryInfoMgr::GetAVTransferInfo(std::vector<AV_Transfer_Info *> &slQue,i
 	sqlite3_free_table(pResult);
 	
 	return;
+}
+
+
+unsigned __stdcall  CHistoryInfoMgr::SqlOp_Thread(LPVOID lpParameter)
+{
+	CHistoryInfoMgr * pIn= (CHistoryInfoMgr *)lpParameter;
+	pIn->SqlOpFun();
+	return 1;
+}
+void CHistoryInfoMgr::SqlOpFun()
+{
+
+
+	 
+	 m_bThOver=true;
 }
 /*******播放进度更新信息***********/
 void CHistoryInfoMgr::UpDataAVinfo(const char *strpath,int curtime,int totaltime,unsigned char* Imgbuf,int buflen,int width,int height)

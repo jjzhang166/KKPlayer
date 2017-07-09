@@ -22,16 +22,12 @@ translucent="0">
 						     <template itemHeight="50" colorHover="#cccccc" colorSelected="#D0EDFD" id="30000">
                                       <window name="col1">
                                                  <text name="file_name" align="center" pos="0,0,-0,20" ></text>
-												 <text name="file_Size" align="center" pos="0,20,-0,-0" ></text>
                                       </window>
                                       <window name="col2">
-                                                  <progress name="file_progress"
-				                                  bkgndSkin="_skin.Pro_Bg" posskin="_skin.Pro_Play"
-				                                  pos="0,30,-0,2"  value="0" min="0" max="1000" />
-												  <text name="file_Speed" align="center" pos="0,35,-0,-0" ></text>
+                                                
                                       </window>
                                       <window name="col3">
-                                                 <text name="file_Time" align="center" pos="0,0,-0,-0" ></text>
+                                              
                                       </window>
 							 </template>
 				   </kkmclv>

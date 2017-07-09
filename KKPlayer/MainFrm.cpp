@@ -1179,6 +1179,7 @@ void LoadPlugin()
 		fFree                  pKKFree=(fFree)GetProcAddress(hdll, "KKFree");
         fKKDownAVFileSpeedInfo pKKDownAVFileSpeedInfo=(fKKDownAVFileSpeedInfo)GetProcAddress(hdll, "KKDownAVFileSpeedInfo");
         fKKUrlParser           pKKUrlParser=(fKKUrlParser)GetProcAddress(hdll, "KKUrlParser");
+		fKKAllAVFilesSpeedInfo pKKAllAVFilesSpeedInfo=(fKKAllAVFilesSpeedInfo)GetProcAddress(hdll,"KKAllAVFilesSpeedInfo");
 		if(pfn!=NULL&&pfGetPtl!=NULL&& pDel!=NULL)
 		{
 			
@@ -1191,6 +1192,7 @@ void LoadPlugin()
 				Info.KKPauseDownAVFile=pKKPauseDownAVFile;
 				Info.KKFree=pKKFree;
 				Info.KKDownAVFileSpeedInfo=pKKDownAVFileSpeedInfo;
+				Info.KKAllAVFilesSpeedInfo =pKKAllAVFilesSpeedInfo;
 				Info.KKUrlParser=pKKUrlParser;
 				KKPlayer::AddKKPluginInfo(Info);
 			

@@ -24,6 +24,7 @@ typedef long long          int64_t;
 extern std::map<std::string,IPC_DATA_INFO>                        G_guidBufMap;
 extern std::map<std::string,std::map<std::string,HANDLE>*>        G_URLRequestInfoMap;
 extern std::map<std::string,std::string>                          G_SpeedInfoMap;
+extern std::string                                          G_StrAllSpeedInfoJson;
 extern Qy_IPC::Qy_IPc_InterCriSec            G_KKMapLock;
 extern std::map<std::string,unsigned int>    G_CacheTimeMap;
 extern int G_IPC_Read_Write;
@@ -168,6 +169,12 @@ namespace Qy_IPC
 				   guidstr=JsValue["Url"].asString();
 			       std::string JsonSpeedInfo=JsValue["SpeedInfo"].asString();
 				   HandleIPCMsg(guidstr,IPCSpeed,(unsigned char*)JsonSpeedInfo.c_str(),JsonSpeedInfo.length(),0);
+			}else if(IPCMSG==IPCALLSpeed){	
+                   G_KKMapLock.Lock();
+				   if(!JsValue["speedinfos"].isNull()){
+				       G_StrAllSpeedInfoJson=JsValue["speedinfos"].toStyledString();
+				   }
+				   G_KKMapLock.Unlock();
 			}else if(IPCMSG==IPCUnknown)
 			{
 				if(G_IPC_PreHandel!=0)

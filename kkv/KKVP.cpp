@@ -11,7 +11,7 @@
 
 #include <process.h>
 #include <tlhelp32.h>
-
+#include <assert.h>
 
 
 
@@ -28,7 +28,10 @@ std::map<std::string,unsigned int>                  G_CacheTimeMap;
 std::map<std::string,HANDLE>                        G_guidHMap;
 
 std::map<std::string,std::string>                    G_URLInfoMap;
+
+///速度信息 url      速度信息
 std::map<std::string,std::string>                    G_SpeedInfoMap;
+std::string                                          G_StrAllSpeedInfoJson;
 Qy_IPC::CKKV_ReceiveData                            *G_pKKV_Rec=NULL;
 Qy_IPC::CKKV_DisConnect                             *G_pKKV_Dis=NULL;
 Qy_IPC::Qy_IPc_InterCriSec                           G_KKMapLock;
@@ -587,7 +590,45 @@ bool __declspec(dllexport) KKDownAVFileSpeedInfo(const char *strurl,char *jsonBu
 }
 
 
+bool __declspec(dllexport) KKAllAVFilesSpeedInfo(char **OutJsonBuf)
+{
+  if(G_IPC_Read_Write!=1)
+		return false;
+	
+	Json::Value jsonValue;
+	jsonValue["IPCMSG"]=IPCALLSpeed;
+	jsonValue["Guid"]="";
+	jsonValue["Url"]="";
+    jsonValue["HRW"]=0;
+	jsonValue["FirstRead"]=0;
 
+	std::string strGuid=jsonValue.toStyledString();
+    int buflen=strGuid.length()+1024;
+	
+	unsigned char *IPCbuf=(unsigned char*)::malloc(buflen);
+	memset(IPCbuf,0,buflen);
+	
+	
+	memcpy(IPCbuf,strGuid.c_str(),strGuid.length());
+	KKVWritePipe(IPCbuf,buflen,0);
+	::free(IPCbuf);
+	
+	 G_KKMapLock.Lock();
+	 int len=G_StrAllSpeedInfoJson.length();
+	 if(len>10){
+	     len+=1024;
+	     char * Temp=(char *)::malloc(len);
+	     assert(Temp);
+	     memset(Temp,0,len);
+		 *OutJsonBuf=Temp;
+		 sprintf(Temp,"%s",G_StrAllSpeedInfoJson.c_str());
+	 /*strcpy(*OutJsonBuf, */
+	 }else{
+		 
+	 }
+	 G_KKMapLock.Unlock();
+	return 1;
+}
 char * c_left(char *dst,char *src, int n)
 {
 	char *p = src;

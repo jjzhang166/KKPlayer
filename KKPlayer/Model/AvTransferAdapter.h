@@ -19,8 +19,9 @@ namespace SOUI
 	class CDownAVListMcAdapterFix : public SMcAdapterBase
 	{
 		public:
-			CDownAVListMcAdapterFix(CKKmclv *pSMCListView);
+			CDownAVListMcAdapterFix(SMCListView *pSMCListView);
 			~CDownAVListMcAdapterFix();
+			void Refresh();
 			int getCount();
 
 			SStringT getSizeText(DWORD dwSize);
@@ -32,7 +33,7 @@ namespace SOUI
 			
 			bool OnSort(int iCol,SHDSORTFLAG * stFlags,int nCols);
 		private:
-			CKKmclv *m_pSMCListView;
+			SMCListView *m_pSMCListView;
 	};
 }
 #endif

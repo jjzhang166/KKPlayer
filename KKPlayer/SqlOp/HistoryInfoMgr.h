@@ -4,6 +4,7 @@
 #include "../stdafx.h"
 #include "SqliteOp.h"
 #include <vector>
+#include <set>
 #include <helper/SCriticalSection.h>
 #include "../KKPlayerCore/KKLock.h"
 typedef struct _AV_Hos_Info{
@@ -60,7 +61,13 @@ public:
   public:
 	     static CHistoryInfoMgr *GetInance();
   private:
-	     static CHistoryInfoMgr        *m_pInance;
+	     static unsigned __stdcall             SqlOp_Thread(LPVOID lpParameter);
+		 void                                  SqlOpFun();
+		 std::vector<AV_Transfer_Info *>       m_TransferQue;
+		 HANDLE           m_hThread;
+         volatile	bool  m_bThOver;
+		 unsigned  int   m_iThaddr;
+	     static CHistoryInfoMgr       *m_pInance;
 	     CSqliteOp                     SqliteOp;
 		 char                          m_strDbPath[1024];
 		 void*                         m_pDb;
