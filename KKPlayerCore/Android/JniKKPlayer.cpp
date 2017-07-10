@@ -163,7 +163,7 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKSetMinReal
 }
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaInfo(JNIEnv *env, jobject instance,jint obj, jobject jInfo)
 {
-	
+	int ret=0;
 	CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *) obj;
 	if(pKKUI&&obj){
         MEDIA_INFO info=pKKUI->GetMediaInfo();
@@ -206,7 +206,9 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
 		info.SpeedInfo[1023]=0;
 	    if(strlen(info.SpeedInfo)>0)	
 		    env->SetObjectField(jInfo, jfsSpeedInfo, env->NewStringUTF(info.SpeedInfo));
-		return 1;
+		if(info.serial1!=-1)
+			ret=1;
+		return ret;
     }
 	return 0;
 }

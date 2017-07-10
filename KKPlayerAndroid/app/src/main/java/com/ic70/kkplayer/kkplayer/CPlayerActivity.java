@@ -170,7 +170,7 @@ public class CPlayerActivity extends Activity {
                      CkkMediaInfo info = m_KKPlayer.GetCMediaInfo();
 
                      SeekBar MovieSeekBar = (SeekBar) findViewById(R.id.MovieSeekbar);
-                     if (info.Serial1 == info.Serial) {
+                     if (info.Serial1 == info.Serial&&info.Serial1!=-1) {
                              MovieSeekBar.setProgress(info.CurTime);
                              MovieSeekBar.setMax(info.TotalTime);
                              TextView CurTimetextView = (TextView) findViewById(R.id.CurTimetextView);

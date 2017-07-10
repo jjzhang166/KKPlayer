@@ -86,6 +86,8 @@ MEDIA_INFO CAndKKPlayerUI::GetMediaInfo()
    memset(&info,0,sizeof(MEDIA_INFO));
    if(m_player.GetMediaInfo(info))
    {
+   }else{
+	   info.serial1=-1;
    }
    return info;
 }

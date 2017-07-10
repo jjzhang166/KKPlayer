@@ -492,6 +492,10 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 												snprintf(abcd,1024,"%d channels",pVideoInfo->auddec.avctx->channels);
 												strcat(infostr, abcd);
 											}
+											if(pVideoInfo->seek_req!=0||m_nSeekTime!=0)
+											{
+											    info.serial=-1;
+											}
 											strcpy(info.AVinfo,infostr);
 
 											
