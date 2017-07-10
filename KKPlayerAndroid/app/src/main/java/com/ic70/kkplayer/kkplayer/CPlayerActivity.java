@@ -103,7 +103,12 @@ public class CPlayerActivity extends Activity {
                         PlayerStata=EnumPlayerStata.OpenFailure;
                 }
 
-                if (((llx == 0 && m_KKPlayer.GetPlayerState()== CKKPlayerGlRender.EKKPlayerErr.KKAVWait) || m_OpenCouner >= 2)|| (PlayerStata==EnumPlayerStata.Play&& m_KKPlayer.GetRealtimeDelay()>m_MinRealtimeDelay))
+                if(m_KKPlayer.GetPlayerState() ==CKKPlayerGlRender.EKKPlayerErr.KKAVOver)
+                {
+                    Button NetButton = (Button) findViewById(R.id.NetButton);
+                    NetButton.setText("视频播放结束");
+                    NetButton.setVisibility(View.VISIBLE);
+                } else if (((llx == 0 && m_KKPlayer.GetPlayerState()== CKKPlayerGlRender.EKKPlayerErr.KKAVWait) || m_OpenCouner >= 2)|| (PlayerStata==EnumPlayerStata.Play&& m_KKPlayer.GetRealtimeDelay()>m_MinRealtimeDelay))
                 {
                     ///需要缓冲
                     ImageView ImageV = (ImageView) findViewById(R.id.WaitRImageView);
@@ -125,7 +130,8 @@ public class CPlayerActivity extends Activity {
                     Button NetButton = (Button) findViewById(R.id.NetButton);
                     NetButton.setVisibility(View.GONE);
                 }
-                //检查是否需要重连,只有流媒体才需要
+
+                    //检查是否需要重连,只有流媒体才需要
                 if (m_OpenCouner == 0&& m_KKPlayer.GetRealtime()==1)
                 {
                     m_bNecState = isNetworkAvailable(m_PlayerActivity);

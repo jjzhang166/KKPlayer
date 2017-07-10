@@ -93,6 +93,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
         KKAVWait,             //需要缓冲
         KKRealTimeOver,
         KKEOF,                //文件结束了。
+        KKAVOver,            //视频结束
     }
     public EKKPlayerErr GetPlayerState()
     {
@@ -112,6 +113,8 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
                 return EKKPlayerErr.KKRealTimeOver;
             else if(err==6)
                 return EKKPlayerErr.KKEOF;
+            else if(err==7)
+                return EKKPlayerErr.KKAVOver;
         }
         return         EKKPlayerErr.KKOpenUrlOk;
     }

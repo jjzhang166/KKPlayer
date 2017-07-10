@@ -1739,6 +1739,8 @@ bool  KKPlayer::loadSeg(AVFormatContext**  pAVForCtx,int AVQueSize,short segid,b
 	m_AVNextInfo.NeedRead=0;
 	strcpy(m_AVNextInfo.url,"");
 ReOpenAV:
+if(m_pPlayUI!=NULL)
+{
 	m_pPlayUI->GetNextAVSeg(this,AVERROR_EOF,AVQueSize,m_AVNextInfo);
 	if(m_AVNextInfo.NeedRead&&strlen(m_AVNextInfo.url))
 	{
@@ -1754,10 +1756,10 @@ ReOpenAV:
 		      goto ReOpenAV;
 		 }
 	}else{
-         if(m_pPlayUI!=NULL){
+           if(AVQueSize==-1)
 		    m_pPlayUI->OpenMediaStateNotify(pVideoInfo->filename,KKAVOver);
-		 }
-	}
+    }
+}
 	return m_AVNextInfo.NeedRead;
 }
 void  KKPlayer::InterSeek(AVFormatContext*  pFormatCtx)
@@ -2248,7 +2250,7 @@ void KKPlayer::ReadAV()
 				       
 			            if(m_pPlayUI!=NULL&&pVideoInfo->pSegFormatCtx==NULL)
 						{
-							if(AVQueSize==0&&(pVideoInfo->pictq.size>=0|| pVideoInfo->sampq.size>=0)){
+							if(AVQueSize==0&&(pVideoInfo->pictq.size<=1|| pVideoInfo->sampq.size<=1)){
 								AVQueSize=-1;///文件已经读取完了
 							}
 							if(m_nSeekSegId>-1){
