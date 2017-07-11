@@ -80,6 +80,12 @@
 	   <file name="ID_LCEX_header" path="image\lcex_header.png"/>
 	   <file name="ID_LCEX_header_arrow" path="image\lcex_header_arrow.png"/>
 	   <file name="ID_LCEX_selectrange" path="image\lcex_selectrange.png"/>
+	   
+	   <file name="ID_PNG_1PAUSE" path="image\1pause.png"/>
+	   <file name="ID_PNG_1PLAY" path="image\1play.png"/>
+	   
+	   <file name="ID_PNG_OpenFolderBtn" path="image\OpenFolderBtn.png" />
+	   <file name="ID_PNG_DeleteBtn" path="image\DeleteBtn.png" />
 	</png>
 	<translator>
           <file name="lang_cn" path="translation\lang_cn.xml"/>

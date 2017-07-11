@@ -24,7 +24,7 @@ void skpngZhuc();
 #pragma comment (lib,"Usp10.lib")
 #pragma comment (lib,"Opengl32.lib")
 extern "C"{
-	void __declspec(dllexport) *CreateRender(HWND h,char *Oput){
+	void __declspec(dllexport) *CreateRender2(HWND h,char *Oput,int cpu_flags){
 
 		 bool xxxaa=true;
 		 if(xxxaa){
@@ -39,7 +39,7 @@ extern "C"{
 					*Oput=0;
 					m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,0));
 		 }else if(*Oput==1){
-		         m_pRender =new CRenderD3D();
+		         m_pRender =new CRenderD3D(cpu_flags);
 				 if(!m_pRender->init(h))
 				 {
 					delete m_pRender;
@@ -60,6 +60,11 @@ extern "C"{
 
 		
 		 return m_pRender;
+	}
+
+	void __declspec(dllexport) *CreateRender(HWND h,char *Oput,int cpu_flags){
+
+		return CreateRender2( h,Oput,0);
 	}
 
 	char __declspec(dllexport) DelRender(void *p,char RenderType)

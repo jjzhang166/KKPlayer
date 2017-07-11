@@ -471,6 +471,7 @@ void GlEs2Render::render(kkAVPicInfo *Picinfo,bool wait)
 
 				int     planes[3]    = { 0, 1, 2 };
 				const GLsizei widths[3]    = { Picinfo->linesize[0], Picinfo->linesize[1], Picinfo->linesize[2] };
+			   // const GLsizei widths[3]    = { Picinfo->width, Picinfo->width/2, Picinfo->width/2};
 				const GLsizei heights[3]   = { Picinfo->height,Picinfo->height / 2,     Picinfo->height / 2 };
 				//***********************************Y***********************U**************************************V
 				const GLubyte *pixels[3]   = {(GLubyte *)Picinfo->data[0], (GLubyte *)Picinfo->data[1] ,  (GLubyte *)Picinfo->data[2] };

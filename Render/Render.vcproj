@@ -373,6 +373,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\gpumemcpy.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Render.cpp"
 				>
 			</File>
@@ -442,6 +446,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\gpumemcpy.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Render.h"
 				>

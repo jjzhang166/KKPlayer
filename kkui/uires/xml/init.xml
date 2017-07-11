@@ -85,6 +85,11 @@
 		 <imgframe name="_skin.lcex_header"       src="PNG:ID_LCEX_header" states="4" margin-x="2" margin-y="2"/>
          <imgframe name="_skin.lcex_header_arrow" src="PNG:ID_LCEX_header_arrow" states="2"  />
          <imgframe name="_skin.lcex_selectrange"  src="PNG:ID_LCEX_selectrange" margin-x="1" margin-y="1"/>
+		 
+		 <imglist name="_skin.1PAUSE" src="PNG:ID_PNG_1PAUSE" states="5" />
+		 <imglist name="_skin.1PLAY" src="PNG:ID_PNG_1PLAY" states="5" />
+		 <imglist name="_skin.OpenFolderBtn" src="PNG:ID_PNG_OpenFolderBtn" states="3" />
+		 <imglist name="_skin.DeleteBtn" src="PNG:ID_PNG_DeleteBtn" states="3" />
   </skin>
 
   <style>

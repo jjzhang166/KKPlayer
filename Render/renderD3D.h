@@ -14,7 +14,7 @@
 class CRenderD3D : public IkkRender
 {
 public:
-    CRenderD3D();
+    CRenderD3D(int         cpu_flags);
     ~CRenderD3D();
 
     virtual bool init(HWND hView);
@@ -45,6 +45,7 @@ public:
 	void renderLock();
 	void renderUnLock();
 private:
+	int          m_ncpu_flags;
 	bool         m_bNeedReset;
 	SkPaint      m_skPaint;
     std::wstring m_LeftStr;

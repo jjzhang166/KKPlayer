@@ -161,6 +161,14 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_KKSetMinReal
 	}
 	return -1;
 }
+jstring cToJstringutf(JNIEnv* env, const char* pat) {  
+    jclass strClass = env->FindClass("java/lang/String");  
+    jmethodID ctorID = env->GetMethodID(strClass, "<init>",  "([BLjava/lang/String;)V");  
+    jbyteArray bytes = env->NewByteArray( strlen(pat));  
+    env->SetByteArrayRegion( bytes, 0, strlen(pat), (jbyte*) pat);  
+    jstring encoding = env->NewStringUTF("utf-8");  
+    return (jstring)env->NewObject( strClass, ctorID, bytes, encoding);  
+}
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaInfo(JNIEnv *env, jobject instance,jint obj, jobject jInfo)
 {
 	int ret=0;
@@ -175,7 +183,12 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetkkMediaIn
       
         jfieldID jfsAvFile = env->GetFieldID(Infocls, "AvFile", "Ljava/lang/String;");
         if(info.AvFile!=NULL&&strlen(info.AvFile)>0)		
-		env->SetObjectField(jInfo, jfsAvFile, env->NewStringUTF(info.AvFile));
+		env->SetObjectField(jInfo, jfsAvFile, cToJstringutf(env,info.AvFile));
+	
+	    ///视频一些信息
+	    jfieldID jfsAVinfo = env->GetFieldID(Infocls, "AVinfo", "Ljava/lang/String;");
+	    if(strlen(info.AVinfo)>0)		
+		    env->SetObjectField(jInfo, jfsAVinfo, cToJstringutf(env, info.AVinfo));
 		
         jfieldID jfiFileSize = env->GetFieldID(Infocls, "FileSize", "I");		
         env->SetIntField(jInfo, jfiFileSize, info.FileSize);		

@@ -21,7 +21,7 @@
 	#include <Windows.h>
 #endif
 #include <assert.h>
-typedef void *(*CreateRender)(HWND h,char *Oput);
+typedef void *(*CreateRender)(HWND h,char *Oput,int cpu_flags);
 typedef char (*DelRender)(void *p,char RenderType);
 #endif
 // TODO: 在此处引用程序需要的其他头文件

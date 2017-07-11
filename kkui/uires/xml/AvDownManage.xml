@@ -14,20 +14,24 @@ translucent="0">
 							 sortSkin="_skin.lcex_header_arrow" itemSkin="_skin.lcex_header"
 							 colorBkgnd="#ffffff" >
                                  <items>
-                                     <item width="300">文件名</item>
-                                     <item width="100">大小</item>
-                                     <item width="180">时间</item>
+										<item width="200">文件名</item>
+										<item width="150">大小</item>
+										<item width="100">速度</item>
+										<item width="100">操作</item>
                                  </items>
                              </header>
 						     <template itemHeight="50" colorHover="#cccccc" colorSelected="#D0EDFD" id="30000">
                                       <window name="col1">
-                                                 <text name="file_name" align="center" pos="0,0,-0,20" ></text>
+                                                <text name="txt_name" align="center" pos="0,0,-0,-0" align="center" valign="middle" ></text>
                                       </window>
                                       <window name="col2">
-                                                
+                                                <text name="txt_size" align="center" pos="0,0,-0,-0" align="center" valign="middle" ></text>
                                       </window>
                                       <window name="col3">
-                                              
+                                                <text name="txt_speed" align="center" pos="0,0,-0,-0" align="center" valign="middle"  ></text>
+                                      </window>
+									  <window name="col4">
+                                                
                                       </window>
 							 </template>
 				   </kkmclv>

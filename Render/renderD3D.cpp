@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "renderD3D.h"
+#include "gpumemcpy.h"
 #include <d3dx9tex.h>
 #include <wchar.h>
 #include <stdio.h>
@@ -94,7 +95,7 @@ static BOOL IsWow64()
 	}  
 	return bIsWow64;  
 }  
-CRenderD3D::CRenderD3D()
+CRenderD3D::CRenderD3D(int          cpu_flags)
     :m_hView(NULL)
     ,m_pD3D(NULL)
     ,m_pDevice(NULL)
@@ -116,6 +117,7 @@ CRenderD3D::CRenderD3D()
 	,m_bNeedReset(0)
 	,m_lastw(0)
 	,m_lasth(0)
+	,m_ncpu_flags(cpu_flags)
 {
 
 }
@@ -258,6 +260,17 @@ bool CRenderD3D::init(HWND hView)
 			return false;
 		}
 		
+
+		D3DADAPTER_IDENTIFIER9 d3dai ={};
+		if (FAILED(IDirect3D9_GetAdapterIdentifier(m_pD3D,D3DADAPTER_DEFAULT, 0, &d3dai))) {
+				//av_log(NULL, AV_LOG_WARNING, "IDirect3D9_GetAdapterIdentifier failed");
+			
+		}
+
+	
+   
+		IniCopyFrameNV12(d3dai.VendorId,m_ncpu_flags);
+
 		return true;
 	
 

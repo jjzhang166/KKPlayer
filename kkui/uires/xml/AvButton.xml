@@ -1,8 +1,8 @@
-<include>
+ï»¿<include>
  <text font="size:10" name="AV_CurTimeTxt" pos="10,10,@100,@20" colorText="#FFFFFF">00:00:00 / 00:00:00</text>
 					  <text font="size:10" name="AV_SpeedTxt" visible="0" pos="[5,10,@120,@20" align="left" colorText="#FFFFFF">0 B/s</text>
                       <imgbtn  skin="_skin.PLAY" name="AVPlayBtn" pos="|0, |0" 
-					  tip="¿ªÊ¼²¥·Å»òÕßÔÝÍ£"
+					  tip="å¼€å§‹æ’­æ”¾æˆ–è€…æš‚åœ"
 					  offset="-0.5,-0.5"  focusable="0" width="37" height="37"/>
 					  <button  skin="_skin.AUDIO2" name="btn_audio" 
 					  pos="]-10,26"
@@ -14,9 +14,9 @@
 					  
 					  <imgbtn name="AVFolderBtn" skin="_skin.Folder" focusable="0"
 					  pos="-60,26" offset="-0.5,-0.5"   colorText="#FFFFFF"
-					  width="29" height="36" animate="0" tip="´ò¿ª±¾µØÎÄ¼þ" />
+					  width="29" height="36" animate="0" tip="æ‰“å¼€æœ¬åœ°æ–‡ä»¶" />
 					  
 					  <imgbtn  skin="_skin.List_Button" name="AVFileListBtn" colorText="#FFFFFF"
 					  pos="-30,26" focusable="0"
-					  offset="-0.5,-0.5" focusable="0" width="29" height="36" tip="²¥·ÅÁÐ±í" />
+					  offset="-0.5,-0.5" focusable="0" width="29" height="36" tip="æ’­æ”¾åˆ—è¡¨" />
 </include>

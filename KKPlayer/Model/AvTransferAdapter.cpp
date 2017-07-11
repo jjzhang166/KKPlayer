@@ -4,6 +4,12 @@
 #include "json/json.h"
 #include "../Tool/cchinesecode.h"
 #include <vector>
+#include <sstream>
+#include <iomanip>
+#include <string>
+#include <algorithm>
+#include <math.h>
+#include <iosfwd>
 namespace SOUI
 {
 	char strabce[64]="";
@@ -21,9 +27,21 @@ namespace SOUI
 	   int  speed;
 	   int  progress;
 	   int  filesize;
-	   SStringT  Url;
+	   std::wstring  Url;
 	};
 	static std::vector<DataItem> DataItemVector;
+
+	std::string format_thousands_separator(double val)
+{
+	std::stringstream stream;
+	std::string strRet;
+	stream.clear();
+	stream.imbue(std::locale("chs"));
+	stream << std::setprecision(3)<< val;//<<std::fixed << val;
+	stream >> strRet;
+	return strRet;//std::move(strRet);
+}
+
 	char * GetFormtDByMB(char *strabce,int FileSize)
 	{
 		
@@ -31,19 +49,23 @@ namespace SOUI
 		if(FileSize>1024*1024*1024)
 		{
 			dfileSize=(double)FileSize/(1024*1024*1024);
-			sprintf(strabce,"%.3fGB",dfileSize);
+			sprintf(strabce,"%sGb",format_thousands_separator(dfileSize).c_str());
 
 		}else if(FileSize>1024*1024)
 		{
 			dfileSize=(double)FileSize/(1024*1024);
-			sprintf(strabce,"%.3fMB",dfileSize);
+			sprintf(strabce,"%sMb",format_thousands_separator(dfileSize).c_str());
 		}else{
 			dfileSize=(double)FileSize/1024;
 			dfileSize+=(FileSize%1024)/1024;
-			sprintf(strabce,"%.2fKB",dfileSize);
+			sprintf(strabce,"%sKb",format_thousands_separator(dfileSize).c_str());
 		}
 		return strabce;
 	}
+	
+
+
+
 	char * GetFormtDBySpeed(char *strabce,int FileSize)
 	{
 
@@ -51,13 +73,12 @@ namespace SOUI
 		if(FileSize>1024*1024)
 		{
 			dfileSize=(double)FileSize/(1024*1024);
-			sprintf(strabce,"%.2f MB/s",dfileSize);
+			sprintf(strabce,"%s Mb/s",format_thousands_separator(dfileSize).c_str());
 		}else if(FileSize>1024){
-			
-			sprintf(strabce,"%d KB/s",FileSize/1024);
+			dfileSize=(double)FileSize/1024;
+			sprintf(strabce,"%s Kb/s",format_thousands_separator(dfileSize).c_str());
 		}else{
-			dfileSize=(double)FileSize;
-            sprintf(strabce,"%d B/s",FileSize);
+			sprintf(strabce,"%d B/s",FileSize);
 			
 		}
 		return strabce;
@@ -90,16 +111,16 @@ namespace SOUI
 					 {
 						for(int i=0;i<jsonValue.size();i++)
 						{
-						     /*Json::Value  speedinfo=jsonValue[i]["speedinfo"];
+						     Json::Value  speedinfo=jsonValue[i]["speedinfo"];
 							 std::string url=jsonValue[i]["url"].asString();
                              memset(temp,0,2048);
-							 CChineseCode::charTowchar(url.c_str(),temp, 2048) ;*/
+							 CChineseCode::charTowchar(url.c_str(),temp, 2048) ; /**/
 
 							 DataItem Item;
 							 Item.Url=temp;
-							/*  Item.filesize=speedinfo["filesize"].asInt64();
+							 Item.filesize=speedinfo["filesize"].asInt64();
 							 Item.speed=speedinfo["speed"].asInt();
-							 Item.speed=speedinfo["progress"].asInt64();*/
+							 Item.progress=speedinfo["progress"].asInt64();/* */
 							 DataItemVector.push_back(Item);
 						}
 					 }
@@ -130,16 +151,58 @@ namespace SOUI
 	}
 	void CDownAVListMcAdapterFix::getView(int position, SWindow * pItem,pugi::xml_node xmlTemplate)
 	{
-	 
-	   if(pItem->GetChildrenCount()==0)
+		int len=2*1024*4;
+		char *temp2=(char*)::malloc(4096);
+		wchar_t  *temp = (wchar_t  *)::malloc(len);
+	    if(pItem->GetChildrenCount()==0)
 		{
 			pItem->InitFromXml(xmlTemplate);
 		}
-	  if(DataItemVector.size()>position)
-  DataItem &Item=DataItemVector.at(position);
-	SWindow  *pName= pItem->FindChildByName(L"file_name");
-	  if(pName)
-	   pName->SetWindowText(L"xx");
+	   if(DataItemVector.size()>position)
+	   {
+			 DataItem &Item=DataItemVector.at(position);
+			 SWindow  *pWin= pItem->FindChildByName(L"txt_name");
+			 if(pWin)
+			 {
+				 int index= Item.Url.find_last_of (_T("\\"));
+				if(index<0)
+				{
+					index=Item.Url.find_last_of(L"/");
+				}
+				index+=1;
+				Item.Url=Item.Url.substr(index,Item.Url.length()-index);
+				pWin->SetWindowText(Item.Url.c_str());
+			 }
+	         
+			 
+			 
+			 pWin= pItem->FindChildByName(L"txt_size");
+			 if(pWin){
+				 memset(temp,0,len);
+				 
+				 memset(temp2,0,4096);
+				 GetFormtDByMB(temp2,Item.filesize);
+				 CChineseCode::charTowchar(temp2,temp,1024) ; /**/
+				 SStringT Tip=temp;
+
+				 GetFormtDByMB(temp2,Item.progress);
+				 CChineseCode::charTowchar(temp2,temp,1024) ; /**/
+                 Tip=_T("/")+Tip;
+				 Tip=temp+Tip;
+				 pWin->SetWindowText(Tip);
+                 
+			 }
+			 pWin= pItem->FindChildByName(L"txt_speed");
+			 if(pWin){
+				 memset(temp,0,len);	 
+				 memset(temp2,0,4096);
+				 GetFormtDBySpeed(temp2,Item.speed);
+				 CChineseCode::charTowchar(temp2,temp,1024) ; /**/
+				 pWin->SetWindowText(temp);
+			} 
+	   }
+	   ::free(temp2);
+	   ::free(temp);
 	   return ;
 	}
     bool CDownAVListMcAdapterFix::OnButtonClick(EventArgs *pEvt)

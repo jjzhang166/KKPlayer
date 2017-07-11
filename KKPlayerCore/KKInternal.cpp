@@ -1291,11 +1291,12 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
     if(vp==NULL)
 	   return -1;
 
-#ifdef _WINDOWS
 	int copydata=0;
-#else
-		int copydata=0;
+#ifdef Android_Plat
+	if(pFrame->linesize[0]!=pFrame->width)
+         copydata=1;
 #endif
+	//if()
 	pPictq->mutex->Lock();
 	vp->frame->sample_aspect_ratio = pFrame->sample_aspect_ratio;
 	vp->frame->pts=pFrame->pts;
