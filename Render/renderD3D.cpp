@@ -548,6 +548,59 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 	m_ErrPicVertex[3].v = 1.f;
 
 }
+void CRenderD3D::SurCopy(IDirect3DSurface9* temp,kkAVPicInfo *Picinfo)
+{
+	D3DLOCKED_RECT lock;
+	if (FAILED(IDirect3DSurface9_LockRect(temp, &lock, NULL, D3DLOCK_READONLY))) {
+	
+		return;
+	}
+
+				if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height || m_nPicformat!=Picinfo->picformat)
+				{
+							RECT rect2;
+							GetClientRect(m_hView, &rect2);
+							UINT hei=rect2.bottom - rect2.top;
+							UINT Wei=rect2.right - rect2.left;
+							
+							D3DFORMAT d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
+
+							SAFE_RELEASE(m_pYUVAVTexture);
+							if(m_w!=Wei&&hei!=m_h){
+								resize( Wei,hei);
+							}
+								//DX YV12 ¾ÍÊÇYUV420P
+								HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
+									Picinfo->width, Picinfo->height,
+									d3dformat,
+									D3DPOOL_DEFAULT,
+									//D3DPOOL_SYSTEMMEM,
+									&m_pYUVAVTexture,
+									NULL);
+
+								if (FAILED(hr)){
+									IDirect3DSurface9_UnlockRect(temp);
+									return ; 
+								}
+
+								m_nPicformat=Picinfo->picformat;
+						}
+		 m_lastpicw = Picinfo->width;
+		 m_lastpich = Picinfo->height;
+
+		 D3DLOCKED_RECT rect;
+		 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);
+		 if(rect.pBits){
+		 byte *pY=(byte *)rect.pBits;
+		 byte *pU=pY+rect.Pitch*Picinfo->height;
+		 byte *pV=pU + rect.Pitch * Picinfo->height / 4;
+
+		 m_pYUVAVTexture->UnlockRect();	
+		 CopyFrameNV12((BYTE *)lock.pBits,pY,pU, Picinfo->height, Picinfo->height,lock.Pitch);	
+		 }
+		IDirect3DSurface9_UnlockRect(temp);
+
+}
 void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 {
   HRESULT hr=0;
@@ -572,7 +625,10 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 				///DXVA2Ó²½â
 				if(Picinfo->picformat==(int)AV_PIX_FMT_DXVA2_VLD)
 				{
-					temp= (LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3];	
+					temp=(LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3];
+					/*SurCopy((LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3],Picinfo);	
+                    temp=m_pYUVAVTexture;*/
+					
 				}else{
 				   UpdateTexture(Picinfo);	
 				   temp=m_pYUVAVTexture;

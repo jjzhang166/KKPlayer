@@ -536,6 +536,7 @@ void              CMainFrame::OnFinalMessage(HWND /*hWnd*/)
  }
 
 int SetHardCtx(void* d3d,void* dev,int ver);
+int av_get_cpu_flags();
 LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 
@@ -560,7 +561,8 @@ LRESULT           CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			 m_pPlayerInstance->SetBGRA();
 		}
 	}
-	m_pRender=(IkkRender*) pfnCreateRender(hh,&Out);
+	int cpu_flags = av_get_cpu_flags();
+	m_pRender=(IkkRender*) pfnCreateRender(hh,&Out,cpu_flags);
 	if(Out==0){
          m_pPlayerInstance->SetBGRA();
 	}

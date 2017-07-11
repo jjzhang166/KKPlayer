@@ -1,5 +1,5 @@
 <SOUI name="AVDownInfoWindow" title="传输列表" 
-width="600" height="350"  margin="5,5,5,5"  resizable="1"
+width="600" height="350"  margin="5,5,5,5"  resizable="0"
 appWnd="0" minsize="600,350"
 translucent="0">
 	<root skin="_skin.shadow">
@@ -10,19 +10,20 @@ translucent="0">
 			</caption>
 			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#000000">
 			       <kkmclv name="mclv_AVDownList" sbSkin="_skin.Scrollbar" colorBkgnd="@color/white"  pos="1,0,-1,-1" headerHeight="30">
-				             <header align="center"  itemSwapEnable="0" fixWidth="0" itemSkin="sms.header"  sortHeader="0" 
+				             <header align="center"  itemSwapEnable="0" fixWidth="1" itemSkin="sms.header"  sortHeader="0" 
 							 sortSkin="_skin.lcex_header_arrow" itemSkin="_skin.lcex_header"
 							 colorBkgnd="#ffffff" >
                                  <items>
 										<item width="200">文件名</item>
 										<item width="150">大小</item>
 										<item width="100">速度</item>
-										<item width="100">操作</item>
+										<item width="148">操作</item>
                                  </items>
                              </header>
 						     <template itemHeight="50" colorHover="#cccccc" colorSelected="#D0EDFD" id="30000">
                                       <window name="col1">
-                                                <text name="txt_name" align="center" pos="0,0,-0,-0" align="center" valign="middle" ></text>
+									             <text pos="10,|-15,@30,@30" skin="_skin.VideoType" />
+                                                 <text name="txt_name" align="left" pos="[10,0,-0,-0" valign="middle" ></text>
                                       </window>
                                       <window name="col2">
                                                 <text name="txt_size" align="center" pos="0,0,-0,-0" align="center" valign="middle" ></text>
@@ -31,7 +32,11 @@ translucent="0">
                                                 <text name="txt_speed" align="center" pos="0,0,-0,-0" align="center" valign="middle"  ></text>
                                       </window>
 									  <window name="col4">
-                                                
+									           <window  pos="|-30,|-8,@60,-0">
+									           <imgbtn skin="_skin.1PAUSE"  pos="0,0,@18,@16" tip="暂停下载" animate="0"/> 
+											   <imgbtn skin="_skin.DeleteBtn"  pos="[10,0,@16,@16" tip="删除" animate="0"/> 
+                                               <imgbtn skin="_skin.OpenFolderBtn"  pos="[10,0,@16,@16" tip="打开文件夹" animate="0"/>
+                                               </window>											   
                                       </window>
 							 </template>
 				   </kkmclv>

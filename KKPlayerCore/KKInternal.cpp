@@ -1398,7 +1398,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			    is->IRender->renderUnLock();
 			 }
 		}else
-#endif
+#endif/**/
 		if((is->DstAVff!=format&&is->Hard_Code!=SKK_VideoState::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12)||copydata)
 		{
 			

@@ -9,6 +9,8 @@ typedef struct SQL_LITE__
 	char strSql[512];
 }SQL_LITE__;
 
+void SetKKplayerH264HardCodec(int value);
+void SetKKplayerH265HardCodec(int value);
 static std::queue<SQL_LITE__ *> m_sqlQue;
 CHistoryInfoMgr* CHistoryInfoMgr::m_pInance=NULL;
 CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRtmp(-1), m_nlibRtmpDelay(-1)
@@ -283,7 +285,7 @@ void CHistoryInfoMgr::UpdataH264Codec(int value)
 		sprintf(hardM,"%d",value);
 		UpdataConfig("H264Codec",hardM);
 		m_nH264Codec=value;
-		//SetKKplayerH264HardCodec(value);
+		SetKKplayerH264HardCodec(value);
 }
 int CHistoryInfoMgr::GetH264Codec()
 {
@@ -293,7 +295,7 @@ int CHistoryInfoMgr::GetH264Codec()
 		std::string selectIndex="";
 		GetConfig("H264Codec",selectIndex);
 		m_nH264Codec=atoi(selectIndex.c_str());
-		//SetKKplayerH264HardCodec(m_nH264Codec);
+		SetKKplayerH264HardCodec(m_nH264Codec);
 	}
     return m_nH264Codec;
 		 

@@ -86,6 +86,8 @@
 	   
 	   <file name="ID_PNG_OpenFolderBtn" path="image\OpenFolderBtn.png" />
 	   <file name="ID_PNG_DeleteBtn" path="image\DeleteBtn.png" />
+	   
+	   <file name="ID_PNG_VideoType" path="image\VideoType.png" />
 	</png>
 	<translator>
           <file name="lang_cn" path="translation\lang_cn.xml"/>

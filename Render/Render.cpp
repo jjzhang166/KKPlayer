@@ -24,7 +24,7 @@ void skpngZhuc();
 #pragma comment (lib,"Usp10.lib")
 #pragma comment (lib,"Opengl32.lib")
 extern "C"{
-	void __declspec(dllexport) *CreateRender2(HWND h,char *Oput,int cpu_flags){
+	void __declspec(dllexport) *CreateRender(HWND h,char *Oput,int cpu_flags){
 
 		 bool xxxaa=true;
 		 if(xxxaa){
@@ -62,10 +62,10 @@ extern "C"{
 		 return m_pRender;
 	}
 
-	void __declspec(dllexport) *CreateRender(HWND h,char *Oput,int cpu_flags){
+	//void __declspec(dllexport) *CreateRender(HWND h,char *Oput,int cpu_flags){
 
-		return CreateRender2( h,Oput,0);
-	}
+	//	return CreateRender2( h,Oput,0);
+	//}
 
 	char __declspec(dllexport) DelRender(void *p,char RenderType)
 	{

@@ -150,7 +150,7 @@ static void (*fpCopyFrameNV12)(const BYTE *pSourceData, BYTE *pY, BYTE *pUV, siz
 #define VEND_ID_INTEL   0x8086
 void IniCopyFrameNV12(int m_dwVendorId,int cpu_flags )
 {
-	if (CopyFrameNV12 == 0) {
+	if (fpCopyFrameNV12 == 0) {
 		if (cpu_flags &  0x0100) {
 			if (m_dwVendorId == VEND_ID_INTEL)
 				fpCopyFrameNV12 = CopyFrameNV12_SSE4_MT;

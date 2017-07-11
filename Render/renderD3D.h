@@ -22,7 +22,7 @@ public:
     virtual void resize(unsigned int w, unsigned int h);
     void  WinSize(unsigned int w, unsigned int h);
     bool LostDeviceRestore();
-    
+    void SurCopy(IDirect3DSurface9* temp,kkAVPicInfo *Picinfo);
     void render(kkAVPicInfo *Picinfo,bool wait);
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
