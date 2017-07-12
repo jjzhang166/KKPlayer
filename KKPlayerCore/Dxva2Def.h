@@ -59,6 +59,7 @@ typedef struct
 
 	vlc_va_surface_t surface[VA_DXVA2_MAX_SURFACE_COUNT];
 	LPDIRECT3DSURFACE9 hw_surface[VA_DXVA2_MAX_SURFACE_COUNT];
+	LPDIRECT3DSURFACE9 sf_surface;
 	AVFrame* tmp_frame;
 	bool Okxx;
 	int resetdev;

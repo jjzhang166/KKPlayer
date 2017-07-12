@@ -579,6 +579,20 @@ static int DxCreateVideoDecoder(kk_va_dxva2_t *va,
 			va->surface_count = 0;
 			return -1;
 	}
+
+	HRESULT hr= G_pD3Ddev->CreateOffscreenPlainSurface(
+						va->surface_width,
+		                va->surface_height,
+						va->render,
+						
+						D3DPOOL_SYSTEMMEM,
+						&va->sf_surface,
+						NULL);
+	D3DLOCKED_RECT LockedRect;
+	
+	//surface_list[0]->LockRect(&LockedRect,NULL,D3DLOCK_DONOTWAIT );
+	hr=G_pD3Ddev->GetRenderTargetData(surface_list[0],va->sf_surface);
+
 	for (unsigned i = 0; i < va->surface_count; i++) {
 		vlc_va_surface_t *surface = &va->surface[i];
 		surface->d3d = surface_list[i];

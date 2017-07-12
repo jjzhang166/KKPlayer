@@ -157,7 +157,8 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
 {
     D3DPRESENT_PARAMETERS PresentParams;
     ZeroMemory(&PresentParams, sizeof(PresentParams));
-    PresentParams.BackBufferFormat =D3DFMT_A8R8G8B8;// D3DFMT_UNKNOWN;
+    PresentParams.BackBufferFormat =D3DFMT_UNKNOWN;
+	//D3DFMT_A8R8G8B8; 
     PresentParams.BackBufferCount=2;
     PresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
     PresentParams.MultiSampleQuality = 0;
@@ -532,7 +533,7 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 }
 void CRenderD3D::SurCopy(IDirect3DSurface9  *sur)
 {
-	return;
+	//return;
 	if(m_pBackBuffer==NULL)
 		return;
 	if (m_pYUVAVTextureSysMem == NULL)
@@ -541,15 +542,18 @@ void CRenderD3D::SurCopy(IDirect3DSurface9  *sur)
 				GetClientRect(m_hView, &rect2);
 				UINT hei=rect2.bottom - rect2.top;
 				UINT Wei=rect2.right - rect2.left;
-				
+				D3DPRESENT_PARAMETERS lx=GetPresentParams(m_hView);
 				D3DFORMAT d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
-				if(m_w!=Wei&&hei!=m_h){
-					resize( Wei,hei);
-				}
+
+				IDirect3DSwapChain9* pSwapChain=NULL;
+				m_pDevice->GetSwapChain(0,&pSwapChain);
+				pSwapChain->GetPresentParameters(&lx);
+				pSwapChain->Release();
 					//DX YV12 ¾ÍÊÇYUV420P
 					HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
-						hei, Wei,
-						D3DFMT_A8R8G8B8,//d3dformat,
+						lx.BackBufferWidth,lx.BackBufferHeight,
+						//d3dformat,
+						lx.BackBufferFormat,
 						//D3DPOOL_DEFAULT,
 						
 						D3DPOOL_SYSTEMMEM,
@@ -560,7 +564,7 @@ void CRenderD3D::SurCopy(IDirect3DSurface9  *sur)
 						return ; 
 					}
 	}
-	HRESULT hr=m_pDevice->GetRenderTargetData(m_pBackBuffer,m_pYUVAVTextureSysMem);//m_pDevice->UpdateSurface(m_pBackBuffer,NULL,m_pYUVAVTextureSysMem,NULL);
+	HRESULT hr=m_pDevice->GetRenderTargetData(sur,m_pYUVAVTextureSysMem);//m_pDevice->UpdateSurface(m_pBackBuffer,NULL,m_pYUVAVTextureSysMem,NULL);
 		//=
 	int ii=0;
 	ii++;
@@ -592,7 +596,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 					temp=(LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3];
 					/*SurCopy((LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3],Picinfo);	
                     temp=m_pYUVAVTexture;*/
-					
+					 SurCopy(m_pBackBuffer);
 				}else{
 				   UpdateTexture(Picinfo);	
 				   temp=m_pYUVAVTexture;
@@ -681,7 +685,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 			
 			m_pDevice->EndScene();
 			m_pDevice->Present(NULL, NULL, NULL, NULL);
-			 SurCopy(m_pBackBuffer);
+			
 		}
 		 m_lock.Unlock();
 }
