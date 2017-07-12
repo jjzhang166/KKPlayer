@@ -22,7 +22,7 @@ public:
     virtual void resize(unsigned int w, unsigned int h);
     void  WinSize(unsigned int w, unsigned int h);
     bool LostDeviceRestore();
-    void SurCopy(IDirect3DSurface9* temp,kkAVPicInfo *Picinfo);
+    void SurCopy(IDirect3DSurface9  *sur);
     void render(kkAVPicInfo *Picinfo,bool wait);
 	void renderBk(unsigned char* buf,int len);
 	void LoadCenterLogo(unsigned char* buf,int len);
@@ -71,6 +71,7 @@ private:
 	IDirect3DTexture9* m_pLeftPicTexture;
 	//YUV
 	IDirect3DSurface9  *m_pYUVAVTexture;
+	IDirect3DSurface9  *m_pYUVAVTextureSysMem;
 	IDirect3DSurface9  *m_pBackBuffer;
     int                m_lastpicw;
 	int                m_lastpich;

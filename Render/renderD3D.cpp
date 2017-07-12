@@ -118,6 +118,7 @@ CRenderD3D::CRenderD3D(int          cpu_flags)
 	,m_lastw(0)
 	,m_lasth(0)
 	,m_ncpu_flags(cpu_flags)
+	,m_pYUVAVTextureSysMem(0)
 {
 
 }
@@ -156,7 +157,7 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
 {
     D3DPRESENT_PARAMETERS PresentParams;
     ZeroMemory(&PresentParams, sizeof(PresentParams));
-    PresentParams.BackBufferFormat =D3DFMT_UNKNOWN;// D3DFMT_X8R8G8B8;
+    PresentParams.BackBufferFormat =D3DFMT_A8R8G8B8;// D3DFMT_UNKNOWN;
     PresentParams.BackBufferCount=2;
     PresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
     PresentParams.MultiSampleQuality = 0;
@@ -425,16 +426,27 @@ void CRenderD3D::ShowErrPic(bool show)
 }
 void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
-
+   //return;
 	int ret=1;
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_lock.Lock();
+
+	//if(m_pBackBuffer!=NULL)
+	//{
+	//     D3DLOCKED_RECT rect;
+	//	HRESULT  hr= m_pBackBuffer->LockRect(&rect,NULL,D3DLOCK_READONLY);
+	//	 if(rect.pBits){
+	//		 
+	//	 }
+    //        m_pYUVAVTexture->UnlockRect();	
+	//}
 	ResetTexture();
 	if(m_ResetCall){
-			 m_ResetCall(m_ResetUserData,0);
+			m_ResetCall(m_ResetUserData,0);
 	}
 	
 	
+	///重置必须释放所有资源
 	HRESULT  hr=	m_pDevice->Reset(&PresentParams);
 	if(hr==S_OK){
 	    ret=2;
@@ -443,6 +455,9 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 			 m_ResetCall(m_ResetUserData,ret);
 	}
 	m_lock.Unlock();/**/
+
+	
+	//renderBk(NULL,NULL);
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
 {
@@ -515,15 +530,12 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 	m_ErrPicVertex[3].v = 1.f;
 
 }
-void CRenderD3D::SurCopy(IDirect3DSurface9* temp,kkAVPicInfo *Picinfo)
+void CRenderD3D::SurCopy(IDirect3DSurface9  *sur)
 {
-	D3DLOCKED_RECT lock;
-	if (FAILED(IDirect3DSurface9_LockRect(temp, &lock, NULL, D3DLOCK_READONLY))) {
-	
+	return;
+	if(m_pBackBuffer==NULL)
 		return;
-	}
-
-	if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height || m_nPicformat!=Picinfo->picformat)
+	if (m_pYUVAVTextureSysMem == NULL)
 	{
 				RECT rect2;
 				GetClientRect(m_hView, &rect2);
@@ -531,42 +543,27 @@ void CRenderD3D::SurCopy(IDirect3DSurface9* temp,kkAVPicInfo *Picinfo)
 				UINT Wei=rect2.right - rect2.left;
 				
 				D3DFORMAT d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
-
-				SAFE_RELEASE(m_pYUVAVTexture);
 				if(m_w!=Wei&&hei!=m_h){
 					resize( Wei,hei);
 				}
 					//DX YV12 就是YUV420P
 					HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
-						Picinfo->width, Picinfo->height,
-						d3dformat,
-						D3DPOOL_DEFAULT,
-						//D3DPOOL_SYSTEMMEM,
-						&m_pYUVAVTexture,
+						hei, Wei,
+						D3DFMT_A8R8G8B8,//d3dformat,
+						//D3DPOOL_DEFAULT,
+						
+						D3DPOOL_SYSTEMMEM,
+						&m_pYUVAVTextureSysMem,
 						NULL);
 
 					if (FAILED(hr)){
-						IDirect3DSurface9_UnlockRect(temp);
 						return ; 
 					}
-
-					m_nPicformat=Picinfo->picformat;
 	}
-		 m_lastpicw = Picinfo->width;
-		 m_lastpich = Picinfo->height;
-
-		 D3DLOCKED_RECT rect;
-		 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);
-		 if(rect.pBits){
-			 byte *pY=(byte *)rect.pBits;
-			 byte *pU=pY+rect.Pitch*Picinfo->height;
-			 byte *pV=pU + rect.Pitch * Picinfo->height / 4;
-
-			 m_pYUVAVTexture->UnlockRect();	
-			 CopyFrameNV12((BYTE *)lock.pBits,pY,pU, Picinfo->height, Picinfo->height,lock.Pitch);	
-		 }
-		IDirect3DSurface9_UnlockRect(temp);
-
+	HRESULT hr=m_pDevice->GetRenderTargetData(m_pBackBuffer,m_pYUVAVTextureSysMem);//m_pDevice->UpdateSurface(m_pBackBuffer,NULL,m_pYUVAVTextureSysMem,NULL);
+		//=
+	int ii=0;
+	ii++;
 }
 void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 {
@@ -631,7 +628,8 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
 					}
 				    hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
-
+                   
+					//
 					if(hr==D3DERR_INVALIDCALL)
 						m_bNeedReset=true;
 
@@ -683,6 +681,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 			
 			m_pDevice->EndScene();
 			m_pDevice->Present(NULL, NULL, NULL, NULL);
+			 SurCopy(m_pBackBuffer);
 		}
 		 m_lock.Unlock();
 }
@@ -901,6 +900,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 }
 bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 {
+	
 	if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height || m_nPicformat!=Picinfo->picformat)
     {
         RECT rect2;
