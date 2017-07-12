@@ -5,7 +5,7 @@
                          <splitcol name="split_col"  sepSkin="_skin.AV.split.vert" pos="0,0,-0,-0" sepSize="3">
                                  <pane idealSize="300" name="AV_Video_pane" margin="0,0,0,0" minSize="360" priority="0" clipClient="1">
 			                         <SuiVideo pos="0,0,]-0,-0" name="AVMainWnd" colorBkgnd="#000000">
-									        <window pos="|-96,|0" size="192,58">
+									        <window pos="|-96,|0" size="192,58" name="WinCenterOpenAV">
 												<window pos="0,18" size="158,40" tip="" animate="1" skin="_skin.BTN_BK" colorText="#ffffffff">
 													<imgbtn name="Btn_OpenLocal" cursor="hand" pos="|-44,|-8" size="88,16" tip="" animate="1" skin="_skin.BTN_OPEN" />
 												</window>

@@ -177,17 +177,7 @@ bool CRenderD3D::init(HWND hView)
 	m_hView = hView;
 	if(hModD3D9==0)
 	     hModD3D9 = LoadLibraryA("d3d9.dll");
-	/*if(!hModD3D9)
-	{
-		std::wstring path=GetModulePath();
-		if(IsWow64())
-			path+=L"\\win7\\d3d9.dll";
-		else
-		{
-			path+=L"\\xp\\d3d9.dll";
-		}
-		hModD3D9 = LoadLibrary(path.c_str());
-	}*/
+	
 	if (hModD3D9)
 	{
         pfnDirect3DCreate9 = (LPDIRECT3DCREATE9)GetProcAddress(hModD3D9, "Direct3DCreate9");
@@ -221,33 +211,10 @@ bool CRenderD3D::init(HWND hView)
 		DWORD BehaviorFlags =D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | 
 			D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES;
 		D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(hView);
-
+        //GetParent(hView)
 		
-		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,GetParent(hView), BehaviorFlags, &PresentParams, &m_pDevice);
-	    HRESULT hr2= D3DERR_WRONGTEXTUREFORMAT;
-		hr2=D3DERR_UNSUPPORTEDCOLOROPERATION;
-		hr2= D3DERR_UNSUPPORTEDCOLORARG;
-		hr2= D3DERR_UNSUPPORTEDALPHAOPERATION ;
-		hr2= D3DERR_UNSUPPORTEDALPHAARG;
-		hr2= D3DERR_TOOMANYOPERATIONS;
-		hr2= D3DERR_CONFLICTINGTEXTUREFILTER;
-		hr2= D3DERR_UNSUPPORTEDFACTORVALUE;
-		hr2= D3DERR_CONFLICTINGRENDERSTATE;
-		hr2= D3DERR_UNSUPPORTEDTEXTUREFILTER;
-		hr2= D3DERR_CONFLICTINGTEXTUREPALETTE;
-		hr2=D3DERR_DRIVERINTERNALERROR;
-
-		hr2= D3DERR_NOTFOUND;
-		hr2= D3DERR_MOREDATA;
-		hr2= D3DERR_DEVICELOST;
-		hr2= D3DERR_DEVICENOTRESET;
-		hr2= D3DERR_NOTAVAILABLE;
-		hr2= D3DERR_OUTOFVIDEOMEMORY;
-		hr2= D3DERR_INVALIDDEVICE;
-		hr2= D3DERR_INVALIDCALL;
-		hr2= D3DERR_DRIVERINVALIDCALL;
-
-
+		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetShellWindow(), BehaviorFlags, &PresentParams, &m_pDevice);
+	   
 		if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 		{
 			BehaviorFlags = D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | D3DCREATE_SOFTWARE_VERTEXPROCESSING;
@@ -556,47 +523,47 @@ void CRenderD3D::SurCopy(IDirect3DSurface9* temp,kkAVPicInfo *Picinfo)
 		return;
 	}
 
-				if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height || m_nPicformat!=Picinfo->picformat)
-				{
-							RECT rect2;
-							GetClientRect(m_hView, &rect2);
-							UINT hei=rect2.bottom - rect2.top;
-							UINT Wei=rect2.right - rect2.left;
-							
-							D3DFORMAT d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
+	if (m_pYUVAVTexture == NULL||m_lastpicw!=Picinfo->width|| m_lastpich!=Picinfo->height || m_nPicformat!=Picinfo->picformat)
+	{
+				RECT rect2;
+				GetClientRect(m_hView, &rect2);
+				UINT hei=rect2.bottom - rect2.top;
+				UINT Wei=rect2.right - rect2.left;
+				
+				D3DFORMAT d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
 
-							SAFE_RELEASE(m_pYUVAVTexture);
-							if(m_w!=Wei&&hei!=m_h){
-								resize( Wei,hei);
-							}
-								//DX YV12 就是YUV420P
-								HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
-									Picinfo->width, Picinfo->height,
-									d3dformat,
-									D3DPOOL_DEFAULT,
-									//D3DPOOL_SYSTEMMEM,
-									&m_pYUVAVTexture,
-									NULL);
+				SAFE_RELEASE(m_pYUVAVTexture);
+				if(m_w!=Wei&&hei!=m_h){
+					resize( Wei,hei);
+				}
+					//DX YV12 就是YUV420P
+					HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
+						Picinfo->width, Picinfo->height,
+						d3dformat,
+						D3DPOOL_DEFAULT,
+						//D3DPOOL_SYSTEMMEM,
+						&m_pYUVAVTexture,
+						NULL);
 
-								if (FAILED(hr)){
-									IDirect3DSurface9_UnlockRect(temp);
-									return ; 
-								}
+					if (FAILED(hr)){
+						IDirect3DSurface9_UnlockRect(temp);
+						return ; 
+					}
 
-								m_nPicformat=Picinfo->picformat;
-						}
+					m_nPicformat=Picinfo->picformat;
+	}
 		 m_lastpicw = Picinfo->width;
 		 m_lastpich = Picinfo->height;
 
 		 D3DLOCKED_RECT rect;
 		 m_pYUVAVTexture->LockRect(&rect,NULL,D3DLOCK_DONOTWAIT);
 		 if(rect.pBits){
-		 byte *pY=(byte *)rect.pBits;
-		 byte *pU=pY+rect.Pitch*Picinfo->height;
-		 byte *pV=pU + rect.Pitch * Picinfo->height / 4;
+			 byte *pY=(byte *)rect.pBits;
+			 byte *pU=pY+rect.Pitch*Picinfo->height;
+			 byte *pV=pU + rect.Pitch * Picinfo->height / 4;
 
-		 m_pYUVAVTexture->UnlockRect();	
-		 CopyFrameNV12((BYTE *)lock.pBits,pY,pU, Picinfo->height, Picinfo->height,lock.Pitch);	
+			 m_pYUVAVTexture->UnlockRect();	
+			 CopyFrameNV12((BYTE *)lock.pBits,pY,pU, Picinfo->height, Picinfo->height,lock.Pitch);	
 		 }
 		IDirect3DSurface9_UnlockRect(temp);
 
