@@ -42,6 +42,7 @@ void  KK_Free_(void *ptr)
       //DXV2
 	  int  BindDxva2Module(	AVCodecContext  *pCodecCtx);
       int  GetD3d9RestDevState(void* opaque);
+	  void* DxvaSurCopy(void* opaque,void* Data);
 	  void Dxva2ResetDevCall(void* UserData,int state);
 	  void FroceClose_Kk_Va_Dxva2(void *kk_va);
 
@@ -1383,6 +1384,8 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 		if(pOutAV->format== (int)AV_PIX_FMT_DXVA2_VLD){
 
 			vp->picformat=format;
+
+			//DxvaSurCopy(is->viddec.avctx->opaque,pOutAV->data[3]);
 			is->IRender->renderLock();
 			int resetdev=GetD3d9RestDevState( is->viddec.avctx->opaque);
 			 if(resetdev==0){

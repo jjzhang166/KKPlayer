@@ -537,6 +537,17 @@ error:
 	return NULL;
 }
 
+
+
+ void* DxvaSurCopy(void* opaque,void* Data)
+ {
+
+//kk_va_dxva2_t *va=(kk_va_dxva2_t* )opaque;
+//LPDIRECT3DSURFACE9 sur=(LPDIRECT3DSURFACE9 ) Data;
+//	HRESULT hr=G_pD3Ddev->GetRenderTargetData(sur,va->sf_surface);
+    return 0;
+ }
+
 /**
 * It creates a DXVA2 decoder using the given video format
 */
@@ -580,18 +591,36 @@ static int DxCreateVideoDecoder(kk_va_dxva2_t *va,
 			return -1;
 	}
 
-	HRESULT hr= G_pD3Ddev->CreateOffscreenPlainSurface(
-						va->surface_width,
-		                va->surface_height,
-						va->render,
-						
-						D3DPOOL_SYSTEMMEM,
-						&va->sf_surface,
-						NULL);
-	D3DLOCKED_RECT LockedRect;
-	
+	/*HRESULT hr= va->videoService->CreateSurface(va->surface_width,
+		va->surface_height,
+		1,
+		va->render,
+		D3DPOOL_DEFAULT,
+		0,
+		DXVA2_VideoDecoderRenderTarget,
+		&va->sf_surface,
+		NULL);*/
+	//va->sf_surface=0;	
+		
+	//HRESULT hr=	G_pD3Ddev->CreateOffscreenPlainSurface(
+	//					va->surface_width,
+	//	                va->surface_height,
+	//					(D3DFORMAT)MAKEFOURCC('N','V','1','2'),
+	//					
+	//					D3DPOOL_SYSTEMMEM,
+	//					&va->sf_surface,
+	//					NULL);
+	//D3DLOCKED_RECT LockedRect;
+	//
 	//surface_list[0]->LockRect(&LockedRect,NULL,D3DLOCK_DONOTWAIT );
-	hr=G_pD3Ddev->GetRenderTargetData(surface_list[0],va->sf_surface);
+	//surface_list[0]->UnlockRect();
+
+	//D3DLOCKED_RECT LockedRect2;
+	//
+	//va->sf_surface->LockRect(&LockedRect2,NULL,D3DLOCK_DONOTWAIT );/**/
+	//va->sf_surface->UnlockRect();
+
+	//hr=G_pD3Ddev->GetRenderTargetData(surface_list[0],va->sf_surface);
 
 	for (unsigned i = 0; i < va->surface_count; i++) {
 		vlc_va_surface_t *surface = &va->surface[i];

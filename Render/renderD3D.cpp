@@ -127,6 +127,7 @@ CRenderD3D::~CRenderD3D()
 {
 	
 	ResetTexture();
+	SAFE_RELEASE(m_pYUVAVTextureSysMem);
     SAFE_RELEASE(m_pDevice);
     SAFE_RELEASE(m_pD3D);
 }
@@ -159,14 +160,14 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
     ZeroMemory(&PresentParams, sizeof(PresentParams));
     PresentParams.BackBufferFormat =D3DFMT_UNKNOWN;
 	//D3DFMT_A8R8G8B8; 
-    PresentParams.BackBufferCount=2;
+    PresentParams.BackBufferCount=0;
     PresentParams.MultiSampleType = D3DMULTISAMPLE_NONE;
     PresentParams.MultiSampleQuality = 0;
     PresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
     PresentParams.hDeviceWindow = hView;
     PresentParams.Windowed = TRUE;
-    PresentParams.EnableAutoDepthStencil = TRUE;
-    PresentParams.AutoDepthStencilFormat = D3DFMT_D24X8;
+ /*   PresentParams.EnableAutoDepthStencil = TRUE;
+    PresentParams.AutoDepthStencilFormat = D3DFMT_D24X8;*/
     PresentParams.Flags = D3DPRESENTFLAG_VIDEO;
     PresentParams.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
     PresentParams.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -455,9 +456,25 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 	if(m_ResetCall){
 			 m_ResetCall(m_ResetUserData,ret);
 	}
+	
+	
+	//m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+	//
+	//if( m_pYUVAVTextureSysMem!=NULL&&SUCCEEDED(m_pDevice->BeginScene()) )
+	//{
+	//	RECT rt;
+	//	IDirect3DSurface9  *pBackBuffer;
+ //    
+	//	m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
+	//    hr=m_pDevice->StretchRect(m_pYUVAVTextureSysMem,NULL,pBackBuffer,&rt,D3DTEXF_LINEAR); 
+	//	pBackBuffer->Release();
+	//	m_pDevice->EndScene();
+	//	
+	//}
+	//m_pDevice->Present(NULL, NULL, NULL, NULL);
 	m_lock.Unlock();/**/
 
-	
+	 
 	//renderBk(NULL,NULL);
 }
 void CRenderD3D::SetWaitPic(unsigned char* buf,int len)
@@ -565,6 +582,10 @@ void CRenderD3D::SurCopy(IDirect3DSurface9  *sur)
 					}
 	}
 	HRESULT hr=m_pDevice->GetRenderTargetData(sur,m_pYUVAVTextureSysMem);//m_pDevice->UpdateSurface(m_pBackBuffer,NULL,m_pYUVAVTextureSysMem,NULL);
+	if(hr==D3DERR_INVALIDCALL){
+		m_pYUVAVTextureSysMem->Release();
+		m_pYUVAVTextureSysMem=NULL;
+	}
 		//=
 	int ii=0;
 	ii++;
@@ -596,7 +617,6 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 					temp=(LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3];
 					/*SurCopy((LPDIRECT3DSURFACE9)(uintptr_t)Picinfo->data[3],Picinfo);	
                     temp=m_pYUVAVTexture;*/
-					 SurCopy(m_pBackBuffer);
 				}else{
 				   UpdateTexture(Picinfo);	
 				   temp=m_pYUVAVTexture;
@@ -632,7 +652,8 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
 					}
 				    hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
-                   
+					/*if(hr==S_OK)
+                       SurCopy(m_pBackBuffer);*/
 					//
 					if(hr==D3DERR_INVALIDCALL)
 						m_bNeedReset=true;
