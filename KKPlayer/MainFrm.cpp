@@ -347,10 +347,15 @@ bool              CMainFrame::GetMediaInfo(MEDIA_INFO& info)
 				CurTimeStr+=strtmp;
 			}
 			if(m_nSeekTip==1)
-				sprintf(strtmp,"快退  %s",CurTimeStr.c_str());
+				sprintf(strtmp,"快退 %s",CurTimeStr.c_str());
 			else if(m_nSeekTip==2)
-			   sprintf(strtmp,"快进  %s",CurTimeStr.c_str());
-			
+			    sprintf(strtmp,"快进 %s",CurTimeStr.c_str());
+			else if(m_nSeekTip==3) ///倍速
+			{
+				int Rate=m_pPlayerInstance->GetAVRate();
+				sprintf(strtmp,"倍速 %.1f",(float)Rate/100);
+			    
+			}
 			m_nTipTick=::GetTickCount();
 			m_pRender->SetLeftPicStr(strtmp);
 			m_nSeekTip=0;
@@ -501,14 +506,16 @@ void              CMainFrame::OnDecelerate()
 	if(m_pPlayerInstance==NULL)
 		return ;
     m_pPlayerInstance->OnDecelerate();
-    int Rate=m_pPlayerInstance->GetAVRate();
+    //int Rate=m_pPlayerInstance->GetAVRate();
+	m_nSeekTip=3;
 }
 void              CMainFrame::OnAccelerate()
 {
    if(m_pPlayerInstance==NULL)
 		return;
    m_pPlayerInstance->OnAccelerate();
-   int Rate=m_pPlayerInstance->GetAVRate();
+  // int Rate=m_pPlayerInstance->GetAVRate();
+   m_nSeekTip=3;
 }
 int               CMainFrame::Pause()
 {
@@ -779,6 +786,23 @@ LRESULT           CMainFrame::OnLbuttonDown(UINT uMsg/**/, WPARAM wParam/**/, LP
 LRESULT   CMainFrame::OnSetCursor(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)
 {
       SetMsgHandled(FALSE);
+	  HWND hWnd=GetShellWindow();
+	  RECT rt;
+	  ::GetWindowRect(hWnd, &rt);
+	  RECT rt2;
+	   ::GetWindowRect(m_hWnd, &rt2);
+	   int h=rt.bottom-rt.top;
+	   int w=rt.right-rt.left;
+
+	   int h2=rt2.bottom-rt2.top;
+	   int w2=rt2.right-rt2.left;
+
+	   if(h2>=h&&w2>=w)
+	   {
+	   
+	   }else{
+	  ::DefWindowProc(m_hWnd,uMsg,wParam, lParam);
+	   }
 	  return 1;
 }
 LRESULT           CMainFrame::OnRbuttonUp(UINT uMsg/**/, WPARAM wParam/**/, LPARAM lParam/**/, BOOL& bHandled/**/)

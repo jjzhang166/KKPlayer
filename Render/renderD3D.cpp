@@ -119,6 +119,7 @@ CRenderD3D::CRenderD3D(int          cpu_flags)
 	,m_lasth(0)
 	,m_ncpu_flags(cpu_flags)
 	,m_pYUVAVTextureSysMem(0)
+	,m_pBackSur(0)
 {
 
 }
@@ -166,8 +167,8 @@ D3DPRESENT_PARAMETERS GetPresentParams(HWND hView)
     PresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
     PresentParams.hDeviceWindow = hView;
     PresentParams.Windowed = TRUE;
- /*   PresentParams.EnableAutoDepthStencil = TRUE;
-    PresentParams.AutoDepthStencilFormat = D3DFMT_D24X8;*/
+    PresentParams.EnableAutoDepthStencil = TRUE;
+    PresentParams.AutoDepthStencilFormat = D3DFMT_D24X8;/**/
     PresentParams.Flags = D3DPRESENTFLAG_VIDEO;
     PresentParams.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
     PresentParams.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -214,9 +215,9 @@ bool CRenderD3D::init(HWND hView)
 		DWORD BehaviorFlags =D3DCREATE_FPU_PRESERVE | D3DCREATE_PUREDEVICE | 
 			D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_NOWINDOWCHANGES;
 		D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(hView);
-        //GetParent(hView)
+        //GetParent(hView)GetParent(hView)
 		
-		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, GetShellWindow(), BehaviorFlags, &PresentParams, &m_pDevice);
+		HRESULT hr = m_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,GetShellWindow(), BehaviorFlags, &PresentParams, &m_pDevice);
 	   
 		if (FAILED(hr) && hr != D3DERR_DEVICELOST)
 		{
@@ -240,6 +241,9 @@ bool CRenderD3D::init(HWND hView)
 	
    
 		IniCopyFrameNV12(d3dai.VendorId,m_ncpu_flags);
+
+
+		
 
 		return true;
 	
@@ -550,7 +554,7 @@ void CRenderD3D::AdJustErrPos(int picw,int pich)
 }
 void CRenderD3D::SurCopy(IDirect3DSurface9  *sur)
 {
-	//return;
+	return;
 	if(m_pBackBuffer==NULL)
 		return;
 	if (m_pYUVAVTextureSysMem == NULL)
@@ -627,6 +631,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 					if(m_pBackBuffer == NULL)
 					{
 						GetClientRect(m_hView,&m_rtViewport);  
+						m_rtViewBack=m_rtViewport;
 						int dw=m_rtViewport.right-m_rtViewport.left;
 						int dh=m_rtViewport.bottom-m_rtViewport.top;
 						int h=dh,w=dw;
@@ -651,6 +656,8 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 						}
 						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
 					}
+					
+				//	hr=m_pDevice->StretchRect(m_pBackSur,NULL,m_pBackBuffer,&m_rtViewBack,D3DTEXF_LINEAR);  
 				    hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
 					/*if(hr==S_OK)
                        SurCopy(m_pBackBuffer);*/
@@ -723,6 +730,8 @@ void CRenderD3D::ResetTexture()
 	SAFE_RELEASE(m_pLeftPicTexture);
 	SAFE_RELEASE(m_pBackBuffer);
 	SAFE_RELEASE(m_ErrTexture);
+	SAFE_RELEASE(m_pBackSur);
+
 }
 bool CRenderD3D::LostDeviceRestore()
 {
@@ -846,7 +855,7 @@ bool CRenderD3D::UpdateLeftPicTexture()
 		m_LstLeftStr=m_LeftStr;/**/
 		SAFE_RELEASE(m_pLeftPicTexture);
 	}
-	if(m_LstLeftStr.length()>20)
+	if(m_LstLeftStr.length()>100)
 		return false;
 //	return true;
 	if (m_pLeftPicTexture == NULL)
@@ -939,7 +948,7 @@ bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 			d3dformat=(D3DFORMAT)MAKEFOURCC('N', 'V', '1', '2');
 
 		SAFE_RELEASE(m_pYUVAVTexture);
-		if(m_w!=Wei&&hei!=m_h){
+		if(m_w!=Wei||hei!=m_h){
 			resize( Wei,hei);
 		}
 			//DX YV12 ¾ÍÊÇYUV420P
@@ -1027,16 +1036,16 @@ void CRenderD3D::renderBk(unsigned char* buf,int len)
 	m_pDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0,0), 1.0f, 0);
 	if( SUCCEEDED(m_pDevice->BeginScene()) )
 	{
-		if(m_CenterLogoTexture!=NULL)
-		{
-				 m_pDevice->SetTexture(0,  m_CenterLogoTexture);
-				 m_pDevice->SetFVF(Vertex::FVF);
-				 m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-				 m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-				 m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-				 m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-				 m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2,  m_CenterLogVertex, sizeof(Vertex));/**/
-		}
+		//if(m_CenterLogoTexture!=NULL)
+		//{
+		//		 m_pDevice->SetTexture(0,  m_CenterLogoTexture);
+		//		 m_pDevice->SetFVF(Vertex::FVF);
+		//		 m_pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+		//		 m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		//		 m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		//		 m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		//		 m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2,  m_CenterLogVertex, sizeof(Vertex));/**/
+		//}
 
 		if(m_bShowErrPic==true&&m_ErrTexture!=NULL)
 		{

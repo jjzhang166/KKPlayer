@@ -63,8 +63,8 @@ private:
     IDirect3DDevice9* m_pDevice;
 	IDirect3DTexture9* Fontexture;
 
-	unsigned char* m_ErrBufImg;
-	int m_ErrBufImgLen;
+	unsigned char*     m_ErrBufImg;
+	int                m_ErrBufImgLen;
 	IDirect3DTexture9* m_ErrTexture;
 	IDirect3DTexture9* m_CenterLogoTexture;
 	IDirect3DTexture9* m_pWaitPicTexture;
@@ -72,11 +72,13 @@ private:
 	//YUV
 	IDirect3DSurface9  *m_pYUVAVTexture;
 	IDirect3DSurface9  *m_pYUVAVTextureSysMem;
+	IDirect3DSurface9  *m_pBackSur;
 	IDirect3DSurface9  *m_pBackBuffer;
     int                m_lastpicw;
 	int                m_lastpich;
 
     RECT m_rtViewport; 
+	RECT m_rtViewBack; 
 	//‰÷»æ«¯”Ú∏ﬂ∂»
     unsigned int m_w;
 	unsigned int m_h;
