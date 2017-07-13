@@ -115,8 +115,8 @@ CRenderD3D::CRenderD3D(int          cpu_flags)
 	,m_ResetCall(0)
 	,m_ResetUserData(0)
 	,m_bNeedReset(0)
-	,m_lstpicw(0)
-	,m_lstpich(0)
+	,m_lstSurfaceW(0)
+	,m_lstSurfaceH(0)
 	,m_ncpu_flags(cpu_flags)
 	,m_pYUVAVTextureSysMem(0)
 	,m_nBackSurface9Hard(0)
@@ -468,41 +468,25 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 		if(SUCCEEDED(m_pDevice->BeginScene()) )
 		{
 			RECT rt;
-			IDirect3DSurface9  *pBackBuffer;
+            GetClientRect(m_hView, &rt);
+			IDirect3DSurface9  *pBuffer=NULL;
 	     
-			m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
-
-			RECT Viewport;
-			GetClientRect(m_hView,&Viewport);  
-						
-			int dw=Viewport.right-Viewport.left;
-			int dh=Viewport.bottom-Viewport.top;
-			int h=dh,w=dw;
-			//if(dw>width)
-			{
-				dh=dw*m_lstpich/m_lstpicw;
-			}
-			if(dh>h)
-			{
-				dh=h;
-				dw=m_lstpicw*dh/m_lstpich;
-			}
-            if(dw<w)
-			{
-				Viewport.left+=(w-dw)/2;
-				Viewport.right=Viewport.left+dw;
-			}
-			if(dh<h)
-			{
-				Viewport.top+=(h-dh)/2;
-				Viewport.bottom=Viewport.top+dh;
-			}
-
 			
-			hr=m_pDevice->UpdateSurface(m_pYUVAVTextureSysMem,NULL,pBackBuffer,NULL);
-				//m_pDevice->StretchRect(m_pYUVAVTextureSysMem,NULL,pBackBuffer,&rt,D3DTEXF_LINEAR); 
-			pBackBuffer->Release();
+			HRESULT hr= m_pDevice->CreateOffscreenPlainSurface(
+						m_lstSurfaceW,m_lstSurfaceH,
+						m_lstD3dformat,
+						D3DPOOL_DEFAULT,
+						&pBuffer,
+						NULL);
+			hr=m_pDevice->UpdateSurface(m_pYUVAVTextureSysMem,NULL,pBuffer,NULL);
+		
+		
+			IDirect3DSurface9  *pBackBuffer=NULL;
+			m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&pBackBuffer);  
+			m_pDevice->StretchRect(pBuffer,NULL,pBackBuffer,&rt,D3DTEXF_LINEAR); 
+			pBuffer->Release();
 			m_pDevice->EndScene();
+			pBackBuffer->Release();
 			
 		}
 		m_pDevice->Present(NULL, NULL, NULL, NULL);
@@ -611,7 +595,9 @@ void CRenderD3D::SurCopy(IDirect3DSurface9  *sur)
 						D3DPOOL_SYSTEMMEM,
 						&m_pYUVAVTextureSysMem,
 						NULL);
-
+                m_lstD3dformat=lx.BackBufferFormat;
+					m_lstSurfaceW=lx.BackBufferWidth;
+	                m_lstSurfaceH=lx.BackBufferHeight;
 					if (FAILED(hr)){
 						return ; 
 					}
@@ -692,8 +678,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 						m_pDevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_pBackBuffer);  
 					}
 					
-					m_lstpicw=Picinfo->width;
-	                m_lstpich=Picinfo->height;
+					
 				//	hr=m_pDevice->StretchRect(m_pBackSur,NULL,m_pBackBuffer,&m_rtViewBack,D3DTEXF_LINEAR);  
 				    hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
 					if(m_nBackSurface9Hard&&hr==S_OK)

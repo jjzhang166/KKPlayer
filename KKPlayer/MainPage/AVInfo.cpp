@@ -3,7 +3,7 @@
 #include "../Tool/cchinesecode.h"
 namespace SOUI
 {
-	CAVInfo::CAVInfo(MEDIA_INFO Info): SDomodalwnd(_T("LAYOUT:XML_AVINFO"))
+	CAVInfo::CAVInfo(MEDIA_INFO Info): SDomodalwnd(_T("LAYOUT:XML_AVINFO"),0)
 		,m_Info(Info)
 	{
            

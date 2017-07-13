@@ -375,7 +375,7 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 	    mfx_ver.Minor = 0;
         mfxSession            mfx_session=0;
 		//Ó²½â
-		mfxIMPL   impl = MFX_IMPL_HARDWARE;
+		mfxIMPL   impl = MFX_IMPL_AUTO_ANY;
 		mfxStatus sts  = MFXInit(impl,&mfx_ver, &mfx_session); 
 		if(sts!= MFX_ERR_NONE){
 			  MFXClose(mfx_session);

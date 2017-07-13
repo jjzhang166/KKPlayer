@@ -309,7 +309,7 @@ int CHistoryInfoMgr::GetH265Codec()
 		GetConfig("H265Codec",selectIndex);
 		m_nH265Codec=atoi(selectIndex.c_str());
 	
-       // SetKKplayerH265HardCodec(m_nH265Codec);
+        SetKKplayerH265HardCodec(m_nH265Codec);
 	}
     return  m_nH265Codec;
 }
@@ -320,7 +320,7 @@ void CHistoryInfoMgr::UpdataH265Codec(int value)
 		UpdataConfig("H265Codec",hardM);
 		m_nH265Codec=value;
 		
-       // SetKKplayerH265HardCodec(value);
+        SetKKplayerH265HardCodec(value);
 }
 
 int  CHistoryInfoMgr::GetUseLibRtmp()

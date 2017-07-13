@@ -105,7 +105,7 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     q->nb_ext_buffers = qsv->nb_ext_buffers;
 	q->async_depth=     qsv->param.AsyncDepth;
    
-
+    const AVPixFmtDescriptor *desc;
 	mfxVideoParam param = { { 0 } };
 	mfxBitstream bs   = { { { 0 } } };
 	int frame_width  = avctx->coded_width;
@@ -115,6 +115,9 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     int dummy_size;
     enum AVPixelFormat pix_fmts[3] = { AV_PIX_FMT_QSV,AV_PIX_FMT_NV12,AV_PIX_FMT_NONE };
 
+	 desc = av_pix_fmt_desc_get(avctx->sw_pix_fmt);
+    if (!desc)
+        return AVERROR_BUG;
    // ret = av_get_format(avctx, pix_fmts);
 	/*ret=;
     if (ret < 0)
@@ -255,11 +258,16 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     param.AsyncDepth  = q->async_depth;
     param.ExtParam    = q->ext_buffers;
     param.NumExtParam = q->nb_ext_buffers;
-    param.mfx.FrameInfo.BitDepthLuma   = 8;
-    param.mfx.FrameInfo.BitDepthChroma = 8;
+   /* param.mfx.FrameInfo.BitDepthLuma   = 8;
+    param.mfx.FrameInfo.BitDepthChroma = 8;*/
+	param.mfx.FrameInfo.BitDepthLuma   = desc->comp[0].depth;
+    param.mfx.FrameInfo.BitDepthChroma = desc->comp[0].depth;
+    param.mfx.FrameInfo.Shift          = desc->comp[0].depth > 8;
+
     param.mfx.Rotation = 0;
 	param.mfx.CodecProfile = kk_qsv_profile_to_mfx(avctx->codec_id,avctx->profile);
 
+	param.mfx.CodecLevel=avctx->level  == FF_LEVEL_UNKNOWN ? MFX_LEVEL_UNKNOWN: avctx->level;
 	// int xc=MFX_FOURCC_NV12;
 	param.mfx.FrameInfo.FourCC         = q->fourcc;
     param.mfx.FrameInfo.Width          = frame_width;

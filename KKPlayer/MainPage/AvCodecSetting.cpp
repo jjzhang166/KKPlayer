@@ -90,8 +90,10 @@ namespace SOUI
 		CVideoCodecAdapter* h265Adapter = new CVideoCodecAdapter(H265View,2);
 		H265View->SetAdapter(h265Adapter);
 
-		
-		H265Box->SetCurSel(InfoMgr->GetH265Codec());
+		if(InfoMgr->GetH265Codec()==2)
+		   H265Box->SetCurSel(1);
+		else
+			H265Box->SetCurSel(0);
 	}
 	
 	BOOL CAvCodecSetting::OnH264BoxChanged(EventArgs *pEvt)

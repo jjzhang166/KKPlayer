@@ -82,8 +82,9 @@ private:
 	//äÖÈ¾ÇøÓò¸ß¶È
     unsigned int m_w;
 	unsigned int m_h;
-	unsigned int m_lstpicw;
-	unsigned int m_lstpich;
+	unsigned int m_lstSurfaceW;
+	unsigned int m_lstSurfaceH;
+	D3DFORMAT    m_lstD3dformat;
     struct Vertex
     {
         float x, y, z, w;
