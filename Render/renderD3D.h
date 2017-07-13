@@ -72,7 +72,7 @@ private:
 	//YUV
 	IDirect3DSurface9  *m_pYUVAVTexture;
 	IDirect3DSurface9  *m_pYUVAVTextureSysMem;
-	IDirect3DSurface9  *m_pBackSur;
+	
 	IDirect3DSurface9  *m_pBackBuffer;
     int                m_lastpicw;
 	int                m_lastpich;
@@ -82,8 +82,8 @@ private:
 	//渲染区域高度
     unsigned int m_w;
 	unsigned int m_h;
-	unsigned int m_lastw;
-	unsigned int m_lasth;
+	unsigned int m_lstpicw;
+	unsigned int m_lstpich;
     struct Vertex
     {
         float x, y, z, w;
@@ -104,6 +104,8 @@ private:
     int    m_nPicformat;
 	fpResetDevCall m_ResetCall;
 	void*          m_ResetUserData;
+	///是否充硬件渲染来
+	int            m_nBackSurface9Hard;
 };
 
 #endif

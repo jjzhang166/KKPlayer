@@ -1,0 +1,27 @@
+<SOUI name="AvCoderWindow" title="渲染器设置" 
+width="300" height="200"  margin="5,5,5,5"  resizable="0"
+appWnd="0" minsize="300,200"
+translucent="0"
+>
+	<root skin="_skin.shadow">
+			<caption pos="0,0,-0,29" name="AV_Tittle" margin="0,0,0,0" skin="_skin.Top" show="1" font="adding:0" >
+                   <icon pos="10,8" src="ICON_LOGO:16"/>
+                   <text pos="[5,8" colorText="#DBEEFD">渲染器设置</text>
+				   <imgbtn name="btn_close" skin="_skin.Win_Close"  pos="-30,0" tip="关闭" animate="0"/>
+			</caption>
+			<window pos="0,[0,-0,]-0" margin="0,0,0,0"  colorBkgnd="#C1DCF9">
+			               <window pos="0,40,-0,@23">
+									 <text pos="10,0,@80,-0" font="face:SimSun,size:12"  colorText="#000000" >视频渲染器:</text>
+									 <comboview name="cbx_AvRenderer" class="cls_edit" pos="[0,0,@200,-0" dropDown="1"   dropHeight="200" animateTime="0"
+											inset="3,0,0,0"  focusable="0"  colorText="#000000"  colorBkgnd="#C1DCF9"
+											curSel="0" id_text="3" font="face:SimSun,size:12">
+								            <liststyle class="cls_edit" colorBkgnd="#C1DCF9" ><!--列表下拉框-->
+													<template  itemHeight="23" colorHover="#cccccc" colorSelected="#0000ff">
+													      <text   name="StrRendererName" font="face:SimSun,size:12" pos="10,9"></text>
+													</template>
+											</liststyle>
+								     </comboview>
+							</window>
+			</window>
+	</root>
+</SOUI>

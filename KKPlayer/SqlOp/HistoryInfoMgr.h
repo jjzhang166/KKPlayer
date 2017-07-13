@@ -58,6 +58,9 @@ public:
 		 int  GetRtmpDelay();
 		 void UpdataRtmpDelay(int value);
 
+		 int  GetRendererMethod();
+		 void UpdataRendererMethod(int value);
+
   public:
 	     static CHistoryInfoMgr *GetInance();
   private:
@@ -76,5 +79,6 @@ public:
 		 int        m_nH265Codec;
 		 int        m_nUselibRtmp;
 		 int        m_nlibRtmpDelay;
+		 int        m_nRenderer;
 };
 #endif

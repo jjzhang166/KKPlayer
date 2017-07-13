@@ -267,7 +267,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR /*
 	int 	nRet=0;
 	SOUI::SStringT str;
 	SOUI::CMainDlg dlgMain;
-	dlgMain.Create(NULL,WS_POPUP,0,0,0,0,0);
+	dlgMain.Create(NULL,WS_POPUP|WS_CLIPCHILDREN| WS_CLIPSIBLINGS,0,0,0,0,0);
 	dlgMain.GetNative()->SendMessage(WM_INITDIALOG);
 	dlgMain.CenterWindow(dlgMain.m_hWnd);
 	dlgMain.ShowWindow(SW_SHOWNORMAL);

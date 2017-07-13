@@ -17,6 +17,7 @@ CHistoryInfoMgr::CHistoryInfoMgr():m_nH264Codec(-1),m_nH265Codec(-1),m_nUselibRt
 ,m_hThread(0)
 ,m_bThOver(1)
 ,m_iThaddr(0)
+,m_nRenderer(-1)
 {
 
 }
@@ -354,8 +355,24 @@ return  m_nlibRtmpDelay;
 }
 void CHistoryInfoMgr::UpdataRtmpDelay(int value)
 {
-       char hardM[512]="";
+        char hardM[512]="";
 		sprintf(hardM,"%d",value);
 		UpdataConfig("Rtmpdelay",hardM);
 		 m_nlibRtmpDelay=value;
+}
+int  CHistoryInfoMgr::GetRendererMethod()
+{
+	if(m_nRenderer==-1){
+	    std::string tempStr="";
+		GetConfig("Renderer",tempStr);
+	    m_nRenderer=atoi( tempStr.c_str());
+	}
+    return m_nRenderer;
+}
+void CHistoryInfoMgr::UpdataRendererMethod(int value)
+{
+        char hardM[512]="";
+		sprintf(hardM,"%d",value);
+		UpdataConfig("Renderer",hardM);
+		m_nRenderer=value;
 }

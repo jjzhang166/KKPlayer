@@ -17,6 +17,7 @@
 		<file name="XML_AvStreamSetting" path="xml\AvStreamSetting.xml" />
 		<file name="XML_AvButton" path="xml\AvButton.xml" />
 		<file name="XML_MaxButton" path="xml\MaxButton.xml" />
+		<file name="XML_AvRendererSetting" path="xml\AvRendererSetting.xml" />
 	</LAYOUT>
 	<SMENUEX>
              <file name="avmenuex" path="xml\AVMenu.xml"/>

@@ -352,6 +352,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MainPage\AvRendererSetting.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MainPage\AvRendererSetting.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainPage\AvStreamSetting.cpp"
 				>
 			</File>

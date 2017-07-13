@@ -1512,7 +1512,8 @@ LXXXX:
 						  
 						  if(resetdev==1){
 							  is->IRender->renderUnLock();
-							  Sleep(20);
+							  ///减少硬件重置带来的解码器刷新。
+							  Sleep(200);
 							  continue;
 						  }else if(resetdev==2){
 							   Dxva2ResetDevCall(is->viddec.avctx,3);
