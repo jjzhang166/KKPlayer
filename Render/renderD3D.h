@@ -107,6 +107,7 @@ private:
 	void*          m_ResetUserData;
 	/// «∑Ò≥‰”≤º˛‰÷»æ¿¥
 	int            m_nBackSurface9Hard;
+	int            m_Surface9HardCount;
 };
 
 #endif

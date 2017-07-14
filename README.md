@@ -92,3 +92,7 @@ windowVc(Vs2010)编译ffmpeg(https://ffmpeg.org/platform.html#Microsoft-Visual-C
 &nbsp;&nbsp;&nbsp;&nbsp; windows 添加libkkplayer库。支持无窗口dui渲染，或者以窗口进行渲染 <br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 修改sdl1支持同时创建多个音频渲染器 <br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 修正渲染器一些bug <br/>
+2017-7-14   <br/>
+&nbsp;&nbsp;&nbsp;&nbsp; windows libkkplayer库,回调数据做修改，添加新的接口<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d3d9 4k渲染优化，修正qsv 解码265 <br/>
+&nbsp;&nbsp;&nbsp;&nbsp; android 添加更多的接口<br/>

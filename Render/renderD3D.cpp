@@ -120,6 +120,7 @@ CRenderD3D::CRenderD3D(int          cpu_flags)
 	,m_ncpu_flags(cpu_flags)
 	,m_pYUVAVTextureSysMem(0)
 	,m_nBackSurface9Hard(0)
+	,m_Surface9HardCount(0)
 {
 
 }
@@ -434,6 +435,7 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
    //return;
 	int ret=1;
+	m_Surface9HardCount=0;
 	D3DPRESENT_PARAMETERS PresentParams = GetPresentParams(m_hView);
 	m_lock.Lock();
 
@@ -681,8 +683,12 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 					
 				//	hr=m_pDevice->StretchRect(m_pBackSur,NULL,m_pBackBuffer,&m_rtViewBack,D3DTEXF_LINEAR);  
 				    hr=m_pDevice->StretchRect(temp,NULL,m_pBackBuffer,&m_rtViewport,D3DTEXF_LINEAR);  
-					if(m_nBackSurface9Hard&&hr==S_OK)
+					if(m_nBackSurface9Hard&&hr==S_OK&&m_Surface9HardCount%3==0)
                        SurCopy(m_pBackBuffer);/**/
+					m_Surface9HardCount++;
+
+					if(m_Surface9HardCount>1000000)
+						m_Surface9HardCount=0;
 					//
 					if(hr==D3DERR_INVALIDCALL)
 						m_bNeedReset=true;
