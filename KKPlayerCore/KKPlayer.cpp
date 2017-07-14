@@ -991,8 +991,8 @@ void KKPlayer::RenderImage(IkkRender *pRender,bool Force)
 															  
 															   pRender->render(&picinfo,okkk);
 															   
-														   }else{
-														       //pRender->render(NULL,okkk);
+														   }else if(okkk){
+														       pRender->render(NULL,okkk);
 														   }
 													   }else if(pVideoInfo->IsReady==0){
 														   pRender->render(NULL,true);

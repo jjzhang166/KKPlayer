@@ -67,7 +67,8 @@ public:
 	///用于获取d3d信息
 	virtual bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver)=0;
 	virtual void SetResetHardInfoCall(fpResetDevCall call,void* UserData)=0;
-
+    virtual long long GetOnSizeTick()=0;
+	virtual void RetSetSizeTick()=0;
 	virtual void renderLock()=0;
 	virtual void renderUnLock()=0;
 };

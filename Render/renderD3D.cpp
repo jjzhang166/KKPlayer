@@ -121,6 +121,7 @@ CRenderD3D::CRenderD3D(int          cpu_flags)
 	,m_pYUVAVTextureSysMem(0)
 	,m_nBackSurface9Hard(0)
 	,m_Surface9HardCount(0)
+	,m_nRetDevTick(0)
 {
 
 }
@@ -431,6 +432,11 @@ void CRenderD3D::ShowErrPic(bool show)
 {
    m_bShowErrPic=show;
 }
+long long CRenderD3D::GetOnSizeTick(){return m_nRetDevTick;}
+void CRenderD3D::RetSetSizeTick()
+{
+
+}
 void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 {
    //return;
@@ -453,15 +459,15 @@ void CRenderD3D::WinSize(unsigned int w, unsigned int h)
 			m_ResetCall(m_ResetUserData,0);
 	}
 	
-	
+	m_nRetDevTick=::GetTickCount64();
 	///重置必须释放所有资源
 	HRESULT  hr=	m_pDevice->Reset(&PresentParams);
 	if(hr==S_OK){
 	    ret=2;
 	}
-	if(m_ResetCall){
+	/*if(m_ResetCall){
 			 m_ResetCall(m_ResetUserData,ret);
-	}
+	}*/
 	
 	if(m_nBackSurface9Hard&&m_pYUVAVTextureSysMem)
 	{
@@ -648,7 +654,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 
 				   m_nBackSurface9Hard=0;
 				}
-
+                 
 				if(temp!=NULL)
 				{
 					if(m_pBackBuffer == NULL)
@@ -694,6 +700,7 @@ void CRenderD3D::render(kkAVPicInfo *Picinfo,bool wait)
 						m_bNeedReset=true;
 
 				}
+				UpdateLeftPicTexture();
 				if(m_pLeftPicTexture!=NULL)
 				{
 					m_pDevice->SetTexture(0, m_pLeftPicTexture);
@@ -1026,7 +1033,7 @@ bool CRenderD3D::UpdateTexture(kkAVPicInfo *Picinfo)
 			  }
 	 }
 	 m_pYUVAVTexture->UnlockRect();	  
-	 UpdateLeftPicTexture();
+	
      return true;
 }
 

@@ -31,6 +31,8 @@ public:
 	void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 	bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver);
 	void SetResetHardInfoCall(fpResetDevCall call,void* UserData);
+	long long GetOnSizeTick(){return 0;}
+	virtual void RetSetSizeTick(){};
 	virtual void renderLock();
 	virtual void renderUnLock();
 protected:

@@ -1511,12 +1511,23 @@ LXXXX:
 						  resetdev=GetD3d9RestDevState( is->viddec.avctx->opaque);
 						  
 						  if(resetdev==1){
+							  long long Tick1=::GetTickCount64();
+							  long long Tick2= is->IRender->GetOnSizeTick();
+							  if(Tick1-Tick2>800)
+							  {
+							       Dxva2ResetDevCall(is->viddec.avctx,2);
+							  }else{
+							       
+								   is->IRender->renderUnLock();
+								   Sleep(500);
+								   continue;
+							  }
 							  is->IRender->renderUnLock();
 							  ///减少硬件重置带来的解码器刷新。
-							  Sleep(1000);
-							  continue;
+							 // Sleep(1000);
+							 
 						  }else if(resetdev==2){
-							   Dxva2ResetDevCall(is->viddec.avctx,3);
+							    Dxva2ResetDevCall(is->viddec.avctx,3);
 						  }
 						  is->IRender->renderUnLock();
 					  }

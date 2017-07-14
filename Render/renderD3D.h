@@ -42,6 +42,8 @@ public:
 	void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 	bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver);
 	void SetResetHardInfoCall(fpResetDevCall call,void* UserData);
+	long long GetOnSizeTick();
+	void RetSetSizeTick();
 	void renderLock();
 	void renderUnLock();
 private:
@@ -108,6 +110,7 @@ private:
 	/// «∑Ò≥‰”≤º˛‰÷»æ¿¥
 	int            m_nBackSurface9Hard;
 	int            m_Surface9HardCount;
+	long long            m_nRetDevTick;
 };
 
 #endif
