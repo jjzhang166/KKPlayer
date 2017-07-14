@@ -115,9 +115,9 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     int dummy_size;
     enum AVPixelFormat pix_fmts[3] = { AV_PIX_FMT_QSV,AV_PIX_FMT_NV12,AV_PIX_FMT_NONE };
 
-	 desc = av_pix_fmt_desc_get(avctx->sw_pix_fmt);
+	/* desc = av_pix_fmt_desc_get(avctx->sw_pix_fmt);
     if (!desc)
-        return AVERROR_BUG;
+        return AVERROR_BUG;*/
    // ret = av_get_format(avctx, pix_fmts);
 	/*ret=;
     if (ret < 0)
@@ -258,11 +258,11 @@ static int qsv_decode_init(AVCodecContext *avctx, KKQSVContext *q, AVPacket *avp
     param.AsyncDepth  = q->async_depth;
     param.ExtParam    = q->ext_buffers;
     param.NumExtParam = q->nb_ext_buffers;
-   /* param.mfx.FrameInfo.BitDepthLuma   = 8;
-    param.mfx.FrameInfo.BitDepthChroma = 8;*/
-	param.mfx.FrameInfo.BitDepthLuma   = desc->comp[0].depth;
+    param.mfx.FrameInfo.BitDepthLuma   = 8;
+    param.mfx.FrameInfo.BitDepthChroma = 8;
+	/*param.mfx.FrameInfo.BitDepthLuma   = 8;//desc->comp[0].depth;
     param.mfx.FrameInfo.BitDepthChroma = desc->comp[0].depth;
-    param.mfx.FrameInfo.Shift          = desc->comp[0].depth > 8;
+    param.mfx.FrameInfo.Shift          = desc->comp[0].depth > 8;;*/
 
     param.mfx.Rotation = 0;
 	param.mfx.CodecProfile = kk_qsv_profile_to_mfx(avctx->codec_id,avctx->profile);

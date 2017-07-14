@@ -6,7 +6,7 @@
 extern "C"{
 #include <mfx/mfxdefs.h>
 #include <mfx/mfxvideo.h>
-
+#include <mfx/mfxplugin.h>
 }
 #include "qsv.h"
 void *KK_Malloc_(size_t size);
@@ -72,7 +72,7 @@ static mfxStatus CheckRequestType(mfxFrameAllocRequest *request)
 static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFrameAllocResponse *resp)
 {
     KKQSVDecCtx *decode = (KKQSVDecCtx *)pthis;
-    int err, i;
+    int  i;
 
     
     /*if (!(req->Type & MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET)) {
@@ -214,9 +214,6 @@ static mfxStatus frame_alloc(mfxHDL pthis, mfxFrameAllocRequest *request,mfxFram
     decode->frame_info =   request->Info;
 //decode->nb_surfaces=
     return MFX_ERR_NONE;
-fail:
-   
-    return MFX_ERR_MEMORY_ALLOC;
 }
 
 
@@ -418,7 +415,19 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		if(pCodecCtx->codec_id==AV_CODEC_ID_H264)
                 decCtx->dec_param.mfx.CodecId=MFX_CODEC_AVC;
 		if(pCodecCtx->codec_id==AV_CODEC_ID_H265)
-			    decCtx->dec_param.mfx.CodecId=MFX_CODEC_HEVC;
+		{
+		    mfxStatus st=MFXVideoUSER_Load( decCtx->mfx_session,&MFX_PLUGINID_HEVCD_SW,1);
+			if(MFX_ERR_NOT_FOUND==st){
+			       st=MFXVideoUSER_Load( decCtx->mfx_session,&MFX_PLUGINID_HEVCD_HW,1);
+			}else if(MFX_ERR_NOT_FOUND==st){
+
+			   MFXClose(mfx_session);
+			   ::av_free(decCtx->hw_ctx);
+			   ::KK_Free_(decCtx);
+			   return -1;
+			}
+			decCtx->dec_param.mfx.CodecId=MFX_CODEC_HEVC;
+		}
         
 		pCodecCtx->hwaccel_context=decCtx->hw_ctx;
 		pCodecCtx->opaque=decCtx;
