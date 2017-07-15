@@ -33,8 +33,8 @@ translucent="0">
                                       </window>
 									  <window name="col4">
 									           <window  pos="|-30,|-8,@60,-0">
-									           <imgbtn skin="_skin.1PAUSE"  pos="0,0,@18,@16" tip="暂停下载" animate="0"/> 
-											   <imgbtn skin="_skin.DeleteBtn"  pos="[10,0,@16,@16" tip="删除" animate="0"/> 
+									           <imgbtn skin="_skin.1PAUSE" name="btn_pause" pos="0,0,@18,@16" tip="暂停下载" animate="0"/> 
+											   <imgbtn skin="_skin.DeleteBtn" name="btn_delete" pos="[10,0,@16,@16" tip="删除" animate="0"/> 
                                                <imgbtn skin="_skin.OpenFolderBtn"  pos="[10,0,@16,@16" tip="打开文件夹" animate="0"/>
                                                </window>											   
                                       </window>

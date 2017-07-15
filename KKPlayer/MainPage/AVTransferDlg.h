@@ -12,6 +12,7 @@ namespace SOUI
 	   public:
 		       CAVTransferDlg(CMainDlg *m_DlgMain);
 		       ~CAVTransferDlg();
+			 
 	protected:
 		        virtual  void Init();
 				void OnClose();

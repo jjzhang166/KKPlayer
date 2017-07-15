@@ -32,6 +32,10 @@ namespace SOUI
 			SStringW GetColumnName(int iCol) const;
 			
 			bool OnSort(int iCol,SHDSORTFLAG * stFlags,int nCols);
+
+			bool OnItemDelete(EventArgs *pEvt);
+			 bool OnItemPause(EventArgs *pEvt);
+			 bool OnItemOpenLocal(EventArgs *pEvt);
 		private:
 			SMCListView *m_pSMCListView;
 	};

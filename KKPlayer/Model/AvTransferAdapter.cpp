@@ -1,6 +1,7 @@
 #include "AvTransferAdapter.h"
 #include "../Control/kkmclv.h"
 #include "../KKPlayerCore/KKPlayer.h"
+#include "../MainPage/AVTransferDlg.h"
 #include "json/json.h"
 #include "../Tool/cchinesecode.h"
 #include <vector>
@@ -25,8 +26,8 @@ namespace SOUI
 		}
 		~DataItem(){}
 	   int  speed;
-	   int  progress;
-	   int  filesize;
+	   long long  progress;
+	   long long  filesize;
 	   std::wstring  Url;
 	};
 	static std::vector<DataItem> DataItemVector;
@@ -42,7 +43,7 @@ namespace SOUI
 	return strRet;//std::move(strRet);
 }
 
-	char * GetFormtDByMB(char *strabce,int FileSize)
+	char * GetFormtDByMB(char *strabce,long long FileSize)
 	{
 		
 		double dfileSize=0;
@@ -72,7 +73,7 @@ namespace SOUI
 		double dfileSize=0;
 		if(FileSize>1024*1024)
 		{
-			dfileSize=(double)FileSize/(1024*1024);
+			dfileSize=FileSize/(1024*1024);
 			sprintf(strabce,"%s Mb/s",format_thousands_separator(dfileSize).c_str());
 		}else if(FileSize>1024){
 			dfileSize=(double)FileSize/1024;
@@ -149,6 +150,18 @@ namespace SOUI
 			SItemPanel * pSItme=(SItemPanel *)pEvt->sender;*/
 			return true;
 	}
+	bool CDownAVListMcAdapterFix::OnItemDelete(EventArgs *pEvt)
+	{
+	  return true;
+	}
+    bool  CDownAVListMcAdapterFix::OnItemPause(EventArgs *pEvt)
+	{
+	return true;
+	}
+	bool  CDownAVListMcAdapterFix::OnItemOpenLocal(EventArgs *pEvt)
+    {
+	return true;
+	}
 	void CDownAVListMcAdapterFix::getView(int position, SWindow * pItem,pugi::xml_node xmlTemplate)
 	{
 		int len=2*1024*4;
@@ -199,7 +212,15 @@ namespace SOUI
 				 GetFormtDBySpeed(temp2,Item.speed);
 				 CChineseCode::charTowchar(temp2,temp,1024) ; /**/
 				 pWin->SetWindowText(temp);
-			} 
+			 } 
+             pWin= pItem->FindChildByName(L"btn_pause");
+			 if(pWin){
+							
+			 }
+             pWin= pItem->FindChildByName(L"btn_delete");
+			 if(pWin){
+					 pWin->GetEventSet()->subscribeEvent(EVT_CMD, Subscriber(&CDownAVListMcAdapterFix::OnItemDelete, this));
+			 }
 	   }
 	   ::free(temp2);
 	   ::free(temp);
