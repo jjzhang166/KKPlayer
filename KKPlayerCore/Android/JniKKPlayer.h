@@ -49,6 +49,12 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniKK(JNIEnv
 *初始化opengl 2.0
 */
 JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv *env, jobject instance, jint obj);
+
+/**
+*设置解码方式 0 默认解码， 1 mediacodec 解码
+**/
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetDecoderMethod(JNIEnv *env, jobject instance, jint obj, jint method);
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetSurfaceTexture(JNIEnv * env, jobject instance, jint obj, jobject surface);
 /**
 *调整程序区域大小
 */
@@ -62,10 +68,8 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNI
 *设置是否保持视频长宽比例
 */
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetKeepRatio(JNIEnv *env, jobject instance, jint obj, jint KeepRatio);
-/**
-*Surface 显示,目前不支持
-*/
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SurfaceRender(JNIEnv * env, jobject instance, jint obj, jobject surface);
+
+
 /**
 *删除一个播放器核心
 */

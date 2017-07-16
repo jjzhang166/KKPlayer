@@ -110,6 +110,7 @@ GlEs2Render::GlEs2Render(KKPlayer* pPlayer):m_pGLHandle(0),gvPositionHandle(0),m
 ,g_texYId(0),g_texUId(0),g_texVId(0)
 ,g_glProgram(0),g_av2_texcoord(0),g_av4_position(0)
 ,m_vertexShader(0),m_fragmentShader(0)
+,g_SurfaceTextVId(0)
 {
 	
 
@@ -177,6 +178,8 @@ void GlEs2Render::GLES2_Renderer_reset()
 					m_plane_textures[i]=0;
 				}
 			}
+			if(g_SurfaceTextVId!=0)
+				glDeleteTextures(1, &g_SurfaceTextVId);
 }
 
 
@@ -272,6 +275,7 @@ int GlEs2Render::IniGl()
         glGenTextures(1, &g_texYId);
         glGenTextures(1, &g_texUId);
         glGenTextures(1, &g_texVId);
+		glGenTextures(1,&g_SurfaceTextVId);
     }
 
 
@@ -316,7 +320,7 @@ int GlEs2Render::IniGl()
     KK_GLES2_loadOrtho(&modelViewProj, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
     glUniformMatrix4fv(um4_mvp, 1, GL_FALSE, modelViewProj.m);
 
-    return m_pGLHandle;
+    return g_SurfaceTextVId;//m_pGLHandle;
 }
 
 void GlEs2Render::AVTexCoords_reset()
@@ -468,28 +472,32 @@ void GlEs2Render::render(kkAVPicInfo *Picinfo,bool wait)
 					m_Picheight=Picinfo->height;
 					m_bAdJust=false;
 				}
+                if(Picinfo->picformat!=AV_PIX_FMT_MEDIACODEC)
+				{
+					int     planes[3]    = { 0, 1, 2 };
+					const GLsizei widths[3]    = { Picinfo->linesize[0], Picinfo->linesize[1], Picinfo->linesize[2] };
+				   // const GLsizei widths[3]    = { Picinfo->width, Picinfo->width/2, Picinfo->width/2};
+					const GLsizei heights[3]   = { Picinfo->height,Picinfo->height / 2,     Picinfo->height / 2 };
+					//***********************************Y***********************U**************************************V
+					const GLubyte *pixels[3]   = {(GLubyte *)Picinfo->data[0], (GLubyte *)Picinfo->data[1] ,  (GLubyte *)Picinfo->data[2] };
+					GLuint  plane_textures[]={g_texYId,g_texUId,g_texVId};
+					for (int i = 0; i < 3; ++i) {
+						int plane = planes[i];
 
-				int     planes[3]    = { 0, 1, 2 };
-				const GLsizei widths[3]    = { Picinfo->linesize[0], Picinfo->linesize[1], Picinfo->linesize[2] };
-			   // const GLsizei widths[3]    = { Picinfo->width, Picinfo->width/2, Picinfo->width/2};
-				const GLsizei heights[3]   = { Picinfo->height,Picinfo->height / 2,     Picinfo->height / 2 };
-				//***********************************Y***********************U**************************************V
-				const GLubyte *pixels[3]   = {(GLubyte *)Picinfo->data[0], (GLubyte *)Picinfo->data[1] ,  (GLubyte *)Picinfo->data[2] };
-				GLuint  plane_textures[]={g_texYId,g_texUId,g_texVId};
-				for (int i = 0; i < 3; ++i) {
-					int plane = planes[i];
+						glBindTexture(GL_TEXTURE_2D, plane_textures[i]);
 
-					glBindTexture(GL_TEXTURE_2D, plane_textures[i]);
-
-					glTexImage2D(GL_TEXTURE_2D,
-								 0,
-								 GL_LUMINANCE,
-								 widths[plane],
-								 heights[plane],
-								 0,
-								 GL_LUMINANCE,
-								 GL_UNSIGNED_BYTE,
-								 pixels[plane]);
+						glTexImage2D(GL_TEXTURE_2D,
+									 0,
+									 GL_LUMINANCE,
+									 widths[plane],
+									 heights[plane],
+									 0,
+									 GL_LUMINANCE,
+									 GL_UNSIGNED_BYTE,
+									 pixels[plane]);
+				}
+				}else{
+					 LOGI("MEDIACODEC  xxxxx \n");
 				}
     }
 }
@@ -527,14 +535,27 @@ void GlEs2Render::SetRenderImgCall(fpRenderImgCall fp,void* UserData)
 	
 	
 }
-	        bool GlEs2Render::GetHardInfo(void** pd3d,void** pd3ddev,int *ver)
-			{
-				
-				return 0;
-			}
-	        void GlEs2Render::SetResetHardInfoCall(fpResetDevCall call,void* UserData)
-			{}
-	        void GlEs2Render::renderLock()
-			{}
-	        void GlEs2Render::renderUnLock()
-			{}
+bool GlEs2Render::GetHardInfo(void** pd3d,void** pd3ddev,int *ver)
+{			
+	return 0;
+}
+void GlEs2Render::SetResetHardInfoCall(fpResetDevCall call,void* UserData)
+{
+	
+}
+long long GlEs2Render::GetOnSizeTick()
+{
+ return 0;
+}
+void GlEs2Render::RetSetSizeTick()
+{
+
+}
+void GlEs2Render::renderLock()
+{
+	
+}
+void GlEs2Render::renderUnLock()
+{
+	
+}

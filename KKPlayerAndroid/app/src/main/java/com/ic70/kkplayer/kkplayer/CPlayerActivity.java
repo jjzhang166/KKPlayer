@@ -258,6 +258,8 @@ public class CPlayerActivity extends Activity {
 
         CharSequence  CRaType= bundle.getCharSequence("RaType");
         m_RaType= Integer.parseInt(CRaType.toString());
+        CharSequence kkMediacodec= bundle.getCharSequence("kkMediacodec");
+        int nMediacodec=Integer.parseInt(kkMediacodec.toString());
        // String path="";
         ImageButton Btn=(ImageButton)findViewById(R.id.StartButton);
         Btn.setOnClickListener(new MediaClassBtnClick(this));
@@ -267,7 +269,7 @@ public class CPlayerActivity extends Activity {
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
         m_KKPlayer.SetKeepRatio(m_RaType);
         m_KKPlayer.OpenMedia(MoviePathStr);
-
+        m_KKPlayer.SetDecoderMethod(nMediacodec);
         m_KKPlayer.SetMinRealtimeDelay(m_MinRealtimeDelay);
         m_CurTime=0;
         PlayerStata = EnumPlayerStata.Play;

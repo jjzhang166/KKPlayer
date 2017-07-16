@@ -74,8 +74,11 @@
             android:id="@+id/radioButton3" />
     </RadioGroup>
 
-
-
+    <CheckBox
+        android:text="h264/h265 mediacodec解码"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBoxmediacodec" />
 
 
     <!-- <com.ic70.kkplayer.kkplayer.GLES2_0_SurfaceView

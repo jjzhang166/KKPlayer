@@ -379,6 +379,8 @@ typedef struct SKK_VideoState
 		HARD_CODE_CUDA       = 3,
 		HARD_CODE_MEDIACODEC = 4,
 	} Hard_Code;
+
+	void*   SurfaceTexture;///Androidª∑æ≥mediacodc ”√
 } SKK_VideoState;
 
 

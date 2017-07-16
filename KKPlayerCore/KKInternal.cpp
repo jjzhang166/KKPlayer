@@ -955,11 +955,20 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				   }else  if(avctx->codec_id==AV_CODEC_ID_HEVC){ 
 					   codec = avcodec_find_decoder_by_name("hevc_mediacodec");
 				   }
+				   
+				   if(codec!=NULL){
+					   
+				     AVMediaCodecContext *mc = av_mediacodec_alloc_context();
+                     av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
+				   }else{
+				       LOGE_KK("mediacodec ½âÂëÊ§°Ü\n");  
+				   }
 			   }
 	      
        #endif
 	   if(codec==NULL){
 	        codec = avcodec_find_decoder(avctx->codec_id);
+			is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
 	   }
 	}
 
@@ -1294,8 +1303,11 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 
 	int copydata=0;
 #ifdef Android_Plat
-	if(pFrame->linesize[0]!=pFrame->width)
-         copydata=1;
+	if(is->Hard_Code!=SKK_VideoState::HARD_CODE_MEDIACODEC)
+	{
+		if(pFrame->linesize[0]!=pFrame->width)
+			 copydata=1;
+	}
 #endif
 	//if()
 	pPictq->mutex->Lock();
@@ -1402,7 +1414,7 @@ int queue_picture(SKK_VideoState *is, AVFrame *pFrame, double pts,double duratio
 			 }
 		}else
 #endif/**/
-		if((is->DstAVff!=format&&is->Hard_Code!=SKK_VideoState::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12)||copydata)
+		if((is->DstAVff!=format&&is->Hard_Code!=SKK_VideoState::HARD_CODE_QSV&&format!=AV_PIX_FMT_NV12&&format!=AV_PIX_FMT_MEDIACODEC)||copydata)
 		{
 			
 			is->img_convert_ctx = sws_getCachedContext(is->img_convert_ctx,
@@ -1647,6 +1659,10 @@ LXXXX:
 			is->viddec.avctx->opaque=NULL;
 	        is->viddec.avctx->hwaccel_context=NULL;*/
 	 }
+#else
+	if(is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC){
+			av_mediacodec_default_free(is->viddec.avctx);
+	}
 #endif
 	LOGE_KK("Video_thread Over");
 	

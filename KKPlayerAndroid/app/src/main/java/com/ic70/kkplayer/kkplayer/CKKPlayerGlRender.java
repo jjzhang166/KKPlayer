@@ -7,17 +7,17 @@ import android.view.View;
 import android.widget.Button;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
+import android.graphics.SurfaceTexture;
 /**
  * Created by saint on 2016/3/9.
  */
 
-public class CKKPlayerGlRender implements GLSurfaceView.Renderer
+public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.OnFrameAvailableListener
 {
 
     private CJniKKPlayer  m_JniKKPlayer;
     private int           m_nKKPlayer=0;
-    private int           m_nGlHandle=0;
+    private SurfaceTexture  m_mediacodecSurfaceTexture=null;
     private boolean      m_ReOpen=false;
     private CkkMediaInfo info= new CkkMediaInfo();
     private String m_url;
@@ -25,6 +25,12 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
     {
         m_JniKKPlayer = new CJniKKPlayer();
         m_nKKPlayer   = m_JniKKPlayer.IniKK(0);
+
+    }
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture)
+    {
+
 
     }
     //暂停
@@ -48,8 +54,13 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
         }
         return  info;
     }
-   
 
+    public void SetDecoderMethod( int method)
+    {
+        if(m_nKKPlayer!=0) {
+            m_JniKKPlayer.SetDecoderMethod(m_nKKPlayer, method);
+        }
+    }
     public int OpenMedia(String str)
     {
         m_url=str;
@@ -133,6 +144,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
     }
     public int GetRealtimeDelay()
     {
+       // SurfaceTexture xx = new SurfaceTexture()
         if(m_nKKPlayer!=0) {
             return m_JniKKPlayer.KKGetRealtimeDelay(m_nKKPlayer);
         }
@@ -175,8 +187,11 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer
             String glv = gl.glGetString(GL10.GL_VERSION);
             ///
             Log.v("Gl", "Gl Init");
-            m_nGlHandle = m_JniKKPlayer.IniGl(m_nKKPlayer);
-
+            int textHandleId = m_JniKKPlayer.IniGl(m_nKKPlayer);
+            if(textHandleId!=0) {
+                m_mediacodecSurfaceTexture = new SurfaceTexture(textHandleId);
+                m_JniKKPlayer.SetSurfaceTexture(m_nKKPlayer,m_mediacodecSurfaceTexture);
+            }
         }
     }
 }

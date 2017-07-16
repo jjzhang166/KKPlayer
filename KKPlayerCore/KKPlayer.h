@@ -109,7 +109,9 @@ class KKPlayer
 			{
 			    return m_pVideoRefreshJNIEnv;
 			}
+			void SetSurfaceTexture(void* surface) ;
 #endif
+
 private:
 	       
 	        /*********视频刷新线程********/
@@ -212,6 +214,7 @@ private:
 			
 #ifdef Android_Plat
 			void *  m_pVideoRefreshJNIEnv;
+			void*   m_pSurfaceTexture;
 #endif
 			
 };

@@ -26,6 +26,20 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv
     return pKKUI->Init();
 }
 
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetDecoderMethod(JNIEnv *env, jobject instance, jint obj, jint method)
+{
+	CAndKKPlayerUI *pKKUI = (CAndKKPlayerUI *)obj;
+	if(pKKUI!=0){
+		pKKUI->SetDecoderMethod(method);
+	}
+}
+JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetSurfaceTexture(JNIEnv * env, jobject instance, jint obj, jobject surface)
+{
+	CAndKKPlayerUI *pKKUI = (CAndKKPlayerUI *)obj;
+	if(pKKUI!=0){
+		pKKUI->SetSurfaceTexture((void*)surface);
+	}
+}
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetKeepRatio(JNIEnv *env, jobject instance, jint obj, jint KeepRatio)
 {
 	CAndKKPlayerUI *pKKUI = (CAndKKPlayerUI *)obj;
@@ -44,7 +58,7 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GlRender(JNI
 }
 
 
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SurfaceRender(JNIEnv * env, jobject instance, jint obj, jobject surface)
+/*JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SurfaceRender(JNIEnv * env, jobject instance, jint obj, jobject surface)
 {
 	CAndKKPlayerUI *pKKUI=(CAndKKPlayerUI *)obj;
 	
@@ -58,7 +72,7 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SurfaceRende
 	LOGE("ANativeWindow_release ");
 	}
     return 1;
-}
+}*/
 
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_DelKK(JNIEnv *env, jobject instance,jint obj)
 {

@@ -48,8 +48,9 @@ extern "C"
 #include "libswscale/swscale.h"
 
 
-#ifndef Android_Plat
+#ifdef Android_Plat
 #include "libavcodec/jni.h"
+#include "libavcodec/mediacodec.h"
 #endif
 #include "libavcodec/avfft.h"
 #include "libavcodec/avcodec.h"

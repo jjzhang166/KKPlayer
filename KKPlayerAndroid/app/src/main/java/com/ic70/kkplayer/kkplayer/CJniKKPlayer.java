@@ -1,7 +1,7 @@
 package com.ic70.kkplayer.kkplayer;
 import android.view.Surface;
 import android.view.SurfaceView;
-
+import android.graphics.SurfaceTexture;
 /**
  * Created by saint on 2016/2/26.
  */
@@ -42,6 +42,10 @@ public class CJniKKPlayer {
     //检查Gl环境，初始化glview环境
     public native int IniGl(int obj);
 
+    //设置解码方式 0 默认解码， 1 mediacodec 解码(只对h264,h265 有效)
+    public native void SetDecoderMethod(int obj, int method);
+
+    public native void SetSurfaceTexture(int obj,SurfaceTexture surface);
     /***
      * 尺寸调整
      * @param obj 播放器实例
@@ -69,7 +73,7 @@ public class CJniKKPlayer {
      */
     public native void DelKK(int obj);
 
-    public native void SurfaceRender(int obj,Surface surface);
+
     public native int  KKOpenMedia(String str,int obj);
 
     public native int  KKIsNeedReConnect(int obj);

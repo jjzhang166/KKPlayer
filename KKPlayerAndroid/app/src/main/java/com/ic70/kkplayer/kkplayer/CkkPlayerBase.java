@@ -143,7 +143,7 @@ public class CkkPlayerBase
     public void SurfaceRender(Surface surface)
     {
         if(m_nKKPlayer!=0) {
-             m_JniKKPlayer.SurfaceRender(m_nKKPlayer,surface);
+           //  m_JniKKPlayer.SurfaceRender(m_nKKPlayer,surface);
         }
     }
     public void OnSize(int w,int h)

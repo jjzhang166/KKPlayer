@@ -1,11 +1,13 @@
 package com.ic70.kkplayer.kkplayer;
 import android.content.Context;
+
 import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceHolder.Callback2;
+
 /**
  * Created by saint on 2017/3/28.
  * SurfaceView 由于性能原因不支持
@@ -15,10 +17,13 @@ public class CKKPlayerSurfaceRender extends SurfaceView  implements Callback2
 {
     public CkkPlayerBase m_Player =null;
     CKKPlayerSurfaceRender OwnSurfaceView;
+
     public CKKPlayerSurfaceRender(Context context) {
         super(context);
 
+
     }
+
 
     public CKKPlayerSurfaceRender(Context context, AttributeSet attrs) {
         super(context, attrs);

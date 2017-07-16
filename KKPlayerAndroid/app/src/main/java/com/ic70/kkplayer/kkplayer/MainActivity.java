@@ -22,12 +22,13 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.CheckBox;
 
 import com.ic70.kkplayer.kkplayer.CBtnClick;
 
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
     private EditText txtAvUrl;
     CKKPlayerSurfaceRender SurfaceRender;
     private int RaType=0;
+    private  int kkMediacodec=0;
     public MainActivity()
     {
 
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
                 String xx = txtAv.getText().toString();
                 intent.putExtra("MoviePath", xx);
                 intent.putExtra("RaType",Integer.toString(RaType));
+                intent.putExtra("kkMediacodec",Integer.toString(kkMediacodec));
                 //指定intent要启动的类
 
                 intent.setClass(v.getContext(), CPlayerActivity.class);//(context.this, Activity02.class);
@@ -112,7 +115,24 @@ public class MainActivity extends AppCompatActivity implements IKKMessageHandler
         RadioGroup group = (RadioGroup) this.findViewById(R.id.RadioGroup0);
         //绑定一个匿名监听器
         group.setOnCheckedChangeListener(RadioLi);
+
+        CheckBox mmediacodec =(CheckBox)findViewById(R.id.checkBoxmediacodec);
+        mmediacodec.setOnCheckedChangeListener(CheckBoxCodec);
     }
+    CheckBox.OnCheckedChangeListener CheckBoxCodec= new  CheckBox.OnCheckedChangeListener()
+    {
+        @Override
+        public  void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+        {
+                  if(isChecked){
+                      kkMediacodec=1;
+                  }else{
+                      kkMediacodec=0;
+                  }
+
+        }
+
+    };
     RadioGroup.OnCheckedChangeListener RadioLi=new RadioGroup.OnCheckedChangeListener()
     {
 

@@ -43,6 +43,8 @@ class GlEs2Render: public IkkRender
 			void SetRenderImgCall(fpRenderImgCall fp,void* UserData);
 	        bool GetHardInfo(void** pd3d,void** pd3ddev,int *ver);
 	        void SetResetHardInfoCall(fpResetDevCall call,void* UserData);
+			long long GetOnSizeTick();
+	        void RetSetSizeTick();
 	        void renderLock();
 	        void renderUnLock();
 	private:
@@ -50,6 +52,7 @@ class GlEs2Render: public IkkRender
         GLuint g_texYId;
         GLuint g_texUId;
         GLuint g_texVId;
+		GLuint g_SurfaceTextVId;
         GLuint g_glProgram;
         GLuint g_av2_texcoord;
         GLuint g_av4_position;

@@ -19,6 +19,8 @@ class CAndKKPlayerUI :public  IKKPlayUI
              int  Init();
 			 int  OnSize(int w,int h);
 			 void SetKeepRatio(int KeepRatio);
+			 void SetDecoderMethod(int method);
+			 void SetSurfaceTexture(void* SurfaceTexture);
              void renderFrame(ANativeWindow* surface);
              int  CloseMedia();
              MEDIA_INFO GetMediaInfo();

@@ -43,11 +43,12 @@ CAndKKPlayerUI::~CAndKKPlayerUI()
 
 int CAndKKPlayerUI::Init()
 {
+	int ret=0;
 	if(m_nRenderType==0){
      
-		m_pRender-> init(0);
+		ret=m_pRender-> init(0);
 	}
-	return 0;
+	return ret;
 }
 		
 int CAndKKPlayerUI::OnSize(int w,int h)
@@ -57,6 +58,24 @@ int CAndKKPlayerUI::OnSize(int w,int h)
         m_pRender->resize(w,h);
 	}
 	return 0;
+}
+
+void SetKKplayerH264HardCodec(int value);
+void SetKKplayerH265HardCodec(int value);
+void  CAndKKPlayerUI::SetDecoderMethod(int method)
+{
+	
+	if(method==0){
+		SetKKplayerH264HardCodec(0);
+        SetKKplayerH265HardCodec(0);
+	}else{
+		SetKKplayerH264HardCodec(SKK_VideoState::HARD_CODE_MEDIACODEC);
+        SetKKplayerH265HardCodec(SKK_VideoState::HARD_CODE_MEDIACODEC);
+	}
+}
+void CAndKKPlayerUI::SetSurfaceTexture(void* SurfaceTexture)
+{
+	m_player.SetSurfaceTexture(SurfaceTexture);
 }
 void CAndKKPlayerUI::SetKeepRatio(int KeepRatio)
 {
