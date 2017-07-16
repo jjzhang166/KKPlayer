@@ -959,10 +959,14 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				   if(codec!=NULL){
 					   
 				     AVMediaCodecContext *mc = av_mediacodec_alloc_context();
-                     av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
+                     int retx=av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
+					 if(retx==AVERROR_EXTERNAL)
+					   LOGE_KK("mediacodec SurfaceTexture err\n");  
 				   }else{
 				       LOGE_KK("mediacodec Ω‚¬Î ß∞‹\n");  
 				   }
+			   }else{
+			      LOGE_KK("mediacodec no\n"); 
 			   }
 	      
        #endif

@@ -481,7 +481,7 @@ void GlEs2Render::render(kkAVPicInfo *Picinfo,bool wait)
 					//***********************************Y***********************U**************************************V
 					const GLubyte *pixels[3]   = {(GLubyte *)Picinfo->data[0], (GLubyte *)Picinfo->data[1] ,  (GLubyte *)Picinfo->data[2] };
 					GLuint  plane_textures[]={g_texYId,g_texUId,g_texVId};
-					for (int i = 0; i < 3; ++i) {
+					 for (int i = 0; i < 3; ++i) {
 						int plane = planes[i];
 
 						glBindTexture(GL_TEXTURE_2D, plane_textures[i]);
@@ -495,8 +495,10 @@ void GlEs2Render::render(kkAVPicInfo *Picinfo,bool wait)
 									 GL_LUMINANCE,
 									 GL_UNSIGNED_BYTE,
 									 pixels[plane]);
-				}
-				}else{
+				        }
+						
+					/*	glBindTexture(GL_TEXTURE_2D,g_SurfaceTextVId);*/
+	            }else{
 					 LOGI("MEDIACODEC  xxxxx \n");
 				}
     }

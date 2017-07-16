@@ -30,8 +30,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture)
     {
-
-
+        Log.i("xxxx", "onFrameAvailable");
     }
     //暂停
     public void Pause()
