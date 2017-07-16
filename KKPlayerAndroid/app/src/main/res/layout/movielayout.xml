@@ -6,7 +6,10 @@
     android:background="#000000">
 
     <!---->
-
+    <com.ic70.kkplayer.kkplayer.GLES2_0_SurfaceView
+        android:layout_width="match_parent"
+        android:id="@+id/GlsurfaceView"
+        android:layout_height="match_parent" />
 
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -104,10 +107,7 @@
         android:layout_gravity="left|top"
         android:textColor="#faf6f6" />
 
-    <com.ic70.kkplayer.kkplayer.GLES2_0_SurfaceView
-        android:layout_width="match_parent"
-        android:id="@+id/GlsurfaceView"
-        android:layout_height="match_parent" />
+
 
 
 </FrameLayout>

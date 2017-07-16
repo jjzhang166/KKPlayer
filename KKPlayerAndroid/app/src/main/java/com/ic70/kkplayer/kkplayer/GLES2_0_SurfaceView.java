@@ -58,7 +58,7 @@ public class GLES2_0_SurfaceView extends GLSurfaceView {
         setEGLConfigChooser( translucent ?
                 new ConfigChooser(8, 8, 8, 8, depth, stencil) :
                 new ConfigChooser(5, 6, 5, 0, depth, stencil) );
-
+       // setRenderMode(RENDERMODE_WHEN_DIRTY);
         /* Set the renderer responsible for frame rendering */
     }
 
@@ -70,6 +70,7 @@ public class GLES2_0_SurfaceView extends GLSurfaceView {
             int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
             EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
             checkEglError("After eglCreateContext", egl);
+
             return context;
         }
 

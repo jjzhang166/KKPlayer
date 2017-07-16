@@ -4,6 +4,7 @@
 #include <GLES2/gl2ext.h>
 #include <android/log.h>
 #include "../KKPlayer.h"
+#include <jni.h>
 class GlEs2Render: public IkkRender
 {
 	public:
@@ -15,13 +16,15 @@ class GlEs2Render: public IkkRender
 			*是否保持长宽比例
 			*/
 			void  SetKeepRatio(int KeepRatio);
+			
+			jobject  SetSurfaceTexture(JNIEnv *env);
 	private:		
 			GLuint buildProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 			
 			void   GLES2_Renderer_reset();
             void   AVTexCoords_reset();
             void   AVTexCoords_cropRight(GLfloat cropRight);
-			int  IniGl();
+			int    IniGl();
 	public:
 			virtual bool init(HWND hView);
 			virtual void destroy();
@@ -78,6 +81,11 @@ class GlEs2Render: public IkkRender
 		///比例计算变量
         int           m_nKeepRatio;
         int           m_nLastKeepRatio;
-
+		
+		jmethodID updateTexImageMethodId;
+		jmethodID getTimestampMethodId;
+		jmethodID getTransformMtxId ;
+		jobject  javaSurfaceTextureObj;
+        JNIEnv *m_penv;
 };
 #endif

@@ -1,6 +1,7 @@
 package com.ic70.kkplayer.kkplayer;
 
 import android.app.Activity;
+import android.opengl.GLES11Ext;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.View;
@@ -8,6 +9,9 @@ import android.widget.Button;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import android.graphics.SurfaceTexture;
+
+import android.opengl.GLES10Ext; //GLES11Ext.GL_BLEND_EQUATION_RGB_OES;
+
 /**
  * Created by saint on 2016/3/9.
  */
@@ -21,6 +25,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
     private boolean      m_ReOpen=false;
     private CkkMediaInfo info= new CkkMediaInfo();
     private String m_url;
+    private boolean mUpdateST = false;
     public CKKPlayerGlRender()
     {
         m_JniKKPlayer = new CJniKKPlayer();
@@ -30,6 +35,8 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture)
     {
+
+
         Log.i("xxxx", "onFrameAvailable");
     }
     //暂停
@@ -174,7 +181,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height)
     {
-
+        mUpdateST = true;
         if(m_nKKPlayer!=0)
             m_JniKKPlayer.OnSize(m_nKKPlayer,width,height);
     }
@@ -188,8 +195,12 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
             Log.v("Gl", "Gl Init");
             int textHandleId = m_JniKKPlayer.IniGl(m_nKKPlayer);
             if(textHandleId!=0) {
-                m_mediacodecSurfaceTexture = new SurfaceTexture(textHandleId);
-                m_JniKKPlayer.SetSurfaceTexture(m_nKKPlayer,m_mediacodecSurfaceTexture);
+              //  m_mediacodecSurfaceTexture = new SurfaceTexture(textHandleId);
+              //  m_mediacodecSurfaceTexture.setOnFrameAvailableListener(this);
+               // GL_BLEND_EQUATION_RGB_OES
+              //  gl.GL_BLEND_EQUATION_RGB_OES
+              //  GLES11Ext
+               // m_JniKKPlayer.SetSurfaceTexture(m_nKKPlayer,m_mediacodecSurfaceTexture);
             }
         }
     }

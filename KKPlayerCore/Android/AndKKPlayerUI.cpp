@@ -73,9 +73,17 @@ void  CAndKKPlayerUI::SetDecoderMethod(int method)
         SetKKplayerH265HardCodec(SKK_VideoState::HARD_CODE_MEDIACODEC);
 	}
 }
-void CAndKKPlayerUI::SetSurfaceTexture(void* SurfaceTexture)
+void CAndKKPlayerUI::SetSurfaceTexture(JNIEnv *env)
 {
-	m_player.SetSurfaceTexture(SurfaceTexture);
+	jobject obj=0;
+	m_RenderLock.Lock();
+	if(m_pRender!=NULL){
+	   GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
+	   obj=pRender->SetSurfaceTexture(env);
+	}
+	m_RenderLock.Unlock();
+
+	m_player.SetSurfaceTexture(obj);
 }
 void CAndKKPlayerUI::SetKeepRatio(int KeepRatio)
 {
