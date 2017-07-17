@@ -962,17 +962,21 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				   if(codec!=NULL){
 					   
 				     AVMediaCodecContext *mc = av_mediacodec_alloc_context();
-                     int retx=av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
-					 if(retx==AVERROR_EXTERNAL)
-					   LOGE_KK("mediacodec SurfaceTexture err %d \n",(int)is->SurfaceTexture); 
+
+					 mc->surface =is->SurfaceTexture;
+                     avctx->hwaccel_context = mc;
+
+                      /* int retx=av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
+					  if(retx==AVERROR_EXTERNAL)
+					   LOGE_KK("mediacodec SurfaceTexture err %d \n",(int)is->SurfaceTexture);*/ 
 
 					   LOGE_KK("mediacodec SurfaceTexture %d \n",(int)is->SurfaceTexture); 
 					   LOGE_KK("mc SurfaceTexture %d \n",(int)mc->surface); 
 
 					   ///pix_fmt = ff_get_format(avctx, pix_fmts); 不知道为啥没有返回 AV_PIX_FMT_MEDIACODEC；，修改一下ffmpeg的源码看看，行不行。
-					char abcd[64]="";
-			snprintf(abcd,64,"%d",AV_PIX_FMT_MEDIACODEC);
-			av_dict_set(&opts, "pixel_format",abcd,0);
+					   char abcd[64]="";
+						snprintf(abcd,64,"%d",AV_PIX_FMT_MEDIACODEC);
+						av_dict_set(&opts, "pixel_format",abcd,0);
                       
 				   }else{
 				       LOGE_KK("mediacodec no find\n");  
@@ -1010,8 +1014,8 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 		assert(0);
 	}
 	
- // is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC &&
-	if(avctx->codec_type == AVMEDIA_TYPE_VIDEO){
+ // 
+	if(is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC &&avctx->codec_type == AVMEDIA_TYPE_VIDEO){
 	                   enum AVPixelFormat pix_fmt;
                        const enum AVPixelFormat pix_fmts[2] = {AV_PIX_FMT_MEDIACODEC,AV_PIX_FMT_NONE};
                        pix_fmt =(AVPixelFormat) av_get_format(avctx, pix_fmts);

@@ -372,7 +372,7 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 	    mfx_ver.Minor = 0;
         mfxSession            mfx_session=0;
 		//Ó²½â
-		mfxIMPL   impl = MFX_IMPL_AUTO_ANY;
+		mfxIMPL   impl = MFX_IMPL_HARDWARE;MFX_IMPL_AUTO_ANY;
 		mfxStatus sts  = MFXInit(impl,&mfx_ver, &mfx_session); 
 		if(sts!= MFX_ERR_NONE){
 			  MFXClose(mfx_session);
@@ -419,7 +419,8 @@ int BindQsvModule(AVCodecContext  *pCodecCtx)
 		    mfxStatus st=MFXVideoUSER_Load( decCtx->mfx_session,&MFX_PLUGINID_HEVCD_SW,1);
 			if(MFX_ERR_NOT_FOUND==st){
 			       st=MFXVideoUSER_Load( decCtx->mfx_session,&MFX_PLUGINID_HEVCD_HW,1);
-			}else if(MFX_ERR_NOT_FOUND==st){
+			}
+			if(MFX_ERR_NOT_FOUND==st){
 
 			   MFXClose(mfx_session);
 			   ::av_free(decCtx->hw_ctx);

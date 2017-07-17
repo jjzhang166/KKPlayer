@@ -735,7 +735,7 @@ static void DxCreateVideoConversion(kk_va_dxva2_t *va)
 {
 	switch (va->render) {
 	case MAKEFOURCC('N','V','1','2'):
-		va->output = (D3DFORMAT)MAKEFOURCC('Y','V','1','2');
+		va->output = (D3DFORMAT) MAKEFOURCC('N','V','1','2');//MAKEFOURCC('Y','V','1','2');
 		break;
 	default:
 		va->output = va->render;
