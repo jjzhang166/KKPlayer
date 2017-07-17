@@ -35,12 +35,19 @@ JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetDecoderMe
 		pKKUI->SetDecoderMethod(method);
 	}
 }
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetSurfaceTexture(JNIEnv * env, jobject instance, jint obj, jobject surface)
+JNIEXPORT jobject JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetSurfaceTexture(JNIEnv * env, jobject instance, jint obj)
 {
 	CAndKKPlayerUI *pKKUI = (CAndKKPlayerUI *)obj;
 	if(pKKUI!=0){
-		//void* xsurface = env->NewGlobalRef(surface);
-		
+		return pKKUI->GetSurfaceTexture();
+	}
+	return 0;
+}
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_OnSurfaceTextureFrameAailable(JNIEnv * env, jobject instance, jint obj)
+{
+	CAndKKPlayerUI *pKKUI = (CAndKKPlayerUI *)obj;
+	if(pKKUI!=0){
+		pKKUI->OnSurfaceTextureFrameAailable();
 	}
 }
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetKeepRatio(JNIEnv *env, jobject instance, jint obj, jint KeepRatio)

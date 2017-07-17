@@ -18,8 +18,12 @@ class GlEs2Render: public IkkRender
 			void  SetKeepRatio(int KeepRatio);
 			
 			jobject  SetSurfaceTexture(JNIEnv *env);
-	private:		
+			jobject  GetSurfaceTexture();
+			void     setFrameAvailable(bool const available);
+	private:
+            ///»ÌΩ‚¬Î”√µƒ	
 			GLuint buildProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
+			GLuint buildProgramSurfaceTexture(const char* vertexShaderSource, const char* fragmentShaderSource);
 			
 			void   GLES2_Renderer_reset();
             void   AVTexCoords_reset();
@@ -62,6 +66,9 @@ class GlEs2Render: public IkkRender
 
         GLuint m_vertexShader;
         GLuint m_fragmentShader;
+		
+	
+		
         GLuint m_plane_textures[3];
         GLint m_us2_sampler[3];
 
@@ -82,10 +89,20 @@ class GlEs2Render: public IkkRender
         int           m_nKeepRatio;
         int           m_nLastKeepRatio;
 		
+		
+		GLuint g_glSurfaceProgram;
+		GLuint m_vertexShaderSurfaceTexture;
+        GLuint m_fragmentShaderSurfaceTexture;
+		GLuint m_textureParamHandle;
+        GLuint m_texturepositionHandle;
+        GLuint m_textureCoordHandle;
+        GLuint m_textureTranformHandle;
+	
 		jmethodID updateTexImageMethodId;
 		jmethodID getTimestampMethodId;
 		jmethodID getTransformMtxId ;
 		jobject  javaSurfaceTextureObj;
-        JNIEnv *m_penv;
+        JNIEnv   *m_penv;
+		bool     m_bfameAvailable;
 };
 #endif

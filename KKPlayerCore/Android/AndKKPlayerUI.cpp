@@ -83,7 +83,29 @@ void CAndKKPlayerUI::SetSurfaceTexture(JNIEnv *env)
 	}
 	m_RenderLock.Unlock();
 
+	 LOGI(" SetSurfaceTexture obj= %d\n",obj);
 	m_player.SetSurfaceTexture(obj);
+}
+
+jobject CAndKKPlayerUI::GetSurfaceTexture()
+{
+	jobject obj=0;
+	m_RenderLock.Lock();
+	if(m_pRender!=NULL){
+	   GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
+	   obj=pRender->GetSurfaceTexture();
+	}
+	m_RenderLock.Unlock();
+	return obj;
+}
+void CAndKKPlayerUI::OnSurfaceTextureFrameAailable()
+{
+	m_RenderLock.Lock();
+	if(m_pRender!=NULL){
+	   GlEs2Render*  pRender =(GlEs2Render* )m_pRender;
+	   pRender-> setFrameAvailable(true);
+	}
+	m_RenderLock.Unlock();
 }
 void CAndKKPlayerUI::SetKeepRatio(int KeepRatio)
 {

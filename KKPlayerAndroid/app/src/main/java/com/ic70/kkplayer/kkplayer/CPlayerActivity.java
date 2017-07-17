@@ -268,8 +268,10 @@ public class CPlayerActivity extends Activity {
         SeekBar SeekBtn=(SeekBar)findViewById(R.id.MovieSeekbar);
         SeekBtn.setOnSeekBarChangeListener(new MediaSeekBarChangeListener(this)); // onStopTrackingTouch
         m_KKPlayer.SetKeepRatio(m_RaType);
-        m_KKPlayer.OpenMedia(MoviePathStr);
+
         m_KKPlayer.SetDecoderMethod(nMediacodec);
+        ///这里有点问题
+        m_KKPlayer.OpenMedia(MoviePathStr,true);
         m_KKPlayer.SetMinRealtimeDelay(m_MinRealtimeDelay);
         m_CurTime=0;
         PlayerStata = EnumPlayerStata.Play;

@@ -54,7 +54,9 @@ JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_IniGl(JNIEnv
 *设置解码方式 0 默认解码， 1 mediacodec 解码
 **/
 JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetDecoderMethod(JNIEnv *env, jobject instance, jint obj, jint method);
-JNIEXPORT jint JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_SetSurfaceTexture(JNIEnv * env, jobject instance, jint obj, jobject surface);
+JNIEXPORT jobject JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_GetSurfaceTexture(JNIEnv * env, jobject instance, jint obj);
+
+JNIEXPORT void JNICALL Java_com_ic70_kkplayer_kkplayer_CJniKKPlayer_OnSurfaceTextureFrameAailable(JNIEnv * env, jobject instance, jint obj);
 /**
 *调整程序区域大小
 */

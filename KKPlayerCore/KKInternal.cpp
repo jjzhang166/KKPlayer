@@ -826,6 +826,8 @@ fail:
     return ret;
 }
 
+//extern
+//int av_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
 //打开流
 int stream_component_open(SKK_VideoState *is, int stream_index)
 {
@@ -941,6 +943,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 			   }
 			   is->IRender->renderUnLock();
 			   
+			   
       #else 
 	           LOGE_KK("kkmediacodec \n"); 
 			   if(is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC){
@@ -961,7 +964,16 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				     AVMediaCodecContext *mc = av_mediacodec_alloc_context();
                      int retx=av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
 					 if(retx==AVERROR_EXTERNAL)
-					   LOGE_KK("mediacodec SurfaceTexture err \n");  
+					   LOGE_KK("mediacodec SurfaceTexture err %d \n",(int)is->SurfaceTexture); 
+
+					   LOGE_KK("mediacodec SurfaceTexture %d \n",(int)is->SurfaceTexture); 
+					   LOGE_KK("mc SurfaceTexture %d \n",(int)mc->surface); 
+
+					   ///pix_fmt = ff_get_format(avctx, pix_fmts); 不知道为啥没有返回 AV_PIX_FMT_MEDIACODEC；，修改一下ffmpeg的源码看看，行不行。
+					char abcd[64]="";
+			snprintf(abcd,64,"%d",AV_PIX_FMT_MEDIACODEC);
+			av_dict_set(&opts, "pixel_format",abcd,0);
+                      
 				   }else{
 				       LOGE_KK("mediacodec no find\n");  
 				   }
@@ -970,25 +982,45 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 			   }
 	      
        #endif
+			   //av_get_format
 	   if(codec==NULL){
+		   
 	        codec = avcodec_find_decoder(avctx->codec_id);
 			is->Hard_Code=SKK_VideoState::HARD_CODE_NONE;
 	   }
 	}
 
-	if(is->Hard_Code!=SKK_VideoState::HARD_CODE_DXVA)
-	if (avctx->codec_type == AVMEDIA_TYPE_VIDEO || avctx->codec_type == AVMEDIA_TYPE_AUDIO)
-        av_dict_set(&opts, "refcounted_frames", "1", 0);
+
+	if (avctx->codec_type == AVMEDIA_TYPE_AUDIO)
+            av_dict_set(&opts, "refcounted_frames", "1", 0);
+	else if(is->Hard_Code==SKK_VideoState::HARD_CODE_DXVA||(is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC&&is->SurfaceTexture!=0)){
+	       LOGE_KK("refcounted_frames  no %d \n",is->Hard_Code ); 
+	}else if (avctx->codec_type == AVMEDIA_TYPE_VIDEO){
+			av_dict_set(&opts, "refcounted_frames", "1", 0);
+			
+	}
+
 	//打开解码器
 	if ((ret = avcodec_open2(avctx, codec, &opts)) < 0) 
 	{
 	
-		if(is->bTraceAV)
+		//if(is->bTraceAV)
 		LOGE_KK("avcodec_open2 %d",avctx->codec_type);  
 		//失败
 		assert(0);
 	}
-  
+	
+ // is->Hard_Code==SKK_VideoState::HARD_CODE_MEDIACODEC &&
+	if(avctx->codec_type == AVMEDIA_TYPE_VIDEO){
+	                   enum AVPixelFormat pix_fmt;
+                       const enum AVPixelFormat pix_fmts[2] = {AV_PIX_FMT_MEDIACODEC,AV_PIX_FMT_NONE};
+                       pix_fmt =(AVPixelFormat) av_get_format(avctx, pix_fmts);
+					   LOGE_KK("mediacodec pix_fmt %d  %d  %d \n",pix_fmt,avctx->codec->pix_fmts, avctx->pix_fmt,avctx->sw_pix_fmt);  
+					   LOGE_KK("codec %s  %d  \n",codec->name);  
+					  // avctx->sw_pix_fmt=AV_PIX_FMT_MEDIACODEC;
+					  //  avctx->pix_fmt
+	}
+
     is->eof = 0;
     ic->streams[stream_index]->discard = AVDISCARD_DEFAULT;
     switch (avctx->codec_type)

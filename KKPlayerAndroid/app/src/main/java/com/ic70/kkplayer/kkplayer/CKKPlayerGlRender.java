@@ -26,6 +26,7 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
     private CkkMediaInfo info= new CkkMediaInfo();
     private String m_url;
     private boolean mUpdateST = false;
+    private boolean m_GlIniAfterOpen = false;
     public CKKPlayerGlRender()
     {
         m_JniKKPlayer = new CJniKKPlayer();
@@ -36,8 +37,46 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
     public void onFrameAvailable(SurfaceTexture surfaceTexture)
     {
 
-
+        if(m_nKKPlayer!=0)
+            m_JniKKPlayer. OnSurfaceTextureFrameAailable(m_nKKPlayer);
         Log.i("xxxx", "onFrameAvailable");
+    }
+    @Override
+    public void onDrawFrame(GL10 gl)
+    {
+        // Log.v("m_nKKPlayer", "="+m_nKKPlayer);
+        if(m_nKKPlayer!=0){
+            m_JniKKPlayer.GlRender(m_nKKPlayer);
+        }
+    }
+    @Override
+    public void onSurfaceChanged(GL10 gl, int width, int height)
+    {
+        mUpdateST = true;
+        if(m_nKKPlayer!=0)
+            m_JniKKPlayer.OnSize(m_nKKPlayer,width,height);
+    }
+    //当窗口被创建时需要调用 onSurfaceCreate ，我们可以在这里对 OpenGL 做一些初始化工作，例如：
+    @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig config)
+    {
+        if(m_nKKPlayer!=0) {
+            String glv = gl.glGetString(GL10.GL_VERSION);
+            ///
+            Log.v("Gl", "Gl Init");
+            int textHandleId = m_JniKKPlayer.IniGl(m_nKKPlayer);
+            m_mediacodecSurfaceTexture= m_JniKKPlayer.GetSurfaceTexture( m_nKKPlayer);
+            if( m_mediacodecSurfaceTexture!=null){
+                m_mediacodecSurfaceTexture.setOnFrameAvailableListener(this);
+            }else{
+                Log.v("Gl", "m_mediacodecSurfaceTexture =0 ");
+            }
+            if(m_GlIniAfterOpen) {
+                    m_GlIniAfterOpen=false;
+                    m_JniKKPlayer.KKCloseMedia(m_nKKPlayer);
+                    m_JniKKPlayer.KKOpenMedia(m_url, m_nKKPlayer);
+            }
+        }
     }
     //暂停
     public void Pause()
@@ -67,17 +106,25 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
             m_JniKKPlayer.SetDecoderMethod(m_nKKPlayer, method);
         }
     }
-    public int OpenMedia(String str)
+    public int OpenMedia(String str, boolean GlIniAfterOpen)
     {
         m_url=str;
         String ll;
         ll=m_nKKPlayer+";";
         Log.v("MoviePath",str);
-        if(m_nKKPlayer!=0) {
-            m_JniKKPlayer.KKCloseMedia(m_nKKPlayer);
-            return m_JniKKPlayer.KKOpenMedia(str,m_nKKPlayer);
+        m_GlIniAfterOpen=GlIniAfterOpen;
+        if(m_GlIniAfterOpen==false) {
+            if (m_nKKPlayer != 0) {
+                m_JniKKPlayer.KKCloseMedia(m_nKKPlayer);
+                return m_JniKKPlayer.KKOpenMedia(str, m_nKKPlayer);
+            }
         }
         return 2;
+    }
+    public int OpenMedia(String str)
+    {
+
+        return OpenMedia( str, false);
     }
     public void SetKeepRatio( int KeepRatio)
     {
@@ -170,38 +217,5 @@ public class CKKPlayerGlRender implements GLSurfaceView.Renderer,SurfaceTexture.
         }
         return 0;
     }
-    @Override
-    public void onDrawFrame(GL10 gl)
-    {
-       // Log.v("m_nKKPlayer", "="+m_nKKPlayer);
-        if(m_nKKPlayer!=0){
-            m_JniKKPlayer.GlRender(m_nKKPlayer);
-        }
-    }
-    @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height)
-    {
-        mUpdateST = true;
-        if(m_nKKPlayer!=0)
-            m_JniKKPlayer.OnSize(m_nKKPlayer,width,height);
-    }
-    //当窗口被创建时需要调用 onSurfaceCreate ，我们可以在这里对 OpenGL 做一些初始化工作，例如：
-    @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config)
-    {
-        if(m_nKKPlayer!=0) {
-            String glv = gl.glGetString(GL10.GL_VERSION);
-            ///
-            Log.v("Gl", "Gl Init");
-            int textHandleId = m_JniKKPlayer.IniGl(m_nKKPlayer);
-            if(textHandleId!=0) {
-              //  m_mediacodecSurfaceTexture = new SurfaceTexture(textHandleId);
-              //  m_mediacodecSurfaceTexture.setOnFrameAvailableListener(this);
-               // GL_BLEND_EQUATION_RGB_OES
-              //  gl.GL_BLEND_EQUATION_RGB_OES
-              //  GLES11Ext
-               // m_JniKKPlayer.SetSurfaceTexture(m_nKKPlayer,m_mediacodecSurfaceTexture);
-            }
-        }
-    }
+
 }

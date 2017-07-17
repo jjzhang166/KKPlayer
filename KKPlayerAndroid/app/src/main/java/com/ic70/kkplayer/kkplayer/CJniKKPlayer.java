@@ -45,7 +45,9 @@ public class CJniKKPlayer {
     //设置解码方式 0 默认解码， 1 mediacodec 解码(只对h264,h265 有效)
     public native void SetDecoderMethod(int obj, int method);
 
-    public native void SetSurfaceTexture(int obj,SurfaceTexture surface);
+    public native SurfaceTexture GetSurfaceTexture(int obj);
+
+    public native void OnSurfaceTextureFrameAailable(int obj);
     /***
      * 尺寸调整
      * @param obj 播放器实例

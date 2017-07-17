@@ -9,8 +9,10 @@
 
 #include "../IKKPlayUI.h"
 #include "../KKPlayer.h"
+
 #ifndef AndKKPlayerUI_H_
 #define AndKKPlayerUI_H_
+#include <jni.h>
 class CAndKKPlayerUI :public  IKKPlayUI
 {
    public:
@@ -22,6 +24,8 @@ class CAndKKPlayerUI :public  IKKPlayUI
 			 void SetKeepRatio(int KeepRatio);
 			 void SetDecoderMethod(int method);
 			 void SetSurfaceTexture(JNIEnv *env);
+			 jobject GetSurfaceTexture();
+			 void OnSurfaceTextureFrameAailable();
              void renderFrame(ANativeWindow* surface);
              int  CloseMedia();
              MEDIA_INFO GetMediaInfo();

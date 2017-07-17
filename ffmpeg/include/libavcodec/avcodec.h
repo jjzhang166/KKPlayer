@@ -6328,5 +6328,6 @@ AVCPBProperties *av_cpb_properties_alloc(size_t *size);
 /**
  * @}
  */
-
+int av_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
+int av_get_buffer(AVCodecContext *avctx, AVFrame *frame, int flags);
 #endif /* AVCODEC_AVCODEC_H */

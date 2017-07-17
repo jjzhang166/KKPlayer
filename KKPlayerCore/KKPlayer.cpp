@@ -78,6 +78,7 @@ int kk_jni_detach_env();
 void  KKPlayer::SetSurfaceTexture(void* surface)
 {
    m_pSurfaceTexture=surface;
+   LOGE_KK("SurfaceTexture= %d \n",(int)surface);  
 }
 #endif
 std::list<KKPluginInfo>  KKPlayer::KKPluginInfoList;
@@ -146,6 +147,14 @@ KKPlayer::KKPlayer(IKKPlayUI* pPlayUI,IKKAudio* pSound):m_pSound(pSound),m_pPlay
 #endif
 	
 
+	  
+	 /*const  AVPixFmtDescriptor *frist=av_pix_fmt_desc_next(NULL);
+     while(frist!=NULL)
+	{
+		
+		LOGE_KK("pfm  %s \n",frist->name);
+		frist=av_pix_fmt_desc_next(frist);
+    }*/
 	
      
 }
@@ -1302,8 +1311,9 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
     pVideoInfo->DstAVff=m_DstAVff;
 	pVideoInfo->IRender=m_pPlayUI->GetRender();
 
-	#ifdef Android_Plat
+	#ifndef _WINDOWS
 			pVideoInfo->SurfaceTexture=m_pSurfaceTexture;
+			LOGE_KK("pVideoInfo->SurfaceTexture= %d \n",(int)m_pSurfaceTexture); 
     #endif
 	
     m_PktSerial=0;
