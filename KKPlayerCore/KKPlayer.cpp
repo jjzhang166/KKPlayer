@@ -549,11 +549,9 @@ unsigned __stdcall  KKPlayer::ReadAV_thread(LPVOID lpParameter)
 	KKPlayer *pPlayer=(KKPlayer *  )lpParameter;
 	pPlayer->m_ReadThreadInfo.ThOver=false;
 	pPlayer->ReadAV();
-	IKKPlayUI* pUI=pPlayer->m_pPlayUI;
-	pPlayer->m_ReadThreadInfo.Addr=0;
+	
 	pPlayer->m_ReadThreadInfo.ThOver=true;
-	if(pUI!=NULL)
-		pUI->AVReadOverThNotify(0);
+    pPlayer->m_ReadThreadInfo.Addr=0;
 	return 1;
 }
 
@@ -1567,7 +1565,7 @@ int KKPlayer::GetAVRate()
  void KKPlayer::ReadAudioCall()
  {
 	 m_AudioCallthreadInfo.ThOver=false;
-	 while(!pVideoInfo->abort_request)
+	 while(pVideoInfo!=NULL&&!pVideoInfo->abort_request)
 	 {
 		 if(pVideoInfo->pKKAudio!=NULL&&pVideoInfo->IsReady&&pVideoInfo->audio_st!=NULL)
 		    pVideoInfo->pKKAudio->ReadAudio();

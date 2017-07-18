@@ -59,7 +59,7 @@ extern "C"{
 	///建议已100ms调用
 	void __declspec(dllexport) RefreshDuiKKPlayer(void* player)
 	{
-		IKKPlayUI  *Player = static_cast<IKKPlayUI  *>(player);
+		IKKPlayUI  *Player = static_cast<CMainFrame  *>(player);
 		 if(Player!=NULL){
 			 Player->AVRender();
 		 }

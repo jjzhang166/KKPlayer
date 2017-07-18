@@ -11,7 +11,10 @@ CSDLSound::CSDLSound():m_pSdlAudio(0),m_Vol(100)
 }
 CSDLSound::~CSDLSound()
 {
-
+  if(m_pSdlAudio){
+	   SDL_CloseAudio(m_pSdlAudio);
+	   m_pSdlAudio=0;
+	}
 }
 void CSDLSound::SetWindowHAND(int m_hwnd)
 {
@@ -63,8 +66,11 @@ int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, 
 {
 
 	
-	if(m_pSdlAudio)
-	SDL_CloseAudio(m_pSdlAudio);
+	if(m_pSdlAudio){
+	   SDL_PauseAudio(m_pSdlAudio,1);
+	   SDL_CloseAudio(m_pSdlAudio);
+	   m_pSdlAudio=0;
+	}
 	/*int wanted_sample_rate=32000;
 	int wanted_nb_channels =2;
 	int wanted_channel_layout =0;*/
@@ -141,6 +147,7 @@ int  CSDLSound::OpenAudio( int &wanted_channel_layout, int &wanted_nb_channels, 
  void CSDLSound::CloseAudio()
  {
      SDL_CloseAudio(m_pSdlAudio);
+	 m_pSdlAudio=0;
  }	
  /*********…Ë÷√“Ù¡ø************/
  void CSDLSound::SetVolume(long value)

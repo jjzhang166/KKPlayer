@@ -825,9 +825,18 @@ fail:
 
     return ret;
 }
+//#ifdef Android_Plat
+static enum AVPixelFormat mediacodec_GetFormat( AVCodecContext *p_context,const enum AVPixelFormat *pi_fmt )
+{
 
-//extern
-//int av_get_format(AVCodecContext *avctx, const enum AVPixelFormat *fmt);
+	for( int i = 0; pi_fmt[i] != AV_PIX_FMT_NONE; i++ )
+	{
+		if( pi_fmt[i] == AV_PIX_FMT_MEDIACODEC )
+			return pi_fmt[i];
+	}
+	return avcodec_default_get_format( p_context, pi_fmt );
+}
+//#endif
 //´ò¿ªÁ÷
 int stream_component_open(SKK_VideoState *is, int stream_index)
 {
@@ -960,7 +969,7 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				   }
 				   
 				   if(codec!=NULL){
-					   
+					 avctx->get_format=mediacodec_GetFormat;
 				     AVMediaCodecContext *mc = av_mediacodec_alloc_context();
 
 					 mc->surface =is->SurfaceTexture;
