@@ -422,7 +422,7 @@ int GlEs2Render::IniGl()
     KK_GLES2_loadOrtho(&modelViewProj, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
     glUniformMatrix4fv(um4_mvp, 1, GL_FALSE, modelViewProj.m);
 	
-   	glUseProgram(0);
+   //	glUseProgram(0);
     ///surfacetexture ×ÅÉ«Æ÷
 	g_glSurfaceProgram=buildProgramSurfaceTexture(GSurfaceVertexShader, GSurfaceFragmentShader);
 	
@@ -533,11 +533,11 @@ void GlEs2Render::GlViewRender(bool ReLoad)
 		 LOGE("g_glProgram=%d m_vertexShader=%d||m_fragmentShader=%d \n", g_glProgram,m_vertexShader,m_fragmentShader);
          return;
 	}
-    if(m_bfameAvailable&&m_penv&&javaSurfaceTextureObj){
+   /* if(m_bfameAvailable&&m_penv&&javaSurfaceTextureObj){
 	  m_penv->CallVoidMethod(javaSurfaceTextureObj, updateTexImageMethodId);
-	}
+	}*/
 	glClear(GL_COLOR_BUFFER_BIT);
-	glUseProgram(g_glProgram);
+	//glUseProgram(g_glProgram);
     if(!m_bAdJust&&m_Picwidth!=0&& m_Picheight!=0||m_nKeepRatio!=m_nLastKeepRatio)
     {
         float width     =m_Picwidth;
@@ -619,7 +619,7 @@ void GlEs2Render::GlViewRender(bool ReLoad)
 	
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     checkGlError("glDrawArrays");
-	glUseProgram(0);
+	//glUseProgram(0);
     if(m_Picwidth==0|| m_Picheight==0)
          return;
    
@@ -690,9 +690,9 @@ void GlEs2Render::render(kkAVPicInfo *Picinfo,bool wait)
    
 						
 	            }else{
-					  glActiveTexture(GL_TEXTURE0) ;
-                      glBindTexture(GL_TEXTURE_EXTERNAL_OES, g_SurfaceTextVId) ;
-					  LOGI("MEDIACODEC  xxxxx \n");
+					  //glActiveTexture(GL_TEXTURE0) ;
+                      //glBindTexture(GL_TEXTURE_EXTERNAL_OES, g_SurfaceTextVId) ;
+					  //LOGI("MEDIACODEC  xxxxx \n");
 				}
     }
 }

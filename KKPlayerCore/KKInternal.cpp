@@ -969,15 +969,15 @@ int stream_component_open(SKK_VideoState *is, int stream_index)
 				   }
 				   
 				   if(codec!=NULL){
-					 avctx->get_format=mediacodec_GetFormat;
+					// avctx->get_format=mediacodec_GetFormat;
 				     AVMediaCodecContext *mc = av_mediacodec_alloc_context();
 
 					 mc->surface =is->SurfaceTexture;
-                     avctx->hwaccel_context = mc;
+                    /* avctx->hwaccel_context = mc;*/
 
-                      /* int retx=av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
+                       int retx=av_mediacodec_default_init(avctx, mc,is->SurfaceTexture);
 					  if(retx==AVERROR_EXTERNAL)
-					   LOGE_KK("mediacodec SurfaceTexture err %d \n",(int)is->SurfaceTexture);*/ 
+					   LOGE_KK("mediacodec SurfaceTexture err %d \n",(int)is->SurfaceTexture); 
 
 					   LOGE_KK("mediacodec SurfaceTexture %d \n",(int)is->SurfaceTexture); 
 					   LOGE_KK("mc SurfaceTexture %d \n",(int)mc->surface); 
