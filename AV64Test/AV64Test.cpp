@@ -144,6 +144,7 @@ void RenderImgCall(kkAVPicRAWInfo* picinfo,void* UserData)
 //  WM_DESTROY	- 发送退出消息并返回
 //
 //
+ CKKPlayer*  pAv=0;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int wmId, wmEvent;
@@ -176,16 +177,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+	case WM_CLOSE:{
+		            pAv->CloseMedia();
+					
+		            delete pAv;
+				 }
 	case  WM_CREATE:
 		{
-		     //  CKKPlayer*  pAv=  new  CKKPlayer();
+		     // 
 
-			
+			  pAv=  new  CKKPlayer();
 			  // RECT rt={0,100,200,300};
 			  // int kstyle=WS_CHILDWINDOW | WS_CLIPCHILDREN| WS_CLIPSIBLINGS|WS_VISIBLE;
 		   //   // HWND hw = pAv->CreateKKPlayer(hWnd,rt,kstyle, 1);
-			  // pAv->CreateDuiRawKKPlayer(hWnd,30,RenderImgCall,0);
-			  //int ii= pAv->OpenMedia("D:/testvideo/ff.mp4");
+			     pAv->CreateDuiRawKKPlayer(hWnd,30,RenderImgCall,0);
+			     int ii= pAv->OpenMedia("D:/testvideo/ff.mp4");
 			  // ::ShowWindow(hw,SW_SHOW);
 		}
 		break;

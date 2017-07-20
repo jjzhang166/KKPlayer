@@ -53,7 +53,7 @@ extern "C"{
 				 }
 		 }else if(*Oput==2){
 		        m_pRender =new  CRenderRaw();
-				m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,1));
+				m_Rendermap.insert(std::pair<IkkRender *,int>(m_pRender,2));
 				*Oput=2;
 		 }
 
