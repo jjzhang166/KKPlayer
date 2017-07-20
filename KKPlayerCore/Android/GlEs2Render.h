@@ -104,5 +104,6 @@ class GlEs2Render: public IkkRender
 		jobject  javaSurfaceTextureObj;
         JNIEnv   *m_penv;
 		bool     m_bfameAvailable;
+		int      m_bAvPicLoaded;
 };
 #endif

@@ -271,7 +271,7 @@ public class CPlayerActivity extends Activity {
 
         m_KKPlayer.SetDecoderMethod(nMediacodec);
         ///这里有点问题
-        m_KKPlayer.OpenMedia(MoviePathStr,true);
+        m_KKPlayer.OpenMedia(MoviePathStr,false);
         m_KKPlayer.SetMinRealtimeDelay(m_MinRealtimeDelay);
         m_CurTime=0;
         PlayerStata = EnumPlayerStata.Play;

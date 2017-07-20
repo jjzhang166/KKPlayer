@@ -147,6 +147,7 @@ GlEs2Render::GlEs2Render(KKPlayer* pPlayer):m_pGLHandle(0),gvPositionHandle(0),m
 ,m_texturepositionHandle(0)
 ,m_textureCoordHandle(0)
 ,m_textureTranformHandle(0)
+,m_bAvPicLoaded(0)
 {
 	
 
@@ -235,6 +236,7 @@ void GlEs2Render::GLES2_Renderer_reset()
 		}
 		if(g_SurfaceTextVId!=0)
 		    glDeleteTextures(1, &g_SurfaceTextVId);
+		m_bAvPicLoaded=0;
    /*   glDeleteTextures(1, &m_textureParamHandle);
 	  m_textureParamHandle=0;
 		
@@ -424,12 +426,12 @@ int GlEs2Render::IniGl()
 	
    //	glUseProgram(0);
     ///surfacetexture ×ÅÉ«Æ÷
-	g_glSurfaceProgram=buildProgramSurfaceTexture(GSurfaceVertexShader, GSurfaceFragmentShader);
+	/*g_glSurfaceProgram=buildProgramSurfaceTexture(GSurfaceVertexShader, GSurfaceFragmentShader);
 	
 	m_textureParamHandle = glGetUniformLocation(g_glSurfaceProgram, "texture");
     m_texturepositionHandle = glGetAttribLocation(g_glSurfaceProgram, "aPosition");
     m_textureCoordHandle = glGetAttribLocation(g_glSurfaceProgram, "aTexCoordinate");
-    m_textureTranformHandle = glGetUniformLocation(g_glSurfaceProgram, "texTransform");
+    m_textureTranformHandle = glGetUniformLocation(g_glSurfaceProgram, "texTransform");*/
    
     return m_pGLHandle;
 }
@@ -609,6 +611,7 @@ void GlEs2Render::GlViewRender(bool ReLoad)
         AVTexCoords_cropRight(0);
         AVTexCoords_reloadVertex(g_av2_texcoord,  m_AVTexcoords);
         m_bAdJust=true;
+		
     }
 
 	if(ReLoad){
@@ -616,7 +619,9 @@ void GlEs2Render::GlViewRender(bool ReLoad)
        m_pPlayer->RenderImage(this, false); 
 	  
 	} 
-	
+	if(m_bAvPicLoaded==0)
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	else
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     checkGlError("glDrawArrays");
 	//glUseProgram(0);
@@ -650,6 +655,7 @@ void GlEs2Render::render(kkAVPicInfo *Picinfo,bool wait)
 	
     if(Picinfo!=NULL&&Picinfo->width!=0&&Picinfo->height!=0)
     {
+		m_bAvPicLoaded=1;
 				if(m_Picheight!= Picinfo->height||m_Picwidth!=Picinfo->width)
 				{
 					m_Picwidth=Picinfo->width;
