@@ -41,16 +41,18 @@ extern "C"
 	//
 	typedef int  (*fKKIRQ)(void *opaque);  //强制中断函数
     typedef void (*fSetNeedWait)(void* PlayerOpaque,bool wait);
+    typedef void (*fPlayerWillClose)(void *opaque); //
 	typedef struct __KKPlugin
 	{
-        void *opaque;                               //用户数据，      插件设置
-		fIo_read_packet kkread;                     //读函数，        插件设置
-		fIo_seek        kkseek;                     //seek函数        插件设置
-		fFlushPlayerQue FlushQue;                   //参数填入 kkirqOpaque,刷新队列函数
-		fCalPlayerDelay CalPlayerDelay;             //外部回调函数，Player填入
-		fGetCacheTime   GetCacheTime;
-		fKKIRQ          kkirq;                      //外部填入,函数。在插件函数内应调用，返回1中断，参数填入kkirqOpaque
-		fSetNeedWait    SetNeedWait;                //播放器填入
+        void *opaque;                                   //用户数据，      插件设置
+        fPlayerWillClose    kkPlayerWillClose;             //播放器将要关闭时调用
+		fIo_read_packet     kkread;                     //读函数，        插件设置
+		fIo_seek            kkseek;                     //seek函数        插件设置
+		fFlushPlayerQue     FlushQue;                   //参数填入 PlayerOpaque,刷新队列函数
+		fCalPlayerDelay     CalPlayerDelay;             //外部回调函数，Player填入
+		fGetCacheTime       GetCacheTime;
+		fKKIRQ              kkirq;                      //外部填入,函数。在插件函数内应调用，返回1中断，参数填入PlayerOpaque
+		fSetNeedWait        SetNeedWait;                //播放器填入
         void  *PlayerOpaque;                        //播放器环境
 		char  *URL;                                 //去掉协议头的地址
 		int   RealTime;                             //1为实时，否则应为0

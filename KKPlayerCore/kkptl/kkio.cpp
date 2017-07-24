@@ -74,3 +74,13 @@ void FreeKKIo(SKK_VideoState *kkAV)
 
 	::av_free(io);
 }
+
+void WillCloseKKIo(SKK_VideoState *kkAV)
+{
+	AVIOContext *io=kkAV->pFormatCtx->pb;
+    KKPlugin* pKKP=(KKPlugin*)io->opaque;
+	if(pKKP->kkPlayerWillClose!=0)
+	{
+		pKKP->kkPlayerWillClose(pKKP->opaque);
+	}
+}

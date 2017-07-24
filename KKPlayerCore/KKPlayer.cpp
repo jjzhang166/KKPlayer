@@ -163,7 +163,7 @@ KKPlayer::~KKPlayer(void)
 
 }
 void FreeKKIo(SKK_VideoState *kkAV);
-
+void WillCloseKKIo(SKK_VideoState *kkAV);
 void KKPlayer::CloseMedia()
 {
 	m_AVInfoLock.Lock();
@@ -210,6 +210,11 @@ void KKPlayer::CloseMedia()
 		return;
 	}
    
+	if(pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
+	{
+		WillCloseKKIo(pVideoInfo);
+	}
+
 	m_PlayerLock.Unlock();
 	while(1)
 	{

@@ -18,7 +18,7 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
 	  }
 	 
 	  RTMP_SetBufferMS(rtmp, 1);
-	  rtmp->Link.timeout = 5;
+	  rtmp->Link.timeout = 10;
       rtmp->Link.lFlags |= RTMP_LF_LIVE;
 	  //plu->kkirq
       if(!RTMP_Connect(rtmp,NULL)){  
@@ -48,6 +48,17 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
   
    return nRead;
 }
+
+static void libPlayerWillClose(void *opaque)
+{
+	if(opaque!=0){
+		 RTMP *rtmp= (RTMP *)opaque;
+		 if(!RTMP_ConnectStream(rtmp,0)){ 
+			
+			RTMP_Close(rtmp);
+		 }
+	}
+}
 void DellibRtmpPlugin(KKPlugin* p)
 {
 	RTMP *rtmp= (RTMP *)p->opaque;
@@ -64,6 +75,7 @@ extern "C"{
 			memset(librtmp_plugin,0,sizeof(KKPlugin));
             librtmp_plugin->RealTime=1;
 			librtmp_plugin->kkread=librtmp_read_packet;
+			librtmp_plugin->kkPlayerWillClose=libPlayerWillClose;
 			return  librtmp_plugin;
 		}
 };
