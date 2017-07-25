@@ -53,7 +53,7 @@ static void libPlayerWillClose(void *opaque)
 {
 	if(opaque!=0){
 		 RTMP *rtmp= (RTMP *)opaque;
-		 if(!RTMP_ConnectStream(rtmp,0)){ 
+		 if(RTMP_ConnectStream(rtmp,0)){ 
 			
 			RTMP_Close(rtmp);
 		 }
