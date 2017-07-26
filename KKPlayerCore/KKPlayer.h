@@ -168,6 +168,7 @@ private:
 			//播放器锁
 	        CKKLock                         m_PlayerLock;
             
+			///进度信息指示
 			CKKLock                         m_AVInfoLock;
 			///指示是否有分片
 			int                             m_AvIsSeg;

@@ -4188,13 +4188,13 @@ CloseInternal(RTMP *r, int reconnect)
   r->m_channelTimestamp = NULL;
   r->m_channelsAllocatedIn = 0;
   for (i = 0; i < r->m_channelsAllocatedOut; i++)
-    {
+  {
       if (r->m_vecChannelsOut[i])
-	{
-	  free(r->m_vecChannelsOut[i]);
-	  r->m_vecChannelsOut[i] = NULL;
-	}
-    }
+		{
+		  free(r->m_vecChannelsOut[i]);
+		  r->m_vecChannelsOut[i] = NULL;
+		}
+  }
   free(r->m_vecChannelsOut);
   r->m_vecChannelsOut = NULL;
   r->m_channelsAllocatedOut = 0;

@@ -171,13 +171,13 @@ void KKPlayer::CloseMedia()
 	{
 	    pVideoInfo->abort_request=1;
 	}
-	m_AVInfoLock.Unlock();
-	m_PlayerLock.Lock();
+	
+	
 	while(m_nPreFile==1)
 	{
-		m_PlayerLock.Unlock();
+		m_AVInfoLock.Unlock();
 		Sleep(10);
-		m_PlayerLock.Lock();
+		m_AVInfoLock.Lock();
 		LOGE_KK(" xx\n");
 	}
 	
@@ -186,15 +186,24 @@ void KKPlayer::CloseMedia()
 		pVideoInfo->abort_request=1;
 	}
 
+	int pllx=1;
 	while(m_nPreFile==2)
 	{
-		m_PlayerLock.Unlock();
-		Sleep(10);
-		m_PlayerLock.Lock();
+		m_AVInfoLock.Unlock();
+		if(pllx&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
+		{
+				WillCloseKKIo(pVideoInfo);
+				pllx=0;
+		}
+		Sleep(20);
+		m_AVInfoLock.Lock();
 		LOGE_KK(" xx2\n");
-       
 	}
 	m_nPreFile=0;
+    m_AVInfoLock.Unlock();
+
+
+	m_PlayerLock.Lock();
 	if(!m_bOpen)
 	{
 		m_PlayerLock.Unlock();
@@ -210,9 +219,10 @@ void KKPlayer::CloseMedia()
 		return;
 	}
    
-	if(pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
+	if(pllx&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
 	{
-		WillCloseKKIo(pVideoInfo);
+			WillCloseKKIo(pVideoInfo);
+			pllx=0;
 	}
 
 	m_PlayerLock.Unlock();
@@ -1920,8 +1930,9 @@ void KKPlayer::ReadAV()
 	    pFormatCtx->pb=CreateKKIo(pVideoInfo);
         pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
     }
+	m_AVInfoLock.Lock();
 	m_nPreFile=2;
-	
+	m_AVInfoLock.Unlock();
 	
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
         //rtmp ²»Ö§³Ö timeout
@@ -1948,8 +1959,11 @@ void KKPlayer::ReadAV()
 	}
 	
 	LOGE_KK("avformat_open_input=%d,%s \n",err,pVideoInfo->filename);
+	m_AVInfoLock.Lock();
 	m_nPreFile=3;
-	if(!m_bOpen||pVideoInfo->abort_request==1){
+	m_AVInfoLock.Unlock();
+
+	if(pVideoInfo->abort_request==1){
 
 		if(pFormatCtx!=NULL)
 		   avformat_free_context(pFormatCtx);

@@ -10,6 +10,7 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
       RTMP_Init(rtmp);
 	  rtmp->kkirq=plu->kkirq;
 	  rtmp->player=plu->PlayerOpaque;
+	 
 	  char url[2048]="rtmp://live.hkstv.hk.lxdns.com/live/hks";
 	  strcpy(url,plu->URL);
 	  if(!RTMP_SetupURL(rtmp,url))  
@@ -18,7 +19,8 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
 	  }
 	 
 	  RTMP_SetBufferMS(rtmp, 1);
-	  rtmp->Link.timeout = 10;
+	  rtmp->Link.timeout = 30; 
+	  rtmp->m_nBufferMS=500;
       rtmp->Link.lFlags |= RTMP_LF_LIVE;
 	  //plu->kkirq
       if(!RTMP_Connect(rtmp,NULL)){  
@@ -32,6 +34,8 @@ static int librtmp_read_packet(void *opaque, uint8_t *buf, int buf_size)
         RTMP_Free(rtmp);  
         return KK_AVERROR(EAGAIN);  
       }  
+	/*  RTMP_Close(rtmp);  
+	  RTMP_Close(rtmp);  */
 	  plu->opaque=rtmp;
   }
 
@@ -53,16 +57,19 @@ static void libPlayerWillClose(void *opaque)
 {
 	if(opaque!=0){
 		 RTMP *rtmp= (RTMP *)opaque;
-		 if(RTMP_ConnectStream(rtmp,0)){ 
-			
-			RTMP_Close(rtmp);
+		 if(rtmp!=0)
+		 {
+		   RTMPSockBuf_Close(&rtmp->m_sb);
+		   rtmp->m_sb.sb_socket = -1;
 		 }
 	}
 }
 void DellibRtmpPlugin(KKPlugin* p)
 {
 	RTMP *rtmp= (RTMP *)p->opaque;
-	RTMP_Close(rtmp);  
+	 if(RTMP_ConnectStream(rtmp,0)){ 
+	    RTMP_Close(rtmp); 
+	 }
     RTMP_Free(rtmp);
 	::free(p);
 }
