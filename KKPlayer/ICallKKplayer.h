@@ -26,7 +26,7 @@ public:
 		virtual void         SetVolume(long value,bool tip=true)=0;
 		virtual long         GetVolume()=0;
 		virtual void         AvSeek(int value)=0;
-		virtual int          OpenMedia(std::string url)=0;
+		virtual int          OpenMedia(std::string url,std::string cmd)=0;
 		virtual int          DownMedia(char *KKVURL,bool Down=true)=0;
 		virtual void         CloseMedia()=0;
 		//х╚фа

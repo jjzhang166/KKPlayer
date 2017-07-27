@@ -23,7 +23,7 @@ static int lowres = 0;
 static int64_t sws_flags = SWS_BICUBIC;
 static int av_sync_type =AV_SYNC_AUDIO_MASTER;//AV_SYNC_EXTERNAL_CLOCK;//AV_SYNC_AUDIO_MASTER;//AV_SYNC_VIDEO_MASTER;// AV_SYNC_AUDIO_MASTER;
 double rdftspeed = 0.02;
-
+char**  KKCommandLineToArgv(const char* CmdLine,int* _argc);
 //extern AVPixelFormat DstAVff;//=AV_PIX_FMT_YUV420P;//AV_PIX_FMT_BGRA;
 //解码成BGRA格式
 void KKPlayer::SetBGRA()
@@ -1257,7 +1257,7 @@ int KKPlayer::GetRealtime()
 
 
 //返回 1 流媒体
-int is_realtime2(char *name)
+int is_realtime2(const char *name)
 {
 	if(   !strcmp(name, "rtp")    || 
 		!strcmp(name, "rtsp")   || 
@@ -1292,7 +1292,7 @@ void KKPlayer::SetRender(bool bRender)
 {
     m_bRender=bRender;
 }
-int KKPlayer::OpenMedia(char* URL,char* Other)
+int KKPlayer::OpenMedia(const char* URL,const char* Other)
 {
 	if(strlen(URL)>2047)
 	{
@@ -1316,7 +1316,7 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	m_CacheAvCounter=0;
 	
 	pVideoInfo = (SKK_VideoState*)KK_Malloc_(sizeof(SKK_VideoState));
-	
+	m_strcmd=Other;
 
 	pVideoInfo->nMaxRealtimeDelay=32000;//单位s
 	pVideoInfo->pKKPluginInfo=(KKPluginInfo *)KK_Malloc_(sizeof(KKPluginInfo));
@@ -1452,8 +1452,8 @@ int KKPlayer::OpenMedia(char* URL,char* Other)
 	m_AVCacheInfo.VideoSize=0;
 
 
-	if(strcmp(Other,"-pause")==0)
-		pVideoInfo->paused=1;
+	/*if(strcmp(Other,"-pause")==0)
+		pVideoInfo->paused=1;*/
 
 	m_PlayerLock.Unlock();
 	LOGE_KK("创建线程结束\n");
@@ -1937,11 +1937,32 @@ void KKPlayer::ReadAV()
 	if(!strncmp(pVideoInfo->filename, "rtmp:",5)){
         //rtmp 不支持 timeout
 		av_dict_set(&format_opts, "rw_timeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
+		av_dict_set(&format_opts, "fflags", "-nobuffer ", 0);
 	}else if(!strncmp(pVideoInfo->filename, "rtsp:",5)){
 		av_dict_set(&format_opts, "rtsp_transport", "tcp", AV_DICT_MATCH_CASE);
         av_dict_set(&format_opts, "stimeout", MaxTimeOutStr, AV_DICT_MATCH_CASE);
 	}
-	
+	///命令行选项
+	if(m_strcmd.length()>1)
+	{
+	     char   **argv = NULL;
+	     int argc=0;
+		 argv =KKCommandLineToArgv(m_strcmd.c_str(), &argc);
+		 for (int i = 0; i < argc; i++)
+		 {
+			    char* cmd=argv[i];
+				if(0==strcmp(cmd,"-fflags"))
+				{
+					if (++i < argc){
+					   cmd=argv[i];
+					   av_dict_set(&format_opts, "fflags", cmd, 0);
+					}
+				}
+		 }
+		 free(argv);
+	}
+
+	//av_dict_set(&format_opts, "fflags", "-nobuffer", 0);
 	pVideoInfo->OpenTime= av_gettime ()/1000/1000;
 	double Opex=0;
 
@@ -1965,6 +1986,7 @@ void KKPlayer::ReadAV()
 
 	if(pVideoInfo->abort_request==1){
 
+		av_dict_free(&format_opts);
 		if(pFormatCtx!=NULL)
 		   avformat_free_context(pFormatCtx);
 		pVideoInfo->pFormatCtx = NULL;

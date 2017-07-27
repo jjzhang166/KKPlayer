@@ -80,7 +80,7 @@ void WindowsLOGE(const char* format,...)
 #endif
 #endif
 
-char**  KKCommandLineToArgv(char* CmdLine,int* _argc)
+char**  KKCommandLineToArgv(const char* CmdLine,int* _argc)
 {
         char** argv;
         char*  _argv;

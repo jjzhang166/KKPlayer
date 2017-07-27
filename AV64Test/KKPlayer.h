@@ -16,7 +16,7 @@ typedef  void (*fpKKDuiOnSize)(void* player,int w,int h);
 typedef  void *(*fpCreateDuiKKPlayer)(HWND hAudio,fpRenderImgCall fp,void* UserData);
 ///返回指定格式的数据，视频图片大小不变
 typedef  void *(*fpCreateDuiRawKKPlayer)(HWND hAudio,fpRenderImgCall fp,void *RenderUserData,int imgType);
-typedef  int  (*fpKKOpenMedia)    (void* player,const char* url);
+typedef  int  (*fpKKOpenMedia)    (void* player,const char* url,const char* cmd);
 typedef  void (*fpKKCloseMedia)   (void* player);
 typedef  void (*fpSetKKVolume)    (void* player,int volume,bool tip);
 typedef  void (*fpKKDelPlayer)    (void* player,bool dui);

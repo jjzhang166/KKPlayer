@@ -71,5 +71,5 @@
 	
 	//unsigned int _beginthreadex(void * _Security,unsigned _StackSize,unsigned (__stdcall * _StartAddress) (void *),void * _ArgList, unsigned _InitFlag,unsigned * _ThrdAddr);
 #endif
-		char**  KKCommandLineToArgv(char* CmdLine,int* _argc);
+		char**  KKCommandLineToArgv(const char* CmdLine,int* _argc);
 #endif

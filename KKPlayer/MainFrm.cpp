@@ -377,7 +377,7 @@ int               CMainFrame::DownMedia(char *KKVURL,bool Down)
 	
     return -1;
 }
-int               CMainFrame::OpenMedia(std::string url)
+int               CMainFrame::OpenMedia(std::string url,std::string cmd)
 {
 	 if(!m_pPlayerInstance)
 		return -2;
@@ -445,7 +445,7 @@ int               CMainFrame::OpenMedia(std::string url)
 
 	
 	
-	ret=m_pPlayerInstance->OpenMedia((char*)url.c_str());//,"-pause");
+	 ret=m_pPlayerInstance->OpenMedia((char*)url.c_str(),cmd.c_str());//,"-pause");
 	if(ret>=0){
          m_bOpen=true;
 		/* char abcd[1024]="";

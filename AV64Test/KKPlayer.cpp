@@ -128,7 +128,7 @@ void CKKPlayer::SetAVPlayerNotify(IAVPlayerNotify* nty)
 int  CKKPlayer::OpenMedia(std::string url)
 {
 	if(m_pPlayerh!=NULL){
-	    return m_FnOpenMedia(m_pPlayerh,url.c_str());
+	    return m_FnOpenMedia(m_pPlayerh,url.c_str(),"");
 	}
 	return -1;
 }

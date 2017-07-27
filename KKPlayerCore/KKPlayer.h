@@ -39,7 +39,7 @@ class KKPlayer
 			///设置是否呈现
 			void          SetRender(bool bRender);
 			/*********打开媒体.成功返回0，失败返回-1.************/
-			int           OpenMedia(char* URL,char* Other=""); 
+			int           OpenMedia(const char* URL,const char* Other=""); 
 			
 			/*********关闭播放器*********/
 			void          CloseMedia(); 
@@ -152,6 +152,8 @@ private:
 	        //插件信息
 	        static std::list<KKPluginInfo>  KKPluginInfoList;
 
+			///命令行选项
+			std::string                     m_strcmd;
 			
 			//缓存信息
 			AVCACHE_INFO                    m_AVCacheInfo;

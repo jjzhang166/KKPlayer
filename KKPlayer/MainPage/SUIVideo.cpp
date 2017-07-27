@@ -233,21 +233,23 @@ namespace SOUI
 		 CHistoryInfoMgr *InfoMgr=CHistoryInfoMgr::GetInance();
 		 int UseLibRtmp=InfoMgr->GetUseLibRtmp();
 		 bool NeedDelay=false;
+		 std::string strcmd="";
 		 if(UseLibRtmp){
 	            if( !strncmp(str, "rtmp:",5))
 				{
 					avpathstr="librtmp:";
 					avpathstr+=	str;
 					NeedDelay=true;
+					strcmd="-fflags nobuffer";
 				}
 		 }
 
-		 m_nPlayerState= m_pIKKplayer->OpenMedia(avpathstr.c_str());
+		 m_nPlayerState= m_pIKKplayer->OpenMedia(avpathstr.c_str(),strcmd);
 		 if(m_nPlayerState==-1)
 		 {
 			 SaveSnapshoot();
 			 m_pIKKplayer->CloseMedia();
-			 m_nPlayerState= m_pIKKplayer->OpenMedia(str);
+			 m_nPlayerState= m_pIKKplayer->OpenMedia(str,strcmd);
 			 if(m_nPlayerState<0)
 				 return m_nPlayerState;
 		 }

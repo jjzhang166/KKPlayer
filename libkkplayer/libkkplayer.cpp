@@ -89,16 +89,17 @@ extern "C"{
 			Player->SetMaxRealtimeDelay(Delay);
 		}
    }
-   int __declspec(dllexport) KKOpenMedia(void* player,const char* url)
+   int __declspec(dllexport) KKOpenMedia(void* player,const char* url,const char* cmd)
    {
 	   
          CMainFrame *Player = static_cast<CMainFrame *>(player);
 		 if(Player!=NULL)
 		 {
-	             return	 Player->OpenMedia(url);
+	             return	 Player->OpenMedia(url,cmd);
 		 }
 		 return -2;
    }
+   
    void __declspec(dllexport) KKCloseMedia(void* player)
    {
           CMainFrame *Player = static_cast<CMainFrame *>(player);

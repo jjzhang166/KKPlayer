@@ -94,7 +94,7 @@ public:
 	void         SetVolume(long value,bool tip=true);
 	long         GetVolume();
 	void         AvSeek(int value);
-    int          OpenMedia(std::string url);
+    int          OpenMedia(std::string url,std::string cmd);
 	int          DownMedia(char *KKVURL,bool Down=true);
     void         CloseMedia();
 	//х╚фа
