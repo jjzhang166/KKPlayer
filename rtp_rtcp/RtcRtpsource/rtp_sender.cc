@@ -11,7 +11,6 @@
 #include "rtp_sender.h"
 
 #include <stdlib.h>  // srand
-
 #include "rtp_sender_audio.h"
 #include "rtp_sender_video.h"
 #include "../system_wrappers/interface/critical_section_wrapper.h"
@@ -228,7 +227,7 @@ bool RTPSender::GetSendSideDelay(int* avg_send_delay_ms,
     return false;
   int num_delays = 0;
   for (; it != send_delays_.end(); ++it) {
-    *max_send_delay_ms = std::max(*max_send_delay_ms, it->second);
+    *max_send_delay_ms = (std::max)(*max_send_delay_ms, it->second);
     *avg_send_delay_ms += it->second;
     ++num_delays;
   }

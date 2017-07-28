@@ -8,13 +8,13 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/pacing/bitrate_prober.h"
+#include "bitrate_prober.h"
 
 #include <assert.h>
 #include <limits>
 #include <sstream>
 
-#include "webrtc/system_wrappers/interface/logging.h"
+#include "../../system_wrappers/interface/logging.h"
 
 namespace webrtc {
 

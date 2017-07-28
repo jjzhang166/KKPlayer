@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "webrtc/modules/pacing/include/paced_sender.h"
+#include "include/paced_sender.h"
 
 #include <assert.h>
 
@@ -16,13 +16,13 @@
 #include <queue>
 #include <set>
 
-#include "webrtc/modules/interface/module_common_types.h"
-#include "webrtc/modules/pacing/bitrate_prober.h"
-#include "webrtc/system_wrappers/interface/clock.h"
-#include "webrtc/system_wrappers/interface/critical_section_wrapper.h"
-#include "webrtc/system_wrappers/interface/field_trial.h"
-#include "webrtc/system_wrappers/interface/logging.h"
-#include "webrtc/system_wrappers/interface/trace_event.h"
+#include "../../module_common_types.h"
+#include "bitrate_prober.h"
+#include "../../system_wrappers/interface/clock.h"
+#include "../../system_wrappers/interface/critical_section_wrapper.h"
+#include "../../system_wrappers/interface/field_trial.h"
+#include "../../system_wrappers/interface/logging.h"
+#include "../../system_wrappers/interface/trace_event.h"
 
 namespace {
 // Time limit in milliseconds between packet bursts.
