@@ -190,14 +190,14 @@ void KKPlayer::CloseMedia()
 	while(m_nPreFile==2)
 	{
 		m_AVInfoLock.Unlock();
-		if(pllx&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
+		if(pllx&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->ioflags==AVFMT_FLAG_CUSTOM_IO)
 		{
 				WillCloseKKIo(pVideoInfo);
 				pllx=0;
 		}
 		Sleep(20);
 		m_AVInfoLock.Lock();
-		LOGE_KK(" xx2\n");
+		LOGE_KK("m_nPreFile=%d xx2\n",m_nPreFile);
 	}
 	m_nPreFile=0;
     m_AVInfoLock.Unlock();
@@ -219,7 +219,7 @@ void KKPlayer::CloseMedia()
 		return;
 	}
    
-	if(pllx&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
+	if(pllx&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->ioflags==AVFMT_FLAG_CUSTOM_IO)
 	{
 			WillCloseKKIo(pVideoInfo);
 			pllx=0;
@@ -411,7 +411,7 @@ void KKPlayer::CloseMedia()
 	   LOGE_KK("avcodec_close(avcodec_free_context(&pVideoInfo->viddec.avctx) OK \n");
 	}
 
-	if(pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags==AVFMT_FLAG_CUSTOM_IO)
+	if(pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->ioflags==AVFMT_FLAG_CUSTOM_IO)
 	{
 		FreeKKIo(pVideoInfo);
 		pVideoInfo->pFormatCtx->pb=NULL;
@@ -541,7 +541,7 @@ bool KKPlayer::GetMediaInfo(MEDIA_INFO &info)
 	}
 	
 	///自定义Io
-	if(pVideoInfo!=NULL&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->pFormatCtx->flags == AVFMT_FLAG_CUSTOM_IO){
+	if(pVideoInfo!=NULL&&pVideoInfo->pFormatCtx!=NULL&&pVideoInfo->ioflags == AVFMT_FLAG_CUSTOM_IO){
 	     if(pVideoInfo->pKKPluginInfo!=NULL&&pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo!=NULL){
 			 char infostr[1024]="";
 			 pVideoInfo->pKKPluginInfo->KKDownAVFileSpeedInfo(pVideoInfo->filename,infostr,1024);
@@ -1672,11 +1672,12 @@ bool  KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
 		scan_all_pmts_set = 1;
 	}
 	
-	
+	int Segioflags=0;
 	if(KKProtocolAnalyze(filename,*pVideoInfo->pKKPluginInfo)==1)
 	{	
 	    pFormatCtx->pb=CreateKKIo(pVideoInfo);
         pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
+		Segioflags= AVFMT_FLAG_CUSTOM_IO;
     }
 
 
@@ -1762,6 +1763,7 @@ bool  KKPlayer::OpenInputSegAV(const char *url,short segid,bool flush)
 	}
     pVideoInfo->eof=0;
 	pVideoInfo->pSegFormatCtx=pFormatCtx;
+	pVideoInfo->Segioflags=Segioflags;
 	return true;
 }
 
@@ -1929,7 +1931,10 @@ void KKPlayer::ReadAV()
 	if(KKProtocolAnalyze(pVideoInfo->filename,*pVideoInfo->pKKPluginInfo)==1){	
 	    pFormatCtx->pb=CreateKKIo(pVideoInfo);
         pFormatCtx->flags = AVFMT_FLAG_CUSTOM_IO;
+		pVideoInfo->ioflags= AVFMT_FLAG_CUSTOM_IO;
     }
+
+	int lxx=128&~128;
 	m_AVInfoLock.Lock();
 	m_nPreFile=2;
 	m_AVInfoLock.Unlock();
@@ -2214,7 +2219,7 @@ void KKPlayer::ReadAV()
 				// LOGE_KK("catch full");
 				 av_usleep(5000);;//等待一会
 				 countxx++;
-				 if(pFormatCtx->flags == AVFMT_FLAG_CUSTOM_IO&&pVideoInfo->pKKPluginInfo!=NULL&&countxx%200==0){
+				 if(pVideoInfo->ioflags == AVFMT_FLAG_CUSTOM_IO&&pVideoInfo->pKKPluginInfo!=NULL&&countxx%200==0){
 					AVIOContext *KKIO=pFormatCtx->pb;
 					if(KKIO!=NULL){
                          KKPlugin* kk= (KKPlugin*)KKIO->opaque;

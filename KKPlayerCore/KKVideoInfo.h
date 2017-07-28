@@ -180,6 +180,7 @@ typedef struct SKK_Decoder
 typedef struct SKK_VideoState 
 {
 	
+	int ioflags;
     AVPixelFormat DstAVff;                            //解码后的图像格式
 	int redisplay;
 	int decoder_reorder_pts;
@@ -214,6 +215,7 @@ typedef struct SKK_VideoState
 	//CKKLock*         SegLock;
 	//发送seg切换后使用
 	AVFormatContext *pSegFormatCtx;
+	int              Segioflags;
 	///音频 0x001,视频0x010,字幕0x100
     int              SegStreamState;
 	///              指示是否为实时流媒体
